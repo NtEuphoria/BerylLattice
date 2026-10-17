@@ -1,0 +1,12 @@
+{
+  "red-lifecycle.log.gz": {
+    "uncompressed_sha256": "484abfdae1fd594849fdc7056fba38e95b3cff781edbdc371023ca965b155ed7",
+    "uncompressed_bytes": 5163,
+    "reason": "Preserves exact unittest subtest output, including trailing spaces, without text patch whitespace errors."
+  },
+  "red-regressions.log.gz": {
+    "uncompressed_sha256": "4757321bc9ead6fdd744d173e230cca8c180b6513ecdd4a938e42aedc150e670",
+    "uncompressed_bytes": 2881,
+    "reason": "Preserves exact unittest subtest output, including trailing spaces, without text patch whitespace errors."
+  }
+}

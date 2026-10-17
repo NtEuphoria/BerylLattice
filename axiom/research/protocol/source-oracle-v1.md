@@ -415,6 +415,14 @@ A fresh process must execute source verification again.
 and supports context management. Parent close invalidates children. Failed
 cleanup is reported, retains its conservative storage debt, and blocks a new
 session until owned cleanup succeeds; retrying close grants no authority.
+Cleanup paths and closed state come from private issuer records bound to the
+exact handle object, never from caller-writable handle fields. Closed retries
+use the original nonblocking session guard; live child authority is rechecked
+after acquiring it. Parent closure transfers failed child cleanup to the parent
+and coalesces descendant paths beneath owned cleanup roots. Successful removal
+retires those path claims and their storage debt exactly once. External producer
+debts remain retryable even after scratch cleanup succeeds. Closed-handle records
+use weak references and retain no verification authority.
 Absent owned paths are harmless. No fallible validation follows issuer-table
 commit. Cancellation, timeouts, resource/I/O/allocation failures, state mismatches
 or late mutations leave no newly issued handle or published partial receipt.

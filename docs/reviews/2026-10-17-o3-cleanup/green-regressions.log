@@ -1,0 +1,11 @@
+test_forged_closed_handles_cannot_delete_caller_paths (tests.test_oracle_receipts.QualificationBoundaryTests.test_forged_closed_handles_cannot_delete_caller_paths) ... ok
+test_parent_cleanup_retires_closed_child_cleanup_paths (tests.test_oracle_receipts.SelectedQualificationTests.test_parent_cleanup_retires_closed_child_cleanup_paths) ... ok
+test_issued_handle_fields_cannot_redirect_cleanup (tests.test_oracle_receipts.SelectedQualificationTests.test_issued_handle_fields_cannot_redirect_cleanup) ... ok
+test_parent_transfers_child_debt_before_external_cleanup_retry (tests.test_oracle_receipts.SelectedQualificationTests.test_parent_transfers_child_debt_before_external_cleanup_retry) ... ok
+test_closed_child_retry_obeys_active_session_guard (tests.test_oracle_receipts.SelectedQualificationTests.test_closed_child_retry_obeys_active_session_guard) ... ok
+test_closed_parent_retries_are_serialized (tests.test_oracle_receipts.SelectedQualificationTests.test_closed_parent_retries_are_serialized) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 11.516s
+
+OK

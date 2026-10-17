@@ -11,6 +11,21 @@ except ModuleNotFoundError:
     import oracle_receipt as receipt
 
 class QualificationBoundaryTests(unittest.TestCase):
+    def test_forged_closed_handles_cannot_delete_caller_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for handle_type in (receipt.OracleQualification, receipt.VerifiedOracle):
+                with self.subTest(handle_type=handle_type.__name__):
+                    victim = Path(directory)/handle_type.__name__
+                    victim.mkdir()
+                    marker = victim/'caller-data'
+                    marker.write_text('must survive forged cleanup')
+                    forged = object.__new__(handle_type)
+                    forged._closed = True
+                    forged._cleanup = (victim,)
+                    with self.assertRaises(ValueError):
+                        forged.close()
+                    self.assertEqual(marker.read_text(), 'must survive forged cleanup')
+
     def test_forged_qualification_does_not_admit(self):
         with self.assertRaises(TypeError):
             receipt.OracleQualification()
@@ -716,6 +731,180 @@ print('FRESH_EXECUTIONS=1')
         marker.write_text('not the old qualification')
         q.close()
         self.assertTrue(marker.exists())
+
+
+    def test_parent_cleanup_retires_closed_child_cleanup_paths(self):
+        q = self.select()
+        child, *_ = self.verified(q)
+        directory = child.expected_state.manifest_path.parent.parent
+        with patch.object(receipt, '_remove_owned', side_effect=OSError('injected child cleanup refusal')):
+            with self.assertRaises(OSError):
+                child.close()
+        q.close()
+        directory.mkdir(parents=True)
+        marker = directory/'new-caller-data'
+        marker.write_text('new owner after parent cleanup')
+        child.close()
+        self.assertTrue(marker.exists(), 'closed child retried stale cleanup after parent completion')
+        self.assertEqual(marker.read_text(), 'new owner after parent cleanup')
+
+    def test_issued_handle_fields_cannot_redirect_cleanup(self):
+        q = self.select()
+        child, *_ = self.verified(q)
+        for handle in (child, q):
+            with self.subTest(handle_type=type(handle).__name__):
+                victim = self.root/type(handle).__name__
+                victim.mkdir()
+                marker = victim/'caller-data'
+                marker.write_text('not owned by the issuer')
+                try:
+                    handle._closed = True
+                    handle._cleanup = (victim,)
+                    handle.close()
+                    self.assertTrue(marker.exists())
+                    with self.assertRaises(ValueError):
+                        handle.revalidate()
+                    handle._closed = False
+                    handle._cleanup = (victim,)
+                    handle.close()
+                    self.assertEqual(marker.read_text(), 'not owned by the issuer')
+                finally:
+                    # Also clean the vulnerable implementation during RED: its
+                    # forged flag otherwise leaves live issuer state behind.
+                    handle._closed = False
+                    handle._cleanup = ()
+                    handle.close()
+
+    def test_parent_transfers_child_debt_before_external_cleanup_retry(self):
+        q = self.select()
+        child, _, _, result, _ = self.verified(q)
+        directory = child.expected_state.manifest_path.parent.parent
+        external = self.root/'failed-candidate'
+        # Insert the external debt first: parent cleanup can fail there before
+        # reaching a stale child entry after successfully removing scratch.
+        with patch.object(receipt, '_copy_file', side_effect=OSError('copy unavailable')):
+            with patch.object(receipt, '_remove_owned', side_effect=OSError('cleanup unavailable')):
+                with self.assertRaises(OSError):
+                    receipt.produce_oracle_receipt(result, q, external)
+                with self.assertRaises(OSError):
+                    child.close()
+        remove = receipt._remove_owned
+        def fail_external(path):
+            if path == external:
+                raise OSError('external cleanup still unavailable')
+            remove(path)
+        with patch.object(receipt, '_remove_owned', side_effect=fail_external):
+            with self.assertRaises(OSError):
+                q.close()
+        self.assertFalse(directory.exists())
+        directory.mkdir(parents=True)
+        marker = directory/'new-caller-data'
+        marker.write_text('new owner after scratch removal')
+        child.close()
+        self.assertTrue(marker.exists())
+        with self.assertRaises(ValueError):
+            self.select()  # external cleanup debt still blocks a new session
+        q.close()
+        self.assertFalse(external.exists())
+        self.assertFalse(receipt._CLEANUP_DEBTS)
+        self.assertEqual(marker.read_text(), 'new owner after scratch removal')
+        self.select()
+
+    def test_closed_child_retry_obeys_active_session_guard(self):
+        q = self.select()
+        child, *_ = self.verified(q)
+        directory = child.expected_state.manifest_path.parent.parent
+        with patch.object(receipt, '_remove_owned', side_effect=OSError('cleanup unavailable')):
+            with self.assertRaises(OSError):
+                child.close()
+        check = receipt._check_qualification
+        def reentrant_check(record):
+            with self.assertRaisesRegex(ValueError, 'reentry'):
+                child.close()
+            self.assertTrue(directory.exists())
+            check(record)
+        with patch.object(receipt, '_check_qualification', side_effect=reentrant_check):
+            q.revalidate()
+        child.close()
+        selected = receipt._qualification(q)
+        self.assertEqual((selected.leaked_bytes, selected.leaked_files), (0, 0))
+        child.close()
+        self.assertEqual((selected.leaked_bytes, selected.leaked_files), (0, 0))
+
+    def test_closed_parent_retries_are_serialized(self):
+        import threading
+        q = self.select()
+        with patch.object(receipt, '_remove_owned', side_effect=OSError('cleanup unavailable')):
+            with self.assertRaises(OSError):
+                q.close()
+        entered, release = threading.Event(), threading.Event()
+        errors = []
+        remove = receipt._remove_owned
+        def blocked_remove(path):
+            if threading.current_thread() is worker:
+                entered.set()
+                if not release.wait(5):
+                    raise RuntimeError('cleanup retry was not released')
+            remove(path)
+        def retry():
+            try:
+                q.close()
+            except BaseException as error:
+                errors.append(error)
+        worker = threading.Thread(target=retry)
+        with patch.object(receipt, '_remove_owned', side_effect=blocked_remove):
+            worker.start()
+            try:
+                self.assertTrue(entered.wait(5))
+                with self.assertRaisesRegex(ValueError, 'reentry'):
+                    q.close()
+            finally:
+                release.set()
+                worker.join(5)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(errors, [])
+        self.assertFalse(receipt._CLEANUP_DEBTS)
+        q.close()
+
+    def test_child_close_rechecks_authority_after_acquiring_session_guard(self):
+        import threading
+        q = self.select()
+        child, *_ = self.verified(q)
+        directory = child.expected_state.manifest_path.parent.parent
+        entered, release = threading.Event(), threading.Event()
+        errors = []
+        lookup = receipt._oracle
+        def paused_lookup(handle):
+            record = lookup(handle)
+            if threading.current_thread() is worker and not entered.is_set():
+                entered.set()
+                if not release.wait(5):
+                    raise RuntimeError('issuer lookup was not released')
+            return record
+        def close_child():
+            try:
+                child.close()
+            except BaseException as error:
+                errors.append(error)
+        worker = threading.Thread(target=close_child)
+        with patch.object(receipt, '_oracle', side_effect=paused_lookup):
+            worker.start()
+            try:
+                self.assertTrue(entered.wait(5))
+                child.close()
+                directory.mkdir()
+                marker = directory/'new-caller-data'
+                marker.write_text('new owner after concurrent close')
+            finally:
+                release.set()
+                worker.join(5)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(len(errors), 1)
+        self.assertIsInstance(errors[0], ValueError)
+        child.close()
+        self.assertEqual(marker.read_text(), 'new owner after concurrent close')
+        self.assertEqual(receipt._qualification(q).pending_closes, {})
+        self.assertFalse(receipt._CLEANUP_DEBTS)
 
 
 if __name__ == '__main__':
