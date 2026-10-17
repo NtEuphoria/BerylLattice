@@ -3,6 +3,9 @@
 The available Axiom source, tests, research code, and documentation have been
 restored from retained session records. This is a new recovery checkpoint;
 the original Git objects and complete original checkout were not recovered.
+This report and the `recovery/` archives describe baseline commit `6697e84`.
+Subsequent O3 cleanup changes are documented in the
+[cleanup follow-up](docs/reviews/axiom-oracle-cleanup-ownership.md).
 
 ## What was recovered
 
@@ -47,12 +50,14 @@ The first product run exposed a missing historical append in an expected-output
 fixture. Its exact recorded append was recovered; the affected 13 tests and the
 complete product suite subsequently passed. Both logs are retained.
 
-**O3 oracle qualification remains blocked.** The recovered committed O3 code
-still has two previously reviewed cleanup-ownership bugs: a forged closed handle
+**O3 was blocked at the recovery checkpoint.** That recovered O3 code
+had two previously reviewed cleanup-ownership bugs: a forged closed handle
 can reach deletion before issuer validation, and child cleanup debt can delete
 a reused path after parent cleanup. Passing the recovered tests does not approve
 O3 or restore performance/publication claims. The later regression tests are in
 the unfinished-work archive; corresponding completed fixes were not recovered.
+The follow-up above addresses cleanup; full oracle qualification still requires
+real retained execution evidence and approval for the exact implementation.
 
 ## Gaps
 

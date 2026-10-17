@@ -1,0 +1,61 @@
+{
+  "schema": "axiom-o3-cleanup-validation-v1",
+  "base_commit": "6697e8401ff6c9f304e500f6a5bb3f0cb25e1a1b",
+  "checks": [
+    {
+      "name": "product",
+      "cwd": "axiom",
+      "command": "PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v",
+      "exit_code": 0,
+      "tests_reported": 239,
+      "skipped_reported": 22,
+      "seconds_reported": 347.283,
+      "log": "docs/reviews/2026-10-17-o3-cleanup/product-tests.log"
+    },
+    {
+      "name": "research",
+      "cwd": "axiom/research",
+      "command": "PYTHONPATH=../src:. PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v",
+      "exit_code": 0,
+      "tests_reported": 164,
+      "skipped_reported": 0,
+      "seconds_reported": 209.929,
+      "log": "docs/reviews/2026-10-17-o3-cleanup/research-tests.log"
+    },
+    {
+      "name": "optimized",
+      "cwd": "axiom/research",
+      "command": "PYTHONPATH=../src:. PYTHONDONTWRITEBYTECODE=1 python -O -m unittest tests.test_oracle_receipts tests.test_source_oracle tests.test_receipts -v",
+      "exit_code": 0,
+      "tests_reported": 93,
+      "skipped_reported": 0,
+      "seconds_reported": 96.083,
+      "log": "docs/reviews/2026-10-17-o3-cleanup/optimized-tests.log"
+    }
+  ],
+  "changed_file_sha256": {
+    "axiom/research/oracle_receipt.py": "e80c7a7d169cd6f1c47c9e474f1076dfc0953925279123ea1c4419e9e462e1f4",
+    "axiom/research/tests/test_oracle_receipts.py": "9a15cd1ab5b8c56a79c2ef4c78307b4f335c000a96f4e89eb1eb479df9467b0b",
+    "axiom/research/protocol/source-oracle-v1.md": "3b13ba86bf822e5d37992e6f8d3cb4544dba04f109d249b424e050faa92c25f6"
+  },
+  "evidence_sha256": {
+    "docs/reviews/2026-10-17-o3-cleanup/baseline-tests.log": "54b6b8b29527126019091448501b3c6fabcc3ad5004f89d72c05cc7618016b6e",
+    "docs/reviews/2026-10-17-o3-cleanup/compressed-log-manifest.json": "7e167f81e94e52d043b71b6da47d0f29f2d702f71ad30e4932b53845ad8350b4",
+    "docs/reviews/2026-10-17-o3-cleanup/green-concurrent-close.log": "4fb18d906445e79a76ce4709ca653b4bb5a797294c66aec07e85cb4e68d75424",
+    "docs/reviews/2026-10-17-o3-cleanup/green-regressions.log": "c22bf479a4ef9e40b424d8b4e3f5eb3524108f72bd3765e254f1e2ee0b85b4b1",
+    "docs/reviews/2026-10-17-o3-cleanup/independent-review.md": "8741e7f3160cbc9066b1db922b0f96d151158429106aaa71f08a0bb8c0c831ed",
+    "docs/reviews/2026-10-17-o3-cleanup/optimized-tests.log": "8f5b2d1fb70931adf398bf8b5cc4c914c0e1e025ec549dc35b47de259f50bcc6",
+    "docs/reviews/2026-10-17-o3-cleanup/product-tests.log": "8462e4bae5a30cba069bcb6a417002ede18aa48f398eaadc982079531161dfec",
+    "docs/reviews/2026-10-17-o3-cleanup/red-concurrent-close.log": "19042454fb66922a834fb2ca328c6fd78aa2a8f138579d65e133d6646b07446d",
+    "docs/reviews/2026-10-17-o3-cleanup/red-lifecycle.log.gz": "771f0c99282b20134b8b8a3434e4e22f884d633b43900ab101c38de3aee283b2",
+    "docs/reviews/2026-10-17-o3-cleanup/red-regressions.log.gz": "19602c967628bfaedcd1a73acc33c2968652cd8bcc83af1e32758dcf1da481db",
+    "docs/reviews/2026-10-17-o3-cleanup/research-tests.log": "2ddfc9b79f68b0668c4338fe758a1606869a69b012becbd0021f9099972831ec"
+  },
+  "independent_review": "No remaining blocking findings within the stated cleanup scope; exact reviewed hashes match.",
+  "limits": [
+    "Product optional native/nightly and lost historical receipt checks retain 22 reported skips.",
+    "Core is unchanged and its native/unit suites were not rerun for this cleanup patch; two known pinned unit failures remain.",
+    "O3 unit approval fixtures are synthetic; this patch does not issue a real qualification closure or approval.",
+    "Independent fresh-cloud startup is still not verified by this existing environment."
+  ]
+}

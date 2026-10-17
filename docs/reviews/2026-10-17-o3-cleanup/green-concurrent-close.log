@@ -1,0 +1,6 @@
+test_child_close_rechecks_authority_after_acquiring_session_guard (tests.test_oracle_receipts.SelectedQualificationTests.test_child_close_rechecks_authority_after_acquiring_session_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.751s
+
+OK

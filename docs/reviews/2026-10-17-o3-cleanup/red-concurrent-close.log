@@ -1,0 +1,14 @@
+test_child_close_rechecks_authority_after_acquiring_session_guard (tests.test_oracle_receipts.SelectedQualificationTests.test_child_close_rechecks_authority_after_acquiring_session_guard) ... FAIL
+
+======================================================================
+FAIL: test_child_close_rechecks_authority_after_acquiring_session_guard (tests.test_oracle_receipts.SelectedQualificationTests.test_child_close_rechecks_authority_after_acquiring_session_guard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/BerylLattice-o3-fixes/axiom/research/tests/test_oracle_receipts.py", line 903, in test_child_close_rechecks_authority_after_acquiring_session_guard
+    self.assertIsInstance(errors[0], ValueError)
+AssertionError: KeyError(140542701600528) is not an instance of <class 'ValueError'>
+
+----------------------------------------------------------------------
+Ran 1 test in 2.994s
+
+FAILED (failures=1)

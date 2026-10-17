@@ -17,6 +17,7 @@ import sys
 import sysconfig
 import threading
 import time
+import weakref
 
 from axiom import artifact_chunks_v2 as blobs
 from axiom.invocation_v2 import VerifiedInvocation, verify_invocation
@@ -42,6 +43,9 @@ _ORACLES = {}
 _SELECTING = False
 _SELECTION_LOCK = threading.Lock()
 _CLEANUP_DEBTS = {}
+# Issuer-owned lifecycle records; caller-writable handle slots grant no cleanup
+# authority. Weak keys keep closed, idempotent handles from leaking indefinitely.
+_HANDLE_CLEANUPS = weakref.WeakKeyDictionary()
 
 
 def _positive(value, name, maximum):
@@ -427,6 +431,13 @@ def _qualification_data(manifest, approved, roots, limits):
 
 
 @dataclass
+class _CleanupRecord:
+    lock: object
+    closed: bool = False
+    paths: list = field(default_factory=list)
+
+
+@dataclass
 class _QualificationRecord:
     handle: object
     manifest: Path
@@ -442,6 +453,7 @@ class _QualificationRecord:
     leaked_bytes: int = 0
     leaked_files: int = 0
     debts: dict = field(default_factory=dict)
+    pending_closes: dict = field(default_factory=dict)
 
 
 def _qualification(handle):
@@ -458,20 +470,28 @@ def _check_qualification(record):
 
 
 @contextmanager
-def _operation(record):
-    if not record.lock.acquire(blocking=False):
+def _session_guard(lock):
+    if not lock.acquire(blocking=False):
         raise ValueError('qualification operation reentry forbidden')
     try:
-        _qualification(record.handle)
-        record.active = True
         yield
     finally:
-        record.active = False
-        record.lock.release()
+        lock.release()
+
+
+@contextmanager
+def _operation(record):
+    with _session_guard(record.lock):
+        _qualification(record.handle)
+        record.active = True
+        try:
+            yield
+        finally:
+            record.active = False
 
 
 class OracleQualification:
-    __slots__ = ('_closed', '_cleanup')
+    __slots__ = ('_closed', '_cleanup', '__weakref__')
 
     def __new__(cls):
         raise TypeError('qualifications are issued only by explicit selection')
@@ -495,23 +515,38 @@ class OracleQualification:
             _check_qualification(record)
 
     def close(self):
-        if type(self) is OracleQualification and getattr(self, '_closed', False):
-            _retry_cleanup(self)
+        cleanup = _HANDLE_CLEANUPS.get(self) if type(self) is OracleQualification else None
+        if cleanup is not None and cleanup.closed:
+            with _session_guard(cleanup.lock):
+                _retry_cleanup(cleanup)
             return
         record = _qualification(self)
         with _operation(record):
             retained_bytes, retained_files = _session_usage(record)
+            paths = (record.scratch, *record.debts)
+            # A removed ancestor ends ownership of every descendant pathname.
+            # Keep external producer debts, but never queue an anchor separately
+            # behind scratch (or another enclosing cleanup root).
+            roots = [path for path in paths if not any(parent in path.parents for parent in paths)]
+            children = tuple(_ORACLES[key] for key in record.children)
             # Block a new session even if cleanup fails after invalidation.
             _CLEANUP_DEBTS[record.scratch] = (retained_bytes, retained_files)
+            cleanup.paths = roots
+            cleanup.closed = True
             del _QUALIFICATIONS[id(self)]
             self._closed = True
-            self._cleanup = (record.scratch, *record.debts)
-            for child in tuple(record.children):
-                item = _ORACLES.pop(child)
+            # Transfer failed closed-child cleanup to the parent before removal.
+            for pending in record.pending_closes.values():
+                pending.paths.clear()
+            record.pending_closes.clear()
+            for item in children:
+                del _ORACLES[id(item.handle)]
                 item.handle._closed = True
-                item.handle._cleanup = ()
+                child_cleanup = _HANDLE_CLEANUPS[item.handle]
+                child_cleanup.closed = True
+                child_cleanup.paths.clear()
             record.children.clear()
-            _retry_cleanup(self)
+            _retry_cleanup(cleanup)
 
     def __enter__(self):
         self.revalidate()
@@ -572,6 +607,7 @@ def select_oracle_qualification(approval_manifest: Path, *, approved_root_sha256
             handle._cleanup = ()
             record = _QualificationRecord(handle, manifest, approved_root_sha256, subject,
                                            roots, limits, scratch, pins)
+            _HANDLE_CLEANUPS[handle] = _CleanupRecord(record.lock)
             _QUALIFICATIONS[id(handle)] = record
             return handle
         except BaseException:
@@ -699,13 +735,17 @@ def _cleanup_failed(record, path, reserved_bytes, reserved_files):
     try:
         _remove_owned(path)
     except BaseException:
-        # Keep conservative reservation if the filesystem did not remove payload.
-        if path not in record.debts:
-            record.leaked_bytes += reserved_bytes
-            record.leaked_files += reserved_files
-            record.debts[path] = (reserved_bytes, reserved_files)
-        _CLEANUP_DEBTS[path] = (reserved_bytes, reserved_files)
+        _retain_cleanup_debt(record, path, reserved_bytes, reserved_files)
         raise
+
+
+def _retain_cleanup_debt(record, path, reserved_bytes, reserved_files):
+    # Keep conservative reservation if the filesystem did not remove payload.
+    if path not in record.debts:
+        record.leaked_bytes += reserved_bytes
+        record.leaked_files += reserved_files
+        record.debts[path] = (reserved_bytes, reserved_files)
+    _CLEANUP_DEBTS[path] = (reserved_bytes, reserved_files)
 
 
 def produce_oracle_receipt(result: OracleResult, qualification: OracleQualification,
@@ -880,7 +920,7 @@ def _anchor(record):
 
 
 class VerifiedOracle:
-    __slots__ = ('_closed', '_cleanup')
+    __slots__ = ('_closed', '_cleanup', '__weakref__')
 
     def __new__(cls):
         raise TypeError('verified oracles require fresh independent execution')
@@ -925,18 +965,30 @@ class VerifiedOracle:
             _revalidate_oracle(record)
 
     def close(self):
-        if type(self) is VerifiedOracle and getattr(self, '_closed', False):
-            _retry_cleanup(self)
+        cleanup = _HANDLE_CLEANUPS.get(self) if type(self) is VerifiedOracle else None
+        if cleanup is not None and cleanup.closed:
+            with _session_guard(cleanup.lock):
+                _retry_cleanup(cleanup)
             return
         record = _oracle(self)
         selected = _qualification(record.parent)
         with _operation(selected):
+            # Another close may have completed between the initial lookup and
+            # acquiring this lock. Never requeue its already-retired directory.
+            record = _oracle(self)
+            paths = [record.directory]
+            selected.pending_closes[record.directory] = cleanup
+            cleanup.paths = paths
+            cleanup.closed = True
             del _ORACLES[id(self)]
             selected.children.remove(id(self))
             self._closed = True
-            self._cleanup = (record.directory,)
-            _cleanup_failed(selected, record.directory, record.anchor_bytes, record.anchor_files)
-            self._cleanup = ()
+            try:
+                _retry_cleanup(cleanup)
+            except BaseException:
+                if cleanup.paths:
+                    _retain_cleanup_debt(selected, record.directory, record.anchor_bytes, record.anchor_files)
+                raise
 
     def __enter__(self):
         self.revalidate()
@@ -1033,6 +1085,7 @@ def verify_oracle_receipt(receipt: Path, source_bytes: bytes, invocation: Verifi
             # Commit only after every fallible validation. Roll back partial table
             # insertion if allocation fails; no subsequent validation can fail.
             try:
+                _HANDLE_CLEANUPS[handle] = _CleanupRecord(selected.lock)
                 selected.children.add(id(handle))
                 _ORACLES[id(handle)] = record
             except BaseException:
@@ -1059,16 +1112,27 @@ def _revalidate_oracle(record):
     return _anchor(record)
 
 
-def _retry_cleanup(handle):
-    while handle._cleanup:
-        path = handle._cleanup[0]
+def _retry_cleanup(cleanup):
+    # The caller holds the original session lock, even after parent closure.
+    while cleanup.paths:
+        path = cleanup.paths[0]
+        # Prepare retirement before deletion so an allocation failure cannot
+        # leave this successfully removed pathname in the retry queue.
+        global_debts = [debt for debt in _CLEANUP_DEBTS if debt == path or path in debt.parents]
+        debts = [(record, debt, sizes) for record in _QUALIFICATIONS.values()
+                 for debt, sizes in record.debts.items() if debt == path or path in debt.parents]
+        pending = [(record, debt, state) for record in _QUALIFICATIONS.values()
+                   for debt, state in record.pending_closes.items() if debt == path or path in debt.parents]
         _remove_owned(path)
         # Successful removal ends ownership of this pathname. A later close
         # must not delete a new caller-created directory at the same name.
-        handle._cleanup = handle._cleanup[1:]
-        _CLEANUP_DEBTS.pop(path, None)
-        for record in _QUALIFICATIONS.values():
-            debt = record.debts.pop(path, None)
-            if debt is not None:
-                record.leaked_bytes -= debt[0]
-                record.leaked_files -= debt[1]
+        cleanup.paths.pop(0)
+        for debt in global_debts:
+            _CLEANUP_DEBTS.pop(debt, None)
+        for record, debt, sizes in debts:
+            del record.debts[debt]
+            record.leaked_bytes -= sizes[0]
+            record.leaked_files -= sizes[1]
+        for record, debt, state in pending:
+            state.paths.clear()
+            del record.pending_closes[debt]
