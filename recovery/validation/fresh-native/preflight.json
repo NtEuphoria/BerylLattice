@@ -1,0 +1,174 @@
+{
+  "status": "available",
+  "reason": "Selected Clang C11 compile/run and clean pinned source verified",
+  "clang": "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang",
+  "clang_sha256": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a",
+  "clang_config": [
+    {
+      "path": "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang.cfg",
+      "sha256": "bc3624e157ba6656818d5f16c70efcd0c5414ffc8f354dce80aa76d639f9587f",
+      "size": 4,
+      "lookup_path": null
+    }
+  ],
+  "source_pin": "0a678b4ae6d41190c4f5a8bf063caba05759d20d",
+  "source_inventory_sha256": "356aa137d9557b4c01ab9db741a62de928cda3606c204c8b091f921f55124814",
+  "clang_version": "Debian clang version 19.1.7 (3+b1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin\nConfiguration file: /workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang.cfg\n",
+  "receipts": [
+    {
+      "argv": [
+        "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang",
+        "--version"
+      ],
+      "cwd": "/tmp/axiom c11 probe o920xsyy",
+      "returncode": 0,
+      "stdout": "Debian clang version 19.1.7 (3+b1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin\nConfiguration file: /workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang.cfg\n",
+      "stderr": "",
+      "timed_out": false,
+      "error": null
+    },
+    {
+      "argv": [
+        "ldd",
+        "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang"
+      ],
+      "cwd": "/tmp/axiom c11 probe o920xsyy",
+      "returncode": 0,
+      "stdout": "\tlinux-vdso.so.1 (0x00007f9b06a5b000)\n\tlibclang-cpp.so.19.1 => /workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/../lib/libclang-cpp.so.19.1 (0x00007f9b02660000)\n\tlibLLVM.so.19.1 => /lib/x86_64-linux-gnu/libLLVM.so.19.1 (0x00007f9afa9f3000)\n\tlibstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f9afa78d000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f9afa69d000)\n\tlibgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f9afa66e000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9afa47a000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007f9b06a5d000)\n\tlibffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x00007f9afa46d000)\n\tlibedit.so.2 => /lib/x86_64-linux-gnu/libedit.so.2 (0x00007f9afa432000)\n\tlibz3.so.4 => /lib/x86_64-linux-gnu/libz3.so.4 (0x00007f9af89b9000)\n\tlibz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9af8997000)\n\tlibzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x00007f9af88cd000)\n\tlibxml2.so.2 => /lib/x86_64-linux-gnu/libxml2.so.2 (0x00007f9af8715000)\n\tlibtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x00007f9af86df000)\n\tlibbsd.so.0 => /lib/x86_64-linux-gnu/libbsd.so.0 (0x00007f9af86c9000)\n\tliblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f9af8696000)\n\tlibmd.so.0 => /lib/x86_64-linux-gnu/libmd.so.0 (0x00007f9af8687000)\n",
+      "stderr": "",
+      "timed_out": false,
+      "error": null
+    },
+    {
+      "argv": [
+        "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang",
+        "-std=c11",
+        "-O0",
+        "/tmp/axiom c11 probe o920xsyy/probe.c",
+        "-o",
+        "/tmp/axiom c11 probe o920xsyy/probe"
+      ],
+      "cwd": "/tmp/axiom c11 probe o920xsyy",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "timed_out": false,
+      "error": null
+    },
+    {
+      "argv": [
+        "/tmp/axiom c11 probe o920xsyy/probe"
+      ],
+      "cwd": "/tmp/axiom c11 probe o920xsyy",
+      "returncode": 0,
+      "stdout": "42\n",
+      "stderr": "",
+      "timed_out": false,
+      "error": null
+    }
+  ],
+  "clang_components": [
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+      "sha256": "c8438e4fde1934e61c88311633f00949ff645d5c04cdb8671fa3d78164d2f307",
+      "size": 225672,
+      "lookup_path": "/lib64/ld-linux-x86-64.so.2"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libLLVM.so.19.1",
+      "sha256": "3523f50f635d2a1ea47518a392451f2854b92823ceaf1345fb806099dd1a3b8a",
+      "size": 129673080,
+      "lookup_path": "/lib/x86_64-linux-gnu/libLLVM.so.19.1"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libbsd.so.0.12.2",
+      "sha256": "167e3fa2b6320ce61534a48002e6d0921f61d61eae88a669c117e23ed3de9f37",
+      "size": 84904,
+      "lookup_path": "/lib/x86_64-linux-gnu/libbsd.so.0"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+      "sha256": "9792e3cbb541c8f44c7acf5f14f4022ea62998ecc787d326bed4d8b6547dfd92",
+      "size": 1995216,
+      "lookup_path": "/lib/x86_64-linux-gnu/libc.so.6"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libedit.so.2.0.75",
+      "sha256": "4cde661dc336a1a835e605532086c629f6279a312374c91795215b8489ad4bcf",
+      "size": 220752,
+      "lookup_path": "/lib/x86_64-linux-gnu/libedit.so.2"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libffi.so.8.1.4",
+      "sha256": "922024ec5a23f7de1095b1cff2f6cbfb377b5d58cd51fd0ec2e8fe35427653e2",
+      "size": 47576,
+      "lookup_path": "/lib/x86_64-linux-gnu/libffi.so.8"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+      "sha256": "30c61ab012a4241bed033725a09b61f5fdd3bb7df95ee852d0b096520524c7af",
+      "size": 182856,
+      "lookup_path": "/lib/x86_64-linux-gnu/libgcc_s.so.1"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5.8.1",
+      "sha256": "01e05a4b5268805a10a2414a8904fb1fb45c60626dce53b5ea19c1d491049b99",
+      "size": 198832,
+      "lookup_path": "/lib/x86_64-linux-gnu/liblzma.so.5"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+      "sha256": "6d567d53e895273ca14a1f9dc164fc6c8d39aed2f60aa46a733c2784228915f3",
+      "size": 977112,
+      "lookup_path": "/lib/x86_64-linux-gnu/libm.so.6"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libmd.so.0.1.0",
+      "sha256": "1c8c51474c0eb67dabd9f1605097eb58195cdabef64427ae17cfcd2053c37479",
+      "size": 59472,
+      "lookup_path": "/lib/x86_64-linux-gnu/libmd.so.0"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+      "sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00",
+      "size": 2497768,
+      "lookup_path": "/lib/x86_64-linux-gnu/libstdc++.so.6"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libtinfo.so.6.5",
+      "sha256": "4013e7651ac68f547d8333517def25b2366c97eec7de7f06e105dbf3444ffebf",
+      "size": 220464,
+      "lookup_path": "/lib/x86_64-linux-gnu/libtinfo.so.6"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14",
+      "sha256": "8f2643af68a9eba917929046806dabd1848867068d0eee0f6799288a8e886963",
+      "size": 1799256,
+      "lookup_path": "/lib/x86_64-linux-gnu/libxml2.so.2"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+      "sha256": "85590dd58edf5445e18bc7193e5ebc01ac5841f1ae187e97705a662e90c6421e",
+      "size": 125376,
+      "lookup_path": "/lib/x86_64-linux-gnu/libz.so.1"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libz3.so.4",
+      "sha256": "7accc397d4ac387468b09489bdaff9d82bfac4ca6a7e339b8fbb2167edf9c1c0",
+      "size": 27751664,
+      "lookup_path": "/lib/x86_64-linux-gnu/libz3.so.4"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7",
+      "sha256": "27f07c9a49c2c956bcfb64cd4712976586a66facbf15fc7f09bc37413b5f2b21",
+      "size": 825336,
+      "lookup_path": "/lib/x86_64-linux-gnu/libzstd.so.1"
+    },
+    {
+      "path": "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/x86_64-linux-gnu/libclang-cpp.so.19.1",
+      "sha256": "0108c687d2f500d77687984c46c9fad663782603f5c623e3c14224c155b4fd21",
+      "size": 71043800,
+      "lookup_path": "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/lib/libclang-cpp.so.19.1"
+    }
+  ]
+}

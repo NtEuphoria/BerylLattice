@@ -1,0 +1,10 @@
+{
+  "branch": "bootstrap-signed-apt",
+  "core": "/workspace/beryl",
+  "pin": "0a678b4ae6d41190c4f5a8bf063caba05759d20d",
+  "clang": "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang",
+  "clang_sha256": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a",
+  "config_sha256": "bc3624e157ba6656818d5f16c70efcd0c5414ffc8f354dce80aa76d639f9587f",
+  "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "python_version": "3.12.14"
+}

@@ -1,0 +1,16 @@
+{
+  "format_version": 1,
+  "semantic_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "plan_id": "manual uninitialized scratch negative",
+  "scratch_capacity_cells": 1,
+  "operations": [
+    {
+      "opcode": "scratch_load",
+      "dst": 0,
+      "operands": [],
+      "index": 0,
+      "value": null,
+      "origins": []
+    }
+  ]
+}

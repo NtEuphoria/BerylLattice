@@ -1,0 +1,7 @@
+Python 3.12.14; Axiom uses only the standard library.
+{"height":5,"objective":"multiplication_ops","semantic_digest":"17692e7e1022cc35edf4d6f0e4f0a42fdd8252f836e5b01f933854236198ac26","source_cap":64,"source_digest":"d524b924fe7488d1664ea0f63c1938ab15357faa0681604b66a690389958336d","status":"admitted","width":7}
+Fresh native evidence: /workspace/scratch/axiom-recovery/native/qualification-glmgxz27
+Clang setup branch: bootstrap-signed-apt; C11 compile/run passed. Building pinned Core...
+Core build and native qualification passed; unit_status=known_pinned_baseline_failure
+Core unit exit=1; receipt=/workspace/scratch/axiom-recovery/native/qualification-glmgxz27/receipts/toolchain.json
+Core unit suite remains FAILED: 2 of 10814 checks across 583 cases (known pinned fixture).

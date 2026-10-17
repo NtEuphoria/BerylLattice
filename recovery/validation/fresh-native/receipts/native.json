@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/workspace/scratch/axiom-recovery/native/qualification-glmgxz27/core-snapshot/build/beryl.exe",
+    "run",
+    "--clang",
+    "/workspace/scratch/axiom-recovery/native/toolchain/usr/lib/llvm-19/bin/clang",
+    "--timeout-ms",
+    "120000",
+    "--save-native-evidence",
+    "--lowering",
+    "ast",
+    "--opt",
+    "off",
+    "/workspace/scratch/axiom-recovery/native/qualification-glmgxz27/receipts/native-probe/witness.be"
+  ],
+  "cwd": "/workspace/scratch/axiom-recovery/native/qualification-glmgxz27/receipts/native-probe",
+  "returncode": 0,
+  "stdout": "42\nnative evidence kept at /workspace/scratch/axiom-recovery/native/qualification-glmgxz27/receipts/native-probe/.beryl-cache/job-ScLPVU/native-evidence.json\n",
+  "stderr": "",
+  "timed_out": false,
+  "error": null
+}

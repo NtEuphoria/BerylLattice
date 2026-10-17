@@ -1,0 +1,11 @@
+module demo;
+shape H = 5;
+shape W = 7;
+input image: i32[H+1,W+1] in 0..=1023;
+let p[r in 0..H+1,c in 0..W+1] =
+  (image[r,c]+1)*(image[r,c]+1);
+let q[r in 0..H+1,c in 0..W+1] = p[r,c];
+output result[r in 0..H,c in 0..W] =
+  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];
+require plan_workspace_bytes <= 64;
+prefer multiplication_ops;

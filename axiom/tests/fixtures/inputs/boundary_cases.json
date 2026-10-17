@@ -1,0 +1,1 @@
+{"all_zero":{"input":[0,0,0,0],"output":[4]},"all_max":{"input":[1023,1023,1023,1023],"output":[4194304]},"bottom_right_one":{"input":[0,0,0,1],"output":[7]},"first_invalid":{"input":[1024,-1,0,0],"initial_output":[-777],"first_bad_index":0}}

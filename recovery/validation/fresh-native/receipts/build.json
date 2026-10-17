@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "bash",
+    "scripts/build.sh",
+    "--debug"
+  ],
+  "cwd": "/workspace/scratch/axiom-recovery/native/qualification-glmgxz27/core-snapshot",
+  "returncode": 0,
+  "stdout": "built build/beryl.exe  (1479392 bytes)\n",
+  "stderr": "",
+  "timed_out": false,
+  "error": null
+}

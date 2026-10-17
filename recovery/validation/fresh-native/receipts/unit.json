@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "bash",
+    "scripts/test.sh"
+  ],
+  "cwd": "/workspace/scratch/axiom-recovery/native/qualification-glmgxz27/core-snapshot",
+  "returncode": 1,
+  "stdout": "error[BE0401]: overlapping exclusive borrows of `n`\n --> ir.be:4:15\n  |\n4 | replace(set n,n)\n  |         ^^^^^ ^ borrowed again here\n  |         |\n  |         first exclusive borrow here\n  |\n  = note: overlapping local access paths cannot be borrowed exclusively in the same call\n  = help: copy one side into a local first\n\nerror[BE0401]: overlapping exclusive borrows of `n`\n --> ir.be:4:15\n  |\n4 | replace(set n,n)\n  |         ^^^^^ ^ borrowed again here\n  |         |\n  |         first exclusive borrow here\n  |\n  = note: overlapping local access paths cannot be borrowed exclusively in the same call\n  = help: copy one side into a local first\n\nIR PID corpus: 8 tests, 2206 assertions, 219625 IR steps, 63834 output bytes, 1516831 exact event bytes\nFAILED  2 of 10814 checks across 583 cases\n",
+  "stderr": "FAIL IR: initialized SET destination remains readable during later scalar capture\n  at tests/unit/test_ir.c:15\n  expected true: ok\nFAIL IR: initialized SET destination remains readable during later scalar capture\n  at tests/unit/test_ir.c:50\n  expected true: ir!=NULL\ncompile: exact candidate failed to execute successfully (exit 1); retained at build/compile-LCJaHuzD/program.exe\n",
+  "timed_out": false,
+  "error": null
+}

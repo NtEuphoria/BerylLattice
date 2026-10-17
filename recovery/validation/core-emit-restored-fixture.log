@@ -1,0 +1,18 @@
+test_checker_budget_and_cap_cannot_be_bypassed (tests.test_core_emit.CoreEmitTests.test_checker_budget_and_cap_cannot_be_bypassed) ... ok
+test_exact_i32_tuple_boundary (tests.test_core_emit.CoreEmitTests.test_exact_i32_tuple_boundary) ... ok
+test_h5_w7_preflight_initialization_and_complete_scalar_order (tests.test_core_emit.CoreEmitTests.test_h5_w7_preflight_initialization_and_complete_scalar_order) ... ok
+test_huge_scratch_rejected_before_allocation (tests.test_core_emit.CoreEmitTests.test_huge_scratch_rejected_before_allocation) ... ok
+test_kernel_artifact_distinct_and_no_witness_entry (tests.test_core_emit.CoreEmitTests.test_kernel_artifact_distinct_and_no_witness_entry) ... ok
+test_mapping_complete_generated_ranges_and_exact_ast_origins (tests.test_core_emit.CoreEmitTests.test_mapping_complete_generated_ranges_and_exact_ast_origins) ... ok
+test_minimal_hand_reviewed_complete_witness (tests.test_core_emit.CoreEmitTests.test_minimal_hand_reviewed_complete_witness) ... ok
+test_multiple_contributing_origins (tests.test_core_emit.CoreEmitTests.test_multiple_contributing_origins) ... ok
+test_non_ast_or_out_of_bounds_origins_fail_closed (tests.test_core_emit.CoreEmitTests.test_non_ast_or_out_of_bounds_origins_fail_closed) ... ok
+test_plan_names_are_labels_and_exact_serialized_bytes_bound (tests.test_core_emit.CoreEmitTests.test_plan_names_are_labels_and_exact_serialized_bytes_bound) ... ok
+test_stable_byte_case_and_logical_identities (tests.test_core_emit.CoreEmitTests.test_stable_byte_case_and_logical_identities) ... ok
+test_tampered_or_stale_plan_fails_fresh_check (tests.test_core_emit.CoreEmitTests.test_tampered_or_stale_plan_fails_fresh_check) ... ok
+test_unknown_opcode_cannot_fall_through (tests.test_core_emit.CoreEmitTests.test_unknown_opcode_cannot_fall_through) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.113s
+
+OK

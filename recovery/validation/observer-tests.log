@@ -1,0 +1,8 @@
+test_complete_exact_observation (tests.test_core_observe.ObservationTests.test_complete_exact_observation) ... ok
+test_i32_endpoints_and_all_h5_w7_cells (tests.test_core_observe.ObservationTests.test_i32_endpoints_and_all_h5_w7_cells) ... ok
+test_rejects_noncanonical_or_partial_payload (tests.test_core_observe.ObservationTests.test_rejects_noncanonical_or_partial_payload) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.003s
+
+OK

@@ -1,0 +1,1367 @@
+{
+  "ambiguous_withheld": [
+    {
+      "candidate_hashes": [
+        "2fde866ce422e31b63c555b0158832cf33fd03a70d50539569ea0516d0f787e5",
+        "997454477b8d403a0406ddc163bb5f2cc0dd553061390503d288e06f3d5a4dc8"
+      ],
+      "historical_path": "/workspace/BerylLattice/.superpowers/sdd/02/task-5-review.md",
+      "reason": "conflicting thread-local latest evidence or no chronological route",
+      "thread_latest": {
+        "01a1420d-fbf9-74ae-aa52-633ea82f702a": {
+          "hashes": [
+            "2fde866ce422e31b63c555b0158832cf33fd03a70d50539569ea0516d0f787e5"
+          ],
+          "order": [
+            1792109575,
+            94
+          ]
+        },
+        "01a14215-7409-77b4-9b33-e21079ff3028": {
+          "hashes": [
+            "997454477b8d403a0406ddc163bb5f2cc0dd553061390503d288e06f3d5a4dc8"
+          ],
+          "order": [
+            1792110525,
+            6
+          ]
+        }
+      }
+    },
+    {
+      "candidate_hashes": [
+        "2d8fa86d2c5b3be9a46922b5623d75a36a8fed46daa6a56cb84c36ec1397098f",
+        "801dcf43a4e067a379c9869a5ab1c12b6f2cd08e1477faea9bc5fdf4b865d7af",
+        "c6b93cbf5cc3b0f09a6e0444f8ff16ce9f3a24b0c477bd927e03bb13f60ee61d"
+      ],
+      "historical_path": "/workspace/BerylLattice/.superpowers/sdd/03/task-4-review.md",
+      "reason": "conflicting thread-local latest evidence or no chronological route",
+      "thread_latest": {
+        "01a13da8-8937-7372-bdf8-8fd0c8edc0c2": {
+          "hashes": [
+            "801dcf43a4e067a379c9869a5ab1c12b6f2cd08e1477faea9bc5fdf4b865d7af"
+          ],
+          "order": [
+            1792107216,
+            436
+          ]
+        },
+        "01a1421a-1eca-76cd-ae78-588915e67002": {
+          "hashes": [
+            "2d8fa86d2c5b3be9a46922b5623d75a36a8fed46daa6a56cb84c36ec1397098f",
+            "c6b93cbf5cc3b0f09a6e0444f8ff16ce9f3a24b0c477bd927e03bb13f60ee61d"
+          ],
+          "order": [
+            1792110811,
+            14
+          ]
+        }
+      }
+    },
+    {
+      "candidate_hashes": [
+        "066979ea7e095bf0afe6f38a212aefe1a156cc1d89c6070d2a2df15e34f0f323",
+        "504b31700d2db8c2c0c9354bc3a9c7a76a5f1a5a1d4e822b5c43376cc682f5f0"
+      ],
+      "historical_path": "/workspace/BerylLattice/.superpowers/sdd/axiom-scalability/task-B3-report.md",
+      "reason": "conflicting thread-local latest evidence or no chronological route",
+      "thread_latest": {
+        "01a13da8-8937-7372-bdf8-8fd0c8edc0c2": {
+          "hashes": [
+            "504b31700d2db8c2c0c9354bc3a9c7a76a5f1a5a1d4e822b5c43376cc682f5f0"
+          ],
+          "order": [
+            1792115395,
+            355
+          ]
+        },
+        "01a1428a-f69a-73f0-9a86-a27bfd8ad03f": {
+          "hashes": [
+            "066979ea7e095bf0afe6f38a212aefe1a156cc1d89c6070d2a2df15e34f0f323"
+          ],
+          "order": [
+            1792117766,
+            85
+          ]
+        }
+      }
+    },
+    {
+      "candidate_hashes": [
+        "171e05df5a441ebfd979b0d198ad56f70108a3be2ee9289bc68ebb1022cc2bbd",
+        "d2582a539fd440e5968211ef255aed5f65701847d264c25899f2c5addd3bf473"
+      ],
+      "historical_path": "/workspace/BerylLattice/.superpowers/sdd/axiom-scalability/task-C1-brief.md",
+      "reason": "conflicting thread-local latest evidence or no chronological route",
+      "thread_latest": {
+        "01a14270-28a3-72a7-be34-5ce9de1eb02d": {
+          "hashes": [
+            "171e05df5a441ebfd979b0d198ad56f70108a3be2ee9289bc68ebb1022cc2bbd"
+          ],
+          "order": [
+            1792116010,
+            0
+          ]
+        },
+        "01a1427b-5ad6-7581-867c-f194de358014": {
+          "hashes": [
+            "d2582a539fd440e5968211ef255aed5f65701847d264c25899f2c5addd3bf473"
+          ],
+          "order": [
+            1792116743,
+            0
+          ]
+        }
+      }
+    }
+  ],
+  "candidate_paths_withheld": [
+    "/tmp/o2-independent-review-k_6refb2/extra_review.py",
+    "/tmp/o3-independent-lifecycle-probe.py",
+    "/tmp/review_adapter_independence.py",
+    "/workspace/BerylLattice/.superpowers/sdd/02/task-5-review.md",
+    "/workspace/BerylLattice/.superpowers/sdd/03/task-4-review.md",
+    "/workspace/BerylLattice/.superpowers/sdd/axiom-scalability/task-B3-report.md",
+    "/workspace/BerylLattice/.superpowers/sdd/axiom-scalability/task-C1-brief.md",
+    "/workspace/BerylLattice/axiom/axiom/native/v2/buffer_host.c",
+    "/workspace/BerylLattice/axiom/axiom/native/v2/buffer_host.h",
+    "/workspace/BerylLattice/axiom/axiom/native/v2/host_protocol.c",
+    "/workspace/BerylLattice/axiom/axiom/native/v2/operation_allocator.c",
+    "/workspace/BerylLattice/axiom/axiom/native/v2/operation_allocator.h",
+    "/workspace/BerylLattice/axiom/axiom/research/tests/test_loop_proof_graph.py",
+    "/workspace/BerylLattice/axiom/axiom/research/tests/test_source_oracle.py",
+    "/workspace/BerylLattice/axiom/axiom/tests/test_cli.py",
+    "/workspace/BerylLattice/axiom/axiom/tests/test_compile_cli.py",
+    "/workspace/BerylLattice/axiom/axiom/tests/test_core_buffer_contract_v2.py",
+    "/workspace/BerylLattice/axiom/axiom/tests/test_core_emit.py",
+    "/workspace/BerylLattice/axiom/axiom/tests/test_selection.py",
+    "/workspace/BerylLattice/axiom/research/axiom/research/tests/test_manifest.py",
+    "/workspace/BerylLattice/axiom/research/fixtures/loop_proof_obligations.json",
+    "/workspace/BerylLattice/axiom/research/loop_proof_cost.py",
+    "/workspace/BerylLattice/axiom/research/loop_proof_graph.py",
+    "/workspace/BerylLattice/axiom/research/research/state_artifacts.py",
+    "/workspace/BerylLattice/axiom/research/tests/test_loop_proof_cost.py",
+    "/workspace/BerylLattice/axiom/research/tests/test_loop_proof_graph.py",
+    "/workspace/BerylLattice/axiom/src/axiom/source_names_v2.py",
+    "/workspace/BerylLattice/axiom/tests/test_source_names_v2.py",
+    "/workspace/BerylLattice/protocol/experiment-v1.md",
+    "/workspace/scratch/axiom-final-review-cli-audit.py",
+    "/workspace/scratch/axiom-task5-cli/revalidate-full-capsule.py",
+    "/workspace/scratch/axiom-toolchain-setup/libm-probe.c"
+  ],
+  "caution": "Absence of complete bytes in this reconstruction does not establish permanent data loss. Missing native Core checkout/toolchains and build validation are managed separately by the controller.",
+  "incomplete_records": [
+    {
+      "bytes": 20040,
+      "change_index": 0,
+      "item_id": "exec-ae50b930-d3f8-42e0-811b-0ddb308a5ee9",
+      "item_index": 35,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 30172,
+      "path": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/proof-rule-work-advice.md",
+      "sha256": "a7340633137d81aafd56d8b544672331d3e84584f184bd0035c784f2aa6050d4",
+      "source": "history/agents/audit_proof_rule_work-001.json",
+      "status": "completed",
+      "thread_id": "01a142f4-9eb1-76f9-b38b-6d1769968028",
+      "turn_completedAt": 1792125104,
+      "turn_id": "01a142f4-a22f-724b-87b9-5dbf1d81c76d",
+      "turn_startedAt": 1792124691,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20014,
+      "change_index": 0,
+      "item_id": "exec-ab7cccde-4f7e-420e-8f74-d2dbd04a6133",
+      "item_index": 28,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 20272,
+      "path": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/source-work-audit.md",
+      "sha256": "7b8ae999d28c6d2b6606532afa924d37e85230f2e879af2953d9e4a7ce5df622",
+      "source": "history/agents/audit_source_work-004.json",
+      "status": "completed",
+      "thread_id": "01a142c4-3e1c-7440-9452-64545788b03c",
+      "turn_completedAt": 1792121929,
+      "turn_id": "01a142c4-406c-73fa-b2b5-88abf54739b5",
+      "turn_startedAt": 1792121520,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20004,
+      "change_index": 0,
+      "item_id": "exec-dc06c83a-4c00-4116-bb34-8139e2ce6a9a",
+      "item_index": 46,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 29908,
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/core-interface/interface-decision.md",
+      "sha256": "227a899f76adbcef447f2daf678355caf99e7e8a558938d6066de7226c99caee",
+      "source": "history/agents/axiom_core_interface-002.json",
+      "status": "completed",
+      "thread_id": "01a13dc6-42cb-7566-afd6-9bafcb26a0ce",
+      "turn_completedAt": 1792038175,
+      "turn_id": "01a13dc6-4503-732a-9630-4a5e6cbf8ed3",
+      "turn_startedAt": 1792037766,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20002,
+      "change_index": 0,
+      "item_id": "exec-4a0a5da9-7c37-46be-af7c-5f7792cece3a",
+      "item_index": 22,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 30563,
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/search-validation/validation-design.md",
+      "sha256": "154d2ab81d726c8856c859681baf13fe18e07b6510b3acfaf6811f105049bdd2",
+      "source": "history/agents/axiom_search_validation-002.json",
+      "status": "completed",
+      "thread_id": "01a13dc6-6e5f-71dc-9056-3372392f80ce",
+      "turn_completedAt": 1792038139,
+      "turn_id": "01a13dc6-7070-72a6-9979-07ba8537b762",
+      "turn_startedAt": 1792037777,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20058,
+      "change_index": 0,
+      "item_id": "exec-419d7d10-d280-4a5b-bc2e-ccc08a4cc71f",
+      "item_index": 21,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 20851,
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/semantics/contract-proposal.md",
+      "sha256": "2f8c1e428364b20720b8a3629e57135e59c6fe09738a274ec65533804d2e74ca",
+      "source": "history/agents/axiom_semantics-003.json",
+      "status": "completed",
+      "thread_id": "01a13dc6-1b36-7356-8976-7bdde7d340fb",
+      "turn_completedAt": 1792038144,
+      "turn_id": "01a13dc6-1db4-71f9-afd4-4b128aeac0f4",
+      "turn_startedAt": 1792037756,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20004,
+      "change_index": 0,
+      "item_id": "exec-210bd873-4696-4b64-b4a3-9418ce1f94d1",
+      "item_index": 9,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 32423,
+      "path": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/o3-task-draft.md",
+      "sha256": "33b22aa0d7beba7c03593f7e04699c0504e08034d567b17a68277a3ddbd86857",
+      "source": "history/agents/design_oracle_qualification-001.json",
+      "status": "completed",
+      "thread_id": "01a142c6-a564-7194-84f4-340b2db9f035",
+      "turn_completedAt": 1792122533,
+      "turn_id": "01a142cd-bb90-7067-b212-a8a3f3f821ee",
+      "turn_startedAt": 1792122141,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20000,
+      "change_index": 0,
+      "item_id": "exec-315623fd-9dd1-4c2e-8823-69204fde4822",
+      "item_index": 26,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 23346,
+      "path": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/oracle-qualification-advice.md",
+      "sha256": "84aa3e4601259a98436a6811d3fc32a32ba9b7c6958d9d4b523e620d3197dfd5",
+      "source": "history/agents/design_oracle_qualification-002.json",
+      "status": "completed",
+      "thread_id": "01a142c6-a564-7194-84f4-340b2db9f035",
+      "turn_completedAt": 1792122021,
+      "turn_id": "01a142c6-a7ea-736e-a4a4-fb0d7ac64f45",
+      "turn_startedAt": 1792121677,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20718,
+      "command_exitCode": 0,
+      "command_status": "completed",
+      "item_id": "exec-f1b2422c-234a-455f-90a5-312522a80179",
+      "item_index": 13,
+      "line": 174,
+      "literal_write_failures": [],
+      "method": "literal-quoted-cat-heredoc",
+      "path": "/workspace/BerylLattice/axiom/src/axiom/frontend.py",
+      "sha256": "54b104b64acfe5bd214f7fd0b2917cd846bdaa3179641de5798585ea098dd174",
+      "source": "history/agents/impl_frontend-002.json",
+      "status": "completed",
+      "thread_id": "01a141eb-78c1-74f5-9c68-d01c9b50802a",
+      "turn_completedAt": 1792107604,
+      "turn_id": "01a141eb-7b41-755a-9793-1526786dc280",
+      "turn_startedAt": 1792107314,
+      "warning": "REDACTED TOOL PLACEHOLDER: incomplete evidence, never restore-ready"
+    },
+    {
+      "bytes": 20000,
+      "change_index": 0,
+      "item_id": "exec-558bcfa5-ba90-4f8e-8a08-f1e49867fafe",
+      "item_index": 6,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 41314,
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "sha256": "0c04637b134d3fda88b5571d7551f4d3f5c0baf7104cbb303ae8eda22453a392",
+      "source": "history/agents/plan_core_buffers-004.json",
+      "status": "completed",
+      "thread_id": "01a1422e-3c6c-7339-a98e-1ded7fc1f017",
+      "turn_completedAt": 1792112772,
+      "turn_id": "01a14238-bd0f-7783-8941-bdc13f9c1c56",
+      "turn_startedAt": 1792112377,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20018,
+      "change_index": 0,
+      "item_id": "exec-25d71027-e4ec-4413-8d74-47559bfaff9d",
+      "item_index": 6,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 41756,
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "sha256": "0aae75b5c3c6d73fc75e6ca9699a7f5c68b61df97c30c600cac5941145e00ebc",
+      "source": "history/agents/plan_loop_checker-002.json",
+      "status": "completed",
+      "thread_id": "01a1422e-757c-76d0-823d-8027451da013",
+      "turn_completedAt": 1792113077,
+      "turn_id": "01a14238-f0cb-701b-9795-74b48bb6fef8",
+      "turn_startedAt": 1792112390,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20000,
+      "change_index": 0,
+      "item_id": "exec-c003c4f0-0800-4954-b35d-1125519e790d",
+      "item_index": 11,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 29891,
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/03-independent-oracle-and-evidence.md",
+      "sha256": "004d88d61d99837c5d7f6e04075b908cb6628d9e70493a35946a215c4bb9bb70",
+      "source": "history/agents/plan_oracle_measurement-001.json",
+      "status": "completed",
+      "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+      "turn_completedAt": 1792113723,
+      "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+      "turn_startedAt": 1792112405,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20004,
+      "change_index": 0,
+      "item_id": "exec-59d92581-f76e-4003-99bc-388a08258077",
+      "item_index": 24,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 41717,
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "sha256": "de2d7b90d847b3e31a147da0301b54d8a1ed9fba9d78a736701d7a86ca6de2c5",
+      "source": "history/agents/plan_oracle_measurement-001.json",
+      "status": "completed",
+      "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+      "turn_completedAt": 1792113723,
+      "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+      "turn_startedAt": 1792112405,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20103,
+      "change_index": 0,
+      "item_id": "exec-aa951d26-f744-41e9-9526-4d739fa02cb9",
+      "item_index": 6,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 46752,
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+      "sha256": "8b245b678f62cccfaf74f153372035b78c45c53fc0a4196c01af4ed65edd0ac1",
+      "source": "history/agents/plan_related_work-001.json",
+      "status": "completed",
+      "thread_id": "01a1422e-eb06-73d4-a8c9-e8103145701e",
+      "turn_completedAt": 1792112845,
+      "turn_id": "01a14239-6135-73c7-9c4f-87583bce3cee",
+      "turn_startedAt": 1792112430,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20012,
+      "change_index": 0,
+      "item_id": "exec-e478f82c-5aa6-429e-ba36-410ee00b906c",
+      "item_index": 31,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 22336,
+      "path": "/workspace/scratch/axiom-program-2026-10-15/refinement/checker-review.md",
+      "sha256": "920e8871768fea0aa7540a30eb60db3826eb88e2de014a5c119fbb567abf27b9",
+      "source": "history/agents/refine_checker_contract-002.json",
+      "status": "completed",
+      "thread_id": "01a141cd-395f-7387-9775-49f8e7c3d000",
+      "turn_completedAt": 1792105768,
+      "turn_id": "01a141cd-3d73-75b2-bb8d-33a81ef179bc",
+      "turn_startedAt": 1792105332,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20000,
+      "change_index": 0,
+      "item_id": "exec-1f3d63d7-e38a-4e37-b09e-76fc2f82f89b",
+      "item_index": 6,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 20891,
+      "path": "/workspace/scratch/axiom-program-2026-10-15/refinement/probes/ssa_control.py",
+      "sha256": "793b919863d81020465c13de2412eb6bb2b72219d38462cd076f694d17f0025d",
+      "source": "history/agents/refine_core_evidence-002.json",
+      "status": "completed",
+      "thread_id": "01a141cd-5a3d-723b-9e41-696ff9b7201e",
+      "turn_completedAt": 1792105924,
+      "turn_id": "01a141d1-e1be-7729-b844-e6518ae23946",
+      "turn_startedAt": 1792105636,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20018,
+      "change_index": 0,
+      "item_id": "exec-c36d5851-725f-4164-a481-f5c440183183",
+      "item_index": 24,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 26325,
+      "path": "/workspace/scratch/axiom-program-2026-10-15/refinement/contribution-review.md",
+      "sha256": "09543270765ec40e41467eed4fd7bf2a394a33719ac4508c6f9c67b8b28846bf",
+      "source": "history/agents/refine_novelty_argument-002.json",
+      "status": "completed",
+      "thread_id": "01a141cd-79d1-751d-8807-fccb35108010",
+      "turn_completedAt": 1792105810,
+      "turn_id": "01a141cd-7c72-736b-a9d7-8a73901fc25e",
+      "turn_startedAt": 1792105348,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20021,
+      "change_index": 0,
+      "item_id": "exec-b4b67369-2362-42a1-8f4d-64a08371a0d3",
+      "item_index": 16,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 21275,
+      "path": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/p2-obligation-checklist.md",
+      "sha256": "8290fb7c68e465f95e0c3d87e151ac77a2097c04b6a947b61dad17feb6e1d6ee",
+      "source": "history/agents/review_constructive_proofs-001.json",
+      "status": "completed",
+      "thread_id": "01a142cf-ce6e-70f3-b5f8-3553ceb6b017",
+      "turn_completedAt": 1792122808,
+      "turn_id": "01a142cf-d0da-727e-bad8-b56c85368c19",
+      "turn_startedAt": 1792122278,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20091,
+      "change_index": 0,
+      "item_id": "exec-bb19c572-ce65-4b82-aaad-cfc3d80671d1",
+      "item_index": 73,
+      "kind": {
+        "type": "add"
+      },
+      "originalChars": 22320,
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/design.md",
+      "sha256": "ebb41c06228aeb06300dde8da59ac7094f45aafadd50a91a3a466171adbb7d4d",
+      "source": "history/page-005.json",
+      "status": "completed",
+      "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+      "turn_completedAt": 1792113905,
+      "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+      "turn_startedAt": 1792111595,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    },
+    {
+      "bytes": 20052,
+      "change_index": 0,
+      "item_id": "exec-1fcff7a6-040f-448c-8d3a-c97701472ef1",
+      "item_index": 80,
+      "kind": {
+        "move_path": null,
+        "type": "update"
+      },
+      "originalChars": 20135,
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "sha256": "dc2f63558476cb63f7c3aa9199d4feecd83358a1820b30e6f9e199e11bbb1a61",
+      "source": "history/page-005.json",
+      "status": "completed",
+      "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+      "turn_completedAt": 1792113905,
+      "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+      "turn_startedAt": 1792111595,
+      "warning": "INCOMPLETE EVIDENCE; never a complete-file candidate"
+    }
+  ],
+  "regenerated_selected_seeds": [
+    {
+      "bytes": 24583,
+      "historical_path": "/workspace/BerylLattice/axiom/tests/fixtures/plans/checker/manual-ssa-staged-5x7.json",
+      "mode_octal": "0644",
+      "other_candidate_hashes": [],
+      "provenance": [
+        {
+          "historical_hash_available": false,
+          "item_id": "exec-955b2d6f-352e-4a2c-baab-2a48a820ab18",
+          "item_index": 26,
+          "method": "independent-complete-seed",
+          "restore_eligible": true,
+          "seed_file": "/workspace/scratch/axiom-recovery/root-analysis/fixtures/tests/fixtures/plans/checker/manual-ssa-staged-5x7.json",
+          "seed_manifest": "root-analysis/supplemental-candidates.json",
+          "source": "history/agents/impl_checker-001.json",
+          "source_method": "deterministic fixture regenerated by recovered independent test helper and strict codec",
+          "thread_id": "01a141f1-0769-75ed-a43d-54a3a6f10021",
+          "turn_completedAt": 1792108213,
+          "turn_id": "01a141f1-09c7-769e-852f-d2861f0dc520",
+          "turn_startedAt": 1792107678
+        }
+      ],
+      "reason": "only complete-byte candidate recovered; latest not independently established",
+      "sha256": "ba50075123040e59473dbb12bdfa84ff107f81024c4eb46b1b0f06cdbda4f90a",
+      "tree_relative_path": "workspace/BerylLattice/axiom/tests/fixtures/plans/checker/manual-ssa-staged-5x7.json"
+    },
+    {
+      "bytes": 364,
+      "historical_path": "/workspace/BerylLattice/axiom/tests/fixtures/plans/checker/manual-uninitialized-scratch.json",
+      "mode_octal": "0644",
+      "other_candidate_hashes": [],
+      "provenance": [
+        {
+          "historical_hash_available": false,
+          "item_id": "exec-955b2d6f-352e-4a2c-baab-2a48a820ab18",
+          "item_index": 26,
+          "method": "independent-complete-seed",
+          "restore_eligible": true,
+          "seed_file": "/workspace/scratch/axiom-recovery/root-analysis/fixtures/tests/fixtures/plans/checker/manual-uninitialized-scratch.json",
+          "seed_manifest": "root-analysis/supplemental-candidates.json",
+          "source": "history/agents/impl_checker-001.json",
+          "source_method": "deterministic JSON fixture recreated from complete historical recipe",
+          "thread_id": "01a141f1-0769-75ed-a43d-54a3a6f10021",
+          "turn_completedAt": 1792108213,
+          "turn_id": "01a141f1-09c7-769e-852f-d2861f0dc520",
+          "turn_startedAt": 1792107678
+        }
+      ],
+      "reason": "only complete-byte candidate recovered; latest not independently established",
+      "sha256": "a1a53a67b94817360730e74dbe7d3f3fced9e8301502ee7cfce19b21564af76d",
+      "tree_relative_path": "workspace/BerylLattice/axiom/tests/fixtures/plans/checker/manual-uninitialized-scratch.json"
+    },
+    {
+      "bytes": 39,
+      "historical_path": "/workspace/BerylLattice/axiom/tests/fixtures/plans/duplicate-key.json",
+      "mode_octal": "0644",
+      "other_candidate_hashes": [],
+      "provenance": [
+        {
+          "historical_hash_available": false,
+          "item_id": "exec-75c027db-1c98-4c81-94a9-cc4c2df4b007",
+          "item_index": 12,
+          "method": "independent-complete-seed",
+          "restore_eligible": true,
+          "seed_file": "/workspace/scratch/axiom-recovery/root-analysis/fixtures/tests/fixtures/plans/duplicate-key.json",
+          "seed_manifest": "root-analysis/supplemental-candidates.json",
+          "source": "history/agents/impl_codec-002.json",
+          "source_method": "deterministic JSON/literal bytes recreated from complete historical recipe",
+          "thread_id": "01a141ec-7d83-72e0-9262-d41a4097b037",
+          "turn_completedAt": 1792107570,
+          "turn_id": "01a141ec-801c-7283-a995-e11e51d678ac",
+          "turn_startedAt": 1792107380
+        }
+      ],
+      "reason": "only complete-byte candidate recovered; latest not independently established",
+      "sha256": "3de96d2bda2e9d9d7c7ffd304309e38e30cc95c6f1f1e1b4d95bba584e8459a2",
+      "tree_relative_path": "workspace/BerylLattice/axiom/tests/fixtures/plans/duplicate-key.json"
+    },
+    {
+      "bytes": 1575,
+      "historical_path": "/workspace/BerylLattice/axiom/tests/fixtures/plans/inline-1x1.json",
+      "mode_octal": "0644",
+      "other_candidate_hashes": [],
+      "provenance": [
+        {
+          "historical_hash_available": false,
+          "item_id": "exec-75c027db-1c98-4c81-94a9-cc4c2df4b007",
+          "item_index": 12,
+          "method": "independent-complete-seed",
+          "restore_eligible": true,
+          "seed_file": "/workspace/scratch/axiom-recovery/root-analysis/fixtures/tests/fixtures/plans/inline-1x1.json",
+          "seed_manifest": "root-analysis/supplemental-candidates.json",
+          "source": "history/agents/impl_codec-002.json",
+          "source_method": "deterministic JSON/literal bytes recreated from complete historical recipe",
+          "thread_id": "01a141ec-7d83-72e0-9262-d41a4097b037",
+          "turn_completedAt": 1792107570,
+          "turn_id": "01a141ec-801c-7283-a995-e11e51d678ac",
+          "turn_startedAt": 1792107380
+        }
+      ],
+      "reason": "only complete-byte candidate recovered; latest not independently established",
+      "sha256": "33f4a4e092ef6260b842aafafc79bdda068f4d98877d5cbf73ebba942cfdef75",
+      "tree_relative_path": "workspace/BerylLattice/axiom/tests/fixtures/plans/inline-1x1.json"
+    },
+    {
+      "bytes": 57,
+      "historical_path": "/workspace/BerylLattice/axiom/tests/fixtures/plans/overlong-integer.json",
+      "mode_octal": "0644",
+      "other_candidate_hashes": [],
+      "provenance": [
+        {
+          "historical_hash_available": false,
+          "item_id": "exec-75c027db-1c98-4c81-94a9-cc4c2df4b007",
+          "item_index": 12,
+          "method": "independent-complete-seed",
+          "restore_eligible": true,
+          "seed_file": "/workspace/scratch/axiom-recovery/root-analysis/fixtures/tests/fixtures/plans/overlong-integer.json",
+          "seed_manifest": "root-analysis/supplemental-candidates.json",
+          "source": "history/agents/impl_codec-002.json",
+          "source_method": "deterministic JSON/literal bytes recreated from complete historical recipe",
+          "thread_id": "01a141ec-7d83-72e0-9262-d41a4097b037",
+          "turn_completedAt": 1792107570,
+          "turn_id": "01a141ec-801c-7283-a995-e11e51d678ac",
+          "turn_startedAt": 1792107380
+        }
+      ],
+      "reason": "only complete-byte candidate recovered; latest not independently established",
+      "sha256": "cf2e095035b32bcfcd0ab2ba9e9bb306212dcd6e21d660ea7a60b35bc3dfde3c",
+      "tree_relative_path": "workspace/BerylLattice/axiom/tests/fixtures/plans/overlong-integer.json"
+    }
+  ],
+  "schema": "axiom-recovery-gaps-v1",
+  "unapplied_patch_records": [
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/core-interface/interface-decision.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-9f6a3fbd-9176-4b9a-a2cd-e09e62ce372b",
+        "item_index": 5,
+        "source": "history/agents/axiom_core_interface-001.json",
+        "status": "completed",
+        "thread_id": "01a13dc6-42cb-7566-afd6-9bafcb26a0ce",
+        "turn_completedAt": 1792038356,
+        "turn_id": "01a13dce-1fd4-747a-a626-e483b2319c27",
+        "turn_startedAt": 1792038281
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-foundations-2026-10-15/core-interface/interface-decision.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/core-interface/interface-decision.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-b8a85005-6cdd-4f72-a94e-c4aab703025b",
+        "item_index": 54,
+        "source": "history/agents/axiom_core_interface-002.json",
+        "status": "completed",
+        "thread_id": "01a13dc6-42cb-7566-afd6-9bafcb26a0ce",
+        "turn_completedAt": 1792038175,
+        "turn_id": "01a13dc6-4503-732a-9630-4a5e6cbf8ed3",
+        "turn_startedAt": 1792037766
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-foundations-2026-10-15/core-interface/interface-decision.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/search-validation/validation-design.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-166a0e19-5f65-451c-9e3b-a60af03d6337",
+        "item_index": 5,
+        "source": "history/agents/axiom_search_validation-001.json",
+        "status": "completed",
+        "thread_id": "01a13dc6-6e5f-71dc-9056-3372392f80ce",
+        "turn_completedAt": 1792038371,
+        "turn_id": "01a13dce-364f-72d8-9d81-a24d659e3edc",
+        "turn_startedAt": 1792038287
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-foundations-2026-10-15/search-validation/validation-design.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/search-validation/validation-design.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-08f7c20c-ce2d-4664-bfff-ec43ff5c966c",
+        "item_index": 26,
+        "source": "history/agents/axiom_search_validation-002.json",
+        "status": "completed",
+        "thread_id": "01a13dc6-6e5f-71dc-9056-3372392f80ce",
+        "turn_completedAt": 1792038139,
+        "turn_id": "01a13dc6-7070-72a6-9979-07ba8537b762",
+        "turn_startedAt": 1792037777
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-foundations-2026-10-15/search-validation/validation-design.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/semantics/contract-proposal.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-a646c927-ad5e-42eb-86a0-f8317e8a9d4e",
+        "item_index": 2,
+        "source": "history/agents/axiom_semantics-001.json",
+        "status": "completed",
+        "thread_id": "01a13dc6-1b36-7356-8976-7bdde7d340fb",
+        "turn_completedAt": 1792038652,
+        "turn_id": "01a13dd3-11f2-76cd-890b-653a71b21416",
+        "turn_startedAt": 1792038605
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-foundations-2026-10-15/semantics/contract-proposal.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-foundations-2026-10-15/semantics/contract-proposal.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-aa0b31ed-ae7f-4e99-8f9c-6525981228f3",
+        "item_index": 2,
+        "source": "history/agents/axiom_semantics-002.json",
+        "status": "completed",
+        "thread_id": "01a13dc6-1b36-7356-8976-7bdde7d340fb",
+        "turn_completedAt": 1792038327,
+        "turn_id": "01a13dce-0a74-7231-96b8-e1d6ede54a1d",
+        "turn_startedAt": 1792038275
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-foundations-2026-10-15/semantics/contract-proposal.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/o3-task-draft.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-db4c0670-1ef8-40f9-baaa-4c65013f3301",
+        "item_index": 11,
+        "source": "history/agents/design_oracle_qualification-001.json",
+        "status": "completed",
+        "thread_id": "01a142c6-a564-7194-84f4-340b2db9f035",
+        "turn_completedAt": 1792122533,
+        "turn_id": "01a142cd-bb90-7067-b212-a8a3f3f821ee",
+        "turn_startedAt": 1792122141
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/o3-task-draft.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-ab06b0bc-8c82-49d5-a9f3-588bee5e84d6",
+        "item_index": 4,
+        "source": "history/agents/plan_core_buffers-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-3c6c-7339-a98e-1ded7fc1f017",
+        "turn_completedAt": 1792113364,
+        "turn_id": "01a14246-eb4c-70fa-a859-6c3f49317482",
+        "turn_startedAt": 1792113306
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-724c7bb9-744a-480c-9c9c-929a6e43a56c",
+        "item_index": 2,
+        "source": "history/agents/plan_core_buffers-002.json",
+        "status": "completed",
+        "thread_id": "01a1422e-3c6c-7339-a98e-1ded7fc1f017",
+        "turn_completedAt": 1792113123,
+        "turn_id": "01a14242-b9dd-75e7-8c52-8ec73f64376b",
+        "turn_startedAt": 1792113031
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-72c06942-3185-43ea-accd-11b91cd50ed4",
+        "item_index": 2,
+        "source": "history/agents/plan_core_buffers-003.json",
+        "status": "completed",
+        "thread_id": "01a1422e-3c6c-7339-a98e-1ded7fc1f017",
+        "turn_completedAt": 1792112923,
+        "turn_id": "01a14240-208c-7129-b91e-8b47c08c6208",
+        "turn_startedAt": 1792112861
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-28b603f7-2afc-4a1e-965d-1e5c60f3737e",
+        "item_index": 10,
+        "source": "history/agents/plan_core_buffers-004.json",
+        "status": "completed",
+        "thread_id": "01a1422e-3c6c-7339-a98e-1ded7fc1f017",
+        "turn_completedAt": 1792112772,
+        "turn_id": "01a14238-bd0f-7783-8941-bdc13f9c1c56",
+        "turn_startedAt": 1792112377
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-73f57fa4-b735-4be0-8c78-a79f8e514418",
+        "item_index": 1,
+        "source": "history/agents/plan_loop_checker-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-757c-76d0-823d-8027451da013",
+        "turn_completedAt": 1792113205,
+        "turn_id": "01a14243-f120-70fd-bd4e-0c5c7be60ea4",
+        "turn_startedAt": 1792113111
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-592dc6b7-2362-4520-8ef7-29c253b59a22",
+        "item_index": 17,
+        "source": "history/agents/plan_loop_checker-002.json",
+        "status": "completed",
+        "thread_id": "01a1422e-757c-76d0-823d-8027451da013",
+        "turn_completedAt": 1792113077,
+        "turn_id": "01a14238-f0cb-701b-9795-74b48bb6fef8",
+        "turn_startedAt": 1792112390
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-05a57d50-5c7b-4e08-ba65-47488a354bc6",
+        "item_index": 22,
+        "source": "history/agents/plan_loop_checker-002.json",
+        "status": "completed",
+        "thread_id": "01a1422e-757c-76d0-823d-8027451da013",
+        "turn_completedAt": 1792113077,
+        "turn_id": "01a14238-f0cb-701b-9795-74b48bb6fef8",
+        "turn_startedAt": 1792112390
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-f75fb84e-07f8-4ed6-b0b0-ea8acc9f49d8",
+        "item_index": 24,
+        "source": "history/agents/plan_loop_checker-002.json",
+        "status": "completed",
+        "thread_id": "01a1422e-757c-76d0-823d-8027451da013",
+        "turn_completedAt": 1792113077,
+        "turn_id": "01a14238-f0cb-701b-9795-74b48bb6fef8",
+        "turn_startedAt": 1792112390
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-dd75b676-c5f1-4060-939d-b1a724934ea7",
+        "item_index": 30,
+        "source": "history/agents/plan_loop_checker-002.json",
+        "status": "completed",
+        "thread_id": "01a1422e-757c-76d0-823d-8027451da013",
+        "turn_completedAt": 1792113077,
+        "turn_id": "01a14238-f0cb-701b-9795-74b48bb6fef8",
+        "turn_startedAt": 1792112390
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-67ed4108-80c6-4640-bddd-f67f48d75141",
+        "item_index": 34,
+        "source": "history/agents/plan_loop_checker-002.json",
+        "status": "completed",
+        "thread_id": "01a1422e-757c-76d0-823d-8027451da013",
+        "turn_completedAt": 1792113077,
+        "turn_id": "01a14238-f0cb-701b-9795-74b48bb6fef8",
+        "turn_startedAt": 1792112390
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "provenance": {
+        "change_index": 1,
+        "item_id": "exec-a915cb22-0fa9-4265-8bd2-b499c2e1da55",
+        "item_index": 28,
+        "source": "history/agents/plan_oracle_measurement-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+        "turn_completedAt": 1792113723,
+        "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+        "turn_startedAt": 1792112405
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "provenance": {
+        "change_index": 1,
+        "item_id": "exec-ad132717-8da7-4340-807f-a13b190b3c1a",
+        "item_index": 33,
+        "source": "history/agents/plan_oracle_measurement-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+        "turn_completedAt": 1792113723,
+        "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+        "turn_startedAt": 1792112405
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-f1444c03-8c06-4ad7-8316-b78edc477503",
+        "item_index": 38,
+        "source": "history/agents/plan_oracle_measurement-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+        "turn_completedAt": 1792113723,
+        "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+        "turn_startedAt": 1792112405
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "provenance": {
+        "change_index": 1,
+        "item_id": "exec-87646abc-df16-4109-a8cd-3a298a58d2d1",
+        "item_index": 46,
+        "source": "history/agents/plan_oracle_measurement-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+        "turn_completedAt": 1792113723,
+        "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+        "turn_startedAt": 1792112405
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "provenance": {
+        "change_index": 1,
+        "item_id": "exec-18df6f53-7ed1-4458-a5dc-80b4a53808ed",
+        "item_index": 53,
+        "source": "history/agents/plan_oracle_measurement-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+        "turn_completedAt": 1792113723,
+        "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+        "turn_startedAt": 1792112405
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-b405be8b-8b4e-473e-a50e-7a432f0b50a9",
+        "item_index": 56,
+        "source": "history/agents/plan_oracle_measurement-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-b0d7-7046-ad26-b59f01f6e030",
+        "turn_completedAt": 1792113723,
+        "turn_id": "01a14239-2d05-707c-8813-becaeec88aea",
+        "turn_startedAt": 1792112405
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-5ad6f250-42b2-4f3d-bfd0-cbd1a7b15c92",
+        "item_index": 8,
+        "source": "history/agents/plan_related_work-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-eb06-73d4-a8c9-e8103145701e",
+        "turn_completedAt": 1792112845,
+        "turn_id": "01a14239-6135-73c7-9c4f-87583bce3cee",
+        "turn_startedAt": 1792112430
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-835ab85f-4887-452d-9016-cfc83dd57c8b",
+        "item_index": 17,
+        "source": "history/agents/plan_related_work-001.json",
+        "status": "completed",
+        "thread_id": "01a1422e-eb06-73d4-a8c9-e8103145701e",
+        "turn_completedAt": 1792112845,
+        "turn_id": "01a14239-6135-73c7-9c4f-87583bce3cee",
+        "turn_startedAt": 1792112430
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-program-2026-10-15/refinement/contribution-review.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-21c5a261-220a-497b-9a79-46d1edd3ecff",
+        "item_index": 45,
+        "source": "history/agents/refine_novelty_argument-002.json",
+        "status": "completed",
+        "thread_id": "01a141cd-79d1-751d-8807-fccb35108010",
+        "turn_completedAt": 1792105810,
+        "turn_id": "01a141cd-7c72-736b-a9d7-8a73901fc25e",
+        "turn_startedAt": 1792105348
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-program-2026-10-15/refinement/contribution-review.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/p2-obligation-checklist.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-2a09ceca-d45d-44f9-b97f-8f9056d28810",
+        "item_index": 21,
+        "source": "history/agents/review_constructive_proofs-001.json",
+        "status": "completed",
+        "thread_id": "01a142cf-ce6e-70f3-b5f8-3553ceb6b017",
+        "turn_completedAt": 1792122808,
+        "turn_id": "01a142cf-d0da-727e-bad8-b56c85368c19",
+        "turn_startedAt": 1792122278
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/p2-obligation-checklist.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "provenance": {
+        "change_index": 1,
+        "item_id": "exec-aef5af17-f332-4222-9d8a-a56e81178ade",
+        "item_index": 110,
+        "source": "history/page-002.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792119625,
+        "turn_id": "01a14266-ccd6-7738-b9af-25e05eecc45e",
+        "turn_startedAt": 1792115395
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "tested_bases": 2
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-5bac53cd-f3ca-48ea-a273-c8fc1e3338fd",
+        "item_index": 106,
+        "source": "history/page-005.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792113905,
+        "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+        "turn_startedAt": 1792111595
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "tested_bases": 2
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-4356f832-59fc-4763-8752-72bc335bc4e2",
+        "item_index": 150,
+        "source": "history/page-005.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792113905,
+        "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+        "turn_startedAt": 1792111595
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "provenance": {
+        "change_index": 1,
+        "item_id": "exec-4356f832-59fc-4763-8752-72bc335bc4e2",
+        "item_index": 150,
+        "source": "history/page-005.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792113905,
+        "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+        "turn_startedAt": 1792111595
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "tested_bases": 2
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-a0a5e997-e2d2-4d90-bc75-55e1f42c948e",
+        "item_index": 172,
+        "source": "history/page-005.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792113905,
+        "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+        "turn_startedAt": 1792111595
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-d0bc82df-ed8d-47fb-ab75-e5237ec7137e",
+        "item_index": 184,
+        "source": "history/page-005.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792113905,
+        "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+        "turn_startedAt": 1792111595
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+      "tested_bases": 0
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "provenance": {
+        "change_index": 2,
+        "item_id": "exec-d0bc82df-ed8d-47fb-ab75-e5237ec7137e",
+        "item_index": 184,
+        "source": "history/page-005.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792113905,
+        "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+        "turn_startedAt": 1792111595
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "tested_bases": 2
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-46e4b158-8319-48d8-9360-37bccdfa4e82",
+        "item_index": 190,
+        "source": "history/page-005.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792113905,
+        "turn_id": "01a1422c-cedf-71be-88cd-32d4eeff8a85",
+        "turn_startedAt": 1792111595
+      },
+      "successful_applications": [],
+      "target": "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "tested_bases": 2
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-program-2026-10-15/docs/superpowers/plans/01-axiom-correctness-prototype.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-dababf16-9412-443c-b421-370384f5c8cc",
+        "item_index": 54,
+        "source": "history/page-007.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792106425,
+        "turn_id": "01a141cc-adb8-72ea-b397-c14063e837b0",
+        "turn_startedAt": 1792105295
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-program-2026-10-15/docs/superpowers/plans/01-axiom-correctness-prototype.md",
+      "tested_bases": 4
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-program-2026-10-15/docs/superpowers/plans/01-axiom-correctness-prototype.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-f65aae9d-997c-44ea-9f11-b0d5ad86f860",
+        "item_index": 63,
+        "source": "history/page-007.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792106425,
+        "turn_id": "01a141cc-adb8-72ea-b397-c14063e837b0",
+        "turn_startedAt": 1792105295
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-program-2026-10-15/docs/superpowers/plans/01-axiom-correctness-prototype.md",
+      "tested_bases": 4
+    },
+    {
+      "blocker": "No recovered candidate matches complete hunk positions and old bytes.",
+      "path": "/workspace/scratch/axiom-program-2026-10-15/docs/superpowers/plans/01-axiom-correctness-prototype.md",
+      "provenance": {
+        "change_index": 0,
+        "item_id": "exec-bafcee26-c18b-4a10-8ad9-66e8f21859c3",
+        "item_index": 66,
+        "source": "history/page-007.json",
+        "status": "completed",
+        "thread_id": "01a13da8-8937-7372-bdf8-8fd0c8edc0c2",
+        "turn_completedAt": 1792106425,
+        "turn_id": "01a141cc-adb8-72ea-b397-c14063e837b0",
+        "turn_startedAt": 1792105295
+      },
+      "successful_applications": [],
+      "target": "/workspace/scratch/axiom-program-2026-10-15/docs/superpowers/plans/01-axiom-correctness-prototype.md",
+      "tested_bases": 4
+    }
+  ],
+  "unrecovered_complete_file_paths": [
+    "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/o3-task-draft.md",
+    "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/oracle-qualification-advice.md",
+    "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/p2-obligation-checklist.md",
+    "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/proof-rule-work-advice.md",
+    "/workspace/BerylLattice/.superpowers/sdd/axiom-checked-execution/source-work-audit.md",
+    "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/01-core-buffer-and-native-build.md",
+    "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/02-compact-plans-and-checker.md",
+    "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/04-native-measurement-and-experiments.md",
+    "/workspace/BerylLattice/docs/superpowers/plans/2026-10-16-axiom-scalability/05-research-and-publication.md",
+    "/workspace/scratch/axiom-foundations-2026-10-15/core-interface/interface-decision.md",
+    "/workspace/scratch/axiom-foundations-2026-10-15/search-validation/validation-design.md",
+    "/workspace/scratch/axiom-foundations-2026-10-15/semantics/contract-proposal.md",
+    "/workspace/scratch/axiom-program-2026-10-15/refinement/checker-review.md",
+    "/workspace/scratch/axiom-program-2026-10-15/refinement/contribution-review.md",
+    "/workspace/scratch/axiom-program-2026-10-15/refinement/probes/ssa_control.py"
+  ],
+  "additional_limitations": [
+    {
+      "path": "docs/superpowers/plans/2026-10-16-axiom-oracle-qualification.md",
+      "status": "committed path recorded but complete bytes not recoverable"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-16-axiom-scalability/README.md",
+      "status": "earlier complete draft restored; final master-plan text not fully recoverable"
+    },
+    {
+      "scope": "original Git commits and complete historical native/generated evidence",
+      "status": "not recovered; source recovery does not recreate original Git history, approvals, or performance evidence"
+    }
+  ]
+}

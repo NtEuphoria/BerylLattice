@@ -1,0 +1,629 @@
+{
+  "schema": "axiom-unfinished-work-recovery-v1",
+  "files": [
+    {
+      "task": "O3",
+      "path": "axiom/research/tests/test_oracle_receipts.py",
+      "archive_member": "O3/axiom/research/tests/test_oracle_receipts.py",
+      "sha256": "f4917612d5a2067d73b3dabb30f9f456e4ab30c8d79e65c9d6f94f5360cd5549",
+      "bytes": 38937,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "method": "data_only_string_replay",
+        "events": [
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 13,
+            "item_id": "exec-7c83556a-2592-4ee3-b595-c66067533aba",
+            "cwd": "/workspace/BerylLattice",
+            "method": "quoted_cat_heredoc",
+            "sha256": "47558a1601bdc3a4fc91df946230f73f95f743fecceafa06213dd067d4312cb6"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 20,
+            "item_id": "exec-12e378e7-440e-4c6b-980f-8ed83ac80d58",
+            "cwd": "/workspace/BerylLattice",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "d6cb66918cf13a5df5851369e15e102c4a6cd7c8a39e0cdb0648f95a7424a1f4"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 26,
+            "item_id": "exec-a870e57d-e91f-4f81-b6c6-f7287e4daf3b",
+            "cwd": "/workspace/BerylLattice",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "05a85786aa21d666b534671565c3e6771f23daadd0dd4035523bbe28f43565b1"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 30,
+            "item_id": "exec-695e276e-7cbd-4a9c-aaed-2be2afc4e306",
+            "cwd": "/workspace/BerylLattice",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "7cfe22124187bf91961e7088caa2c1e9c93ef25db6fbcb487daad9333b627641"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 36,
+            "item_id": "exec-4018c26a-b1df-4ad0-a5d4-e6b4e59aca3d",
+            "cwd": "/workspace/BerylLattice",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "2efbeba81c0fb0c38f4c19e0c67ceb0ea9d50ebb134d0f11e55e6f284fb644c9"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 40,
+            "item_id": "exec-0fe9d7f5-1f8a-4eb3-8526-f5e5d8bc3fb0",
+            "cwd": "/workspace/BerylLattice",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "fc46bb8446cfbb8032cc2b11a6576791286e557377e5ad170df68e3ee15f02ef"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 50,
+            "item_id": "exec-5186b498-6034-45ab-89bf-50bc905bfaa7",
+            "cwd": "/workspace/BerylLattice",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "126ab298e41a121898e4203028b31d765f4ac5455a58485a56542d498495cbb0"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 59,
+            "item_id": "exec-b83129a0-d15e-4b43-bace-8abf33e41bbc",
+            "cwd": "/workspace/BerylLattice",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "3fed64f38f0218e5050ad4e82b31df357ee49ef51cb58b8beb8392d773c527c4"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 59,
+            "item_id": "exec-b83129a0-d15e-4b43-bace-8abf33e41bbc",
+            "cwd": "/workspace/BerylLattice",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "91f97a78c9596e7c5b27889def5442c5b6943abc9f87621d625eca7a22be9034"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 89,
+            "item_id": "exec-3b2462d8-d889-48f2-a5ec-fb37efb8ff12",
+            "cwd": "/workspace/BerylLattice",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "dc34a3d14fec02faa65b15106bea65f19ccfc95fe25e8b91674ff8b8fa1ee1a7"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-002.json",
+            "item_index": 105,
+            "item_id": "exec-a19a085c-7fe0-46aa-b4ae-4bc51386c405",
+            "cwd": "/workspace/BerylLattice",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "77b22683f5b900dc1f66d0a8e012c1afe0223efa1e98faf7002b7713b629b30b"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_oracle_qualification-001.json",
+            "item_index": 14,
+            "item_id": "exec-9d75744e-845c-46a4-b9e5-bda6a48f3907",
+            "cwd": "/workspace/BerylLattice",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "f4917612d5a2067d73b3dabb30f9f456e4ab30c8d79e65c9d6f94f5360cd5549"
+          }
+        ],
+        "restore_eligible": false,
+        "expected_sha256": null,
+        "verification": "Complete ordered literal/string-transform history; historical final hash not yet located",
+        "label": "o3-uncommitted-tests"
+      }
+    },
+    {
+      "task": "P1",
+      "path": "axiom/research/loop_proof_graph.py",
+      "archive_member": "P1/axiom/research/loop_proof_graph.py",
+      "sha256": "731440dc920d70c57fa6b3c5911c4e9051c25e77fb822e73061683599c011874",
+      "bytes": 59273,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "method": "data_only_string_replay",
+        "events": [
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 15,
+            "item_id": "exec-29ebdc30-968d-464b-88c8-f3d6fc4703a9",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc",
+            "sha256": "ee3aedfc51d90d6c57dac962708e6e17e94d476864a10846c584cd628039d4d4"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 17,
+            "item_id": "exec-f9ad5a6b-ebb3-4a2b-a058-3f74842bddc6",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "e3ce5302c7c98ce21569399fdaf80528f7e22283c078e70a528e70a1f2dbbe2e"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 26,
+            "item_id": "exec-5b8c15fa-c6b1-43a5-90b0-4f5408ee2ac3",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "93b3f27b30ad9c0488ec737953b0c54248bb5aab605be2f025cdda68301d3840"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 30,
+            "item_id": "exec-683c590a-7265-4cda-8bb8-8b7872a8b0c9",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "10106915b0f9584e3225e714c83c9d730457561403b6dbb6db05682d8951857c"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 30,
+            "item_id": "exec-683c590a-7265-4cda-8bb8-8b7872a8b0c9",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "992d502a0737a9f295ce088c2ebe5fa56375854689b1fc70ef1aa7978f58f90d"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 46,
+            "item_id": "exec-34726a49-6379-4e07-b543-c48a245f3f31",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "4a20cc9ab069a80ca0696e7130bba8a90aa387256158a39eec738bc76c96b029"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 49,
+            "item_id": "exec-8b2e00f9-7d7e-41f5-b824-3cd47c799746",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "ffb6e805ee47b293f9a41c231a1ee1cc9f22612726842809247469eabc2c5107"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 56,
+            "item_id": "exec-af870c7d-9357-4651-b223-203e2bf344f1",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "e6233f79e061ec39a32ba64d37855c7528175e70b370f88066205b05e22feae3"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 92,
+            "item_id": "exec-0b2ff0ab-421e-41eb-8544-cbf3c67a7099",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "3088ab552045bb82130e4f337b0b068e9f3c3ef766429c69339a12beac450b4b"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 124,
+            "item_id": "exec-e6beeb01-a5fd-4789-9493-cf97fd4dfdd8",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "b35688ec1793d7023ce8486a7a36619297692a4d40b1164e732ac02a729e4746"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 128,
+            "item_id": "exec-37685ef2-1b62-47c4-8ddc-8a6c5ac52bc8",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "923537ccfbb719f3c05df4772c2acda5ec330658c7f5b58f3cf43c40f8b7b44d"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 153,
+            "item_id": "exec-45aff4d6-b06c-4ecf-87a2-c42644273212",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "a6e01307863848e29855c0ba37c74e7cbc619bde742e81928dbd1645fa9b6c81"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 192,
+            "item_id": "exec-001b3afc-714b-4fa4-8422-297ad160c582",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "731440dc920d70c57fa6b3c5911c4e9051c25e77fb822e73061683599c011874"
+          }
+        ],
+        "restore_eligible": false,
+        "expected_sha256": null,
+        "verification": "Complete ordered literal/string-transform history; historical final hash not yet located",
+        "label": "p1-uncommitted",
+        "intermediate_hash_verification": {
+          "graph_item_128": "923537ccfbb719f3c05df4772c2acda5ec330658c7f5b58f3cf43c40f8b7b44d",
+          "graph_item_153": "a6e01307863848e29855c0ba37c74e7cbc619bde742e81928dbd1645fa9b6c81",
+          "cost_item_128": "9383fad752365a769a709872fb446c0ab73cc5e18764e9cfecba07c4f0a55624",
+          "cost_item_159": "3db1b806535c1a76939a4fb968fee3af438539819f64e77578d4acbff23b6363",
+          "historical_source": "history/agents/audit_proof_rule_work-001.json items 1 and 31"
+        }
+      }
+    },
+    {
+      "task": "P1",
+      "path": "axiom/research/loop_proof_cost.py",
+      "archive_member": "P1/axiom/research/loop_proof_cost.py",
+      "sha256": "59cdd381a52aade52f015b7d085fa3b261cddb2239bd386153bbf1b2110d0e8d",
+      "bytes": 38637,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "method": "data_only_string_replay",
+        "events": [
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 65,
+            "item_id": "exec-4a35573e-4ece-42a3-9ce9-68bd64e4f963",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc",
+            "sha256": "096119a5d23a955d9790afb1dc12ebcb4c441f9ea472a21d863387dc6755d016"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 75,
+            "item_id": "exec-d51c9e57-a83c-4406-a6eb-77b4ff86ac98",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "43bae1fb90131a405114cd2b9657c49a543ad62680da5379f70f52f3a0f63fd1"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 81,
+            "item_id": "exec-edaad383-ce9e-429b-bcb8-5a3a60b0a7c3",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "c13807dc5c71ba7e5024027a3c7bbaf0436204de1e9eaf66d57e4ae01019dc29"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 81,
+            "item_id": "exec-edaad383-ce9e-429b-bcb8-5a3a60b0a7c3",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "8cd6bc9ede5991304f961f6f8c88ceebae724caf06158713793e06e76d6695e6"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 84,
+            "item_id": "exec-ea97a77b-264b-48a4-a6e2-e0d3373e4325",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "1653b30bc523c5f23ee06c21f4354bb9fcdc229a69688708d8f0ad1d73957cca"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 112,
+            "item_id": "exec-186d9432-7beb-4098-a51e-6801af922fe5",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "79448fccfc5c08357abdc0db58de5d214a45edffb3c6e566b2f97cbf99f4c5e1"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 128,
+            "item_id": "exec-37685ef2-1b62-47c4-8ddc-8a6c5ac52bc8",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "9383fad752365a769a709872fb446c0ab73cc5e18764e9cfecba07c4f0a55624"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 159,
+            "item_id": "exec-677111e2-5dd0-46e4-8f96-f8d68be03f71",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "0ba3f78987d6de3b837f77c0b8e8de7dda83338276107c91beaaef8a3fcc10ef"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 159,
+            "item_id": "exec-677111e2-5dd0-46e4-8f96-f8d68be03f71",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "3db1b806535c1a76939a4fb968fee3af438539819f64e77578d4acbff23b6363"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 179,
+            "item_id": "exec-cfa35322-fa40-4c5e-b9db-eed20aecc29f",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "59cdd381a52aade52f015b7d085fa3b261cddb2239bd386153bbf1b2110d0e8d"
+          }
+        ],
+        "restore_eligible": false,
+        "expected_sha256": null,
+        "verification": "Complete ordered literal/string-transform history; historical final hash not yet located",
+        "label": "p1-uncommitted",
+        "intermediate_hash_verification": {
+          "graph_item_128": "923537ccfbb719f3c05df4772c2acda5ec330658c7f5b58f3cf43c40f8b7b44d",
+          "graph_item_153": "a6e01307863848e29855c0ba37c74e7cbc619bde742e81928dbd1645fa9b6c81",
+          "cost_item_128": "9383fad752365a769a709872fb446c0ab73cc5e18764e9cfecba07c4f0a55624",
+          "cost_item_159": "3db1b806535c1a76939a4fb968fee3af438539819f64e77578d4acbff23b6363",
+          "historical_source": "history/agents/audit_proof_rule_work-001.json items 1 and 31"
+        }
+      }
+    },
+    {
+      "task": "P1",
+      "path": "axiom/research/tests/test_loop_proof_graph.py",
+      "archive_member": "P1/axiom/research/tests/test_loop_proof_graph.py",
+      "sha256": "58c31c48c5e3fa20f109ba3b1dacb8ec4629a994af2fc88230b1239d8030e4cf",
+      "bytes": 11828,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "method": "data_only_string_replay",
+        "events": [
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 13,
+            "item_id": "exec-3034fc08-3516-4d99-b1d9-b33e40bd66a4",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc",
+            "sha256": "9d06ef3781cc99a71a21c6dc78de716145e71ddb34b88ea27659071c9016b630"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 26,
+            "item_id": "exec-5b8c15fa-c6b1-43a5-90b0-4f5408ee2ac3",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "a186ede4640ff9bb04b22a720152b89689b083780cf7dd3c7cc28f15dbaa7533"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 28,
+            "item_id": "exec-ee9e4591-70d1-49e6-98a2-5a20bd7bdda0",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "0da92772c22db8abace1fbad9820a4acf24bc8627bbb3c62ed7d62ef4329ccc0"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 32,
+            "item_id": "exec-40dc76c3-1026-465e-b5d3-34eed9f4d0b9",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "660ec62ecb8ddc9dddbea5df16ac8ade0a026d8e38a941642bc540abd7548993"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 46,
+            "item_id": "exec-34726a49-6379-4e07-b543-c48a245f3f31",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "c880e3631434ac2d37285b72408c1a04a405df0c0bdb1fce1f734eb60153714c"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 48,
+            "item_id": "exec-ab048f36-d2c6-41b4-b8c6-bc68573741ee",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "df4becb211b4577030457c708949c74cd3438c52fe71593520b6116f938fe558"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 54,
+            "item_id": "exec-ab63fd0c-6ca4-4c6a-a7be-c12b8a5b3461",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "b321c81a4d0f8dd40b5a32913520cd1a600d1a0167dce17dbbf479b854bd0048"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 151,
+            "item_id": "exec-af71d81e-e8a2-4000-bcfb-42022f73437a",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "3852e22ea029be65a390a799e1f0bf6bc6d74db01cc693fff785a3d8bd4af26a"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 191,
+            "item_id": "exec-0c8ccf6b-5cdf-4393-8ffc-ba09b4ed7c39",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "58c31c48c5e3fa20f109ba3b1dacb8ec4629a994af2fc88230b1239d8030e4cf"
+          }
+        ],
+        "restore_eligible": false,
+        "expected_sha256": null,
+        "verification": "Complete ordered literal/string-transform history; historical final hash not yet located",
+        "label": "p1-uncommitted",
+        "intermediate_hash_verification": {
+          "graph_item_128": "923537ccfbb719f3c05df4772c2acda5ec330658c7f5b58f3cf43c40f8b7b44d",
+          "graph_item_153": "a6e01307863848e29855c0ba37c74e7cbc619bde742e81928dbd1645fa9b6c81",
+          "cost_item_128": "9383fad752365a769a709872fb446c0ab73cc5e18764e9cfecba07c4f0a55624",
+          "cost_item_159": "3db1b806535c1a76939a4fb968fee3af438539819f64e77578d4acbff23b6363",
+          "historical_source": "history/agents/audit_proof_rule_work-001.json items 1 and 31"
+        }
+      }
+    },
+    {
+      "task": "P1",
+      "path": "axiom/research/tests/test_loop_proof_cost.py",
+      "archive_member": "P1/axiom/research/tests/test_loop_proof_cost.py",
+      "sha256": "8afdbd579a1c737c2d3fa0a87c6952464c2aadf56e310e23138038a5dde15839",
+      "bytes": 6407,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "method": "data_only_string_replay",
+        "events": [
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 61,
+            "item_id": "exec-b193de4d-25cb-45f1-a503-cfa47542365a",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc",
+            "sha256": "1f3ed37189a02a58e20a9977072ba897f1ba4ed2c4f86cc63d93275ba33ed0ed"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 75,
+            "item_id": "exec-d51c9e57-a83c-4406-a6eb-77b4ff86ac98",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "ce8a3a36696c02bd7f80c17171a0d486b7487d18131aa73b617f23db1178636b"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 112,
+            "item_id": "exec-186d9432-7beb-4098-a51e-6801af922fe5",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "4f3fe9cd64c936460f8650afcd586da6a0d0966f2ab3fa535d85fbc179ed2c1f"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 157,
+            "item_id": "exec-2a88f6b0-3c22-4837-8b08-fad842c5f834",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc_append",
+            "sha256": "af9ef0cbe942b9cde9ba4548720731bc32092bb4057ad2cb1cb74cc19b6d0e74"
+          },
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 179,
+            "item_id": "exec-cfa35322-fa40-4c5e-b9db-eed20aecc29f",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "whitelisted_ast_string_transformation",
+            "sha256": "8afdbd579a1c737c2d3fa0a87c6952464c2aadf56e310e23138038a5dde15839"
+          }
+        ],
+        "restore_eligible": false,
+        "expected_sha256": null,
+        "verification": "Complete ordered literal/string-transform history; historical final hash not yet located",
+        "label": "p1-uncommitted",
+        "intermediate_hash_verification": {
+          "graph_item_128": "923537ccfbb719f3c05df4772c2acda5ec330658c7f5b58f3cf43c40f8b7b44d",
+          "graph_item_153": "a6e01307863848e29855c0ba37c74e7cbc619bde742e81928dbd1645fa9b6c81",
+          "cost_item_128": "9383fad752365a769a709872fb446c0ab73cc5e18764e9cfecba07c4f0a55624",
+          "cost_item_159": "3db1b806535c1a76939a4fb968fee3af438539819f64e77578d4acbff23b6363",
+          "historical_source": "history/agents/audit_proof_rule_work-001.json items 1 and 31"
+        }
+      }
+    },
+    {
+      "task": "P1",
+      "path": "axiom/research/fixtures/loop_proof_obligations.json",
+      "archive_member": "P1/axiom/research/fixtures/loop_proof_obligations.json",
+      "sha256": "80b70708c656877d57e3ff190107abe2fc579c0c0a50acf0be25f1af5a337778",
+      "bytes": 4382,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "method": "data_only_string_replay",
+        "events": [
+          {
+            "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+            "item_index": 37,
+            "item_id": "exec-2ccc914a-4a83-4b93-908c-10d77e55d6ec",
+            "cwd": "/workspace/BerylLattice/axiom",
+            "method": "quoted_cat_heredoc",
+            "sha256": "80b70708c656877d57e3ff190107abe2fc579c0c0a50acf0be25f1af5a337778"
+          }
+        ],
+        "restore_eligible": false,
+        "expected_sha256": null,
+        "verification": "Complete ordered literal/string-transform history; historical final hash not yet located",
+        "label": "p1-uncommitted",
+        "intermediate_hash_verification": {
+          "graph_item_128": "923537ccfbb719f3c05df4772c2acda5ec330658c7f5b58f3cf43c40f8b7b44d",
+          "graph_item_153": "a6e01307863848e29855c0ba37c74e7cbc619bde742e81928dbd1645fa9b6c81",
+          "cost_item_128": "9383fad752365a769a709872fb446c0ab73cc5e18764e9cfecba07c4f0a55624",
+          "cost_item_159": "3db1b806535c1a76939a4fb968fee3af438539819f64e77578d4acbff23b6363",
+          "historical_source": "history/agents/audit_proof_rule_work-001.json items 1 and 31"
+        }
+      }
+    },
+    {
+      "task": "A1",
+      "path": "axiom/src/axiom/source_names_v2.py",
+      "archive_member": "A1/axiom/src/axiom/source_names_v2.py",
+      "sha256": "e78a06b8acd0f854a04a538eda753bc7665aa3fef9bb7290358bdc447b6585c9",
+      "bytes": 7159,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "source": "/workspace/scratch/axiom-recovery/history/agents/implement_bounded_source_names-001.json",
+        "item_id": "exec-3a097f63-25aa-4289-8e01-f811814a4011",
+        "method": "exact_sha256_selection_from_strict_patch_engine",
+        "expected_sha256": "e78a06b8acd0f854a04a538eda753bc7665aa3fef9bb7290358bdc447b6585c9",
+        "restore_eligible": false,
+        "label": "a1-uncommitted",
+        "verification": "Matches recorded A1 dependency hashes; unfinished/unapproved work preserved separately"
+      }
+    },
+    {
+      "task": "A1",
+      "path": "axiom/src/axiom/source_profiles.py",
+      "archive_member": "A1/axiom/src/axiom/source_profiles.py",
+      "sha256": "4219fb082c4711f676897a8b0de777b504b99973560250d8a079403ff1b06328",
+      "bytes": 9215,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "source": "/workspace/scratch/axiom-recovery/history/agents/implement_bounded_source_names-001.json",
+        "item_id": "exec-3a097f63-25aa-4289-8e01-f811814a4011",
+        "method": "exact_sha256_selection_from_strict_patch_engine",
+        "expected_sha256": "4219fb082c4711f676897a8b0de777b504b99973560250d8a079403ff1b06328",
+        "restore_eligible": false,
+        "label": "a1-uncommitted",
+        "verification": "Matches recorded A1 dependency hashes; unfinished/unapproved work preserved separately"
+      }
+    },
+    {
+      "task": "A1",
+      "path": "axiom/tests/test_source_names_v2.py",
+      "archive_member": "A1/axiom/tests/test_source_names_v2.py",
+      "sha256": "00ee2b0439e5b5198068e3d2d40f258f2d0b290097b9f1dd63163dd55e7397c6",
+      "bytes": 18248,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "source": "/workspace/scratch/axiom-recovery/history/agents/implement_bounded_source_names-001.json",
+        "item_id": "exec-3a097f63-25aa-4289-8e01-f811814a4011",
+        "method": "exact_sha256_selection_from_strict_patch_engine",
+        "expected_sha256": "00ee2b0439e5b5198068e3d2d40f258f2d0b290097b9f1dd63163dd55e7397c6",
+        "restore_eligible": false,
+        "label": "a1-uncommitted",
+        "verification": "Matches recorded A1 dependency hashes; unfinished/unapproved work preserved separately"
+      }
+    },
+    {
+      "task": "A1",
+      "path": "axiom/tests/test_source_profiles.py",
+      "archive_member": "A1/axiom/tests/test_source_profiles.py",
+      "sha256": "54606dae5e4b388cfa809c1195f62ba225eb6e3827586d24d6ab01732279333b",
+      "bytes": 11754,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "source": "/workspace/scratch/axiom-recovery/history/agents/implement_bounded_source_names-001.json",
+        "item_id": "exec-3a097f63-25aa-4289-8e01-f811814a4011",
+        "method": "exact_sha256_selection_from_strict_patch_engine",
+        "expected_sha256": "54606dae5e4b388cfa809c1195f62ba225eb6e3827586d24d6ab01732279333b",
+        "restore_eligible": false,
+        "label": "a1-uncommitted",
+        "verification": "Matches recorded A1 dependency hashes; unfinished/unapproved work preserved separately"
+      }
+    },
+    {
+      "task": "P1",
+      "path": "axiom/docs/loop-plan-v2.md",
+      "archive_member": "P1/axiom/docs/loop-plan-v2.md",
+      "sha256": "1bc7323a0bd7b0d24773c4b0f162aacf983f77e22c92abb55c32707b57984278",
+      "bytes": 49802,
+      "status": "unfinished and unapproved; excluded from restored baseline",
+      "provenance": {
+        "method": "exact_historical_append",
+        "source": "/workspace/scratch/axiom-recovery/history/agents/implement_constructive_proofs-001.json",
+        "item_id": "exec-2ccc914a-4a83-4b93-908c-10d77e55d6ec",
+        "seed_file": "/workspace/scratch/axiom-recovery/foundations-analysis/literal-candidates/workspace/BerylLattice/axiom/docs/loop-plan-v2.md",
+        "seed_sha256": "9bf2a154db56dcb82aed11cd867cfb482a18c7cabd5775b6b92f7f905e2989d3",
+        "expected_sha256": "1bc7323a0bd7b0d24773c4b0f162aacf983f77e22c92abb55c32707b57984278",
+        "restore_eligible": false,
+        "label": "p1-uncommitted",
+        "verification": "Matches audit_proof_rule_work item31 recorded SHA256"
+      }
+    }
+  ]
+}

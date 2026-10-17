@@ -1,0 +1,40 @@
+{
+  "schema": "axiom-recovery-focused-verification-v1",
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.test_manifest",
+    "-v"
+  ],
+  "cwd": "/workspace/scratch/axiom-recovery/original-research-analysis/literal-candidates/workspace/BerylLattice/axiom/research",
+  "environment": {
+    "PYTHONPATH": "."
+  },
+  "exit_code": 0,
+  "reported_test_count": 24,
+  "reported_test_seconds": 8.643,
+  "scope": "fresh recovery verification of exact reconstructed historical manifest implementation; not native qualification",
+  "log": {
+    "path": "/workspace/scratch/axiom-recovery/original-research-analysis/manifest-recovery-tests.log",
+    "sha256": "e8d735ce86073876eb3824173ede38cacf8195384f46eafabf232ae69baf7312"
+  },
+  "files": [
+    {
+      "path": "/workspace/scratch/axiom-recovery/original-research-analysis/literal-candidates/workspace/BerylLattice/axiom/research/experiment_manifest.py",
+      "sha256": "3eeeafbe28f790fb5ada287f8261ac94cea060776a7db6e361486839c3c712ec"
+    },
+    {
+      "path": "/workspace/scratch/axiom-recovery/original-research-analysis/literal-candidates/workspace/BerylLattice/axiom/research/state_artifacts.py",
+      "sha256": "a1854b1dbe5ed2cd81840741c8da164b01e14c3b6858d12201895cd0728706c5"
+    },
+    {
+      "path": "/workspace/scratch/axiom-recovery/original-research-analysis/literal-candidates/workspace/BerylLattice/axiom/research/tests/test_manifest.py",
+      "sha256": "98004b842b723839caa498d934b3e25ecdb38472ff36aac4bb51416e0c9a8c8f"
+    },
+    {
+      "path": "/workspace/scratch/axiom-recovery/original-research-analysis/literal-candidates/workspace/BerylLattice/axiom/research/protocol/experiment-v1.md",
+      "sha256": "5ea925bae0c8ca7e37f7ebf40025d3a9f6ca431bd2a52df3ef5da18526828e6c"
+    }
+  ]
+}

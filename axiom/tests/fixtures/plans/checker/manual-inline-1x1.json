@@ -1,0 +1,179 @@
+{
+  "format_version": 1,
+  "semantic_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "plan_id": "hand-authored inline 1x1",
+  "scratch_capacity_cells": 0,
+  "operations": [
+    {
+      "opcode": "const",
+      "dst": 0,
+      "operands": [],
+      "index": null,
+      "value": 1,
+      "origins": []
+    },
+    {
+      "opcode": "input_load",
+      "dst": 1,
+      "operands": [],
+      "index": 0,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "add",
+      "dst": 2,
+      "operands": [
+        1,
+        0
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "mul",
+      "dst": 3,
+      "operands": [
+        2,
+        2
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "input_load",
+      "dst": 4,
+      "operands": [],
+      "index": 1,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "add",
+      "dst": 5,
+      "operands": [
+        4,
+        0
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "mul",
+      "dst": 6,
+      "operands": [
+        5,
+        5
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "input_load",
+      "dst": 7,
+      "operands": [],
+      "index": 2,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "add",
+      "dst": 8,
+      "operands": [
+        7,
+        0
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "mul",
+      "dst": 9,
+      "operands": [
+        8,
+        8
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "input_load",
+      "dst": 10,
+      "operands": [],
+      "index": 3,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "add",
+      "dst": 11,
+      "operands": [
+        10,
+        0
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "mul",
+      "dst": 12,
+      "operands": [
+        11,
+        11
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "add",
+      "dst": 13,
+      "operands": [
+        3,
+        6
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "add",
+      "dst": 14,
+      "operands": [
+        13,
+        9
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "add",
+      "dst": 15,
+      "operands": [
+        14,
+        12
+      ],
+      "index": null,
+      "value": null,
+      "origins": []
+    },
+    {
+      "opcode": "output_store",
+      "dst": null,
+      "operands": [
+        15
+      ],
+      "index": 0,
+      "value": null,
+      "origins": []
+    }
+  ]
+}

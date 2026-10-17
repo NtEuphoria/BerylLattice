@@ -1,0 +1,3 @@
+Python 3.12.14; Axiom uses only the standard library.
+{"height":5,"objective":"multiplication_ops","semantic_digest":"17692e7e1022cc35edf4d6f0e4f0a42fdd8252f836e5b01f933854236198ac26","source_cap":64,"source_digest":"d524b924fe7488d1664ea0f63c1938ab15357faa0681604b66a690389958336d","status":"admitted","width":7}
+Portable setup check passed. Use --native for the separate Core qualification.

@@ -1,0 +1,189 @@
+{
+  "schema": "axiom-recovery-verification-v1",
+  "date": "2026-10-17",
+  "historical_git_history_recovered": false,
+  "baseline_manifest_sha256": "2cb5f707d7b9f43cf2acdb09f2ed3af0f00f01e596ba5fc2c05290004d042882",
+  "live_files_verified": 279,
+  "archive_selected_files_verified": 281,
+  "checks": [
+    {
+      "name": "product",
+      "command": "PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v",
+      "cwd": "/workspace/BerylLattice/axiom",
+      "exit_code": 0,
+      "tests_reported": 239,
+      "skipped_reported": 22,
+      "seconds_reported": 315.876,
+      "log": "validation/product-final.log"
+    },
+    {
+      "name": "research-five-suites",
+      "command": "PYTHONPATH=../src:. PYTHONDONTWRITEBYTECODE=1 python -m unittest tests.test_state tests.test_receipts tests.test_evaluate_adapter tests.test_loop_proof_feasibility tests.test_oracle_receipts -v",
+      "cwd": "/workspace/scratch/axiom-recovery/validation/full-snapshot/axiom/research",
+      "exit_code": 0,
+      "tests_reported": 104,
+      "seconds_reported": 174.917,
+      "log": "validation/research-tests.log"
+    },
+    {
+      "name": "research-manifest",
+      "exit_code": 0,
+      "tests_reported": 24,
+      "log": "validation/live-manifest.log",
+      "cwd": "/workspace/BerylLattice/axiom/research"
+    },
+    {
+      "name": "source-oracle-normal",
+      "exit_code": 0,
+      "tests_reported": 29,
+      "log": "validation/live-oracle-normal.log",
+      "cwd": "/workspace/BerylLattice/axiom/research"
+    },
+    {
+      "name": "source-oracle-optimized",
+      "exit_code": 0,
+      "tests_reported": 29,
+      "log": "validation/live-oracle-optimized.log",
+      "cwd": "/workspace/BerylLattice/axiom/research"
+    },
+    {
+      "name": "portable-setup-live",
+      "exit_code": 0,
+      "log": "validation/live-portable-setup.log"
+    },
+    {
+      "name": "native-setup",
+      "exit_code": 0,
+      "log": "validation/native-setup.log",
+      "core_unit_exit_code": 1,
+      "core_unit_status": "known_pinned_baseline_failure",
+      "core_unit_failed_checks": 2,
+      "core_unit_total_checks": 10814,
+      "core_unit_cases": 583
+    }
+  ],
+  "limits": [
+    "22 product skips: optional native/nightly selectors and lost retained historical receipt.",
+    "The explicitly selected five-suite research run used full-snapshot, whose corresponding Python files match the live baseline. Manifest and oracle suites also passed in the live checkout; earlier logs from other snapshots are retained as supplementary evidence only.",
+    "Fresh native receipt copies are evidence summaries; original referenced paths and complete native generated artifacts are not portable in this Git checkpoint. Re-run native setup to obtain a new usable receipt.",
+    "Passing tests does not approve O3; historical cleanup-ownership review blockers persist.",
+    "Full original Git history, original native evidence, and some documentation were not recovered.",
+    "New Git bundle/combined-backup restore checks are recorded outside this checkpoint after its creation."
+  ],
+  "artifacts": {
+    "history-evidence.tar.gz": {
+      "bytes": 11485420,
+      "sha256": "56b748379d68007fdfd2512a6dfd57d15feadf786be89468a7eb76e4c11c66b6"
+    },
+    "baseline-files.tar.gz": {
+      "bytes": 841983,
+      "sha256": "e5e984f030c35879190f0026c780aa3f06275e122d5adc830e54eaf63f8cbfa3"
+    },
+    "unfinished-work.tar.gz": {
+      "bytes": 74447,
+      "sha256": "553165e2aa2855111844c5a85afe235d705a14e17e11c4084f8ebd9b9778b533"
+    },
+    "unfinished-work-manifest.json": {
+      "bytes": 32980,
+      "sha256": "5404f640721784f53a1d1379c9ee6a4e19d0f855cf3f5e7089d33faefd8f606d"
+    },
+    "restored-files.json": {
+      "bytes": 535881,
+      "sha256": "667a1cb776407ce89203bb29407df5e58a5ced40595fa689b140a5208bce293d"
+    },
+    "known-gaps.json": {
+      "bytes": 61725,
+      "sha256": "8c98bfb36dcac94f707ed21cf654442a306f5a0cf854c94f65123ee93785af71"
+    },
+    "audit-review.md": {
+      "bytes": 10446,
+      "sha256": "877126a4a5b4e46b2e0d747a9cf60ff4352834ce660b2cc3f308b079c906afbf"
+    }
+  },
+  "validation_files": {
+    "validation/core-emit-restored-fixture.log": {
+      "bytes": 1903,
+      "sha256": "ef9ad2c27b29f1ce1d0328d3b75e8578df7947f8b986b62c24708acd5bca85c2"
+    },
+    "validation/fresh-native/package-receipt.json": {
+      "bytes": 1691,
+      "sha256": "2f03fabe8ed1036cd7f20b85ed0e6c2f6506970437d90f395a021d0209dbcaa4"
+    },
+    "validation/fresh-native/preflight.json": {
+      "bytes": 8044,
+      "sha256": "8bb052514ca65192aee63b9358eca015c94a0c246bb1b61ce85b7842fa2e4a1b"
+    },
+    "validation/fresh-native/receipts/build.json": {
+      "bytes": 290,
+      "sha256": "0a6ece2c80eba4db893ea25af66b69aeab22ec9cf49cd1cdaccaa4b1c262ac05"
+    },
+    "validation/fresh-native/receipts/native.json": {
+      "bytes": 799,
+      "sha256": "cc8c04bc54ea05987008d109964daeda7c671a5f539134f8bbfc445ba20006c7"
+    },
+    "validation/fresh-native/receipts/toolchain.json": {
+      "bytes": 211980,
+      "sha256": "7068ce942aa7c9faac54332a117795c15bc3dbb48f9db8d8525d3342b4a41e53"
+    },
+    "validation/fresh-native/receipts/unit.json": {
+      "bytes": 1441,
+      "sha256": "a5868dfc0d257d7d2586d4d3159e23b3bf74f8263def37e3a323781604b54c4d"
+    },
+    "validation/fresh-native/setup.json": {
+      "bytes": 506,
+      "sha256": "55b0a5f793e8a60ea7863ac005e09f6200dca0c86e3b6728d303cc9cba3c35a2"
+    },
+    "validation/live-manifest.log": {
+      "bytes": 4061,
+      "sha256": "1afe0f8d9ccdbe11104f4968c00ab5c48eacea4e21c88f636ca00e6e0bdb0f21"
+    },
+    "validation/live-oracle-normal.log": {
+      "bytes": 5002,
+      "sha256": "9c8ec69b459da819389fbb2d3341c80de8edc35d48db737375e2e78e38bde34e"
+    },
+    "validation/live-oracle-optimized.log": {
+      "bytes": 5002,
+      "sha256": "c2baef7d6ff79448322c934c1ba8a090bd77326b1239015888e8975bdc775ed3"
+    },
+    "validation/live-portable-setup.log": {
+      "bytes": 393,
+      "sha256": "e8ffad1998ecdbc27358095b84d152c0e38da3eab8f15d72610c1d8c793bd408"
+    },
+    "validation/manifest-recovery-tests.log": {
+      "bytes": 4061,
+      "sha256": "e8d735ce86073876eb3824173ede38cacf8195384f46eafabf232ae69baf7312"
+    },
+    "validation/manifest-recovery-verification.json": {
+      "bytes": 1767,
+      "sha256": "3d854ad9d945301012a760f78650280e594dffd1dabe3580a77d8b57854e5424"
+    },
+    "validation/native-setup.log": {
+      "bytes": 782,
+      "sha256": "575860653974e68179603c8ae6dde276ed8228deaf30259bfd6d43588327a38a"
+    },
+    "validation/observer-tests.log": {
+      "bytes": 480,
+      "sha256": "b527ee8e6b0fe98ccea3ba2cb6b35dc7fd3908f5af57858a13f1a241cabd9e9b"
+    },
+    "validation/oracle-normal.log": {
+      "bytes": 4828,
+      "sha256": "984bc091bc52696691e50c97a13264f69a8d45d2dc7fb7b3dbc2b7f91238df6f"
+    },
+    "validation/oracle-optimized.log": {
+      "bytes": 4828,
+      "sha256": "c0c781db6d5964fa942e930d977bc1511266838d0b14da0f0f84866f3afe8e3b"
+    },
+    "validation/product-final.log": {
+      "bytes": 35255,
+      "sha256": "0746469fb4f707e89292aab72b052a101b2b56f8722dd63ce1999e2f14613c12"
+    },
+    "validation/product-tests.log": {
+      "bytes": 35574,
+      "sha256": "a641dee5f72377d5255eeffd50951907a68fcbb27c42eff51bfff55b913aa7ff"
+    },
+    "validation/research-tests.log": {
+      "bytes": 16699,
+      "sha256": "db8d41f40db1fff374d4a4f55f32142c7ba78951e0f224d1e1845b9882d0f5ed"
+    }
+  }
+}
