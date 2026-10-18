@@ -31,15 +31,15 @@
     "axiom/src/axiom/playground_web/worker.js": "f01138516637a4ee1d9f5ad3b98b1e536b4d02a4c1420097cd11fabe3cba2211",
     "axiom/src/axiom/runtime.py": "54d35cd52e4ad19944ea4f0807ccadac7ef999a0c635e4776cd2ea111308b71b",
     "tools/build-playground-site.py": "f69dcfaf6c0faf44bf2cd73fc4e8dd03be97769d6e06ea89d797a257474549bf",
-    "tools/check-playground-browser.cjs": "3a12b842ad9c202e2a8286e7b614f3c870622d5af969833038399c43e604636e",
+    "tools/check-playground-browser.cjs": "5e0b1eb5145b04917c1ea56b517a59748c81f7769afcebac9e25ae2ec517cd9c",
     "tools/run-playground.py": "bf3e8ed582cf88b29e2d433a98438d56e7681eeb165f10141436a916eeb6f403"
   },
   "limitations": [
     "No native or scalable-v2 qualification",
     "Product full suite ran while final HTTP test additions were completed; final focused normal/optimized checks cover those additions",
-    "Windows, Safari, Firefox and physical mobile devices were not executed",
-    "Public Pages activation not yet confirmed"
+    "Windows, Safari, Firefox and physical mobile devices were not executed"
   ],
+  "live_public_deployment": "deployment.json",
   "optimized_demo_before_packaging_only_amendment": {
     "exit_code": 0,
     "log": "optimized-demo-tests.log.gz",

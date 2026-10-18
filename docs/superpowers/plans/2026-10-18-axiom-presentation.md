@@ -71,7 +71,7 @@ are reused; no new worktree or public deployment is created.
 
 ## Deployment follow-through
 
-- [ ] Verify GitHub Pages after the owner enables main/root; API creation returned403.
+- [x] Verified GitHub Pages after owner activation; live Chromium computation and artifact checks passed.
 
 The owner approved MIT publication and created the separate public repository.
 The exact19-file release is pushed as7a608cb. Independent final review approved

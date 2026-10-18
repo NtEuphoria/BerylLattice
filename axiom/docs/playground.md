@@ -1,5 +1,9 @@
 # Axiom playground
 
+Try the [live playground](https://nteuphoria.github.io/axiom-playground/).
+The approved MIT demo source is in
+[NtEuphoria/axiom-playground](https://github.com/NtEuphoria/axiom-playground).
+
 This is a working demonstration of Axiom's bounded declarative language: write a
 computation and scratch constraint, let Axiom select and check a schedule, then
 execute that schedule and compare every result with the independent source
@@ -57,11 +61,11 @@ publish a site. This grant does not cover private research/recovery material.
 The generated README explains hosting MIME types and CSP. GitHub Pages ignores
 `_headers`; the page also contains its own CSP meta policy.
 
-The owner created the public repository and the approved release was pushed to
-`NtEuphoria/axiom-playground` (`main`, commit7a608cb). The current GitHub connection
-returned403 when enabling Pages. In Settings → Pages, publish the `main` branch's
-root directory. Repository push access does not establish Pages configuration
-permission. Live deployment status is recorded in the presentation review.
+The owner created the public repository and enabled Pages after the integration
+returned403 for those administrative operations. The approved release is on
+`NtEuphoria/axiom-playground` (`main`, commit7a608cb), published from the branch's
+root directory. Actual Chromium execution and selected served-file hashes/MIME
+types passed against the live HTTPS site. See the presentation review for evidence.
 
 ## A two-minute presentation
 
@@ -139,5 +143,7 @@ node tools/check-playground-browser.cjs http://YOUR_TEST_SERVER
 
 Run that command from the repository root. `PLAYWRIGHT_MODULE` can select an
 existing Playwright installation and `CHROMIUM_PATH` an existing browser binary.
+`PLAYWRIGHT_PROXY` can select an existing network proxy when testing a public site;
+TLS verification remains enabled.
 It exercises actual execution, output equality, schedule changes, downloads,
 rejections, stale-result clearing, narrow screens, and keyboard navigation.

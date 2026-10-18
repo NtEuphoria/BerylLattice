@@ -41,9 +41,11 @@ demo compiler/UI and bundled third-party runtime belong in that release. The
 full BerylLattice repository, recovery records, and scalable research stay private.
 Registration/submission on the owner's behalf is not authorized. After the
 integration rejected repository creation, the owner created the public repository.
-The approved19-file release was pushed as `main` commit7a608cb. Pages configuration
-was rejected with403 and requires the owner's Settings → Pages action. See the
-presentation review for live-site verification status.
+The approved19-file release was pushed as `main` commit7a608cb. The owner enabled
+Pages after the integration's403 response. The
+[public playground](https://nteuphoria.github.io/axiom-playground/) passed actual
+Chromium execution and served-file identity/MIME checks. See the presentation
+review for retained deployment evidence.
 
 ## Ongoing language research
 

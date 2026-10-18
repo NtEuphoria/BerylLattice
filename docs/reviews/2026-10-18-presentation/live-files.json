@@ -1,0 +1,38 @@
+[
+  {
+    "file": "index.html",
+    "sha256": "5f31774d5281f5fec3852a06c27a35b9586ce379bb8ba4dcadb8800bd0d65734",
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 9062
+  },
+  {
+    "file": "release-manifest.json",
+    "sha256": "bdf1bd7bd5678a9f33f643f1a46deb1812381a9f72ca01a9a44f90a50f5f131c",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 7203
+  },
+  {
+    "file": "axiom-compiler.zip",
+    "sha256": "abd6d1a35979e7f3901d5dd2a25c4988540b0e055d4db9e4d7310a296efb1ffe",
+    "content_type": "application/x-zip-compressed",
+    "bytes": 28599
+  },
+  {
+    "file": "worker.js",
+    "sha256": "f01138516637a4ee1d9f5ad3b98b1e536b4d02a4c1420097cd11fabe3cba2211",
+    "content_type": "application/javascript; charset=utf-8",
+    "bytes": 2663
+  },
+  {
+    "file": "runtime/pyodide.asm.wasm",
+    "sha256": "a50dd1843f805a0b7c45b61037ee0d7b26dfe85efe0e18ef95a34ad24e401f5f",
+    "content_type": "application/wasm",
+    "bytes": 10105545
+  },
+  {
+    "file": "LICENSE",
+    "sha256": "673f0bfcb392c499679e681044b81018222fdcfe14ad3adffc8d4735f89e62aa",
+    "content_type": "application/octet-stream",
+    "bytes": 1067
+  }
+]

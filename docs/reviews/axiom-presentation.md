@@ -32,9 +32,13 @@ and hashes. Pinned runtime assets are downloaded with TLS verification and SHA25
 checks; no browser request to an external runtime CDN is needed in this release.
 
 GitHub accepted the public source push but rejected Pages creation with403.
-The owner was asked to enable `main` at `/(root)` in repository Settings → Pages.
-Any subsequent live-site verification is recorded in `deployment.json` beside
-the verification evidence. A source push by itself is not a live-site claim.
+The owner enabled `main` at `/(root)` in repository Settings → Pages. The live
+site at https://nteuphoria.github.io/axiom-playground/ then passed the actual
+Chromium run, schedule change, every-output comparison, exports, rejections,
+stale-result, responsive and keyboard checks. Selected served files match the
+reviewed bytes and expected MIME types. Exact commit, identities and results are
+recorded in `deployment.json`, `live-files.json`, and `live-browser.log.gz` beside
+the verification evidence. This live check establishes the deployed demo path.
 
 The separate bounded-source prerequisite is reviewed in PR#2 and does not change
 this presentation's v1 path. Its review records170 passing targeted tests in each

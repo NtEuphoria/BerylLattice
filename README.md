@@ -1,5 +1,7 @@
 # Beryl Lattice
 
+[Try the Axiom playground](https://nteuphoria.github.io/axiom-playground/).
+
 Project Axiom is the experimental constraint-directed language developed by Lattice. Lattice Core remains the separate Beryl 4GL compiler.
 
 The initial implementation lives in `axiom/`. A programmer declares a two-stage stencil, an optional scratch-space constraint and an arithmetic objective. Axiom constructs three schedules, checks their actual operations independently and retains an eligible plan with replayable evidence.

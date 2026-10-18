@@ -1,4 +1,8 @@
 {
+  "final-local-browser.log": {
+    "compressed_sha256": "d21587116d82d35dd4e8dcacb1c01154f5952a2be0763fd700ca5e4e6bf36575",
+    "sha256": "67507c3f7233a484a7493fb8c6f85348b3a768e42e52ddf446f577734dc83c1f"
+  },
   "final-runtime-http-tests.log": {
     "compressed_sha256": "e2a98564091b54c8240e449c4dee0839befa1e78ef9949532ac917e4cc726063",
     "sha256": "c2a34383a31e82ae9abc2170c39f0ce73507118766033d79d88bac2853e1fbad"
@@ -22,6 +26,10 @@
   "http-red.log": {
     "compressed_sha256": "45258ed2ad8b58ce083f4cb9ae8e060009fecccf8411a96a0b78847a43853cfd",
     "sha256": "5f0e65cfd74274e62ea78cc86652c2928b82e25fdc3e4c90a4b1fcd3beb535c0"
+  },
+  "live-browser.log": {
+    "compressed_sha256": "d7784244df1bacf5717d908d84501f3bbb60da40d532fbfc9561faa4d58f0d3d",
+    "sha256": "8718847bbb8f1da833ff61482c2370851cdefffa0121677c7376ffd4469e5f2a"
   },
   "optimized-demo-tests.log": {
     "compressed_sha256": "8796255e94d655ff677d9735800051af2bd993ea2ee8e9b55e95e26849d8ca2f",

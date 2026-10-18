@@ -9,6 +9,7 @@ async function main() {
   if (!address || !/^https?:\/\//.test(address)) throw new Error('Supply the test server URL');
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || undefined,
+    proxy: process.env.PLAYWRIGHT_PROXY ? { server: process.env.PLAYWRIGHT_PROXY } : undefined,
     headless: true,
     args: ['--no-sandbox'],
   });

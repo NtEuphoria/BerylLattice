@@ -5,7 +5,12 @@
   "public_files": 19,
   "publication_authorization": "Owner explicitly approved bounded demo under MIT in conversation on2026-10-18",
   "source_push": "verified_success",
-  "pages_enablement": "API returned403; owner assisted with Settings > Pages > main/root",
-  "live_verified": false,
-  "release_manifest_sha256": "bdf1bd7bd5678a9f33f643f1a46deb1812381a9f72ca01a9a44f90a50f5f131c"
+  "pages_enablement": "Owner enabled main/root after integration POST403",
+  "live_verified": true,
+  "release_manifest_sha256": "bdf1bd7bd5678a9f33f643f1a46deb1812381a9f72ca01a9a44f90a50f5f131c",
+  "pages_status": "built",
+  "pages_url": "https://nteuphoria.github.io/axiom-playground/",
+  "live_browser": "Chromium: actual computation, every output, schedule change, export, invalid source/input, stale results, responsive widths and keyboard passed",
+  "served_file_verification": "live-files.json: exact bytes and MIME types match reviewed release",
+  "live_browser_log": "live-browser.log.gz"
 }
