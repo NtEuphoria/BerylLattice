@@ -34,6 +34,10 @@ class WasmArtifact:
     source_digest: str
     plan_digest: str
     module_digest: str
+    codegen_version: str = 'beryl-finite-wasm-v1'
+    hint_digest: str | None = None
+    local_count: int = 0
+    loop_version: str | None = None
 
 
 def _uleb(value):
@@ -134,7 +138,7 @@ def _compile_wasm_checked(owned):
                             owned.checked.plan_digest)
 
 
-def _emit_finite(kernel, plan, source_digest, plan_digest):
+def _layout(kernel, plan):
     input_count = (kernel.height + 1) * (kernel.width + 1)
     output_count = kernel.height * kernel.width
     output_offset = 4 * input_count
@@ -144,9 +148,12 @@ def _emit_finite(kernel, plan, source_digest, plan_digest):
         raise DiagnosticError('BACKEND_STORAGE_LIMIT', kernel.source_module.span,
                               'bounded Wasm storage requires at most 256 scratch cells in one page')
 
-    body = _body(kernel, plan, input_count, output_offset, scratch_offset)
+    return input_count, output_count, output_offset, scratch_offset
+
+
+def _module(body):
     # Single function () -> i32, no imports, single fixed memory, two exports.
-    module = b''.join((
+    return b''.join((
         b'\x00asm\x01\x00\x00\x00',
         _section(1, b'\x01\x60\x00\x01\x7f'),
         _section(3, b'\x01\x00'),
@@ -154,7 +161,14 @@ def _emit_finite(kernel, plan, source_digest, plan_digest):
         _section(7, b'\x02\x06memory\x02\x00\x03run\x00\x00'),
         _section(10, b'\x01' + _uleb(len(body)) + body),
     ))
+
+
+def _emit_finite(kernel, plan, source_digest, plan_digest):
+    input_count, output_count, output_offset, scratch_offset = _layout(kernel, plan)
+    body = _body(kernel, plan, input_count, output_offset, scratch_offset)
+    module = _module(body)
     return WasmArtifact(module, kernel.height, kernel.width, 0, output_offset,
                         _MEMORY_BYTES, input_count, output_count, kernel.input_interval,
                         source_digest, plan_digest,
-                        sha256(module).hexdigest())
+                        sha256(module).hexdigest(),
+                        local_count=sum(op.dst is not None for op in plan.operations))
