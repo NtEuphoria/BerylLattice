@@ -95,6 +95,41 @@ class PlaygroundServiceTests(unittest.TestCase):
         self.assertEqual(result['input'], inputs)
         self.assertEqual(result['comparison'], {'matches': True, 'cells_compared': 35})
 
+    def test_precondition_failure_refuses_before_planning(self):
+        service = self.service()
+        inputs = [0] * 48
+        inputs[47] = 1024
+        with patch.object(service, 'select_plan', side_effect=AssertionError('must not plan')), \
+             patch.object(service, 'execute_plan', side_effect=AssertionError('must not execute')):
+            result = service.run_demo(self.request(mode='custom', inputs=inputs))
+        self.assertEqual(result['status'], 'input_precondition_failed')
+        self.assertEqual(result['first_bad_index'], 47)
+        self.assertIsNone(result['selected'])
+        self.assertEqual(result['attempts'], [])
+        self.assertIsNone(result['search'])
+        self.assertEqual(result['output'], [-9] * 35)
+        self.assertEqual(result['comparison'], {'matches': True, 'cells_compared': 35})
+
+    def test_precondition_disagreement_takes_the_checked_path(self):
+        service = self.service()
+        inputs = [0] * 48
+        inputs[47] = 1024
+        def wrong_index(module, data, initial):
+            return replace(evaluate_source(module, data, initial), first_bad_index=0)
+        with patch.object(service, 'evaluate_source', wrong_index):
+            result = service.run_demo(self.request(mode='custom', inputs=inputs))
+        self.assertEqual(result['status'], 'error')
+        self.assertEqual(result['diagnostic']['code'], 'INDEPENDENT_COMPARISON_FAILED')
+
+    def test_malformed_boundary_keeps_precedence_over_range_failure(self):
+        service = self.service()
+        inputs = [0] * 48
+        inputs[3] = 1024
+        inputs[40] = 'not an integer'
+        result = service.run_demo(self.request(mode='custom', inputs=inputs))
+        self.assertEqual(result['status'], 'error')
+        self.assertEqual(result['diagnostic']['code'], 'BOUNDARY_TYPE')
+
     def test_maximum_shape_runs_and_larger_source_is_rejected(self):
         result = self.service().run_demo(self.request(h=15, w=15, cap=None))
         self.assertEqual(result['status'], 'success')

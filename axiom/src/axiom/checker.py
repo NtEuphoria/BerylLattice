@@ -7,7 +7,7 @@ Only explicitly reserved scratch counts toward the workspace constraint.
 from dataclasses import dataclass
 from hashlib import sha256
 
-from .codec import DecodeError, canonical_json, plan_digest, validate_plan
+from .codec import DecodeError, canonical_json, validate_plan, validated_plan_digest
 from .frontend import admit_source, parse_source
 from .model import (AdmittedKernel, BinaryExpression, ConstraintStatus, DiagnosticError,
                     GroupExpression, IntegerLiteral, Limits, NameReference,
@@ -62,15 +62,22 @@ class _Work:
         self.used += 1
 
 
-@dataclass(frozen=True, slots=True, eq=False)
 class _Node:
-    kind: str
-    atom: int | None
-    left: int | None
-    right: int | None
-    lower: int
-    upper: int
-    samples: tuple[int, int]
+    """Private arena node; identity equality, written once in __init__ only.
+
+    A plain slots class: frozen dataclass construction (object.__setattr__
+    per field) dominated checking. No code mutates a node after allocation.
+    """
+    __slots__ = ('kind', 'atom', 'left', 'right', 'lower', 'upper', 'samples')
+
+    def __init__(self, kind, atom, left, right, lower, upper, samples):
+        self.kind = kind
+        self.atom = atom
+        self.left = left
+        self.right = right
+        self.lower = lower
+        self.upper = upper
+        self.samples = samples
 
 
 class _Expressions:
@@ -97,19 +104,21 @@ class _Expressions:
         # All bounds and samples entering this method are i32. Even an
         # inconclusive interval cannot cause exponentially growing Python ints.
         a, b = self.nodes[left], self.nodes[right]
+        (a0, a1), (b0, b1) = a.samples, b.samples  # samples at (lower, upper) uniform inputs
         if kind == 'add':
             lower, upper = a.lower + b.lower, a.upper + b.upper
-            samples = tuple(x + y for x, y in zip(a.samples, b.samples))
+            samples = (a0 + b0, a1 + b1)
         else:
             endpoints = (a.lower*b.lower, a.lower*b.upper,
                          a.upper*b.lower, a.upper*b.upper)
             lower, upper = min(endpoints), max(endpoints)
-            samples = tuple(x * y for x, y in zip(a.samples, b.samples))
-        for input_value, result in zip(self.input_interval, samples):
-            if not _I32_MIN <= result <= _I32_MAX:
-                raise _Stop('ARITHMETIC_OVERFLOW',
-                            (('location', origin), ('uniform_input', input_value),
-                             ('result', str(result))))
+            samples = (a0 * b0, a1 * b1)
+        if not (_I32_MIN <= samples[0] <= _I32_MAX and _I32_MIN <= samples[1] <= _I32_MAX):
+            for input_value, result in zip(self.input_interval, samples):
+                if not _I32_MIN <= result <= _I32_MAX:
+                    raise _Stop('ARITHMETIC_OVERFLOW',
+                                (('location', origin), ('uniform_input', input_value),
+                                 ('result', str(result))))
         if lower < _I32_MIN or upper > _I32_MAX:
             self.inconclusive = True
             # Conditional bounds on executions that have not overflowed. The
@@ -130,13 +139,25 @@ def _source_expression(expression, environment, kernel, dag, work):
     input_name = module.inputs[0].name
     stack = [('visit', expression, environment, 'scalar')]
     values = []
+    pop, push, charge = stack.pop, stack.append, work.charge
     while stack:
-        frame = stack.pop()
+        frame = pop()
         action = frame[0]
         if action == 'visit':
             _, node, env, mode = frame
-            work.charge()
-            if isinstance(node, GroupExpression):
+            charge()
+            kind = type(node)
+            # Exact-type fast paths for the two hottest node kinds; anything
+            # else takes the original isinstance chain in its original order.
+            if kind is ReadExpression:
+                push(('read', node.name, len(node.indices), env))
+                for index in reversed(node.indices):
+                    push(('visit', index, env, 'index'))
+            elif kind is BinaryExpression:
+                push(('binary', node.operator, mode))
+                push(('visit', node.right, env, mode))
+                push(('visit', node.left, env, mode))
+            elif isinstance(node, GroupExpression):
                 stack.append(('visit', node.expression, env, mode))
             elif isinstance(node, IntegerLiteral):
                 values.append(node.value if mode == 'index' else dag.literal(node.value))
@@ -236,7 +257,7 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
 
     try:
         validate_plan(plan, limits)
-        identity = plan_digest(plan, limits=limits)
+        identity = validated_plan_digest(plan, limits)
     except DecodeError as error:
         unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')
         return result(SemanticStatus.UNKNOWN if unknown else SemanticStatus.INVALID,

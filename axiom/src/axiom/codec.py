@@ -147,12 +147,113 @@ def strict_json_loads(data: bytes, *, max_bytes=2097152, max_items=300000,
         text = data.decode('utf-8')
     except UnicodeError:
         _fail('INVALID_JSON', '$', 'artifact must be valid UTF-8')
-    parser = _JSONParser(text, max_items, max_depth, max_integer_digits, _operation_limit)
+    accepted = _fast_loads(text, max_items, max_depth, max_integer_digits, _operation_limit)
+    if accepted is not _REJECTED:
+        return accepted
+    return _strict_parse(text, max_items, max_depth, max_integer_digits, _operation_limit)
+
+
+class _Fallback(Exception):
+    pass
+
+
+_REJECTED = object()
+
+
+def _fast_loads(text, max_items, max_depth, max_integer_digits, operation_limit):
+    """C-decoder fast path accepting only what _strict_parse accepts. Hooks refuse
+    floats, NaN, long integers and duplicate keys; a post-pass applies depth, item,
+    operation and Unicode rules. Otherwise _REJECTED: the strict parser re-reads
+    the text, so every rejection keeps its exact code and path."""
+    def parse_int(token):
+        if len(token) - (token[0] == '-') > max_integer_digits:
+            raise _Fallback
+        return int(token)
+
+    def refuse(_token):
+        raise _Fallback
+
+    def pairs(items):
+        result = dict(items)
+        if len(result) != len(items):
+            raise _Fallback
+        return result
+
+    try:
+        value = json.loads(text, parse_int=parse_int, parse_float=refuse,
+                           parse_constant=refuse, object_pairs_hook=pairs)
+    except (ValueError, RecursionError, _Fallback):
+        return _REJECTED
+    if operation_limit is not None and type(value) is dict:
+        operations = value.get('operations')
+        if type(operations) is list and len(operations) > operation_limit:
+            return _REJECTED
+    items = 0
+    pending = [(value, 0)]
+    while pending:
+        item, depth = pending.pop()
+        if depth > max_depth:
+            return _REJECTED
+        kind = type(item)
+        if kind is str:
+            try:
+                item.encode('utf-8')
+            except UnicodeError:
+                return _REJECTED
+        elif kind is list:
+            items += len(item)
+            pending.extend((child, depth + 1) for child in item)
+        elif kind is dict:
+            items += len(item)
+            for key, child in item.items():
+                try:
+                    key.encode('utf-8')
+                except UnicodeError:
+                    return _REJECTED
+                pending.append((child, depth + 1))
+        if items > max_items:
+            return _REJECTED
+    return value
+
+
+def _strict_parse(text, max_items, max_depth, max_integer_digits, operation_limit):
+    parser = _JSONParser(text, max_items, max_depth, max_integer_digits, operation_limit)
     value = parser.value()
     parser.whitespace()
     if parser.pos != len(text):
         _fail('INVALID_JSON', '$', 'trailing data')
     return value
+
+
+def _canonical_ok(value) -> bool:
+    """Path-free equivalent of canonical_json's validity predicate."""
+    pending = [(value, 0)]
+    while pending:
+        item, depth = pending.pop()
+        if depth > 64:
+            return False
+        kind = type(item)
+        if item is None or kind is bool:
+            continue
+        if kind is int:
+            if not -9999999999 <= item <= 9999999999:
+                return False
+        elif kind is str:
+            try:
+                item.encode('utf-8')
+            except UnicodeError:
+                return False
+        elif kind is list:
+            pending.extend((child, depth + 1) for child in item)
+        elif kind is dict:
+            for key, child in item.items():
+                if type(key) is not str:
+                    return False
+                pending.append((key, depth + 1))
+                pending.append((child, depth + 1))
+        else:
+            return False
+    return True
 
 
 def canonical_json(value) -> bytes:
@@ -184,7 +285,15 @@ def canonical_json(value) -> bytes:
                 visit(child, path + '.' + key, depth + 1)
             return
         _fail('INVALID_JSON', path, 'expected JSON primitive, array or object')
-    visit(value, '$', 0)
+    # Building a path string for every element dominated plan encoding. The
+    # path-free pass applies the same predicate; only on failure is the exact
+    # first error (code and path) recovered by the original visitor.
+    if not _canonical_ok(value):
+        visit(value, '$', 0)
+    return _dumps(value)
+
+
+def _dumps(value) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(',', ':'),
                       ensure_ascii=False, allow_nan=False).encode('utf-8')
 
@@ -249,51 +358,75 @@ def validate_plan(plan: Plan, limits: Limits) -> None:
         nonlocal used_bytes
         used_bytes += amount
         if used_bytes > limits.plan_bytes:
-            _fail('BYTE_LIMIT', path, 'canonical plan byte quota exceeded')
+            _fail('BYTE_LIMIT', path() if callable(path) else path, 'canonical plan byte quota exceeded')
 
     charge(len(canonical_json(_plan_header_object(plan))), '$')
     next_dst = 0
+    # Field paths are built only on failure (lazily via at()); every check,
+    # its order and every error code/path/message are unchanged.
     for i, op in enumerate(plan.operations):
-        path = f'$.operations[{i}]'
+        at = lambda suffix='': f'$.operations[{i}]{suffix}'
         if type(op) is not Operation:
-            _fail('INVALID_PLAN', path, 'expected Operation record')
+            _fail('INVALID_PLAN', at(), 'expected Operation record')
         if type(op.opcode) is not str or op.opcode not in _SHAPES:
-            _fail('UNKNOWN_OPCODE', path + '.opcode', 'unknown physical opcode')
+            _fail('UNKNOWN_OPCODE', at('.opcode'), 'unknown physical opcode')
         result, arity, indexed, literal = _SHAPES[op.opcode]
         if result:
-            _integer(op.dst, path + '.dst')
+            if type(op.dst) is not int or not 0 <= op.dst <= 9999999999:
+                _integer(op.dst, at('.dst'))
             if op.dst != next_dst:
-                _fail('INVALID_PLAN', path + '.dst', 'SSA definitions must be dense and ordered')
+                _fail('INVALID_PLAN', at('.dst'), 'SSA definitions must be dense and ordered')
         elif op.dst is not None:
-            _fail('INVALID_PLAN', path + '.dst', 'opcode has no SSA result')
+            _fail('INVALID_PLAN', at('.dst'), 'opcode has no SSA result')
         if type(op.operands) is not tuple or len(op.operands) != arity:
-            _fail('INVALID_PLAN', path + '.operands', 'wrong operand tuple arity')
+            _fail('INVALID_PLAN', at('.operands'), 'wrong operand tuple arity')
         for j, operand in enumerate(op.operands):
-            _integer(operand, f'{path}.operands[{j}]')
+            if type(operand) is not int or not 0 <= operand <= 9999999999:
+                _integer(operand, at(f'.operands[{j}]'))
             if operand >= next_dst:
-                _fail('INVALID_PLAN', f'{path}.operands[{j}]', 'SSA operand must refer to an earlier definition')
+                _fail('INVALID_PLAN', at(f'.operands[{j}]'), 'SSA operand must refer to an earlier definition')
         if indexed:
-            _integer(op.index, path + '.index')
+            if type(op.index) is not int or not 0 <= op.index <= 9999999999:
+                _integer(op.index, at('.index'))
             if op.opcode.startswith('scratch_') and op.index >= plan.scratch_capacity_cells:
-                _fail('INVALID_PLAN', path + '.index', 'scratch index outside reserved arena')
+                _fail('INVALID_PLAN', at('.index'), 'scratch index outside reserved arena')
         elif op.index is not None:
-            _fail('INVALID_PLAN', path + '.index', 'opcode has no index')
+            _fail('INVALID_PLAN', at('.index'), 'opcode has no index')
         if literal:
-            _integer(op.value, path + '.value', -2147483648, 2147483647)
+            if type(op.value) is not int or not -2147483648 <= op.value <= 2147483647:
+                _integer(op.value, at('.value'), -2147483648, 2147483647)
         elif op.value is not None:
-            _fail('INVALID_PLAN', path + '.value', 'opcode has no literal')
+            _fail('INVALID_PLAN', at('.value'), 'opcode has no literal')
         if type(op.origins) is not tuple:
-            _fail('INVALID_PLAN', path + '.origins', 'origins must be an immutable tuple')
-        charge(len(canonical_json(_operation_object(op, []))) + (1 if i else 0), path)
+            _fail('INVALID_PLAN', at('.origins'), 'origins must be an immutable tuple')
+        charge(_operation_shell_length(op) + (1 if i else 0), at)
         # Every nonnegative origin needs at least one digit and a separator
         # except the first. The shell above already includes the brackets.
-        charge(max(0, 2 * len(op.origins) - 1), path + '.origins')
+        charge(max(0, 2 * len(op.origins) - 1), lambda: at('.origins'))
         for j, origin in enumerate(op.origins):
-            origin_path = f'{path}.origins[{j}]'
-            _integer(origin, origin_path)
-            charge(len(str(origin)) - 1, origin_path)
+            if type(origin) is not int or not 0 <= origin <= 9999999999:
+                _integer(origin, at(f'.origins[{j}]'))
+            charge(len(str(origin)) - 1, lambda: at(f'.origins[{j}]'))
         if result:
             next_dst += 1
+
+
+# Canonical shell of one operation with empty origins, keys in sorted order:
+# {"dst":D,"index":I,"opcode":"O","operands":[A,B],"origins":[],"value":V}
+_SHELL_FIXED = len(b'{"dst":,"index":,"opcode":"","operands":[],"origins":[],"value":}')
+
+
+def _operation_shell_length(op):
+    """Exact len(canonical_json(_operation_object(op, []))) for a validated op.
+
+    Only valid after validate_plan's field checks: integer fields are exact
+    ints (never bool), absent fields are None and the opcode is one of the
+    ASCII names in _SHAPES, so no JSON escaping or float formatting applies.
+    """
+    scalar = lambda v: 4 if v is None else len(str(v))  # 'null' or decimal digits
+    operands = sum(len(str(v)) for v in op.operands) + max(0, len(op.operands) - 1)
+    return (_SHELL_FIXED + scalar(op.dst) + scalar(op.index) + len(op.opcode)
+            + operands + scalar(op.value))
 
 
 def _plan_header_object(plan):
@@ -313,12 +446,19 @@ def _plan_object(plan):
     return obj
 
 
-def encode_plan(plan: Plan, *, limits: Limits = Limits()) -> bytes:
-    validate_plan(plan, limits)
-    data = canonical_json(_plan_object(plan))
+def _encode_validated(plan, limits):
+    # validate_plan already established canonical_json's predicate for every
+    # field (bounded exact ints, None, a UTF-8 label, a hex digest, ASCII
+    # opcodes, depth 4), so only the deterministic encoding step remains.
+    data = _dumps(_plan_object(plan))
     if len(data) > limits.plan_bytes:
         _fail('BYTE_LIMIT', '$', 'canonical plan byte quota exceeded')
     return data
+
+
+def encode_plan(plan: Plan, *, limits: Limits = Limits()) -> bytes:
+    validate_plan(plan, limits)
+    return _encode_validated(plan, limits)
 
 
 def decode_plan(data: bytes, limits: Limits) -> Plan:
@@ -347,3 +487,13 @@ def decode_plan(data: bytes, limits: Limits) -> Plan:
 
 def plan_digest(plan: Plan, *, limits: Limits = Limits()) -> str:
     return hashlib.sha256(encode_plan(plan, limits=limits)).hexdigest()
+
+
+def validated_plan_digest(plan: Plan, limits: Limits) -> str:
+    """plan_digest for a frozen Plan the caller validated under the same limits.
+
+    Skips only the repeated validate_plan; the bytes and the byte quota are
+    identical to plan_digest. Callers must not cross a trust boundary between
+    their validate_plan call and this one.
+    """
+    return hashlib.sha256(_encode_validated(plan, limits)).hexdigest()

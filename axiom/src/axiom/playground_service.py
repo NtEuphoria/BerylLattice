@@ -9,7 +9,7 @@ import sys
 from .codec import DecodeError, canonical_json, strict_json_loads
 from .frontend import admit_source, parse_source
 from .model import DiagnosticError, Limits, Span
-from .reference import evaluate_source
+from .reference import ExecutionResult, ExecutionStatus, evaluate_source
 from .runtime import execute_plan
 from .selection import select_plan
 
@@ -92,6 +92,30 @@ def _inputs(request, kernel):
     return [0] * count
 
 
+def _first_out_of_range(kernel, data):
+    """Row-major index of the first out-of-range input, or None.
+
+    Only a well-formed boundary qualifies: any wrong length, non-int or non-i32
+    value leaves the request on the normal path, so malformed-boundary errors
+    keep their precedence over the source precondition.
+    """
+    if (len(data) != (kernel.height + 1) * (kernel.width + 1)
+            or any(type(v) is not int or not -2147483648 <= v <= 2147483647 for v in data)):
+        return None
+    lower, upper = kernel.input_interval
+    return next((i for i, v in enumerate(data) if not lower <= v <= upper), None)
+
+
+def _report(kernel, data):
+    return dict(schema_version=1, status='no_eligible_plan', backend=_BACKEND,
+        source_digest=kernel.source_digest,
+        shape=dict(height=kernel.height, width=kernel.width,
+                   input_height=kernel.height + 1, input_width=kernel.width + 1),
+        objective=kernel.objective.value, workspace_cap=kernel.cap, selected=None,
+        attempts=[], search=None,
+        input=data, output=None, comparison=None, first_bad_index=None, diagnostic=None)
+
+
 def _run(request):
     limits = Limits()
     source = _request_source(request, limits)
@@ -99,6 +123,21 @@ def _run(request):
     kernel = admit_source(module)
     data = _inputs(request, kernel)
     initial = [-9] * (kernel.height * kernel.width)
+    bad = _first_out_of_range(kernel, data)
+    if bad is not None:
+        # The input precondition is plan-independent, so refuse before planning:
+        # no plan is selected or run. The independent source evaluation must
+        # report the same failure, index, unchanged output and unchanged input.
+        observed = ExecutionResult(ExecutionStatus.INPUT_PRECONDITION_FAILED, bad,
+                                   tuple(initial), tuple(data))
+        expected = evaluate_source(module, data, initial)
+        if observed == expected:
+            result = _report(kernel, data)
+            result.update(status=observed.status.value, output=list(observed.output),
+                          comparison=dict(matches=True, cells_compared=len(observed.output)),
+                          first_bad_index=bad)
+            return result
+        # Disagreement: fall through so the full checked path decides.
     search = select_plan(kernel, limits, 100000, kernel.objective)
     attempts = []
     for attempt in search.attempts:
@@ -110,14 +149,9 @@ def _run(request):
             reason=attempt.reason,
             workspace_bytes=checked.workspace_bytes if checked is not None else None,
             multiplication_ops=checked.multiplication_ops if checked is not None else None))
-    result = dict(schema_version=1, status='no_eligible_plan', backend=_BACKEND,
-        source_digest=kernel.source_digest,
-        shape=dict(height=kernel.height, width=kernel.width,
-                   input_height=kernel.height + 1, input_width=kernel.width + 1),
-        objective=kernel.objective.value, workspace_cap=kernel.cap, selected=None,
-        attempts=attempts,
-        search=dict(termination_reason=search.termination_reason.value, work_used=search.total_work_used),
-        input=data, output=None, comparison=None, first_bad_index=None, diagnostic=None)
+    result = _report(kernel, data)
+    result.update(attempts=attempts,
+        search=dict(termination_reason=search.termination_reason.value, work_used=search.total_work_used))
     if search.selected_plan is None:
         return result
     checked = search.selected_check

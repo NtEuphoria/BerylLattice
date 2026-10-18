@@ -140,7 +140,8 @@ def compare(old_path, new_path, threshold):
             continue
         name = f'{r["kernel"]} {r["tier"]} {r["pattern"]}' + (f' cap={r["cap"]} {r["objective"]}' if r.get('cap') is not None else '')
         if o['status'] != r['status']:
-            verdict = 'COVERAGE GAIN' if r['status'] == 'ok' else f'STATUS {o["status"]} -> {r["status"]}'
+            gained = r['status'] == 'ok' and o['status'] == 'unsupported'
+            verdict = 'COVERAGE GAIN' if gained else f'STATUS {o["status"]} -> {r["status"]}'
             counts[verdict.split()[0]] += 1
             out.append(f'| {name} | {r["impl"]} | {o["status"]} | {r["status"]} | | **{verdict}** |')
             continue

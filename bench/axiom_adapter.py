@@ -104,6 +104,22 @@ def main():
     objective = sys.argv[8] if len(sys.argv) > 8 else None
     base = dict(impl='axiom', kernel=kernel, backend='checked-plan-interpreter-v1', cap=cap, objective=objective)
     source, data, n_out, note = request(kernel, pattern, a, b, cap, objective)
+    if kernel == 'reject_range':
+        # Time the real service request: that is where precondition ordering lives.
+        from axiom.playground_service import run_demo
+        payload = dict(source=source.decode('utf-8'), input_mode='custom', inputs=data)
+        samples, response = [], None
+        while len(samples) < 3 or (sum(samples) < min_ms * 1_000_000 and len(samples) < max_reps):
+            start = time.perf_counter_ns()
+            response = run_demo(payload)
+            samples.append(time.perf_counter_ns() - start)
+        print(json.dumps(dict(base, status='rejected', note=f'{note}; via playground_service.run_demo',
+                              reps=len(samples), reject_ns_median=int(statistics.median(samples)),
+                              result_status=response['status'], first_bad_index=response['first_bad_index'],
+                              planned=response['selected'] is not None,
+                              diagnostic=dict(stage='service', code=response['status'].upper(),
+                                              message=f'first bad index {response["first_bad_index"]}'))))
+        return 0
     if source is None:
         spec = KERNELS[kernel]
         print(json.dumps(dict(base, status='unsupported', diagnostic=dict(

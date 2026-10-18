@@ -1,0 +1,4833 @@
+{
+ "15x1 cap=0 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "satisfied",
+  "effective_cap": 0,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "2924e6e3db73e4329fd15b4f0ad1332c26171b812a4be62e6817fe7417fe5bb7",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "a0bbaae0d91959b4e651d8f7c8e41257fbd055d6dd10d759093502f2dc36ba83",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "15x1 cap=0 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "502fa81dbb042ce2a57305edcf1854c4714cfd4a420672a3f82abba69437804e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "a0bbaae0d91959b4e651d8f7c8e41257fbd055d6dd10d759093502f2dc36ba83",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "15x1 cap=0 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "3e7877d93969f891df9264374f1a204fbfadab155db75b74d8a71d955651313e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "a0bbaae0d91959b4e651d8f7c8e41257fbd055d6dd10d759093502f2dc36ba83",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 16
+ },
+ "15x1 cap=1024 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "2924e6e3db73e4329fd15b4f0ad1332c26171b812a4be62e6817fe7417fe5bb7",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "c6bd0cecf4dced810b9672768e8d58cf2e28ca7c599577fb5c96c5606eb4cfcd",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "15x1 cap=1024 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "502fa81dbb042ce2a57305edcf1854c4714cfd4a420672a3f82abba69437804e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "c6bd0cecf4dced810b9672768e8d58cf2e28ca7c599577fb5c96c5606eb4cfcd",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "15x1 cap=1024 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "3e7877d93969f891df9264374f1a204fbfadab155db75b74d8a71d955651313e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "c6bd0cecf4dced810b9672768e8d58cf2e28ca7c599577fb5c96c5606eb4cfcd",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 16
+ },
+ "15x1 cap=128 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "2924e6e3db73e4329fd15b4f0ad1332c26171b812a4be62e6817fe7417fe5bb7",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "30e28b6f94b7b64a7d405cbb2a8660074c66fcb9401d87847dc45026acad0fe8",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "15x1 cap=128 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "502fa81dbb042ce2a57305edcf1854c4714cfd4a420672a3f82abba69437804e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "30e28b6f94b7b64a7d405cbb2a8660074c66fcb9401d87847dc45026acad0fe8",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "15x1 cap=128 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "3e7877d93969f891df9264374f1a204fbfadab155db75b74d8a71d955651313e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "30e28b6f94b7b64a7d405cbb2a8660074c66fcb9401d87847dc45026acad0fe8",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 16
+ },
+ "15x1 cap=64 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "2924e6e3db73e4329fd15b4f0ad1332c26171b812a4be62e6817fe7417fe5bb7",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "9a4f42f2930ae8e617362ffc373f4ce6c61747600aaa40c8f04958ff1dc18542",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "15x1 cap=64 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "violated",
+  "effective_cap": 64,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "502fa81dbb042ce2a57305edcf1854c4714cfd4a420672a3f82abba69437804e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "9a4f42f2930ae8e617362ffc373f4ce6c61747600aaa40c8f04958ff1dc18542",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "15x1 cap=64 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "3e7877d93969f891df9264374f1a204fbfadab155db75b74d8a71d955651313e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "9a4f42f2930ae8e617362ffc373f4ce6c61747600aaa40c8f04958ff1dc18542",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 16
+ },
+ "15x15 cap=0 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "satisfied",
+  "effective_cap": 0,
+  "multiplication_ops": 900,
+  "opcode_counts": [
+   [
+    "add",
+    1575
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    900
+   ],
+   [
+    "mul",
+    900
+   ],
+   [
+    "output_store",
+    225
+   ]
+  ],
+  "plan_digest": "0904cf59a0c804f56dc1280cccfd579b79e860452331c8e525260eb6f8ddd902",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "bb631dd280333c0d2d174c2dd46f1193dd782eab87c536572a7e0448c08f0c63",
+  "witness": null,
+  "work_used": 27901,
+  "workspace_bytes": 0
+ },
+ "15x15 cap=0 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "732df50d25933b1ba867544f8d3de38192d9d59de73e098d9fc44baab4a872a2",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "bb631dd280333c0d2d174c2dd46f1193dd782eab87c536572a7e0448c08f0c63",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 1024
+ },
+ "15x15 cap=0 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "22b7f6a8876761206cc241d6a99e0484bb39b9f6041511e2b94880b853c8a887",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "bb631dd280333c0d2d174c2dd46f1193dd782eab87c536572a7e0448c08f0c63",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 128
+ },
+ "15x15 cap=1024 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 900,
+  "opcode_counts": [
+   [
+    "add",
+    1575
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    900
+   ],
+   [
+    "mul",
+    900
+   ],
+   [
+    "output_store",
+    225
+   ]
+  ],
+  "plan_digest": "0904cf59a0c804f56dc1280cccfd579b79e860452331c8e525260eb6f8ddd902",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "2d27d0fa4baff55209ac533383f50efa33756409aba806995c2e2276952cd871",
+  "witness": null,
+  "work_used": 27901,
+  "workspace_bytes": 0
+ },
+ "15x15 cap=1024 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "732df50d25933b1ba867544f8d3de38192d9d59de73e098d9fc44baab4a872a2",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "2d27d0fa4baff55209ac533383f50efa33756409aba806995c2e2276952cd871",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 1024
+ },
+ "15x15 cap=1024 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "22b7f6a8876761206cc241d6a99e0484bb39b9f6041511e2b94880b853c8a887",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "2d27d0fa4baff55209ac533383f50efa33756409aba806995c2e2276952cd871",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 128
+ },
+ "15x15 cap=128 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 900,
+  "opcode_counts": [
+   [
+    "add",
+    1575
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    900
+   ],
+   [
+    "mul",
+    900
+   ],
+   [
+    "output_store",
+    225
+   ]
+  ],
+  "plan_digest": "0904cf59a0c804f56dc1280cccfd579b79e860452331c8e525260eb6f8ddd902",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "3d96f70d7f814bcde5f8396490cb8f3610e9e2c18ecf6a45bfd15b4bc8f33700",
+  "witness": null,
+  "work_used": 27901,
+  "workspace_bytes": 0
+ },
+ "15x15 cap=128 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "violated",
+  "effective_cap": 128,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "732df50d25933b1ba867544f8d3de38192d9d59de73e098d9fc44baab4a872a2",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "3d96f70d7f814bcde5f8396490cb8f3610e9e2c18ecf6a45bfd15b4bc8f33700",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 1024
+ },
+ "15x15 cap=128 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "22b7f6a8876761206cc241d6a99e0484bb39b9f6041511e2b94880b853c8a887",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "3d96f70d7f814bcde5f8396490cb8f3610e9e2c18ecf6a45bfd15b4bc8f33700",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 128
+ },
+ "15x15 cap=64 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 900,
+  "opcode_counts": [
+   [
+    "add",
+    1575
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    900
+   ],
+   [
+    "mul",
+    900
+   ],
+   [
+    "output_store",
+    225
+   ]
+  ],
+  "plan_digest": "0904cf59a0c804f56dc1280cccfd579b79e860452331c8e525260eb6f8ddd902",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "39507d1f4ac50dee8f1b417ccf6f0ee860cb1dcbaaf125b5f7f96b37aa9290a0",
+  "witness": null,
+  "work_used": 27901,
+  "workspace_bytes": 0
+ },
+ "15x15 cap=64 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "violated",
+  "effective_cap": 64,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "732df50d25933b1ba867544f8d3de38192d9d59de73e098d9fc44baab4a872a2",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "39507d1f4ac50dee8f1b417ccf6f0ee860cb1dcbaaf125b5f7f96b37aa9290a0",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 1024
+ },
+ "15x15 cap=64 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "violated",
+  "effective_cap": 64,
+  "multiplication_ops": 256,
+  "opcode_counts": [
+   [
+    "add",
+    931
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    256
+   ],
+   [
+    "mul",
+    256
+   ],
+   [
+    "output_store",
+    225
+   ],
+   [
+    "scratch_load",
+    900
+   ],
+   [
+    "scratch_store",
+    256
+   ]
+  ],
+  "plan_digest": "22b7f6a8876761206cc241d6a99e0484bb39b9f6041511e2b94880b853c8a887",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "39507d1f4ac50dee8f1b417ccf6f0ee860cb1dcbaaf125b5f7f96b37aa9290a0",
+  "witness": null,
+  "work_used": 27125,
+  "workspace_bytes": 128
+ },
+ "1x1 cap=0 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "satisfied",
+  "effective_cap": 0,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ]
+  ],
+  "plan_digest": "804b51c0cec25b79e52e0ac1df9a88c5312376a52d6ab402bc75aebe0fd5ec14",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "578667cbbc7dcb7c233b9a8234c84df4fa29f4413f42c5f849f03bf297e176c7",
+  "witness": null,
+  "work_used": 125,
+  "workspace_bytes": 0
+ },
+ "1x1 cap=0 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "ac8ca5bfd3684242262163a31b5327a326395e807374ac85bb40ad72bd8961b1",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "578667cbbc7dcb7c233b9a8234c84df4fa29f4413f42c5f849f03bf297e176c7",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x1 cap=0 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "e4baec71c467c639a66819aa5a8bd89e65adfe1ec238b7799583f2bc95febecd",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "578667cbbc7dcb7c233b9a8234c84df4fa29f4413f42c5f849f03bf297e176c7",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x1 cap=1024 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ]
+  ],
+  "plan_digest": "804b51c0cec25b79e52e0ac1df9a88c5312376a52d6ab402bc75aebe0fd5ec14",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "8c2d28a1790a67a8da99a19f6a8d61799f5ca600be34a8857541dba3971af30f",
+  "witness": null,
+  "work_used": 125,
+  "workspace_bytes": 0
+ },
+ "1x1 cap=1024 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "ac8ca5bfd3684242262163a31b5327a326395e807374ac85bb40ad72bd8961b1",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "8c2d28a1790a67a8da99a19f6a8d61799f5ca600be34a8857541dba3971af30f",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x1 cap=1024 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "e4baec71c467c639a66819aa5a8bd89e65adfe1ec238b7799583f2bc95febecd",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "8c2d28a1790a67a8da99a19f6a8d61799f5ca600be34a8857541dba3971af30f",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x1 cap=128 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ]
+  ],
+  "plan_digest": "804b51c0cec25b79e52e0ac1df9a88c5312376a52d6ab402bc75aebe0fd5ec14",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "b740585770e95ca0a7358e292fd37052a4a23bcb1db13c06aad5129723791e1f",
+  "witness": null,
+  "work_used": 125,
+  "workspace_bytes": 0
+ },
+ "1x1 cap=128 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "ac8ca5bfd3684242262163a31b5327a326395e807374ac85bb40ad72bd8961b1",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "b740585770e95ca0a7358e292fd37052a4a23bcb1db13c06aad5129723791e1f",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x1 cap=128 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "e4baec71c467c639a66819aa5a8bd89e65adfe1ec238b7799583f2bc95febecd",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "b740585770e95ca0a7358e292fd37052a4a23bcb1db13c06aad5129723791e1f",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x1 cap=64 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ]
+  ],
+  "plan_digest": "804b51c0cec25b79e52e0ac1df9a88c5312376a52d6ab402bc75aebe0fd5ec14",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "f2a1545c485c544eb5ee6cf73e387f4464275b0742b7cfe85ecab73ec246f2ab",
+  "witness": null,
+  "work_used": 125,
+  "workspace_bytes": 0
+ },
+ "1x1 cap=64 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "ac8ca5bfd3684242262163a31b5327a326395e807374ac85bb40ad72bd8961b1",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "f2a1545c485c544eb5ee6cf73e387f4464275b0742b7cfe85ecab73ec246f2ab",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x1 cap=64 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 4,
+  "opcode_counts": [
+   [
+    "add",
+    7
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    4
+   ],
+   [
+    "mul",
+    4
+   ],
+   [
+    "output_store",
+    1
+   ],
+   [
+    "scratch_load",
+    4
+   ],
+   [
+    "scratch_store",
+    4
+   ]
+  ],
+  "plan_digest": "e4baec71c467c639a66819aa5a8bd89e65adfe1ec238b7799583f2bc95febecd",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "f2a1545c485c544eb5ee6cf73e387f4464275b0742b7cfe85ecab73ec246f2ab",
+  "witness": null,
+  "work_used": 133,
+  "workspace_bytes": 16
+ },
+ "1x15 cap=0 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "satisfied",
+  "effective_cap": 0,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "cba433cb80f7f1606c72a8a900ab15a7baddd1a0f7e315201e92deddd36a3900",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "52e3ac85fc173bbdaf7f5ac40c6ad9f5aba2b0c1834739fd993eb90a5647a672",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "1x15 cap=0 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "bb448dfee3da025f4bc35826f33b555f49b4e0ef0a464db21ca8641915b982ff",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "52e3ac85fc173bbdaf7f5ac40c6ad9f5aba2b0c1834739fd993eb90a5647a672",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "1x15 cap=0 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "f0ece21c98a5c87a933b6649ddb33c58b3629742d21184adde98d22a2734835e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "52e3ac85fc173bbdaf7f5ac40c6ad9f5aba2b0c1834739fd993eb90a5647a672",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "1x15 cap=1024 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "cba433cb80f7f1606c72a8a900ab15a7baddd1a0f7e315201e92deddd36a3900",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ccf4576c8e12c497d6ddfe9dad6c8841ca14a077a1c74e4be5c78bf95406021d",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "1x15 cap=1024 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "bb448dfee3da025f4bc35826f33b555f49b4e0ef0a464db21ca8641915b982ff",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ccf4576c8e12c497d6ddfe9dad6c8841ca14a077a1c74e4be5c78bf95406021d",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "1x15 cap=1024 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "f0ece21c98a5c87a933b6649ddb33c58b3629742d21184adde98d22a2734835e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ccf4576c8e12c497d6ddfe9dad6c8841ca14a077a1c74e4be5c78bf95406021d",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "1x15 cap=128 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "cba433cb80f7f1606c72a8a900ab15a7baddd1a0f7e315201e92deddd36a3900",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "86565f33c6f4213b56da229ff8b6dcdcba1d985956b8205702219010242b62b0",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "1x15 cap=128 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "bb448dfee3da025f4bc35826f33b555f49b4e0ef0a464db21ca8641915b982ff",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "86565f33c6f4213b56da229ff8b6dcdcba1d985956b8205702219010242b62b0",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "1x15 cap=128 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "f0ece21c98a5c87a933b6649ddb33c58b3629742d21184adde98d22a2734835e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "86565f33c6f4213b56da229ff8b6dcdcba1d985956b8205702219010242b62b0",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "1x15 cap=64 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 60,
+  "opcode_counts": [
+   [
+    "add",
+    105
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    60
+   ],
+   [
+    "mul",
+    60
+   ],
+   [
+    "output_store",
+    15
+   ]
+  ],
+  "plan_digest": "cba433cb80f7f1606c72a8a900ab15a7baddd1a0f7e315201e92deddd36a3900",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "f3161236005e36c19fdbb017341ce7a8a50e32289965409d12ea1abc9067135e",
+  "witness": null,
+  "work_used": 1861,
+  "workspace_bytes": 0
+ },
+ "1x15 cap=64 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "violated",
+  "effective_cap": 64,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "bb448dfee3da025f4bc35826f33b555f49b4e0ef0a464db21ca8641915b982ff",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "f3161236005e36c19fdbb017341ce7a8a50e32289965409d12ea1abc9067135e",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "1x15 cap=64 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "violated",
+  "effective_cap": 64,
+  "multiplication_ops": 32,
+  "opcode_counts": [
+   [
+    "add",
+    77
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    32
+   ],
+   [
+    "mul",
+    32
+   ],
+   [
+    "output_store",
+    15
+   ],
+   [
+    "scratch_load",
+    60
+   ],
+   [
+    "scratch_store",
+    32
+   ]
+  ],
+  "plan_digest": "f0ece21c98a5c87a933b6649ddb33c58b3629742d21184adde98d22a2734835e",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "f3161236005e36c19fdbb017341ce7a8a50e32289965409d12ea1abc9067135e",
+  "witness": null,
+  "work_used": 1869,
+  "workspace_bytes": 128
+ },
+ "2x3 cap=0 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "satisfied",
+  "effective_cap": 0,
+  "multiplication_ops": 24,
+  "opcode_counts": [
+   [
+    "add",
+    42
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    24
+   ],
+   [
+    "mul",
+    24
+   ],
+   [
+    "output_store",
+    6
+   ]
+  ],
+  "plan_digest": "7e14d13c7ffa3d19614b8b3a87456b6742484f1b22f20bb284aadbc01ce1a1fc",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "725288ba79e1eccb85e89bbfe04f00683ef4c78fe5d3426234e540013aced3af",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 0
+ },
+ "2x3 cap=0 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "e16cdf232e318400fd7bcce1e874e99422be1aac0302bf3ff492f2943a61cd55",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "725288ba79e1eccb85e89bbfe04f00683ef4c78fe5d3426234e540013aced3af",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 48
+ },
+ "2x3 cap=0 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "9930ba1d2a1cbc1737ac9ad2f99cad18607aed402fa9e9b11bed532188e97b5f",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "725288ba79e1eccb85e89bbfe04f00683ef4c78fe5d3426234e540013aced3af",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 32
+ },
+ "2x3 cap=1024 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 24,
+  "opcode_counts": [
+   [
+    "add",
+    42
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    24
+   ],
+   [
+    "mul",
+    24
+   ],
+   [
+    "output_store",
+    6
+   ]
+  ],
+  "plan_digest": "7e14d13c7ffa3d19614b8b3a87456b6742484f1b22f20bb284aadbc01ce1a1fc",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "e0b50a8796685d9476b3f9d1fdff41508efab6193dd6db9e506e644205048efe",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 0
+ },
+ "2x3 cap=1024 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "e16cdf232e318400fd7bcce1e874e99422be1aac0302bf3ff492f2943a61cd55",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "e0b50a8796685d9476b3f9d1fdff41508efab6193dd6db9e506e644205048efe",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 48
+ },
+ "2x3 cap=1024 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "9930ba1d2a1cbc1737ac9ad2f99cad18607aed402fa9e9b11bed532188e97b5f",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "e0b50a8796685d9476b3f9d1fdff41508efab6193dd6db9e506e644205048efe",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 32
+ },
+ "2x3 cap=128 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 24,
+  "opcode_counts": [
+   [
+    "add",
+    42
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    24
+   ],
+   [
+    "mul",
+    24
+   ],
+   [
+    "output_store",
+    6
+   ]
+  ],
+  "plan_digest": "7e14d13c7ffa3d19614b8b3a87456b6742484f1b22f20bb284aadbc01ce1a1fc",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "d8ed6a456c31ee68768ba9af84503ca0f5b4304f2530133da4d23a0351449904",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 0
+ },
+ "2x3 cap=128 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "e16cdf232e318400fd7bcce1e874e99422be1aac0302bf3ff492f2943a61cd55",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "d8ed6a456c31ee68768ba9af84503ca0f5b4304f2530133da4d23a0351449904",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 48
+ },
+ "2x3 cap=128 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "9930ba1d2a1cbc1737ac9ad2f99cad18607aed402fa9e9b11bed532188e97b5f",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "d8ed6a456c31ee68768ba9af84503ca0f5b4304f2530133da4d23a0351449904",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 32
+ },
+ "2x3 cap=64 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 24,
+  "opcode_counts": [
+   [
+    "add",
+    42
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    24
+   ],
+   [
+    "mul",
+    24
+   ],
+   [
+    "output_store",
+    6
+   ]
+  ],
+  "plan_digest": "7e14d13c7ffa3d19614b8b3a87456b6742484f1b22f20bb284aadbc01ce1a1fc",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "edf675b09c9d355e5a04364e862659a741a5bd34d232d73382d162dc01b86d87",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 0
+ },
+ "2x3 cap=64 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "e16cdf232e318400fd7bcce1e874e99422be1aac0302bf3ff492f2943a61cd55",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "edf675b09c9d355e5a04364e862659a741a5bd34d232d73382d162dc01b86d87",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 48
+ },
+ "2x3 cap=64 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 12,
+  "opcode_counts": [
+   [
+    "add",
+    30
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    12
+   ],
+   [
+    "mul",
+    12
+   ],
+   [
+    "output_store",
+    6
+   ],
+   [
+    "scratch_load",
+    24
+   ],
+   [
+    "scratch_store",
+    12
+   ]
+  ],
+  "plan_digest": "9930ba1d2a1cbc1737ac9ad2f99cad18607aed402fa9e9b11bed532188e97b5f",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "edf675b09c9d355e5a04364e862659a741a5bd34d232d73382d162dc01b86d87",
+  "witness": null,
+  "work_used": 745,
+  "workspace_bytes": 32
+ },
+ "5x7 cap=0 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "satisfied",
+  "effective_cap": 0,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "5d7232d6f27985041ae06eec4c90fea71710bc24f1efe75a8b4e4c492baa43bd",
+  "witness": null,
+  "work_used": 4341,
+  "workspace_bytes": 0
+ },
+ "5x7 cap=0 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "5d7232d6f27985041ae06eec4c90fea71710bc24f1efe75a8b4e4c492baa43bd",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 192
+ },
+ "5x7 cap=0 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "ee2487b262119b482c7da2fb527af1275f783781f1c9d786415fec2435819b86",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "5d7232d6f27985041ae06eec4c90fea71710bc24f1efe75a8b4e4c492baa43bd",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 64
+ },
+ "5x7 cap=1024 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4341,
+  "workspace_bytes": 0
+ },
+ "5x7 cap=1024 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 192
+ },
+ "5x7 cap=1024 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 64
+ },
+ "5x7 cap=128 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "67db9da55fcb234ea5189096f0483f845fdb063e63c9ccb375d33469cd048615",
+  "witness": null,
+  "work_used": 4341,
+  "workspace_bytes": 0
+ },
+ "5x7 cap=128 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "violated",
+  "effective_cap": 128,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "67db9da55fcb234ea5189096f0483f845fdb063e63c9ccb375d33469cd048615",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 192
+ },
+ "5x7 cap=128 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "a378a838f8a160b689640fe0dae17b5fab7d14fc8b1dcca50b194ffefcaa8a7a",
+  "constraint_status": "satisfied",
+  "effective_cap": 128,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "67db9da55fcb234ea5189096f0483f845fdb063e63c9ccb375d33469cd048615",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 64
+ },
+ "5x7 cap=64 inline-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "7d0ec37d6473cae8882f00f4ac11aa3ebfec6b7c1aed1d626d5a69cb07d05bea",
+  "witness": null,
+  "work_used": 4341,
+  "workspace_bytes": 0
+ },
+ "5x7 cap=64 materialize-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "violated",
+  "effective_cap": 64,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "7d0ec37d6473cae8882f00f4ac11aa3ebfec6b7c1aed1d626d5a69cb07d05bea",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 192
+ },
+ "5x7 cap=64 rows2-v1": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "bcdeb514fddd3a72ed0799f9961fa1fe336fe405678b7e7233cc95bdc734b269",
+  "constraint_status": "satisfied",
+  "effective_cap": 64,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "7d0ec37d6473cae8882f00f4ac11aa3ebfec6b7c1aed1d626d5a69cb07d05bea",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 64
+ },
+ "5x7 inline-v1 bad_digest": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "1c9e3cc0488af5c5439e72cc3f6528a2c4d05f3055cd16c338254f3e0aadd06e",
+  "reason": "SEMANTIC_DIGEST_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "expected",
+    "17692e7e1022cc35edf4d6f0e4f0a42fdd8252f836e5b01f933854236198ac26"
+   ],
+   [
+    "actual",
+    "0000000000000000000000000000000000000000000000000000000000000000"
+   ]
+  ],
+  "work_used": 0,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 const": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "c1b2171cd6e7f2eccb39b12cbadcbd0f5a16b4c7b2c84422cefae1c6d36be418",
+  "reason": "OUTPUT_VALUE_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    0
+   ],
+   [
+    "uniform_input",
+    0
+   ],
+   [
+    "expected",
+    4
+   ],
+   [
+    "actual",
+    16
+   ]
+  ],
+  "work_used": 3263,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 const_max": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "66b8065f3a651847380b1849466f7b9c34a5d2a250bc229f878be93ab93588a2",
+  "reason": "ARITHMETIC_OVERFLOW",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "location",
+    2
+   ],
+   [
+    "uniform_input",
+    1023
+   ],
+   [
+    "result",
+    "2147484670"
+   ]
+  ],
+  "work_used": 2698,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 drop_output": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    34
+   ]
+  ],
+  "plan_digest": "2c62cb03c733d2df60e491378f824f52d5e3a8fa039faf06254f78db7153a782",
+  "reason": "MISSING_OUTPUT",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    34
+   ]
+  ],
+  "work_used": 3255,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 duplicate_output": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "79bf6425933b0098266656646ddb0e9b55225fb46fa5e07569bef944cc55f3b3",
+  "reason": "DUPLICATE_OUTPUT",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    17
+   ],
+   [
+    "index",
+    0
+   ]
+  ],
+  "work_used": 2713,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 extra_cap=0": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "52a99931da5779038f4cf0dabe7060a9521a5d227a25e0cfb4fa049a2bfa50b0",
+  "constraint_status": "satisfied",
+  "effective_cap": 0,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4341,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 input_oob": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "245142e4760097cc922ab42ccb44c9e45b906822da56182d4cc42f12e569425e",
+  "reason": "INPUT_INDEX_OUT_OF_BOUNDS",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    1
+   ],
+   [
+    "index",
+    1000000
+   ]
+  ],
+  "work_used": 2697,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 label": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "4adaf53d7b72eaa78461f93a823e12286b5927fcfc2a526fef66355c9cebd265",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4341,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 mul_to_add": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 139,
+  "opcode_counts": [
+   [
+    "add",
+    246
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    139
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "4099531140db05506905a3d5aff04823f045c19cb17c30c657904adae40d9905",
+  "reason": "OUTPUT_VALUE_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    0
+   ],
+   [
+    "uniform_input",
+    0
+   ],
+   [
+    "expected",
+    4
+   ],
+   [
+    "actual",
+    5
+   ]
+  ],
+  "work_used": 3260,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 nodes=1": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "EXPRESSION_NODES_LIMIT",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 0,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 nodes=100": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "EXPRESSION_NODES_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 263,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 nodes=1000": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "EXPRESSION_NODES_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 2497,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 steps=1": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 1,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 steps=1000": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 1000,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 steps=50": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 50,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 steps=5000": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "54bb52087241a8c89920cac0ed9cb9c230877ea84f2c8bb0783a008dd129dcd8",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4341,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 swap": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "280cc5baa63358b021fcf32a68781219269b33731e68ab9dba47ad33ee73e0bc",
+  "reason": "STRUCTURAL_MISMATCH",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4316,
+  "workspace_bytes": 0
+ },
+ "5x7 inline-v1 wrong_input": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 140,
+  "opcode_counts": [
+   [
+    "add",
+    245
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    140
+   ],
+   [
+    "mul",
+    140
+   ],
+   [
+    "output_store",
+    35
+   ]
+  ],
+  "plan_digest": "8f59cf4e479b680f316322a546f42c867b40339c8b7e5af3b21ce70eabe71eb8",
+  "reason": "STRUCTURAL_MISMATCH",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4316,
+  "workspace_bytes": 0
+ },
+ "5x7 materialize-v1 bad_digest": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "f231948cfd8af472b00626d1d2b790b99923c73ecac1335ad8ce21422525a600",
+  "reason": "SEMANTIC_DIGEST_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "expected",
+    "17692e7e1022cc35edf4d6f0e4f0a42fdd8252f836e5b01f933854236198ac26"
+   ],
+   [
+    "actual",
+    "0000000000000000000000000000000000000000000000000000000000000000"
+   ]
+  ],
+  "work_used": 0,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 const": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "9076127974f825bf572ef0e8f99ef94047259567548a820862d1471062f1c1e5",
+  "reason": "OUTPUT_VALUE_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    0
+   ],
+   [
+    "uniform_input",
+    0
+   ],
+   [
+    "expected",
+    4
+   ],
+   [
+    "actual",
+    16
+   ]
+  ],
+  "work_used": 3175,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 const_max": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "c2f403015149163546c98f8f7d78160cff63812af3b0b6163dc0a679bd80eeec",
+  "reason": "ARITHMETIC_OVERFLOW",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "location",
+    2
+   ],
+   [
+    "uniform_input",
+    1023
+   ],
+   [
+    "result",
+    "2147484670"
+   ]
+  ],
+  "work_used": 2698,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 drop_output": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    34
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "0d416421701ef1d2dee40ad6acd42bccbdfb9a03dfd81b4265de822ee559d668",
+  "reason": "MISSING_OUTPUT",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    34
+   ]
+  ],
+  "work_used": 3167,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 duplicate_output": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "04fd31a5501c14341aeeb6e1b7715747f0d55b86d6d8b2338ce3a415708f0f34",
+  "reason": "DUPLICATE_OUTPUT",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    201
+   ],
+   [
+    "index",
+    0
+   ]
+  ],
+  "work_used": 2897,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 extra_cap=0": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "52a99931da5779038f4cf0dabe7060a9521a5d227a25e0cfb4fa049a2bfa50b0",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 input_oob": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "98d34fc5eb8b64524f6623bab33facad0be21cf8dc3ab71fd21ffa340f80163e",
+  "reason": "INPUT_INDEX_OUT_OF_BOUNDS",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    1
+   ],
+   [
+    "index",
+    1000000
+   ]
+  ],
+  "work_used": 2697,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 label": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "54fedadeac4a62a2cf1e1601dfa4bbce69a795b2d8db3d5fd790e11542df13c8",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 mul_to_add": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 47,
+  "opcode_counts": [
+   [
+    "add",
+    154
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    47
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "9964c182e414e0dc081b1630f2ffd2b7f3bd0d105eb8846c41c940d816e51d0a",
+  "reason": "OUTPUT_VALUE_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    0
+   ],
+   [
+    "uniform_input",
+    0
+   ],
+   [
+    "expected",
+    4
+   ],
+   [
+    "actual",
+    5
+   ]
+  ],
+  "work_used": 3172,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 nodes=1": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "EXPRESSION_NODES_LIMIT",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 0,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 nodes=100": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "EXPRESSION_NODES_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 263,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 nodes=1000": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "EXPRESSION_NODES_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 2497,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 scratch_uninit": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "9123f228dfd5c19b1fec7f61356ada7df4987ba177993e86438db68ac4add7ac",
+  "reason": "UNINITIALIZED_SCRATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    192
+   ],
+   [
+    "index",
+    0
+   ]
+  ],
+  "work_used": 2888,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 steps=1": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 1,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 steps=1000": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 1000,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 steps=50": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 50,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 steps=5000": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "8b8e339a7270a14561ffcd4b627e74e0a49a134c1abbc839fe63e2182f0d1262",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 swap": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "bf7121ac97534936881b0b3c4bc4768b534dd9ad9d51eff6b52a7fb201ca2b24",
+  "reason": "STRUCTURAL_MISMATCH",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4228,
+  "workspace_bytes": 192
+ },
+ "5x7 materialize-v1 wrong_input": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "3822916ed172affb33b5dd088c9b4c825fee6bde08ee6cb4243c01820ef54cf4",
+  "reason": "STRUCTURAL_MISMATCH",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4228,
+  "workspace_bytes": 192
+ },
+ "5x7 rows2-v1 bad_digest": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "cd39166d7ac7dca17f3245dabc65e23cb522a99f7615f43bda87268084c64397",
+  "reason": "SEMANTIC_DIGEST_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "expected",
+    "17692e7e1022cc35edf4d6f0e4f0a42fdd8252f836e5b01f933854236198ac26"
+   ],
+   [
+    "actual",
+    "0000000000000000000000000000000000000000000000000000000000000000"
+   ]
+  ],
+  "work_used": 0,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 const": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "f80953faae6406916d10dc7de7395c5fe457bc3cd36022bfbb23670807e100c9",
+  "reason": "OUTPUT_VALUE_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    0
+   ],
+   [
+    "uniform_input",
+    0
+   ],
+   [
+    "expected",
+    4
+   ],
+   [
+    "actual",
+    16
+   ]
+  ],
+  "work_used": 3175,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 const_max": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "222f65d7588ab3f7832112fc744304d551c50e65949ee1c89957cfc5bd6d3e01",
+  "reason": "ARITHMETIC_OVERFLOW",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "location",
+    2
+   ],
+   [
+    "uniform_input",
+    1023
+   ],
+   [
+    "result",
+    "2147484670"
+   ]
+  ],
+  "work_used": 2698,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 drop_output": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    34
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "6747beb3d0f115d1ed976898f67087c57d0d44bb0a35ef0aeb60c36db074b8f4",
+  "reason": "MISSING_OUTPUT",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    34
+   ]
+  ],
+  "work_used": 3167,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 duplicate_output": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "68cccf8783db0d5a619da60c226b0500ebf16b4456a55b4b52d57ae4aa0474df",
+  "reason": "DUPLICATE_OUTPUT",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    73
+   ],
+   [
+    "index",
+    0
+   ]
+  ],
+  "work_used": 2769,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 extra_cap=0": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "52a99931da5779038f4cf0dabe7060a9521a5d227a25e0cfb4fa049a2bfa50b0",
+  "constraint_status": "violated",
+  "effective_cap": 0,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 input_oob": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "43774953a282d3b4125d36a7326893a8d6774372fe8ca8f649cdd3dc871e2edd",
+  "reason": "INPUT_INDEX_OUT_OF_BOUNDS",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    1
+   ],
+   [
+    "index",
+    1000000
+   ]
+  ],
+  "work_used": 2697,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 label": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "112c3a5cc37a0b30c0fc791cbbfc8683760416d38aa13a0f6b15711846797fe0",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 mul_to_add": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 47,
+  "opcode_counts": [
+   [
+    "add",
+    154
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    47
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "c43654e299cbfcb2d423cd14d1986ea158469a2b08c6b6b3efb68cab94555ad6",
+  "reason": "OUTPUT_VALUE_MISMATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "index",
+    0
+   ],
+   [
+    "uniform_input",
+    0
+   ],
+   [
+    "expected",
+    4
+   ],
+   [
+    "actual",
+    5
+   ]
+  ],
+  "work_used": 3172,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 nodes=1": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "EXPRESSION_NODES_LIMIT",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 0,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 nodes=100": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "EXPRESSION_NODES_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 263,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 nodes=1000": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "EXPRESSION_NODES_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 2497,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 scratch_uninit": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "87e716cba230e238cc172ea570205eb34aef992d88b31120d932ad6886fb72db",
+  "reason": "UNINITIALIZED_SCRATCH",
+  "semantic_status": "invalid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": [
+   [
+    "operation",
+    64
+   ],
+   [
+    "index",
+    0
+   ]
+  ],
+  "work_used": 2760,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 steps=1": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 1,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 steps=1000": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 1000,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 steps=50": {
+  "check_complete": false,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": null,
+  "opcode_counts": null,
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "CHECK_STEPS_EXHAUSTED",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 50,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 steps=5000": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "adbd5addf1e4080841935dccf47965611f80ec1d9ada3dd632b57d1310989457",
+  "reason": "VALID",
+  "semantic_status": "valid",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4253,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 swap": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "4d7f76b5eb76ce6f8140d48579cd3799270e1133a8b79bf08a7e9abb060f9f1b",
+  "reason": "STRUCTURAL_MISMATCH",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4228,
+  "workspace_bytes": 64
+ },
+ "5x7 rows2-v1 wrong_input": {
+  "check_complete": true,
+  "checker_version": "axiom-checker-v1",
+  "constraint_digest": "8504aa6536575ea97ebef82a9b497bc48787423ad68dab4b00b07b93966b981f",
+  "constraint_status": "satisfied",
+  "effective_cap": 1024,
+  "multiplication_ops": 48,
+  "opcode_counts": [
+   [
+    "add",
+    153
+   ],
+   [
+    "const",
+    1
+   ],
+   [
+    "input_load",
+    48
+   ],
+   [
+    "mul",
+    48
+   ],
+   [
+    "output_store",
+    35
+   ],
+   [
+    "scratch_load",
+    140
+   ],
+   [
+    "scratch_store",
+    48
+   ]
+  ],
+  "plan_digest": "305f428559375653d83e932d4f624b3a377c50b63b4fbdb4f796d5844231354c",
+  "reason": "STRUCTURAL_MISMATCH",
+  "semantic_status": "unknown",
+  "source_digest": "ad6caf4105bcbfbc8a94eab97b6c246039d6d2a7a9b36c698a5dbaf1890639a3",
+  "witness": null,
+  "work_used": 4228,
+  "workspace_bytes": 64
+ }
+}
