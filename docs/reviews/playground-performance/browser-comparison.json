@@ -1,0 +1,93 @@
+{
+  "browser": "154.0.8037.57",
+  "scope": "Warm browser request wall time: worker communication, parse, planning, checks, interpreted execution, independent comparison. Runtime startup excluded.",
+  "cases": [
+    {
+      "height": 5,
+      "width": 7,
+      "cap": 64,
+      "mode": "ramp",
+      "samples_ms": {
+        "before": [
+          171,
+          178.7999999988824,
+          169.2000000011176,
+          165.2999999988824,
+          177.59999999962747
+        ],
+        "after": [
+          83.5,
+          97.70000000111759,
+          99.19999999925494,
+          91,
+          87.10000000149012
+        ]
+      },
+      "median_ms": {
+        "before": 171,
+        "after": 91
+      },
+      "ratio": 1.879120879120879,
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "mode": "ramp",
+      "samples_ms": {
+        "before": [
+          1113.4000000003725,
+          1015.3000000007451,
+          1050.9000000003725,
+          1040.0999999996275,
+          1132.0999999996275
+        ],
+        "after": [
+          578.1999999992549,
+          535.7999999988824,
+          528.7000000011176,
+          555.5999999996275,
+          557.9000000003725
+        ]
+      },
+      "median_ms": {
+        "before": 1050.9000000003725,
+        "after": 555.5999999996275
+      },
+      "ratio": 1.8914686825073384,
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "mode": "checkerboard",
+      "samples_ms": {
+        "before": [
+          1094.7999999988824,
+          1086.5,
+          1159.5999999996275,
+          1229.6000000014901,
+          1122.0999999996275
+        ],
+        "after": [
+          525.0999999996275,
+          541.4000000003725,
+          567.7999999988824,
+          557.9000000003725,
+          561.1999999992549
+        ]
+      },
+      "median_ms": {
+        "before": 1122.0999999996275,
+        "after": 557.9000000003725
+      },
+      "ratio": 2.0112923462966092,
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    }
+  ]
+}

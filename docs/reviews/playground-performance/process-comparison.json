@@ -1,0 +1,383 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "machine": "x86_64",
+  "scope": "Whole-process request wall time, including startup, parse, selection, fresh checks, interpretation, independent comparison and response serialization.",
+  "methodology": "Same host/interpreter/requests; serial alternating before/after order; one discarded warm-up and five measured new processes per version and case. External formula audit is untimed.",
+  "module_hashes": {
+    "before": {
+      "axiom/__init__.py": "344313165d8438d321221596d363facccbec497b7459ae380143c16fef6d69e9",
+      "axiom/__main__.py": "d62e727147973f820db8739140b70d74519adbeac2ec54f18591e92cb01bba36",
+      "axiom/_core_supervisor.py": "65a2bc27ed62972dad2239d9df832b049b9feb094ce513867776a85dfdd7a631",
+      "axiom/artifact_chunks_v2.py": "e97078fc62c368cda070b8c1ba9a3ff1fd2abfe5102552108eaab6eaa84f7ab6",
+      "axiom/checker.py": "75af14e064d91694126095af12a60898544a73bec562dc2568706fc266393ac5",
+      "axiom/codec.py": "f2d7aae98e4e0140874a92f52ff166b5e1a74ca046ad5f8c2810901ca0e724e3",
+      "axiom/core_capsule.py": "2f0965cee75456fc1e25947c05063ff5cb8e5c8d700012c041317d134e172c2b",
+      "axiom/core_emit.py": "515b1a84faf454ce43d0c297dc46a3f119c416a7396d66df269ffb78b3f2c121",
+      "axiom/core_native_v2.py": "91649871e91a15c4539775825295c8485147ed5231c2581a42aac0a4674f89c7",
+      "axiom/core_observe.py": "7d3e988f2dd5e6143ffd77dafbb3ec510bf18ecfc002a02a23101d8dfe3c3927",
+      "axiom/core_runner.py": "4a7409a2975c575f38fda3ac8eff033caa6e18f56998d699f736604ffd3bddc8",
+      "axiom/core_toolchain.py": "213504b9913a0f04bd5419149ce22c7505bbcd783164da32b5da8f3fea9993b0",
+      "axiom/evidence.py": "c2bc3c0f8201a37063cb70620400c247821c7656589f276029152d5e231d499c",
+      "axiom/frontend.py": "2b6f291ce350fa32c1a09e64a0de425a3d02e9633535b13949fac1a8063afa71",
+      "axiom/invocation_v2.py": "9039a6706e89d54c97f5c508725994d0a8f0f210c255c668de56121cc54d9c1c",
+      "axiom/model.py": "dd45837debec9302a19d194d1fe8805176c902164f4432fc5391bcc274b96408",
+      "axiom/plan_format.py": "13cff8c9f80863d6629b81d8ad82e6ad54b7c2be63d8da6623f4a73286b9a829",
+      "axiom/planner.py": "06ae71ea42e30d706acf3d756c74abf620b1c9e8a9763d330e7cecc76d3df752",
+      "axiom/playground.py": "ec6cfa6ab342e2989277461700490901434c2c222094cf4feba35794663e3752",
+      "axiom/playground_service.py": "562dc076bd787641804af4cab8a7b8b691bb7f51d5fbed2d33751118d654eb23",
+      "axiom/reference.py": "01857a9ddc24f905721cfaf3959a2f2acb8a2388c63fe8d5260389853f341f3d",
+      "axiom/runtime.py": "54d35cd52e4ad19944ea4f0807ccadac7ef999a0c635e4776cd2ea111308b71b",
+      "axiom/selection.py": "799b46d47ce54cc6b78ff692045de09d74b5fb47a68465f241ad79b9cf50f975",
+      "axiom/source_profiles.py": "2d77a02746d815583b926ede83ef553e258fba4d442a12dd3f035c9c04fe9d43"
+    },
+    "after": {
+      "axiom/__init__.py": "344313165d8438d321221596d363facccbec497b7459ae380143c16fef6d69e9",
+      "axiom/__main__.py": "d62e727147973f820db8739140b70d74519adbeac2ec54f18591e92cb01bba36",
+      "axiom/_core_supervisor.py": "65a2bc27ed62972dad2239d9df832b049b9feb094ce513867776a85dfdd7a631",
+      "axiom/artifact_chunks_v2.py": "e97078fc62c368cda070b8c1ba9a3ff1fd2abfe5102552108eaab6eaa84f7ab6",
+      "axiom/checker.py": "bfe22abb6142f63e4d868570916ea7ad64e13b5011fd54cfafeea618ec73aaa5",
+      "axiom/codec.py": "43be833627c261c4f88ef59692f3fb8a1cef6a741f38e1895b418de48372f03b",
+      "axiom/core_capsule.py": "2f0965cee75456fc1e25947c05063ff5cb8e5c8d700012c041317d134e172c2b",
+      "axiom/core_emit.py": "515b1a84faf454ce43d0c297dc46a3f119c416a7396d66df269ffb78b3f2c121",
+      "axiom/core_native_v2.py": "91649871e91a15c4539775825295c8485147ed5231c2581a42aac0a4674f89c7",
+      "axiom/core_observe.py": "7d3e988f2dd5e6143ffd77dafbb3ec510bf18ecfc002a02a23101d8dfe3c3927",
+      "axiom/core_runner.py": "4a7409a2975c575f38fda3ac8eff033caa6e18f56998d699f736604ffd3bddc8",
+      "axiom/core_toolchain.py": "213504b9913a0f04bd5419149ce22c7505bbcd783164da32b5da8f3fea9993b0",
+      "axiom/evidence.py": "c2bc3c0f8201a37063cb70620400c247821c7656589f276029152d5e231d499c",
+      "axiom/frontend.py": "2b6f291ce350fa32c1a09e64a0de425a3d02e9633535b13949fac1a8063afa71",
+      "axiom/invocation_v2.py": "9039a6706e89d54c97f5c508725994d0a8f0f210c255c668de56121cc54d9c1c",
+      "axiom/model.py": "dd45837debec9302a19d194d1fe8805176c902164f4432fc5391bcc274b96408",
+      "axiom/plan_format.py": "13cff8c9f80863d6629b81d8ad82e6ad54b7c2be63d8da6623f4a73286b9a829",
+      "axiom/planner.py": "06ae71ea42e30d706acf3d756c74abf620b1c9e8a9763d330e7cecc76d3df752",
+      "axiom/playground.py": "ec6cfa6ab342e2989277461700490901434c2c222094cf4feba35794663e3752",
+      "axiom/playground_service.py": "562dc076bd787641804af4cab8a7b8b691bb7f51d5fbed2d33751118d654eb23",
+      "axiom/reference.py": "01857a9ddc24f905721cfaf3959a2f2acb8a2388c63fe8d5260389853f341f3d",
+      "axiom/runtime.py": "54d35cd52e4ad19944ea4f0807ccadac7ef999a0c635e4776cd2ea111308b71b",
+      "axiom/selection.py": "799b46d47ce54cc6b78ff692045de09d74b5fb47a68465f241ad79b9cf50f975",
+      "axiom/source_profiles.py": "2d77a02746d815583b926ede83ef553e258fba4d442a12dd3f035c9c04fe9d43"
+    }
+  },
+  "cases": [
+    {
+      "height": 1,
+      "width": 1,
+      "cap": 0,
+      "input_mode": "ramp",
+      "request_sha256": "e852859a9ab3065cc35a8b9abc89c0fa9db43381a9cad1f7b43abdbd03861f27",
+      "samples_ms": {
+        "before": [
+          65.43243000123766,
+          54.1799450002145,
+          64.15581999863207,
+          53.45025400129089,
+          58.14422399998875
+        ],
+        "after": [
+          58.30504899859079,
+          57.90723800055275,
+          52.24209600055474,
+          59.32303900044644,
+          53.742293999675894
+        ]
+      },
+      "median_ms": {
+        "before": 58.14422399998875,
+        "after": 57.90723800055275
+      },
+      "ratio": 1.0040925108435277,
+      "selected_plan": "inline-v1",
+      "result_sha256": "f6082bd0bf8d42ad09ea3430c12aafa38a03ee8e364adbf6f59260e6d9b02503",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 1,
+      "width": 1,
+      "cap": 0,
+      "input_mode": "checkerboard",
+      "request_sha256": "ca04ed31cee4516cdadab2debd2ec545d2624a5769cfb565f28db7fcdd0e91cd",
+      "samples_ms": {
+        "before": [
+          52.09255900081189,
+          54.827750000185915,
+          61.57142499978363,
+          71.94484100000409,
+          83.43044799948984
+        ],
+        "after": [
+          59.82463500004087,
+          58.31707100151107,
+          59.47252599980857,
+          57.9043180005101,
+          59.48028199964028
+        ]
+      },
+      "median_ms": {
+        "before": 61.57142499978363,
+        "after": 59.47252599980857
+      },
+      "ratio": 1.0352919094101,
+      "selected_plan": "inline-v1",
+      "result_sha256": "995e5638cbc42d264348e253319ff48a2fce7b2fa307515d6cdcafded9d626b7",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 5,
+      "width": 7,
+      "cap": 0,
+      "input_mode": "ramp",
+      "request_sha256": "ea4d2ffa0889215c3c018c02f4ae6b25786987606b831d604d85148145e664a6",
+      "samples_ms": {
+        "before": [
+          142.0887969998148,
+          124.78714200005925,
+          118.60268300006283,
+          117.32354000014311,
+          117.65896799988695
+        ],
+        "after": [
+          89.62394899936044,
+          86.31019799940987,
+          82.27887400062173,
+          80.12736700038658,
+          82.76508299968555
+        ]
+      },
+      "median_ms": {
+        "before": 118.60268300006283,
+        "after": 82.76508299968555
+      },
+      "ratio": 1.4330038550255961,
+      "selected_plan": "inline-v1",
+      "result_sha256": "8f978f3dd26c1b77d03c21e6b27f13044bf5405a3da23a342016ffecdecb733b",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 5,
+      "width": 7,
+      "cap": 0,
+      "input_mode": "checkerboard",
+      "request_sha256": "b9491f38a06b85f01efde193ed1df6941833d9ac27acb2391135a89ea04ad4be",
+      "samples_ms": {
+        "before": [
+          126.60496900025464,
+          119.86348900063604,
+          121.10371500057227,
+          122.36002800091228,
+          131.6386539983796
+        ],
+        "after": [
+          97.16629499962437,
+          86.64351299921691,
+          80.85887599918351,
+          91.48313299920119,
+          88.19162100007816
+        ]
+      },
+      "median_ms": {
+        "before": 122.36002800091228,
+        "after": 88.19162100007816
+      },
+      "ratio": 1.387433710973561,
+      "selected_plan": "inline-v1",
+      "result_sha256": "4c0f76ad855c7b4a29f8dba00c59f81fc4255bdb6dc0f8dc2cf4a078d6be69e3",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 0,
+      "input_mode": "ramp",
+      "request_sha256": "74b7550846517ab374e3553519d85dc5558290e04b18a9923a7930b4a0e7bc69",
+      "samples_ms": {
+        "before": [
+          502.3957710000104,
+          557.0900870006881,
+          568.1185470002674,
+          509.0086039999733,
+          499.54758800049603
+        ],
+        "after": [
+          282.77373099990655,
+          276.4802220008278,
+          271.41572199980146,
+          280.4415059999883,
+          270.16591599931417
+        ]
+      },
+      "median_ms": {
+        "before": 509.0086039999733,
+        "after": 276.4802220008278
+      },
+      "ratio": 1.8410307989352284,
+      "selected_plan": "inline-v1",
+      "result_sha256": "ad77982935f37fbc238a77519253c99ca0e813bc751486ba540374b5f88c1943",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 0,
+      "input_mode": "checkerboard",
+      "request_sha256": "70ddba2fec7ac6e41f8548b8092c69c0d8b1ab4114a70a41b7711d74ffd5a881",
+      "samples_ms": {
+        "before": [
+          515.4307520006114,
+          520.0563649996184,
+          511.6206479997345,
+          507.6537860004464,
+          512.3012149997521
+        ],
+        "after": [
+          303.2988969989674,
+          278.62275000006775,
+          287.4406610008009,
+          278.79977300108294,
+          281.85920199939574
+        ]
+      },
+      "median_ms": {
+        "before": 512.3012149997521,
+        "after": 281.85920199939574
+      },
+      "ratio": 1.817578462458183,
+      "selected_plan": "inline-v1",
+      "result_sha256": "e8f237f929e3fc06b0994f2072737ffbd47d467869f0544c7f87c403c6596ee3",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "input_mode": "ramp",
+      "request_sha256": "91f2a5b4dfdb0cdc76b950811b21c2bd5d6e91749d91b5c2597560f4eb689deb",
+      "samples_ms": {
+        "before": [
+          512.0574779994058,
+          518.8944059991627,
+          499.2826279994915,
+          516.8619279993436,
+          506.510810000691
+        ],
+        "after": [
+          285.563228000683,
+          270.2628300012293,
+          280.126793000818,
+          269.9239759986085,
+          267.0187680014351
+        ]
+      },
+      "median_ms": {
+        "before": 512.0574779994058,
+        "after": 270.2628300012293
+      },
+      "ratio": 1.8946648268172013,
+      "selected_plan": "inline-v1",
+      "result_sha256": "56c159a80148ac1eaa62f5277a2f392a6ef074997d44d0d45040ab5d9de138a5",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "input_mode": "checkerboard",
+      "request_sha256": "de55c5a97b6dfb8a775c6f9dcb42703a766c6fedc8227db82365e989e4802714",
+      "samples_ms": {
+        "before": [
+          539.0313789994252,
+          522.7169499994488,
+          532.7091990002373,
+          503.4226729985676,
+          489.74497399831307
+        ],
+        "after": [
+          279.7404129996721,
+          322.3465910014056,
+          274.9753079988295,
+          269.28282900007616,
+          261.1503410007572
+        ]
+      },
+      "median_ms": {
+        "before": 522.7169499994488,
+        "after": 274.9753079988295
+      },
+      "ratio": 1.9009595945308437,
+      "selected_plan": "inline-v1",
+      "result_sha256": "3a66986c0e23f81d4bc15cd84b15b8d20b926926ae02da5ec72b0c8cbc68752a",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 128,
+      "input_mode": "ramp",
+      "request_sha256": "f881b1c43ef008aa721b97196943c14e9a2c2fb90c024d61d793b9f4e45bc8cd",
+      "samples_ms": {
+        "before": [
+          504.146416000367,
+          539.761826999893,
+          537.9589739986841,
+          524.4103289987834,
+          530.085483998846
+        ],
+        "after": [
+          285.12316799969994,
+          259.26556500053266,
+          278.0723500000022,
+          283.22128400031943,
+          293.4519709997403
+        ]
+      },
+      "median_ms": {
+        "before": 530.085483998846,
+        "after": 283.22128400031943
+      },
+      "ratio": 1.8716301137814493,
+      "selected_plan": "rows2-v1",
+      "result_sha256": "a49f7b7e2a68a088d92d070549abc67a99a7f94dc755c4d14052f2a79e2e24dd",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 128,
+      "input_mode": "checkerboard",
+      "request_sha256": "70106d35c7497c10db3b9b5c1b70483fd98f2a84e390dec4e3699c6a4880a873",
+      "samples_ms": {
+        "before": [
+          529.2121459988266,
+          508.5102340017329,
+          560.7357200005936,
+          546.3703840014205,
+          558.9428269995551
+        ],
+        "after": [
+          258.0211619988404,
+          302.9393879987765,
+          289.2010699997627,
+          285.9950900001422,
+          308.9013730004808
+        ]
+      },
+      "median_ms": {
+        "before": 546.3703840014205,
+        "after": 289.2010699997627
+      },
+      "ratio": 1.8892405342824934,
+      "selected_plan": "rows2-v1",
+      "result_sha256": "141905100e978fb43a429020f650b9b7866946f3a355a16c4c7073621f840164",
+      "all_responses_identical": true,
+      "independent_formula_matches": true
+    }
+  ]
+}

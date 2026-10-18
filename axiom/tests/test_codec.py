@@ -1,4 +1,5 @@
 """Strict artifact boundary tests: no plan generator is used as an oracle."""
+import cProfile
 import hashlib
 import json
 from dataclasses import replace
@@ -156,6 +157,69 @@ class CodecTests(unittest.TestCase):
                 with self.subTest(plan_id=plan.plan_id, budget=budget):
                     with self.assertRaises(DecodeError) as raised:
                         validate_plan(plan, replace(self.limits, plan_bytes=budget))
+                    self.assertEqual(raised.exception.code, 'BYTE_LIMIT')
+
+    def test_validation_does_not_serialize_each_operation(self):
+        plan = replace(self.plan, operations=tuple(
+            Operation('const', dst=i, value=i) for i in range(256)))
+        with cProfile.Profile() as profile:
+            validate_plan(plan, self.limits)
+        dumps_calls = sum(entry.callcount for entry in profile.getstats()
+                          if entry.code is json.dumps.__code__)
+        # The bounded header may be serialized once; operations need only
+        # structural validation and size accounting, with no temporary JSON.
+        self.assertLessEqual(dumps_calls, 1)
+
+    def test_encoding_does_not_repeat_generic_json_tree_validation(self):
+        with cProfile.Profile() as profile:
+            encoded = encode_plan(self.plan)
+        self.assertEqual(encoded, (FIXTURES / 'inline-1x1.json').read_bytes())
+        generic_calls = sum(entry.callcount for entry in profile.getstats()
+                            if entry.code is canonical_json.__code__)
+        # Structural plan validation already checks every primitive. Only the
+        # fixed-size header may use the generic primitive validator again.
+        self.assertLessEqual(generic_calls, 1)
+
+    def test_canonical_size_matches_independent_json_oracle_at_every_prefix(self):
+        origin_lists = ([], [0], [0, 9, 10, 99, 100, 9999999999])
+        rows = [('const', i, [], None, value) for i, value in enumerate((
+            -2147483648, -1000000000, -100, -10, -1, 0, 1, 9, 10, 99, 100,
+            2147483647))]
+        rows.extend((('input_load', 12, [], 9999999999, None),
+                     ('add', 13, [9, 10], None, None),
+                     ('mul', 14, [11, 12], None, None),
+                     ('scratch_store', None, [13], 2147483646, None),
+                     ('scratch_load', 15, [], 2147483646, None),
+                     ('output_store', None, [15], 9999999999, None)))
+        raw_operations = [
+            {'opcode': opcode, 'dst': dst, 'operands': operands, 'index': index,
+             'value': value, 'origins': origin_lists[i % len(origin_lists)]}
+            for i, (opcode, dst, operands, index, value) in enumerate(rows)]
+        operations = tuple(Operation(op['opcode'], op['dst'], tuple(op['operands']),
+                                     op['index'], op['value'], tuple(op['origins']))
+                           for op in raw_operations)
+        for label in ('plain', 'quote " slash \\ /', '\0\b\f\n\r\t\x1f',
+                      'café 🧮', 'é' * 128):
+            for count in range(len(operations) + 1):
+                with self.subTest(label=label, operation_count=count):
+                    raw = {'format_version': 1, 'semantic_digest': 'b' * 64,
+                           'plan_id': label, 'scratch_capacity_cells': 2147483647,
+                           'operations': raw_operations[:count]}
+                    expected = json.dumps(raw, sort_keys=True, separators=(',', ':'),
+                                          ensure_ascii=False, allow_nan=False).encode('utf-8')
+                    plan = Plan(1, 'b' * 64, label, 2147483647, operations[:count])
+                    exact = replace(self.limits, plan_bytes=len(expected))
+                    validate_plan(plan, exact)
+                    self.assertEqual(encode_plan(plan, limits=exact), expected)
+                    self.assertEqual(plan_digest(plan, limits=exact),
+                                     hashlib.sha256(expected).hexdigest())
+                    self.assertEqual(decode_plan(expected, exact), plan)
+                    short = replace(exact, plan_bytes=len(expected) - 1)
+                    with self.assertRaises(DecodeError) as raised:
+                        validate_plan(plan, short)
+                    self.assertEqual(raised.exception.code, 'BYTE_LIMIT')
+                    with self.assertRaises(DecodeError) as raised:
+                        encode_plan(plan, limits=short)
                     self.assertEqual(raised.exception.code, 'BYTE_LIMIT')
 
     def test_oversized_direct_origins_tuple_respects_default_byte_limit(self):

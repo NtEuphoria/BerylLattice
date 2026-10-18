@@ -22,7 +22,8 @@
       <div class="table-scroll" tabindex="0" role="region" aria-label="Your browser benchmark results"><table class="candidate-table"><caption>Your browser · median of three runs</caption><thead><tr><th scope="col">Output size</th><th scope="col">Time</th><th scope="col">Correctness</th></tr></thead><tbody id="browser-rows"></tbody></table></div>
     </section>
     <section class="results-panel" aria-labelledby="native-heading">
-      <h2 id="native-heading">Saved Windows comparison: beryl, C and Rust</h2>
+      <h2 id="native-heading">Saved Windows baseline: beryl, C and Rust</h2>
+      <p>These saved measurements predate the plan-serialization optimization in the current release. Run the browser benchmark above to measure the current version on your machine.</p>
       <p>Same stencil, identical inputs, every output verified. These are whole-process measurements: startup, input decoding, calculation and output transfer. C and Rust use optimized, direct implementations. beryl additionally parses source, chooses and checks a plan, and independently verifies its output.</p>
       <p><strong>These measure different implementations and overheads, not inherent language speed.</strong> Small native cases are dominated by startup. The saved local timings are not directly comparable with the browser timings above. There is no native C/Rust execution on this page.</p>
       <p id="comparison-environment">Loading saved measurements…</p>

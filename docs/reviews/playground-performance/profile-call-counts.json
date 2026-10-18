@@ -1,0 +1,16 @@
+{
+  "before": {
+    "decode_plan": 1,
+    "validate_plan": 10,
+    "check_plan": 4,
+    "encode_plan": 5,
+    "canonical_json": 32931
+  },
+  "after": {
+    "check_plan": 4,
+    "decode_plan": 1,
+    "validate_plan": 6,
+    "canonical_json": 16,
+    "encode_plan": 5
+  }
+}

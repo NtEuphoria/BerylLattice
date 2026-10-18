@@ -192,6 +192,10 @@ def canonical_json(value) -> bytes:
 _PLAN_FIELDS = {'format_version', 'semantic_digest', 'plan_id',
                 'scratch_capacity_cells', 'operations'}
 _OPERATION_FIELDS = {'opcode', 'dst', 'operands', 'index', 'value', 'origins'}
+# Fixed keys and punctuation; scalar values, opcode text and list contents
+# are charged separately after their types and bounds have been validated.
+_OPERATION_SHELL_BYTES = len(
+    b'{"dst":,"index":,"opcode":"","operands":[],"origins":[],"value":}')
 # opcode -> (produces SSA result, operand count, has index, has literal)
 _SHAPES = {'const': (True, 0, False, True),
            'input_load': (True, 0, True, False),
@@ -284,7 +288,16 @@ def validate_plan(plan: Plan, limits: Limits) -> None:
             _fail('INVALID_PLAN', path + '.value', 'opcode has no literal')
         if type(op.origins) is not tuple:
             _fail('INVALID_PLAN', path + '.origins', 'origins must be an immutable tuple')
-        charge(len(canonical_json(_operation_object(op, []))) + (1 if i else 0), path)
+        # Opcodes are fixed ASCII names, nullable fields are exact bounded
+        # integers or null, and operands contain at most two integers. Account
+        # for their exact encoding without constructing JSON for each operation.
+        shell_bytes = (_OPERATION_SHELL_BYTES + len(op.opcode)
+                       + (len(str(op.dst)) if result else 4)
+                       + (len(str(op.index)) if indexed else 4)
+                       + (len(str(op.value)) if literal else 4)
+                       + sum(len(str(operand)) for operand in op.operands)
+                       + max(0, arity - 1))
+        charge(shell_bytes + (1 if i else 0), path)
         # Every nonnegative origin needs at least one digit and a separator
         # except the first. The shell above already includes the brackets.
         charge(max(0, 2 * len(op.origins) - 1), path + '.origins')
@@ -315,7 +328,10 @@ def _plan_object(plan):
 
 def encode_plan(plan: Plan, *, limits: Limits = Limits()) -> bytes:
     validate_plan(plan, limits)
-    data = canonical_json(_plan_object(plan))
+    # Structural validation above already checks every primitive and the exact
+    # byte quota before allocating the complete JSON tree and encoded artifact.
+    data = json.dumps(_plan_object(plan), sort_keys=True, separators=(',', ':'),
+                      ensure_ascii=False, allow_nan=False).encode('utf-8')
     if len(data) > limits.plan_bytes:
         _fail('BYTE_LIMIT', '$', 'canonical plan byte quota exceeded')
     return data

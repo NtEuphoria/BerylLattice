@@ -1,0 +1,9 @@
+{
+  "cases": [
+    {
+      "request": {
+        "source": "module demo;\nshape H = 1;\nshape W = 1;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n"
+      }
+    }
+  ]
+}
