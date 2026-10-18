@@ -252,50 +252,54 @@ def _validate_plan(plan, limits):
     # A direct record has no original bytes: apply the effective quota to its
     # exact canonical size. Header and per-operation shells have bounded size;
     # origins are charged from tuple length before inspecting any elements.
-    used_bytes = 0
-
-    def charge(amount, path):
-        nonlocal used_bytes
-        used_bytes += amount
-        if used_bytes > limits.plan_bytes:
-            _fail('BYTE_LIMIT', path, 'canonical plan byte quota exceeded')
-
-    charge(len(canonical_json(_plan_header_object(plan))), '$')
+    used_bytes = len(canonical_json(_plan_header_object(plan)))
+    if used_bytes > limits.plan_bytes:
+        _fail('BYTE_LIMIT', '$', 'canonical plan byte quota exceeded')
     next_dst = 0
     multiplication_ops = 0
     for i, op in enumerate(plan.operations):
-        path = f'$.operations[{i}]'
+        # Valid records need no diagnostic strings or generic integer calls.
+        # Keep checks and quota checkpoints in their public first-error order.
         if type(op) is not Operation:
-            _fail('INVALID_PLAN', path, 'expected Operation record')
+            _fail('INVALID_PLAN', f'$.operations[{i}]', 'expected Operation record')
         if type(op.opcode) is not str or op.opcode not in _SHAPES:
-            _fail('UNKNOWN_OPCODE', path + '.opcode', 'unknown physical opcode')
+            _fail('UNKNOWN_OPCODE', f'$.operations[{i}].opcode', 'unknown physical opcode')
         result, arity, indexed, literal = _SHAPES[op.opcode]
         if op.opcode == 'mul':
             multiplication_ops += 1
         if result:
-            _integer(op.dst, path + '.dst')
+            if type(op.dst) is not int or not 0 <= op.dst <= 9999999999:
+                _fail('INVALID_PLAN', f'$.operations[{i}].dst',
+                      'expected exact integer in [0,9999999999]')
             if op.dst != next_dst:
-                _fail('INVALID_PLAN', path + '.dst', 'SSA definitions must be dense and ordered')
+                _fail('INVALID_PLAN', f'$.operations[{i}].dst', 'SSA definitions must be dense and ordered')
         elif op.dst is not None:
-            _fail('INVALID_PLAN', path + '.dst', 'opcode has no SSA result')
+            _fail('INVALID_PLAN', f'$.operations[{i}].dst', 'opcode has no SSA result')
         if type(op.operands) is not tuple or len(op.operands) != arity:
-            _fail('INVALID_PLAN', path + '.operands', 'wrong operand tuple arity')
+            _fail('INVALID_PLAN', f'$.operations[{i}].operands', 'wrong operand tuple arity')
         for j, operand in enumerate(op.operands):
-            _integer(operand, f'{path}.operands[{j}]')
+            if type(operand) is not int or not 0 <= operand <= 9999999999:
+                _fail('INVALID_PLAN', f'$.operations[{i}].operands[{j}]',
+                      'expected exact integer in [0,9999999999]')
             if operand >= next_dst:
-                _fail('INVALID_PLAN', f'{path}.operands[{j}]', 'SSA operand must refer to an earlier definition')
+                _fail('INVALID_PLAN', f'$.operations[{i}].operands[{j}]',
+                      'SSA operand must refer to an earlier definition')
         if indexed:
-            _integer(op.index, path + '.index')
+            if type(op.index) is not int or not 0 <= op.index <= 9999999999:
+                _fail('INVALID_PLAN', f'$.operations[{i}].index',
+                      'expected exact integer in [0,9999999999]')
             if op.opcode.startswith('scratch_') and op.index >= plan.scratch_capacity_cells:
-                _fail('INVALID_PLAN', path + '.index', 'scratch index outside reserved arena')
+                _fail('INVALID_PLAN', f'$.operations[{i}].index', 'scratch index outside reserved arena')
         elif op.index is not None:
-            _fail('INVALID_PLAN', path + '.index', 'opcode has no index')
+            _fail('INVALID_PLAN', f'$.operations[{i}].index', 'opcode has no index')
         if literal:
-            _integer(op.value, path + '.value', -2147483648, 2147483647)
+            if type(op.value) is not int or not -2147483648 <= op.value <= 2147483647:
+                _fail('INVALID_PLAN', f'$.operations[{i}].value',
+                      'expected exact integer in [-2147483648,2147483647]')
         elif op.value is not None:
-            _fail('INVALID_PLAN', path + '.value', 'opcode has no literal')
+            _fail('INVALID_PLAN', f'$.operations[{i}].value', 'opcode has no literal')
         if type(op.origins) is not tuple:
-            _fail('INVALID_PLAN', path + '.origins', 'origins must be an immutable tuple')
+            _fail('INVALID_PLAN', f'$.operations[{i}].origins', 'origins must be an immutable tuple')
         # Opcodes are fixed ASCII names, nullable fields are exact bounded
         # integers or null, and operands contain at most two integers. Account
         # for their exact encoding without constructing JSON for each operation.
@@ -305,14 +309,22 @@ def _validate_plan(plan, limits):
                        + (len(str(op.value)) if literal else 4)
                        + sum(len(str(operand)) for operand in op.operands)
                        + max(0, arity - 1))
-        charge(shell_bytes + (1 if i else 0), path)
+        used_bytes += shell_bytes + (1 if i else 0)
+        if used_bytes > limits.plan_bytes:
+            _fail('BYTE_LIMIT', f'$.operations[{i}]', 'canonical plan byte quota exceeded')
         # Every nonnegative origin needs at least one digit and a separator
         # except the first. The shell above already includes the brackets.
-        charge(max(0, 2 * len(op.origins) - 1), path + '.origins')
+        used_bytes += max(0, 2 * len(op.origins) - 1)
+        if used_bytes > limits.plan_bytes:
+            _fail('BYTE_LIMIT', f'$.operations[{i}].origins', 'canonical plan byte quota exceeded')
         for j, origin in enumerate(op.origins):
-            origin_path = f'{path}.origins[{j}]'
-            _integer(origin, origin_path)
-            charge(len(str(origin)) - 1, origin_path)
+            if type(origin) is not int or not 0 <= origin <= 9999999999:
+                _fail('INVALID_PLAN', f'$.operations[{i}].origins[{j}]',
+                      'expected exact integer in [0,9999999999]')
+            used_bytes += len(str(origin)) - 1
+            if used_bytes > limits.plan_bytes:
+                _fail('BYTE_LIMIT', f'$.operations[{i}].origins[{j}]',
+                      'canonical plan byte quota exceeded')
         if result:
             next_dst += 1
 
