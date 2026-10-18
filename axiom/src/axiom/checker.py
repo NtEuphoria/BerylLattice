@@ -7,7 +7,7 @@ Only explicitly reserved scratch counts toward the workspace constraint.
 from dataclasses import dataclass
 from hashlib import sha256
 
-from .codec import DecodeError, canonical_json, plan_digest, validate_plan
+from .codec import DecodeError, canonical_json, plan_digest
 from .frontend import admit_source, parse_source
 from .model import (AdmittedKernel, BinaryExpression, ConstraintStatus, DiagnosticError,
                     GroupExpression, IntegerLiteral, Limits, NameReference,
@@ -235,7 +235,8 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
                            effective_cap, constraint_digest)
 
     try:
-        validate_plan(plan, limits)
+        # Digest encoding validates the complete untrusted record under these
+        # same limits before serializing it; do not walk its structure twice.
         identity = plan_digest(plan, limits=limits)
     except DecodeError as error:
         unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')

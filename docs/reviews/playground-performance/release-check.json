@@ -1,0 +1,29 @@
+{
+  "private_base": "58f1f31a20fafa76a909af124dff3cfbfea3c445",
+  "public_base": "2bb913bfcdf5453a6d071d98c29ab4775db6226e",
+  "optimized_modules": {
+    "beryl/codec.py": {
+      "bytes": 16887,
+      "sha256": "43be833627c261c4f88ef59692f3fb8a1cef6a741f38e1895b418de48372f03b"
+    },
+    "beryl/checker.py": {
+      "bytes": 16725,
+      "sha256": "d3f9c1dada4a25e3584fcae951552a6d7ca62d7e9aee27569f211b2d12d2ce0d"
+    }
+  },
+  "compiler_archive_sha256": "fe23d074688d27848bd9aae335be420ccea95833b8b9cbca196bd9be781d38c9",
+  "validation": {
+    "python_tests": 301,
+    "native_skips": 22,
+    "ui_tests": 12,
+    "independent_differential_comparisons": 11865,
+    "browser_smoke": "passed",
+    "public_export_file_count": 24
+  },
+  "public_changed_files": [
+    "benchmarks.html",
+    "beryl-compiler.zip",
+    "release-manifest.json"
+  ],
+  "historical_windows_measurements": "unchanged, explicitly labeled pre-optimization"
+}

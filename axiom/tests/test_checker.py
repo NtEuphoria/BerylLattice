@@ -1,11 +1,12 @@
 """Independent hand-authored controls; never import a physical-plan generator."""
 from dataclasses import FrozenInstanceError, replace
 import ast
+import cProfile
 from pathlib import Path
 import unittest
 
 from axiom import checker
-from axiom.codec import canonical_json, decode_plan
+from axiom.codec import canonical_json, decode_plan, validate_plan
 from axiom.frontend import admit_source, parse_source
 from axiom.model import Limits
 from axiom.plan_format import Operation, Plan
@@ -80,6 +81,16 @@ class CheckerTests(unittest.TestCase):
         self.assertEqual(len(result.plan_digest), 64)
         with self.assertRaises(FrozenInstanceError):
             result.reason = 'forged'
+
+    def test_check_validates_structure_once_before_symbolic_execution(self):
+        # Structural validation walks every operation. Digest generation must
+        # share that boundary instead of repeating the entire validation pass.
+        profile = cProfile.Profile()
+        result = profile.runcall(self.check)
+        self.assertTrue(result.eligible, result)
+        validations = sum(entry.callcount for entry in profile.getstats()
+                          if entry.code is validate_plan.__code__)
+        self.assertEqual(validations, 1)
 
     def test_ssa_staged_5x7_arbitrary_label(self):
         k = kernel(5, 7, 0)
