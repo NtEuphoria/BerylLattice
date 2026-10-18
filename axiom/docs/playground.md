@@ -62,22 +62,24 @@ The generated README explains hosting MIME types and CSP. GitHub Pages ignores
 `_headers`; the page also contains its own CSP meta policy.
 
 The owner created the public repository and enabled Pages after the integration
-returned403 for those administrative operations. The approved release is on
-`NtEuphoria/axiom-playground` (`main`, commit7a608cb), published from the branch's
+returned403 for those administrative operations. The initial approved release was
+commit `7a608cb` on `NtEuphoria/axiom-playground`. Updates publish from `main` at the
 root directory. Actual Chromium execution and selected served-file hashes/MIME
 types passed against the live HTTPS site. See the presentation review for evidence.
 
 ## A two-minute presentation
 
-1. Start with the balanced example and ramp input. Explain: the source declares
-   a two-stage array computation and a64-byte plan scratch constraint, but does
-   not specify the schedule. Press Run.
-2. Show the selected two-row schedule:48 multiplication operations and64 bytes
-   of plan scratch. All35 output cells agree with the independent evaluator.
-3. Choose the zero-scratch example and run again. Axiom chooses inline execution:
-   140 multiplications, zero plan scratch, and the same output.
-4. Choose the small-memory objective. Explain that the preferred resource can
-   change the selected schedule. These are comparisons within three candidates.
+1. Start with **Fewer calculations** and the increasing input pattern. Explain:
+   add 1 to each input, square it, then sum each neighboring 2 × 2 group. The code
+   allows 64 bytes of temporary plan storage without specifying how to run.
+   Press **Run computation**.
+2. Show the output first: all 35 values match a separate calculation of the source.
+   The selected plan keeps two rows, using 48 multiplications and 64 bytes of
+   temporary plan storage.
+3. Choose **No temporary storage** and run again. Axiom chooses inline execution:
+   140 multiplications, zero temporary plan storage, and the same output.
+4. Choose **Least storage**. Explain that the preferred resource can change the
+   selected plan. Expand **Compare all three plans** to see the candidates.
 5. Edit a source dimension or input pattern and run again to show real execution.
    Try zeros: every output becomes4. Download the current report for a record.
 

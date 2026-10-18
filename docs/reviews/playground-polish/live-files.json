@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "release_commit": "89b5072ab32931936ab1a0a7397a5ea8b50422aa",
+  "checks": [
+    {
+      "file": "index.html",
+      "sha256": "6f8c0e4808b4ae9c95a7155d0b720d9e9e98d969acc342ca07336983fa6fa006",
+      "mime": "text/html; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "style.css",
+      "sha256": "e27a0dd257620d2b38bfec9ee88fef811ae407aa827fe89acd622f263eee9013",
+      "mime": "text/css; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "app.js",
+      "sha256": "5f65c9b541c373427797b13c83197a6a33d7b8e5174bba90139882f2a75163eb",
+      "mime": "application/javascript; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "release-manifest.json",
+      "sha256": "a3adef64f29318d997b01b86608e4c2d848e9bef8ef044e2c08a9b4f6a163a59",
+      "mime": "application/json; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "axiom-compiler.zip",
+      "sha256": "abd6d1a35979e7f3901d5dd2a25c4988540b0e055d4db9e4d7310a296efb1ffe",
+      "mime": "application/x-zip-compressed",
+      "matches": true
+    }
+  ]
+}

@@ -43,3 +43,7 @@ the verification evidence. This live check establishes the deployed demo path.
 The separate bounded-source prerequisite is reviewed in PR#2 and does not change
 this presentation's v1 path. Its review records170 passing targeted tests in each
 Python mode and preserves the original frontend/model bytes and admitted identities.
+
+The subsequent [playground clarity review](playground-polish/review.md) records
+the simpler interface, accessibility checks, unchanged compiler/runtime bytes,
+and verified public update at commit `89b5072`.

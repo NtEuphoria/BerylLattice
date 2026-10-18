@@ -14,9 +14,14 @@ import { getExamples, runDemo } from "./transport.js";
     results: document.querySelector(".results-panel"),
   };
   const schedules = {
-    "inline-v1": { title: "Recompute inline", description: "Compute each intermediate when it is needed, without retaining scratch values." },
-    "rows2-v1": { title: "Retain two rows", description: "Reuse intermediate values in a two-row buffer as the computation advances." },
-    "materialize-v1": { title: "Store all intermediates", description: "Compute each intermediate once and retain the complete intermediate array." },
+    "inline-v1": { title: "Recompute inline", description: "Recalculates values when needed, using no temporary plan storage." },
+    "rows2-v1": { title: "Retain two rows", description: "Keeps two rows of calculated values to reuse in the next step." },
+    "materialize-v1": { title: "Store all intermediates", description: "Calculates each intermediate value once and stores the whole grid." },
+  };
+  const exampleCopy = {
+    "balanced": { title: "Fewer calculations", description: "Allow 64 bytes of temporary storage and prefer fewer multiplications." },
+    "no-scratch": { title: "No temporary storage", description: "Allow no temporary storage. Axiom must recalculate values instead of saving them." },
+    "small-memory": { title: "Least storage", description: "Allow up to 64 bytes, but prefer the plan that uses the least temporary storage." },
   };
   let examples = [];
   let requestId = 0;
@@ -24,7 +29,7 @@ import { getExamples, runDemo } from "./transport.js";
   let currentReport = null;
   let loadingExamples = true;
   const inBrowser = document.documentElement.dataset.runtime === "browser";
-  $("runtime-label").textContent = inBrowser ? "Runs in your browser · v1 profile" : "Local Python runtime · v1 profile";
+  $("runtime-label").textContent = inBrowser ? "Runs in your browser" : "Local Python runtime";
   $("release-links").hidden = !inBrowser;
 
   function setStatus(kind, title, detail) {
@@ -49,7 +54,7 @@ import { getExamples, runDemo } from "./transport.js";
 
   function setRunning(running) {
     ui.results.setAttribute("aria-busy", String(running));
-    ui.runLabel.textContent = running ? "Checking & executing…" : "Run computation";
+    ui.runLabel.textContent = running ? "Running…" : "Run computation";
     ui.run.disabled = running || loadingExamples || !ui.source.value.trim();
   }
 
@@ -61,7 +66,7 @@ import { getExamples, runDemo } from "./transport.js";
       button.setAttribute("aria-pressed", String(matches));
       if (matches) selected = example;
     }
-    ui.description.textContent = selected ? selected.description : "Custom source. Axiom will check the computation and constraints you write.";
+    ui.description.textContent = selected ? (exampleCopy[selected.id]?.description || selected.description) : "Edited example. Run it to check your code and constraints.";
   }
 
   function invalidate() {
@@ -71,7 +76,7 @@ import { getExamples, runDemo } from "./transport.js";
     clearResult();
     setRunning(false);
     updateExampleSelection();
-    setStatus("idle", "Ready to run your changes", "Previous results are cleared. Run again to check the current source and inputs.");
+    setStatus("idle", "Changes ready to run", "Run again to see the result for your current code and inputs.");
   }
 
   function showDiagnostic(code, message, offset = null) {
@@ -103,9 +108,9 @@ import { getExamples, runDemo } from "./transport.js";
       row.append(cell("td", scheduleTitle(attempt.plan_id)));
       row.append(cell("td", formatCount(attempt.workspace_bytes, " B")));
       row.append(cell("td", formatCount(attempt.multiplication_ops)));
-      const decision = cell("td", selected ? "Selected" : attempt.eligible ? "Eligible" : "Rejected");
+      const decision = cell("td", selected ? "Selected" : attempt.eligible ? "Also fits" : "Not available");
       if (selected) decision.className = "decision-selected";
-      const reasonText = attempt.constraint_status === "violated" ? "Scratch limit exceeded"
+      const reasonText = attempt.constraint_status === "violated" ? "Exceeds storage limit"
         : attempt.constraint_status === "unknown" ? "Constraint not established"
         : attempt.semantic_status === "unknown" ? "Validity not established"
         : attempt.reason;
@@ -173,29 +178,31 @@ import { getExamples, runDemo } from "./transport.js";
     ui.content.hidden = !Array.isArray(result.attempts);
     if (result.diagnostic) showDiagnostic(result.diagnostic.code, result.diagnostic.message, result.diagnostic.offset);
     if (result.status === "success") {
-      setStatus("success", "Execution checked. Every output matches.", `${result.comparison.cells_compared} output cells compared with the independent source evaluator.`);
+      setStatus("success", "Run complete", `All ${result.comparison.cells_compared} output values match a separate calculation of the source.`);
     } else if (result.status === "input_precondition_failed") {
-      setStatus("warning", "Input rejected. Output buffer preserved.", `Input at index ${result.first_bad_index ?? "unknown"} violates the source precondition. The plan was not executed.`);
+      setStatus("warning", "Input rejected", `Input at index ${result.first_bad_index ?? "unknown"} is outside the allowed range. The plan did not run; the output buffer is unchanged.`);
     } else if (result.status === "no_eligible_plan") {
-      setStatus("warning", "No eligible plan", "No checked candidate satisfies this request within the search budget. Nothing was executed.");
+      setStatus("warning", "No plan fits these constraints", "None of the checked plans meets this request within the search budget. Nothing was run.");
     } else {
       setStatus("error", "This request could not be completed", "Read the diagnostic, adjust the source or inputs, and run again.");
     }
     if (result.selected && result.shape) {
       ui.selection.hidden = false;
       $("selected-name").textContent = scheduleTitle(result.selected.plan_id);
-      $("selected-explanation").textContent = schedules[result.selected.plan_id]?.description || "Selected from the checked candidate portfolio.";
+      const preference = result.objective === "multiplication_ops" ? "fewer multiplications" : "less temporary storage";
+      const limit = result.workspace_cap == null ? "no storage limit declared" : `a ${result.workspace_cap}-byte storage limit`;
+      $("selected-explanation").textContent = `${schedules[result.selected.plan_id]?.description || "Selected from the checked plans."} Your request prefers ${preference}, with ${limit}.`;
       $("selected-workspace").textContent = formatCount(result.selected.workspace_bytes, " B");
       $("selected-multiplications").textContent = formatCount(result.selected.multiplication_ops);
       $("selected-shape").textContent = `${result.shape.height} × ${result.shape.width}`;
     }
-    $("objective-label").textContent = result.objective === "multiplication_ops" ? "Prefer fewer multiplications" : result.objective === "plan_workspace_bytes" ? "Prefer less scratch storage" : "";
+    $("objective-label").textContent = result.objective === "multiplication_ops" ? "Preference: fewer multiplications" : result.objective === "plan_workspace_bytes" ? "Preference: less temporary storage" : "";
     renderCandidates(result);
     if (result.shape && Array.isArray(result.output)) {
       ui.outputSection.hidden = false;
       ui.outputSection.classList.toggle("output-unverified", result.status !== "success");
-      $("output-heading").textContent = result.status === "input_precondition_failed" ? "Preserved output buffer" : "Output";
-      $("comparison-label").textContent = result.status === "success" ? `${result.comparison.cells_compared} / ${result.comparison.cells_compared} match` : "No successful execution";
+      $("output-heading").textContent = result.status === "input_precondition_failed" ? "Unchanged output buffer" : "Output";
+      $("comparison-label").textContent = result.status === "success" ? `${result.comparison.cells_compared} values checked` : "The plan did not run";
       renderMatrix(ui.output, result.output, result.shape.height, result.shape.width, "Output");
     }
     $("input-details").hidden = !(result.shape && Array.isArray(result.input));
@@ -230,7 +237,7 @@ import { getExamples, runDemo } from "./transport.js";
     let timedOut = false;
     const timeout = window.setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
     setRunning(true);
-    setStatus("loading", "Checking plans and executing…", "The selected plan is freshly checked, then its output is independently compared.");
+    setStatus("loading", "Running your computation…", "Axiom checks the selected plan, runs it, and compares its output with a separate calculation.");
     try {
       const aborted = new Promise((resolve, reject) => {
         controller.signal.addEventListener("abort", () => reject(new Error("Run cancelled.")), { once: true });
@@ -270,7 +277,7 @@ import { getExamples, runDemo } from "./transport.js";
       examples = data.examples;
       ui.examples.replaceChildren();
       for (const example of examples) {
-        const button = cell("button", example.title);
+        const button = cell("button", exampleCopy[example.id]?.title || example.title);
         button.type = "button";
         button.className = "example-button";
         button.dataset.example = example.id;
@@ -280,7 +287,7 @@ import { getExamples, runDemo } from "./transport.js";
       }
       if (!initialSource && !ui.source.value) ui.source.value = examples[0].source;
       updateExampleSelection();
-      if (initializing && requestId === initialRequestId) setStatus("idle", "Ready when you are", "Choose an example, then run it to see the checked plan and its results.");
+      if (initializing && requestId === initialRequestId) setStatus("idle", "Ready to run", "An example is loaded. Run it to see the output and the plan Axiom chooses.");
     } catch (error) {
       const failureCopy = cell("p", "Examples could not be loaded.");
       failureCopy.className = "loading-copy";
