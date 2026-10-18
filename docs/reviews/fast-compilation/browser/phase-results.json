@@ -1,0 +1,2052 @@
+{
+  "schema_version": 1,
+  "started_utc": "2026-10-18T03:35:19.768Z",
+  "scope": "Fresh-source compilation with runtime/imports already loaded; exact unmodified release ZIP; five nonce-distinct sources per case. Python wrappers record inclusive production stage timings. No artifact/module reuse by harness. JS engine-internal Wasm compilation caching is uncontrolled, because comment nonces preserve generated module bytes. Startup, formula verification and filesystem hashing are excluded from compilation timings.",
+  "host": {
+    "platform": "linux",
+    "release": "6.18.55",
+    "arch": "x64",
+    "cpus": 5,
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "node": "v24.19.0"
+  },
+  "site_root": "/workspace/scratch/beryl-compiled/site-release",
+  "files": {
+    "runtime-config.json": {
+      "bytes": 54,
+      "sha256": "16493fce0bfbfff2a342c308e453e72b8558dd233c2bea80da98cae506ac6596"
+    },
+    "release-manifest.json": {
+      "bytes": 8439,
+      "sha256": "ea32282cbfaaae30c1b587ed3a148210e4f5af45eb5c11b2d8a430b518c78298"
+    },
+    "beryl-compiler.zip": {
+      "bytes": 35300,
+      "sha256": "cb7304afabbfee94c4184f1c34574732f0f241c2a674222d6c3a8ee014bb6634"
+    },
+    "worker.js": {
+      "bytes": 6916,
+      "sha256": "c19d2c9141adaf481fa318b79959c232f0c082273bb926cb6f239dec820f9476"
+    },
+    "runtime/pyodide.js": {
+      "bytes": 14913,
+      "sha256": "b4cb23a53aba19c221659b9fb40a2f18281d685691dc06647fb0afd0681baf98"
+    },
+    "runtime/pyodide.asm.js": {
+      "bytes": 1255688,
+      "sha256": "6b4c90de5b7172873f04f21884d0e9d2274e305fe32116558fe3e4fbe3618d51"
+    },
+    "runtime/pyodide.asm.wasm": {
+      "bytes": 10105545,
+      "sha256": "a50dd1843f805a0b7c45b61037ee0d7b26dfe85efe0e18ef95a34ad24e401f5f"
+    },
+    "runtime/python_stdlib.zip": {
+      "bytes": 2360737,
+      "sha256": "16611534726e5d8ac2bd8f926410b2dcb8d6f49aa24913463533b457a2115c16"
+    },
+    "runtime/pyodide-lock.json": {
+      "bytes": 112205,
+      "sha256": "9c45b916001a750f4102fc287494f3eab215909c7535c626a20db80fd6333e2c"
+    }
+  },
+  "harness_sha256": {
+    "profile.cjs": "22374ae89d656907669f9fc465aae1710ba3af53b9b12c580906256bb17cc6e5",
+    "worker.js": "edfae12994c99ce80b3d5f6b3d9777488d638fcb27ff4b3d2938c748b95a59a5",
+    "index.html": "1b89fb0cb6198d9ef149a32216749180eb0144323b5df52fb8b3d675630052b7"
+  },
+  "cases": [
+    {
+      "height": 1,
+      "width": 1,
+      "cap": 64,
+      "samples": [
+        {
+          "round": 0,
+          "chronological_sample": 0,
+          "nonce": "01604cd56d0901f4",
+          "source": "module demo;\nshape H = 1;\nshape W = 1;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 01604cd56d0901f4\n",
+          "phases": {
+            "initial_admission_ms": 2.599999000000075,
+            "selection_ms": 13.10000099999975,
+            "fresh_check_ms": 5.399999000000211,
+            "backend_total_ms": 6.800000000000139,
+            "python_prepare_ms": 22.79999900000007,
+            "wasm_emit_ms": 1.4000009999999286,
+            "service_other_ms": 0.29999900000010626,
+            "python_bridge_ms": 25.09999999962747,
+            "base64_decode_ms": 0.09999999962747097,
+            "js_wasm_compile_ms": 0.2000000011175871,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 25.5
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "284c40583984103bd581052f8bcf3b57ed1ee458ff5ea87479002c43f9c5fbb4",
+            "shape": {
+              "height": 1,
+              "width": 1,
+              "input_height": 2,
+              "input_width": 2
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 4,
+              "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 391
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 16,
+            "input_count": 4,
+            "output_count": 1,
+            "module_digest": "672e553d8de214f2220908cfd0511511f1006b6c4fc75bd88c35d8aa7f5f94d4",
+            "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+          },
+          "source_sha256": "284c40583984103bd581052f8bcf3b57ed1ee458ff5ea87479002c43f9c5fbb4",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 1
+          }
+        },
+        {
+          "round": 1,
+          "chronological_sample": 7,
+          "nonce": "2e722b4f0ee007f9",
+          "source": "module demo;\nshape H = 1;\nshape W = 1;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 2e722b4f0ee007f9\n",
+          "phases": {
+            "initial_admission_ms": 1.000000000000334,
+            "selection_ms": 6.099999999999994,
+            "fresh_check_ms": 2.7999999999996916,
+            "backend_total_ms": 2.8999999999994586,
+            "python_prepare_ms": 10.899999999999466,
+            "wasm_emit_ms": 0.09999999999976694,
+            "service_other_ms": 0.8999999999996788,
+            "python_bridge_ms": 11.599999999627471,
+            "base64_decode_ms": 0,
+            "js_wasm_compile_ms": 0.2000000011175871,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 11.800000000745058
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "0cef29f817464536b94a6d6271a1b1f6e3be3ef9631e9685036110db907e6551",
+            "shape": {
+              "height": 1,
+              "width": 1,
+              "input_height": 2,
+              "input_width": 2
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 4,
+              "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 391
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 16,
+            "input_count": 4,
+            "output_count": 1,
+            "module_digest": "672e553d8de214f2220908cfd0511511f1006b6c4fc75bd88c35d8aa7f5f94d4",
+            "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+          },
+          "source_sha256": "0cef29f817464536b94a6d6271a1b1f6e3be3ef9631e9685036110db907e6551",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 1
+          }
+        },
+        {
+          "round": 2,
+          "chronological_sample": 10,
+          "nonce": "63fd98d33cdebb80",
+          "source": "module demo;\nshape H = 1;\nshape W = 1;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 63fd98d33cdebb80\n",
+          "phases": {
+            "initial_admission_ms": 1.000000000000334,
+            "selection_ms": 6.49999999999995,
+            "fresh_check_ms": 2.9000000000003467,
+            "backend_total_ms": 3.0000000000001137,
+            "python_prepare_ms": 11.30000000000031,
+            "wasm_emit_ms": 0.09999999999976694,
+            "service_other_ms": 0.7999999999999119,
+            "python_bridge_ms": 12,
+            "base64_decode_ms": 0,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 12.400000000372529
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "990ae1835b43d8548306944086ad29cc724b2b18d07c178e39a35605bf4e5f26",
+            "shape": {
+              "height": 1,
+              "width": 1,
+              "input_height": 2,
+              "input_width": 2
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 4,
+              "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 391
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 16,
+            "input_count": 4,
+            "output_count": 1,
+            "module_digest": "672e553d8de214f2220908cfd0511511f1006b6c4fc75bd88c35d8aa7f5f94d4",
+            "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+          },
+          "source_sha256": "990ae1835b43d8548306944086ad29cc724b2b18d07c178e39a35605bf4e5f26",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 1
+          }
+        },
+        {
+          "round": 3,
+          "chronological_sample": 13,
+          "nonce": "db0a3a0462c09246",
+          "source": "module demo;\nshape H = 1;\nshape W = 1;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce db0a3a0462c09246\n",
+          "phases": {
+            "initial_admission_ms": 0.8999999999996788,
+            "selection_ms": 6.7999990000000565,
+            "fresh_check_ms": 2.9000009999995413,
+            "backend_total_ms": 3.0000000000001137,
+            "python_prepare_ms": 11.499999999999844,
+            "wasm_emit_ms": 0.09999900000057238,
+            "service_other_ms": 0.8000009999999946,
+            "python_bridge_ms": 12.100000001490116,
+            "base64_decode_ms": 0.09999999962747097,
+            "js_wasm_compile_ms": 0.2999999988824129,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 12.5
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "b09b78c0a4d59496147809e9cb462d45e858c6c63d1f696f0a5106e83039b4e0",
+            "shape": {
+              "height": 1,
+              "width": 1,
+              "input_height": 2,
+              "input_width": 2
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 4,
+              "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 391
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 16,
+            "input_count": 4,
+            "output_count": 1,
+            "module_digest": "672e553d8de214f2220908cfd0511511f1006b6c4fc75bd88c35d8aa7f5f94d4",
+            "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+          },
+          "source_sha256": "b09b78c0a4d59496147809e9cb462d45e858c6c63d1f696f0a5106e83039b4e0",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 1
+          }
+        },
+        {
+          "round": 4,
+          "chronological_sample": 16,
+          "nonce": "29660318d4993dd2",
+          "source": "module demo;\nshape H = 1;\nshape W = 1;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 29660318d4993dd2\n",
+          "phases": {
+            "initial_admission_ms": 0.900000000000567,
+            "selection_ms": 6.699999999999484,
+            "fresh_check_ms": 3.0000000000001137,
+            "backend_total_ms": 3.0999999999998806,
+            "python_prepare_ms": 12.099999999999334,
+            "wasm_emit_ms": 0.09999999999976694,
+            "service_other_ms": 1.3999999999994017,
+            "python_bridge_ms": 12.799999998882413,
+            "base64_decode_ms": 0,
+            "js_wasm_compile_ms": 0.19999999925494194,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 13.099999999627471
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "9e5eb0d491da69b609ec52dd26749fd11f301edd48a9a2a47850d9edea96bba8",
+            "shape": {
+              "height": 1,
+              "width": 1,
+              "input_height": 2,
+              "input_width": 2
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 4,
+              "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 16,
+                "multiplication_ops": 4
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 391
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 16,
+            "input_count": 4,
+            "output_count": 1,
+            "module_digest": "672e553d8de214f2220908cfd0511511f1006b6c4fc75bd88c35d8aa7f5f94d4",
+            "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+          },
+          "source_sha256": "9e5eb0d491da69b609ec52dd26749fd11f301edd48a9a2a47850d9edea96bba8",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 1
+          }
+        }
+      ],
+      "median_ms": {
+        "initial_admission_ms": 1.000000000000334,
+        "selection_ms": 6.699999999999484,
+        "fresh_check_ms": 2.9000009999995413,
+        "backend_total_ms": 3.0000000000001137,
+        "python_prepare_ms": 11.499999999999844,
+        "wasm_emit_ms": 0.09999999999976694,
+        "service_other_ms": 0.8000009999999946,
+        "python_bridge_ms": 12.100000001490116,
+        "base64_decode_ms": 0,
+        "js_wasm_compile_ms": 0.2000000011175871,
+        "js_wasm_instantiate_ms": 0,
+        "worker_compilation_total_ms": 12.5
+      },
+      "module_digests": [
+        "672e553d8de214f2220908cfd0511511f1006b6c4fc75bd88c35d8aa7f5f94d4"
+      ]
+    },
+    {
+      "height": 5,
+      "width": 7,
+      "cap": 64,
+      "samples": [
+        {
+          "round": 0,
+          "chronological_sample": 1,
+          "nonce": "ac1722006bb1ef9f",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce ac1722006bb1ef9f\n",
+          "phases": {
+            "initial_admission_ms": 1.3999999999998458,
+            "selection_ms": 136.89999900000015,
+            "fresh_check_ms": 38.19999999999979,
+            "backend_total_ms": 41.1999999999999,
+            "python_prepare_ms": 179.69999999999996,
+            "wasm_emit_ms": 3.0000000000001137,
+            "service_other_ms": 0.20000100000007137,
+            "python_bridge_ms": 180.80000000074506,
+            "base64_decode_ms": 0.6999999992549419,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 181.90000000037253
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "2c1f0a40ed394cc8b854fa67735e5ab7c987594ea1522c188fd3ad4086433b61",
+            "shape": {
+              "height": 5,
+              "width": 7,
+              "input_height": 6,
+              "input_width": 8
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 64,
+              "multiplication_ops": 48,
+              "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 140
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 64,
+                "multiplication_ops": 48
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 192,
+                "multiplication_ops": 48
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 12847
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 192,
+            "input_count": 48,
+            "output_count": 35,
+            "module_digest": "8e16e5f53b2cef015b99a61369bfae16cdd7e726e269e0e0fe9a54c7633d087d",
+            "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+          },
+          "source_sha256": "2c1f0a40ed394cc8b854fa67735e5ab7c987594ea1522c188fd3ad4086433b61",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 35
+          }
+        },
+        {
+          "round": 1,
+          "chronological_sample": 4,
+          "nonce": "f5a1846236b2f02f",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce f5a1846236b2f02f\n",
+          "phases": {
+            "initial_admission_ms": 0.9999999999998899,
+            "selection_ms": 52.799999999999955,
+            "fresh_check_ms": 42.29999899999992,
+            "backend_total_ms": 44.09999999999981,
+            "python_prepare_ms": 99.19999999999973,
+            "wasm_emit_ms": 1.800000999999888,
+            "service_other_ms": 1.3000000000000824,
+            "python_bridge_ms": 100.09999999962747,
+            "base64_decode_ms": 0.2999999988824129,
+            "js_wasm_compile_ms": 0.2000000011175871,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 100.79999999888241
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "c918a15971ba1ebdea3de963958e98d3d58c3ce8d2f014eebe7154c7a6397c9e",
+            "shape": {
+              "height": 5,
+              "width": 7,
+              "input_height": 6,
+              "input_width": 8
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 64,
+              "multiplication_ops": 48,
+              "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 140
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 64,
+                "multiplication_ops": 48
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 192,
+                "multiplication_ops": 48
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 12847
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 192,
+            "input_count": 48,
+            "output_count": 35,
+            "module_digest": "8e16e5f53b2cef015b99a61369bfae16cdd7e726e269e0e0fe9a54c7633d087d",
+            "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+          },
+          "source_sha256": "c918a15971ba1ebdea3de963958e98d3d58c3ce8d2f014eebe7154c7a6397c9e",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 35
+          }
+        },
+        {
+          "round": 2,
+          "chronological_sample": 11,
+          "nonce": "68849dac8321fe4d",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 68849dac8321fe4d\n",
+          "phases": {
+            "initial_admission_ms": 0.9000009999997616,
+            "selection_ms": 52.099999000000174,
+            "fresh_check_ms": 32.00000000000003,
+            "backend_total_ms": 33.89999899999996,
+            "python_prepare_ms": 87.09999900000031,
+            "wasm_emit_ms": 1.89999899999993,
+            "service_other_ms": 0.20000000000041496,
+            "python_bridge_ms": 87.80000000074506,
+            "base64_decode_ms": 0.30000000074505806,
+            "js_wasm_compile_ms": 0.2999999988824129,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 88.5
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "ff13c9ff6729618ee46d0e96a18dc24cf538200841e391305eabc761e771d432",
+            "shape": {
+              "height": 5,
+              "width": 7,
+              "input_height": 6,
+              "input_width": 8
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 64,
+              "multiplication_ops": 48,
+              "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 140
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 64,
+                "multiplication_ops": 48
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 192,
+                "multiplication_ops": 48
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 12847
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 192,
+            "input_count": 48,
+            "output_count": 35,
+            "module_digest": "8e16e5f53b2cef015b99a61369bfae16cdd7e726e269e0e0fe9a54c7633d087d",
+            "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+          },
+          "source_sha256": "ff13c9ff6729618ee46d0e96a18dc24cf538200841e391305eabc761e771d432",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 35
+          }
+        },
+        {
+          "round": 3,
+          "chronological_sample": 14,
+          "nonce": "3490c9c085759a1a",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 3490c9c085759a1a\n",
+          "phases": {
+            "initial_admission_ms": 0.8999989999995961,
+            "selection_ms": 51.90000099999992,
+            "fresh_check_ms": 31.099999000000267,
+            "backend_total_ms": 33.199999999999896,
+            "python_prepare_ms": 86.19999999999983,
+            "wasm_emit_ms": 2.1000009999996294,
+            "service_other_ms": 0.20000000000042917,
+            "python_bridge_ms": 87.09999999962747,
+            "base64_decode_ms": 0.40000000037252903,
+            "js_wasm_compile_ms": 0.5,
+            "js_wasm_instantiate_ms": 0.19999999925494194,
+            "worker_compilation_total_ms": 88.19999999925494
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "24d17e62c79bb2e35faaccaf849af9a2cb5e8cbf4a303d99b17924d6a64fb993",
+            "shape": {
+              "height": 5,
+              "width": 7,
+              "input_height": 6,
+              "input_width": 8
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 64,
+              "multiplication_ops": 48,
+              "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 140
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 64,
+                "multiplication_ops": 48
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 192,
+                "multiplication_ops": 48
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 12847
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 192,
+            "input_count": 48,
+            "output_count": 35,
+            "module_digest": "8e16e5f53b2cef015b99a61369bfae16cdd7e726e269e0e0fe9a54c7633d087d",
+            "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+          },
+          "source_sha256": "24d17e62c79bb2e35faaccaf849af9a2cb5e8cbf4a303d99b17924d6a64fb993",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 35
+          }
+        },
+        {
+          "round": 4,
+          "chronological_sample": 17,
+          "nonce": "19e4539c2f7197a1",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 19e4539c2f7197a1\n",
+          "phases": {
+            "initial_admission_ms": 1.6000009999999065,
+            "selection_ms": 52.899999000000086,
+            "fresh_check_ms": 31.800000000000495,
+            "backend_total_ms": 33.59999999999985,
+            "python_prepare_ms": 88.2000009999997,
+            "wasm_emit_ms": 1.7999999999993577,
+            "service_other_ms": 0.10000099999984968,
+            "python_bridge_ms": 88.69999999925494,
+            "base64_decode_ms": 0.40000000037252903,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 89.40000000037253
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "4a7ae37a9a463b65a01968798ff23d45e54deb78ed817d0d6e85235304d16228",
+            "shape": {
+              "height": 5,
+              "width": 7,
+              "input_height": 6,
+              "input_width": 8
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 64,
+              "multiplication_ops": 48,
+              "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 140
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 64,
+                "multiplication_ops": 48
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 192,
+                "multiplication_ops": 48
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 12847
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 192,
+            "input_count": 48,
+            "output_count": 35,
+            "module_digest": "8e16e5f53b2cef015b99a61369bfae16cdd7e726e269e0e0fe9a54c7633d087d",
+            "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+          },
+          "source_sha256": "4a7ae37a9a463b65a01968798ff23d45e54deb78ed817d0d6e85235304d16228",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 35
+          }
+        }
+      ],
+      "median_ms": {
+        "initial_admission_ms": 0.9999999999998899,
+        "selection_ms": 52.799999999999955,
+        "fresh_check_ms": 32.00000000000003,
+        "backend_total_ms": 33.89999899999996,
+        "python_prepare_ms": 88.2000009999997,
+        "wasm_emit_ms": 1.89999899999993,
+        "service_other_ms": 0.20000000000042917,
+        "python_bridge_ms": 88.69999999925494,
+        "base64_decode_ms": 0.40000000037252903,
+        "js_wasm_compile_ms": 0.30000000074505806,
+        "js_wasm_instantiate_ms": 0.09999999962747097,
+        "worker_compilation_total_ms": 89.40000000037253
+      },
+      "module_digests": [
+        "8e16e5f53b2cef015b99a61369bfae16cdd7e726e269e0e0fe9a54c7633d087d"
+      ]
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "samples": [
+        {
+          "round": 0,
+          "chronological_sample": 2,
+          "nonce": "82a03a7db7a77209",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 82a03a7db7a77209\n",
+          "phases": {
+            "initial_admission_ms": 1.1999999999998678,
+            "selection_ms": 312.5,
+            "fresh_check_ms": 258.0999999999998,
+            "backend_total_ms": 275.10000000000014,
+            "python_prepare_ms": 589.2999999999997,
+            "wasm_emit_ms": 17.00000000000034,
+            "service_other_ms": 0.4999999999997726,
+            "python_bridge_ms": 591.7999999988824,
+            "base64_decode_ms": 2.900000000372529,
+            "js_wasm_compile_ms": 0.40000000037252903,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 595.0999999996275
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "c8b03b77e342a359173c1e3325cf95c276db77371a2e43dc1e85e28f333de212",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 900,
+              "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "7fd685f8005d107a76e055c81a5047dd9af8e8065e210996f7d71e8e6eead2fc",
+            "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+          },
+          "source_sha256": "c8b03b77e342a359173c1e3325cf95c276db77371a2e43dc1e85e28f333de212",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 1,
+          "chronological_sample": 5,
+          "nonce": "bad08d896663e3a2",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce bad08d896663e3a2\n",
+          "phases": {
+            "initial_admission_ms": 1.100000000000101,
+            "selection_ms": 290.2999989999997,
+            "fresh_check_ms": 233.89999899999924,
+            "backend_total_ms": 247.39999899999975,
+            "python_prepare_ms": 539.3000009999995,
+            "wasm_emit_ms": 13.500000000000512,
+            "service_other_ms": 0.5000029999999924,
+            "python_bridge_ms": 541,
+            "base64_decode_ms": 3.199999999254942,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 544.5999999996275
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "51713bba4edcd36ffc69ba06e0b03c3bccec7eaf23126befb0b70b46ecaeb5fe",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 900,
+              "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "7fd685f8005d107a76e055c81a5047dd9af8e8065e210996f7d71e8e6eead2fc",
+            "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+          },
+          "source_sha256": "51713bba4edcd36ffc69ba06e0b03c3bccec7eaf23126befb0b70b46ecaeb5fe",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 2,
+          "chronological_sample": 8,
+          "nonce": "c65ce85faf5450ed",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce c65ce85faf5450ed\n",
+          "phases": {
+            "initial_admission_ms": 1.100000000000101,
+            "selection_ms": 287.9999999999994,
+            "fresh_check_ms": 246.2,
+            "backend_total_ms": 260.29999999999995,
+            "python_prepare_ms": 549.5000000000001,
+            "wasm_emit_ms": 14.099999999999966,
+            "service_other_ms": 0.10000000000070486,
+            "python_bridge_ms": 552.3000000007451,
+            "base64_decode_ms": 2.599999999627471,
+            "js_wasm_compile_ms": 0.2999999988824129,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 555.1999999992549
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "f68b3d72248b02683216b31b4058eae04e403d5ac6a1fd08c57e4205b6938bab",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 900,
+              "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "7fd685f8005d107a76e055c81a5047dd9af8e8065e210996f7d71e8e6eead2fc",
+            "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+          },
+          "source_sha256": "f68b3d72248b02683216b31b4058eae04e403d5ac6a1fd08c57e4205b6938bab",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 3,
+          "chronological_sample": 15,
+          "nonce": "91d40dc2d3986354",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 91d40dc2d3986354\n",
+          "phases": {
+            "initial_admission_ms": 1.100000000000101,
+            "selection_ms": 295.5999999999994,
+            "fresh_check_ms": 257.6999990000006,
+            "backend_total_ms": 271.6000000000003,
+            "python_prepare_ms": 568.4999999999993,
+            "wasm_emit_ms": 13.90000099999969,
+            "service_other_ms": 0.19999999999947704,
+            "python_bridge_ms": 570,
+            "base64_decode_ms": 2.400000000372529,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 572.8000000007451
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "ea678c67e38bd2e3965857a231df8d9207726dd245ded54a6c82ccbf758bf268",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 900,
+              "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "7fd685f8005d107a76e055c81a5047dd9af8e8065e210996f7d71e8e6eead2fc",
+            "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+          },
+          "source_sha256": "ea678c67e38bd2e3965857a231df8d9207726dd245ded54a6c82ccbf758bf268",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 4,
+          "chronological_sample": 18,
+          "nonce": "9bd2d983fa4fca00",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n\n// fresh compilation nonce 9bd2d983fa4fca00\n",
+          "phases": {
+            "initial_admission_ms": 1.000000000000334,
+            "selection_ms": 289.40000099999975,
+            "fresh_check_ms": 248.59999899999963,
+            "backend_total_ms": 262.2999999999997,
+            "python_prepare_ms": 552.8999999999993,
+            "wasm_emit_ms": 13.7000010000001,
+            "service_other_ms": 0.19999899999947957,
+            "python_bridge_ms": 555.8000000007451,
+            "base64_decode_ms": 2.299999998882413,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 558.5
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "4cf8a0d1cbad18970ee468a5913e2ad725c14d7b63c17d865bdde8cc1b4958ca",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 64,
+            "selected": {
+              "plan_id": "inline-v1",
+              "workspace_bytes": 0,
+              "multiplication_ops": 900,
+              "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "7fd685f8005d107a76e055c81a5047dd9af8e8065e210996f7d71e8e6eead2fc",
+            "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+          },
+          "source_sha256": "4cf8a0d1cbad18970ee468a5913e2ad725c14d7b63c17d865bdde8cc1b4958ca",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        }
+      ],
+      "median_ms": {
+        "initial_admission_ms": 1.100000000000101,
+        "selection_ms": 290.2999989999997,
+        "fresh_check_ms": 248.59999899999963,
+        "backend_total_ms": 262.2999999999997,
+        "python_prepare_ms": 552.8999999999993,
+        "wasm_emit_ms": 13.90000099999969,
+        "service_other_ms": 0.19999999999947704,
+        "python_bridge_ms": 555.8000000007451,
+        "base64_decode_ms": 2.599999999627471,
+        "js_wasm_compile_ms": 0.30000000074505806,
+        "js_wasm_instantiate_ms": 0.09999999962747097,
+        "worker_compilation_total_ms": 558.5
+      },
+      "module_digests": [
+        "7fd685f8005d107a76e055c81a5047dd9af8e8065e210996f7d71e8e6eead2fc"
+      ]
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 128,
+      "samples": [
+        {
+          "round": 0,
+          "chronological_sample": 3,
+          "nonce": "fd4377eb726cd4f4",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 128;\nprefer multiplication_ops;\n\n// fresh compilation nonce fd4377eb726cd4f4\n",
+          "phases": {
+            "initial_admission_ms": 1.5000000000000568,
+            "selection_ms": 313.50000000000034,
+            "fresh_check_ms": 184.89999999999984,
+            "backend_total_ms": 195.99999999999972,
+            "python_prepare_ms": 513.9,
+            "wasm_emit_ms": 11.09999999999988,
+            "service_other_ms": 2.8999999999998636,
+            "python_bridge_ms": 515.6999999992549,
+            "base64_decode_ms": 2,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 518
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "e52d98ba42683e75367c06c857f17bc4b7e5696f973f5ac6d5aa2ae940489995",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 128,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 128,
+              "multiplication_ops": 256,
+              "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "f0b7bfe911492273506f89f0588a622238191491a65445fba01580404da4f1b0",
+            "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+          },
+          "source_sha256": "e52d98ba42683e75367c06c857f17bc4b7e5696f973f5ac6d5aa2ae940489995",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 1,
+          "chronological_sample": 6,
+          "nonce": "bd1b77bfacf1ec25",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 128;\nprefer multiplication_ops;\n\n// fresh compilation nonce bd1b77bfacf1ec25\n",
+          "phases": {
+            "initial_admission_ms": 0.9000009999997616,
+            "selection_ms": 301.4999999999999,
+            "fresh_check_ms": 193.99999999999994,
+            "backend_total_ms": 204.300001,
+            "python_prepare_ms": 508,
+            "wasm_emit_ms": 10.300001000000066,
+            "service_other_ms": 1.2999980000003575,
+            "python_bridge_ms": 509.30000000074506,
+            "base64_decode_ms": 2,
+            "js_wasm_compile_ms": 0.3999999985098839,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 511.69999999925494
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "53beada376ffb7a0f9b5fe9861534b93f609288d51a52064d5c4a142c4637490",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 128,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 128,
+              "multiplication_ops": 256,
+              "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "f0b7bfe911492273506f89f0588a622238191491a65445fba01580404da4f1b0",
+            "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+          },
+          "source_sha256": "53beada376ffb7a0f9b5fe9861534b93f609288d51a52064d5c4a142c4637490",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 2,
+          "chronological_sample": 9,
+          "nonce": "ee60a38ad19743b4",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 128;\nprefer multiplication_ops;\n\n// fresh compilation nonce ee60a38ad19743b4\n",
+          "phases": {
+            "initial_admission_ms": 1.100000000000101,
+            "selection_ms": 307.99999999999983,
+            "fresh_check_ms": 177.19999899999993,
+            "backend_total_ms": 187.5,
+            "python_prepare_ms": 498.19999899999965,
+            "wasm_emit_ms": 10.300001000000066,
+            "service_other_ms": 1.599998999999741,
+            "python_bridge_ms": 499.5,
+            "base64_decode_ms": 2.5,
+            "js_wasm_compile_ms": 0.2999999988824129,
+            "js_wasm_instantiate_ms": 0,
+            "worker_compilation_total_ms": 502.2999999988824
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "d37e858e87d8ba27a8ee1465aaa60568ea5d875d256e7ea09dd128c45387bc3a",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 128,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 128,
+              "multiplication_ops": 256,
+              "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "f0b7bfe911492273506f89f0588a622238191491a65445fba01580404da4f1b0",
+            "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+          },
+          "source_sha256": "d37e858e87d8ba27a8ee1465aaa60568ea5d875d256e7ea09dd128c45387bc3a",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 3,
+          "chronological_sample": 12,
+          "nonce": "3f7091fbe25c64b5",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 128;\nprefer multiplication_ops;\n\n// fresh compilation nonce 3f7091fbe25c64b5\n",
+          "phases": {
+            "initial_admission_ms": 1.0999990000000182,
+            "selection_ms": 323.8000009999995,
+            "fresh_check_ms": 186.6000000000003,
+            "backend_total_ms": 197.69999900000013,
+            "python_prepare_ms": 522.8999999999999,
+            "wasm_emit_ms": 11.099998999999826,
+            "service_other_ms": 0.3000010000001794,
+            "python_bridge_ms": 524.0999999996275,
+            "base64_decode_ms": 1.900000000372529,
+            "js_wasm_compile_ms": 0.30000000074505806,
+            "js_wasm_instantiate_ms": 0.09999999962747097,
+            "worker_compilation_total_ms": 526.4000000003725
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "9085eae3d3f805eef0e1e85022143149cd1b23bf5c43d6d68aef39ca0f3ed470",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 128,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 128,
+              "multiplication_ops": 256,
+              "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "f0b7bfe911492273506f89f0588a622238191491a65445fba01580404da4f1b0",
+            "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+          },
+          "source_sha256": "9085eae3d3f805eef0e1e85022143149cd1b23bf5c43d6d68aef39ca0f3ed470",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        },
+        {
+          "round": 4,
+          "chronological_sample": 19,
+          "nonce": "127c0f4997f6d869",
+          "source": "module demo;\nshape H = 15;\nshape W = 15;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 128;\nprefer multiplication_ops;\n\n// fresh compilation nonce 127c0f4997f6d869\n",
+          "phases": {
+            "initial_admission_ms": 1.0999990000009063,
+            "selection_ms": 316.80000099999893,
+            "fresh_check_ms": 184.40000000000012,
+            "backend_total_ms": 194.90000000000052,
+            "python_prepare_ms": 514.0999999999991,
+            "wasm_emit_ms": 10.500000000000398,
+            "service_other_ms": 1.299999999998704,
+            "python_bridge_ms": 515.2999999988824,
+            "base64_decode_ms": 2.300000000745058,
+            "js_wasm_compile_ms": 0.19999999925494194,
+            "js_wasm_instantiate_ms": 0.10000000149011612,
+            "worker_compilation_total_ms": 517.9000000003725
+          },
+          "result": {
+            "schema_version": 1,
+            "status": "prepared",
+            "backend": "checked-plan-wasm-v1",
+            "source_digest": "3c669342c5fa8680d17cfb8b86ee47b4a44647ef7223b4461b1c1f6acde8d91e",
+            "shape": {
+              "height": 15,
+              "width": 15,
+              "input_height": 16,
+              "input_width": 16
+            },
+            "objective": "multiplication_ops",
+            "workspace_cap": 128,
+            "selected": {
+              "plan_id": "rows2-v1",
+              "workspace_bytes": 128,
+              "multiplication_ops": 256,
+              "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+            },
+            "attempts": [
+              {
+                "plan_id": "inline-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 0,
+                "multiplication_ops": 900
+              },
+              {
+                "plan_id": "rows2-v1",
+                "eligible": true,
+                "semantic_status": "valid",
+                "constraint_status": "satisfied",
+                "reason": "VALID",
+                "workspace_bytes": 128,
+                "multiplication_ops": 256
+              },
+              {
+                "plan_id": "materialize-v1",
+                "eligible": false,
+                "semantic_status": "valid",
+                "constraint_status": "violated",
+                "reason": "VALID",
+                "workspace_bytes": 1024,
+                "multiplication_ops": 256
+              }
+            ],
+            "search": {
+              "termination_reason": "completed",
+              "work_used": 82151
+            },
+            "input": [],
+            "output": null,
+            "comparison": null,
+            "first_bad_index": null,
+            "diagnostic": null,
+            "memory_bytes": 65536,
+            "input_offset": 0,
+            "output_offset": 1024,
+            "input_count": 256,
+            "output_count": 225,
+            "module_digest": "f0b7bfe911492273506f89f0588a622238191491a65445fba01580404da4f1b0",
+            "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+          },
+          "source_sha256": "3c669342c5fa8680d17cfb8b86ee47b4a44647ef7223b4461b1c1f6acde8d91e",
+          "validation": {
+            "webassembly_compiled": true,
+            "no_imports": true,
+            "memory_layout_checked": true,
+            "independent_formula_matched": true,
+            "output_cells": 225
+          }
+        }
+      ],
+      "median_ms": {
+        "initial_admission_ms": 1.0999990000009063,
+        "selection_ms": 313.50000000000034,
+        "fresh_check_ms": 184.89999999999984,
+        "backend_total_ms": 195.99999999999972,
+        "python_prepare_ms": 513.9,
+        "wasm_emit_ms": 10.500000000000398,
+        "service_other_ms": 1.299999999998704,
+        "python_bridge_ms": 515.2999999988824,
+        "base64_decode_ms": 2,
+        "js_wasm_compile_ms": 0.30000000074505806,
+        "js_wasm_instantiate_ms": 0,
+        "worker_compilation_total_ms": 517.9000000003725
+      },
+      "module_digests": [
+        "f0b7bfe911492273506f89f0588a622238191491a65445fba01580404da4f1b0"
+      ]
+    }
+  ],
+  "errors": [],
+  "browser": "154.0.8037.57",
+  "boot": {
+    "runtime": "0.27.7",
+    "runtime_base_url": "http://127.0.0.1:38067/beryl-compiled/site-release/runtime/",
+    "compiler_archive_url": "http://127.0.0.1:38067/beryl-compiled/site-release/beryl-compiler.zip",
+    "boot_ms": 2399.0999999996275,
+    "python": "3.12.7 (main, Jun  4 2025, 22:38:17) [Clang 19.0.0git (https:/github.com/llvm/llvm-project 0a8cd1ed1f4f35905df318015b",
+    "implementation": "CPython",
+    "platform": "Emscripten-3.1.58-wasm32-32bit",
+    "service_file": "/beryl-release/beryl/playground_service.py",
+    "wasm_file": "/beryl-release/beryl/wasm.py",
+    "examples": {
+      "examples": [
+        {
+          "id": "balanced",
+          "title": "Reuse two rows",
+          "description": "Reduce multiplication with a 64-byte plan scratch limit.",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer multiplication_ops;\n"
+        },
+        {
+          "id": "no-scratch",
+          "title": "No plan scratch",
+          "description": "Recompute producer values with a zero-byte scratch limit.",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 0;\nprefer multiplication_ops;\n"
+        },
+        {
+          "id": "small-memory",
+          "title": "Prefer less scratch",
+          "description": "Rank scratch first, even when more scratch is permitted.",
+          "source": "module demo;\nshape H = 5;\nshape W = 7;\ninput image: i32[H+1,W+1] in 0..=1023;\nlet p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\noutput result[r in 0..H,c in 0..W] =\n  ((p[r,c]+p[r,c+1])+p[r+1,c])+p[r+1,c+1];\nrequire plan_workspace_bytes <= 64;\nprefer plan_workspace_bytes;\n"
+        }
+      ]
+    }
+  },
+  "finished_utc": "2026-10-18T03:35:28.861Z",
+  "status": "passed"
+}

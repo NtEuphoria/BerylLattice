@@ -1,0 +1,171 @@
+[
+  {
+    "file": "halide_pldi_2013.pdf",
+    "url": "https://halide-lang.org/papers/halide_pldi_2013.pdf",
+    "error": "HTTP Error 404: Not Found",
+    "accessed_utc": "2026-10-18T03:31:23.133769+00:00"
+  },
+  {
+    "file": "mlir_abstract.html",
+    "url": "https://arxiv.org/abs/2002.11054",
+    "resolved_url": "https://arxiv.org/abs/2002.11054",
+    "sha256": "c6c4f034c1ed3250b380c6250da98f8a6c33ec53367b08372685bae91283e05f",
+    "bytes": 43305,
+    "content_type": "text/html; charset=utf-8",
+    "accessed_utc": "2026-10-18T03:31:23.327767+00:00"
+  },
+  {
+    "file": "mlir_2002.11054.pdf",
+    "url": "https://arxiv.org/pdf/2002.11054",
+    "resolved_url": "https://arxiv.org/pdf/2002.11054",
+    "sha256": "ca9de3d7b4b176e6523e197ec4a83caa82f988d9654af7b6aa5f0b1a48ae2494",
+    "bytes": 501183,
+    "content_type": "application/pdf",
+    "accessed_utc": "2026-10-18T03:31:23.363792+00:00"
+  },
+  {
+    "file": "v8_liftoff.html",
+    "url": "https://v8.dev/blog/liftoff",
+    "resolved_url": "https://v8.dev/blog/liftoff",
+    "sha256": "b7b14a1959e7de049035519f89b60d6e1748ba0f2cdb0de4f67b8d34274aacd4",
+    "bytes": 23331,
+    "content_type": "text/html; charset=utf-8",
+    "accessed_utc": "2026-10-18T03:31:23.228246+00:00"
+  },
+  {
+    "file": "copy_patch_abstract.html",
+    "url": "https://arxiv.org/abs/2011.13127",
+    "resolved_url": "https://arxiv.org/abs/2011.13127",
+    "sha256": "6783147248c1de957292811c3dec7e52eeb927e158c452c3a2aab7ac0741e63d",
+    "bytes": 44766,
+    "content_type": "text/html; charset=utf-8",
+    "accessed_utc": "2026-10-18T03:31:23.222197+00:00"
+  },
+  {
+    "file": "copy_patch_2011.13127.pdf",
+    "url": "https://arxiv.org/pdf/2011.13127",
+    "resolved_url": "https://arxiv.org/pdf/2011.13127",
+    "sha256": "9c40d35d8686624cf2ac0c787f0fd9d29a4f352e84ec7f14b1b86511a3ab2b17",
+    "bytes": 2261084,
+    "content_type": "application/pdf",
+    "accessed_utc": "2026-10-18T03:31:23.706384+00:00"
+  },
+  {
+    "file": "alive2_github.html",
+    "url": "https://github.com/AliveToolkit/alive2",
+    "resolved_url": "https://github.com/AliveToolkit/alive2",
+    "sha256": "2c7f761df7be6c289848aa58cfb6dcd7511fb38d568095f35e00544bb92e85fc",
+    "bytes": 362437,
+    "content_type": "text/html; charset=utf-8",
+    "accessed_utc": "2026-10-18T03:31:23.511930+00:00"
+  },
+  {
+    "file": "alive2_pldi2021.pdf",
+    "url": "https://web.ist.utl.pt/nuno.lopes/pubs/alive2-pldi21.pdf",
+    "resolved_url": "https://web.ist.utl.pt/nuno.lopes/pubs/alive2-pldi21.pdf",
+    "sha256": "424b50072c05be040344be295a88502459694f34e5291441b4df17bab6b698b6",
+    "bytes": 669022,
+    "content_type": "application/pdf",
+    "accessed_utc": "2026-10-18T03:31:24.799343+00:00"
+  },
+  {
+    "file": "translation_validation_1998.pdf",
+    "url": "https://www.cs.nyu.edu/~pna/ps/tacas98.pdf",
+    "error": "HTTP Error 403: Forbidden",
+    "accessed_utc": "2026-10-18T03:31:24.647455+00:00"
+  },
+  {
+    "file": "pcc_1997.pdf",
+    "url": "https://www.cs.cmu.edu/~necula/Papers/pcc97.pdf",
+    "error": "HTTP Error 403: Forbidden",
+    "accessed_utc": "2026-10-18T03:31:24.584849+00:00"
+  },
+  {
+    "file": "halide_pldi_2013.pdf",
+    "url": "https://people.csail.mit.edu/jrk/halide-pldi13.pdf",
+    "resolved_url": "https://people.csail.mit.edu/jrk/halide-pldi13.pdf",
+    "sha256": "67d5c13e144ae3bd0fdc1fb5a20e5a254d8fcb65bb900e9c0c3cbc3420cc2db6",
+    "bytes": 8456319,
+    "content_type": "application/pdf",
+    "accessed_utc": "2026-10-18T03:31:53.951455+00:00"
+  },
+  {
+    "file": "pcc_1997.pdf",
+    "url": "https://people.eecs.berkeley.edu/~necula/Papers/pcc97.pdf",
+    "error": "HTTP Error 404: Not Found",
+    "accessed_utc": "2026-10-18T03:31:53.292956+00:00"
+  },
+  {
+    "file": "translation_validation_publisher.html",
+    "url": "https://link.springer.com/chapter/10.1007/BFb0054170",
+    "resolved_url": "https://link.springer.com/chapter/10.1007/BFb0054170?error=cookies_not_supported&code=bb451fdc-a5a4-43a9-bd59-8405dbec4f9a",
+    "sha256": "af967135b2531f2f902c3e40e205695189648d9d7e3e2f47732b733c1b2623e2",
+    "bytes": 246830,
+    "content_type": "text/html; charset=utf-8",
+    "accessed_utc": "2026-10-18T03:31:55.020393+00:00"
+  },
+  {
+    "file": "translation_validation_crossref.json",
+    "url": "https://api.crossref.org/works?query.title=Translation%20Validation&query.author=Pnueli&rows=3",
+    "resolved_url": "https://api.crossref.org/works?query.title=Translation%20Validation&query.author=Pnueli&rows=3",
+    "sha256": "499f73fdfb010965e57274967021c8f3c219204ad9f23c01db7cddaafcabe666",
+    "bytes": 20375,
+    "content_type": "application/json",
+    "accessed_utc": "2026-10-18T03:31:53.392569+00:00"
+  },
+  {
+    "file": "pcc_1997_publisher.html",
+    "url": "https://dl.acm.org/doi/10.1145/263699.263712",
+    "error": "HTTP Error 403: Forbidden",
+    "accessed_utc": "2026-10-18T03:31:52.861881+00:00"
+  },
+  {
+    "file": "pcc_popl97.ps",
+    "url": "https://people.eecs.berkeley.edu/~necula/Papers/pcc_popl97.ps",
+    "resolved_url": "https://people.eecs.berkeley.edu/~necula/Papers/pcc_popl97.ps",
+    "sha256": "1b89c08b88b442839e51cfe590019d2ffdcd351ecd9ee5d1002ec710a8223e46",
+    "bytes": 291170,
+    "content_type": "application/postscript",
+    "accessed_utc": "2026-10-18T03:32:38.974566+00:00"
+  },
+  {
+    "file": "pcc_popl97.pdf",
+    "url": "https://people.eecs.berkeley.edu/~necula/Papers/pcc_popl97.pdf",
+    "error": "HTTP Error 404: Not Found",
+    "accessed_utc": "2026-10-18T03:32:38.790051+00:00"
+  },
+  {
+    "file": "pcc_author_page.html",
+    "url": "https://people.eecs.berkeley.edu/~necula/pcc.html",
+    "resolved_url": "https://people.eecs.berkeley.edu/~necula/pcc.html",
+    "sha256": "b28305931ebb78112226b4a5eddc32e481f77669b9067fdb72334169e0902cad",
+    "bytes": 15717,
+    "content_type": "text/html",
+    "accessed_utc": "2026-10-18T03:32:38.782698+00:00"
+  },
+  {
+    "file": "pcc_author_publications.html",
+    "url": "https://people.eecs.berkeley.edu/~necula/papers.html",
+    "resolved_url": "https://people.eecs.berkeley.edu/~necula/papers.html",
+    "sha256": "30c438a279fb82246d27c5ed2b1a6bda67296b6fd00e284eda5bf907c2422264",
+    "bytes": 32398,
+    "content_type": "text/html",
+    "accessed_utc": "2026-10-18T03:32:38.899222+00:00"
+  },
+  {
+    "file": "translation_validation_1998.pdf",
+    "url": "https://link.springer.com/content/pdf/10.1007/BFb0054170.pdf",
+    "resolved_url": "https://link.springer.com/content/pdf/10.1007/BFb0054170.pdf?error=cookies_not_supported&code=aadde4d5-ba86-4445-b0b3-0d3b8e6ac81c",
+    "sha256": "dd753371612a0d63f556b9fa11be78b2d386c2bcf70316acdb3e500e88a75348",
+    "bytes": 863854,
+    "content_type": "application/pdf",
+    "accessed_utc": "2026-10-18T03:32:40.801112+00:00"
+  },
+  {
+    "file": "copy_patch_crossref.json",
+    "url": "https://api.crossref.org/works?query.title=Copy-and-Patch%20Compilation&query.author=Xu&rows=1",
+    "sha256": "4efc484cd067fe1a4051264890a64e054a0d22bbff936e825fa773c2f3d99b4d",
+    "bytes": 22003,
+    "accessed_utc": "2026-10-18T03:32:51.667972+00:00"
+  }
+]

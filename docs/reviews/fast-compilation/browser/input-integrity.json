@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "exact_http_inputs": {
+    "runtime-config.json": {
+      "bytes": 54,
+      "sha256": "16493fce0bfbfff2a342c308e453e72b8558dd233c2bea80da98cae506ac6596",
+      "http_matches_local": true
+    },
+    "release-manifest.json": {
+      "bytes": 8439,
+      "sha256": "ea32282cbfaaae30c1b587ed3a148210e4f5af45eb5c11b2d8a430b518c78298",
+      "http_matches_local": true
+    },
+    "beryl-compiler.zip": {
+      "bytes": 35300,
+      "sha256": "cb7304afabbfee94c4184f1c34574732f0f241c2a674222d6c3a8ee014bb6634",
+      "http_matches_local": true
+    },
+    "worker.js": {
+      "bytes": 6916,
+      "sha256": "c19d2c9141adaf481fa318b79959c232f0c082273bb926cb6f239dec820f9476",
+      "http_matches_local": true
+    },
+    "runtime/pyodide.js": {
+      "bytes": 14913,
+      "sha256": "b4cb23a53aba19c221659b9fb40a2f18281d685691dc06647fb0afd0681baf98",
+      "http_matches_local": true
+    },
+    "runtime/pyodide.asm.js": {
+      "bytes": 1255688,
+      "sha256": "6b4c90de5b7172873f04f21884d0e9d2274e305fe32116558fe3e4fbe3618d51",
+      "http_matches_local": true
+    },
+    "runtime/pyodide.asm.wasm": {
+      "bytes": 10105545,
+      "sha256": "a50dd1843f805a0b7c45b61037ee0d7b26dfe85efe0e18ef95a34ad24e401f5f",
+      "http_matches_local": true
+    },
+    "runtime/python_stdlib.zip": {
+      "bytes": 2360737,
+      "sha256": "16611534726e5d8ac2bd8f926410b2dcb8d6f49aa24913463533b457a2115c16",
+      "http_matches_local": true
+    },
+    "runtime/pyodide-lock.json": {
+      "bytes": 112205,
+      "sha256": "9c45b916001a750f4102fc287494f3eab215909c7535c626a20db80fd6333e2c",
+      "http_matches_local": true
+    }
+  },
+  "compiler_archive_matches_manifest": true,
+  "all_archive_members_match_manifest": true,
+  "retained_harness_hashes_match": true
+}
