@@ -1,0 +1,96 @@
+{
+  "scope": "Final changed-artifact qualification. All failed engineering targets are retained; process return code is not an all-targets pass.",
+  "files": {
+    "direct-builds.json": {
+      "bytes": 7948,
+      "sha256": "2794be96b71271132c83bb8cfbc523d9adbb8e0298895c1dff2580d48c147311",
+      "stored": "direct-builds.json.gz",
+      "stored_bytes": 1350,
+      "stored_sha256": "cd5eca75f472dc9e7dece2ee1240e02c1a985a1acf8700010c419cc06b56ba2d"
+    },
+    "engine-cold-browser.json": {
+      "bytes": 7408184,
+      "sha256": "1338c3aa35d89dae1fd1b072037d01768c2deeef3d8227a21e6da376eb99d4ca",
+      "stored": "engine-cold-browser.json.gz",
+      "stored_bytes": 696997,
+      "stored_sha256": "8025f880a92dc535091f3d3bc03a301a72980aa3ccef27cabd5d894c5f147497"
+    },
+    "kernel-15x15-cap0.json": {
+      "bytes": 215359,
+      "sha256": "3de26bae2d63f180c0ec737b7363a470aaef65cb16249bd879eaa0dcd75dbbc5",
+      "stored": "kernel-15x15-cap0.json.gz",
+      "stored_bytes": 44361,
+      "stored_sha256": "7c9f47e8c28ce7e98eb58ed0e57772e7de0a884f0b3dfa6d0d4e5042d0ffbad9"
+    },
+    "kernel-15x15-cap128.json": {
+      "bytes": 215373,
+      "sha256": "c2e33d491b09317d15a4a9ad2af896e5d8c25d82bb8522461b830268ba40c419",
+      "stored": "kernel-15x15-cap128.json.gz",
+      "stored_bytes": 44371,
+      "stored_sha256": "bff4d4363162b72a9d39815d3cc4230a55cddf8927332be90083e782e822b6ae"
+    },
+    "kernel-1x1-cap0.json": {
+      "bytes": 20242,
+      "sha256": "b9b43d7110228296cdb87ae34e627b371eaf8072ebbd60bcf9b469b40ea2258f",
+      "stored": "kernel-1x1-cap0.json.gz",
+      "stored_bytes": 3337,
+      "stored_sha256": "3a9d29a956fb97eaf8daff824619c1f30a90b26e6636aa5b671078716a9ecdea"
+    },
+    "kernel-5x7-cap0.json": {
+      "bytes": 49976,
+      "sha256": "428a04c97ebaa5acbee691af09b5e6688fe58f124be0de27323693decd30b4b7",
+      "stored": "kernel-5x7-cap0.json.gz",
+      "stored_bytes": 7239,
+      "stored_sha256": "17572d61ce8620df3b5426b1e2ba19e1a0acde75444f540e7a8bd7b2eed2dc31"
+    },
+    "paired-native.json": {
+      "bytes": 2598301,
+      "sha256": "9638f5d8800cbbc128ebc3a9ae64a0e2ada3d8a069165c19e449c0f116054d1d",
+      "stored": "paired-native.json.gz",
+      "stored_bytes": 213349,
+      "stored_sha256": "6605ca010fa5599e8897302f550b77ae93851a78d4c69f89e6d4885d45203e29"
+    },
+    "paired-process.json": {
+      "bytes": 1611427,
+      "sha256": "ce29453b443bc839478a659c61f72df83efb8059f7dbeb34b17186557e0500bb",
+      "stored": "paired-process.json.gz",
+      "stored_bytes": 95136,
+      "stored_sha256": "c4bcca4496e3b9438267c930512f241d214c15bb9a381ff3b6caab5dce7ef35a"
+    },
+    "prepared-browser.json": {
+      "bytes": 2488194,
+      "sha256": "ebb271c4cc59eb23805d41c687e6fb34ecab30b288cb0e0ab4c29e3a54c3b444",
+      "stored": "prepared-browser.json.gz",
+      "stored_bytes": 103717,
+      "stored_sha256": "3f5b5165ae66efa7873f2eafb61f32da293fe858dd2f3e86debb683ea9063d94"
+    },
+    "public-path-redactions.json": {
+      "bytes": 4117,
+      "sha256": "eed1123417c95f88df482749a17ed78233334e62d0a26c405004612b42e2b1ff",
+      "stored": "public-path-redactions.json.gz",
+      "stored_bytes": 509,
+      "stored_sha256": "080dcb5eaf6dc226058819fca545ee0c91c57901733d29cdc132096b6f38057f"
+    },
+    "public-process.json": {
+      "bytes": 103822,
+      "sha256": "3ffb3b4fe7a95fe0c86bfba6ce16ed514a13c4bb1774282b5205bec6e34ec79c",
+      "stored": "public-process.json.gz",
+      "stored_bytes": 23032,
+      "stored_sha256": "316c205600f0a622d53a21d5709cbfe87f93077d7cc4c13fc67c96683ed0556c"
+    },
+    "run.json": {
+      "bytes": 11832,
+      "sha256": "913f61e31dead1c491c0acc765497ca4b6a4eccaad5a42cfc8ecef52ad66d6c6",
+      "stored": "run.json.gz",
+      "stored_bytes": 2112,
+      "stored_sha256": "19016cbf57a3dd119da95dec88f09ec72e4f409a83abd81548c24b2ba4f3dbe5"
+    },
+    "kernel-artifact-provenance.json": {
+      "bytes": 13402,
+      "sha256": "ac8569d33a69d68dde0bde900b8c1dcb3a990c4b68dd37a1168210cf23a72b7e",
+      "stored": "kernel-artifact-provenance.json.gz",
+      "stored_bytes": 3697,
+      "stored_sha256": "3ed6f6a0f601c16274159e5b6196b8cb80b5cc45e16d258202aee2ee30d26c53"
+    }
+  }
+}

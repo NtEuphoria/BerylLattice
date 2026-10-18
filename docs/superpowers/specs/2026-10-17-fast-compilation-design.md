@@ -1,6 +1,6 @@
 # Fast compilation architecture
 
-Status: researched proposal, not an implemented speedup. Baseline: `39dc2f6df136c643cfd030ce4470503e807750fe`. This document concerns the private Axiom compiler and the bounded public demo branded **beryl**. Lattice Core remains a separate language/compiler.
+Status: implemented bounded prototype; see the [implementation, final qualification and explicit target misses](../../reviews/fast-compilation/implementation/README.md). Baseline: `39dc2f6df136c643cfd030ce4470503e807750fe`. This document concerns the private Axiom compiler and the bounded public demo branded **beryl**. Lattice Core remains a separate language/compiler.
 
 ## Decision
 
@@ -178,6 +178,6 @@ Correctness coverage includes every admitted shape/three schedules for expansion
 
 ## Rollout
 
-Deliver small separately reviewed changes: measurement contract; owned context/handoff; ranked policy; bounded correspondence; compact C; compact Wasm; integration/qualification. Preserve legacy public APIs and straight-stream fallback throughout. Update the public module allowlist only for reviewed bounded dependencies; scalable proof research, Core bindings and recovery evidence stay private. Rebuild/review the MIT demo package before publishing under the existing authorization, preserve visible compilation costs, and verify hosted asset hashes. This planning change itself publishes no public source or runtime change.
+Deliver small separately reviewed changes: measurement contract; owned context/handoff; ranked policy; bounded correspondence; compact C; compact Wasm; integration/qualification. Preserve legacy public APIs and straight-stream fallback throughout. Update the public module allowlist only for reviewed bounded dependencies; scalable proof research, Core bindings and recovery evidence stay private. Rebuild/review the MIT demo package before publishing under the existing authorization, preserve visible compilation costs, and verify hosted asset hashes. The original planning PR published no implementation. The subsequent implementation record documents the prototype rollout ruling and retained target misses.
 
 The [implementation plan](../plans/2026-10-17-fast-compilation.md) defines file-level tasks and release gates.

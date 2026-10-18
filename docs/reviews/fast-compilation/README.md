@@ -1,6 +1,6 @@
 # Compilation latency research and baseline evidence
 
-This is a measured diagnosis and reviewed implementation proposal, **not an implemented compiler speedup**. Research/profiling occurred on 2026-10-18 UTC against private baseline `39dc2f6df136c643cfd030ce4470503e807750fe` and the exact previously released bounded public compiler ZIP. No production compiler or public release files changed.
+This page retains the pre-implementation diagnosis and proposal. The subsequent [implemented bounded prototype, final measurements and target misses](implementation/README.md) are documented separately. Research/profiling occurred on 2026-10-18 UTC against private baseline `39dc2f6df136c643cfd030ce4470503e807750fe` and the exact previously released bounded public compiler ZIP. No production compiler or public release files changed during that original research phase.
 
 Start with the [architecture](../../superpowers/specs/2026-10-17-fast-compilation-design.md), [file-level plan](../../superpowers/plans/2026-10-17-fast-compilation.md), or [verified primary-source notes](research.md).
 

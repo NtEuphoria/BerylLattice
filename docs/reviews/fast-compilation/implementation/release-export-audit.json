@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "files_including_manifest": 24,
+  "compiler_modules": 23,
+  "archive_sha256": "bdea7e03ec93d3df176ba39a9670ffc6f45f754df7f83dcb68ba2ef788b243c6",
+  "qualified_archive_identical": true,
+  "changed_assets_after_qualification": [
+    "benchmark-results.json"
+  ],
+  "all_members_and_files_match_manifest": true,
+  "public_source_and_generated_c_hashes_match": true,
+  "no_private_codename_in_compiler_members": true,
+  "public_path_redactions": 20,
+  "compiler_default_configuration_retained": {
+    "filename": "clang.cfg",
+    "sha256": "bc3624e157ba6656818d5f16c70efcd0c5414ffc8f354dce80aa76d639f9587f",
+    "contents": "-lm\n",
+    "scope": "Automatically loaded by this selected Clang; applies equally to direct C and generated beryl compilations. Explicit command flags are retained separately."
+  }
+}
