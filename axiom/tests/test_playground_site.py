@@ -19,7 +19,7 @@ BUILD = ROOT / 'tools' / 'build-playground-site.py'
 PUBLIC_MODULES = {
     '__init__', 'runtime', 'playground_service', 'frontend', 'model', 'checker',
     'codec', 'plan_format', 'planner', 'selection', 'reference', 'wasm', 'native_codegen',
-    'compilation', 'compilation_selection', 'source_compilation', 'bounded_loop_model',
+    'compilation', 'compilation_trace', 'compilation_selection', 'source_compilation', 'bounded_loop_model',
     'bounded_loop_codec', 'bounded_loop_planner', 'bounded_loop_correspondence',
     'bounded_loop_c', 'bounded_loop_wasm',
 }
@@ -173,6 +173,41 @@ class PlaygroundSiteTests(unittest.TestCase):
                 self.assertEqual(prepared[field], report[field])
             self.assertNotIn('axiom', json.dumps(report).lower())
 
+    def test_standalone_public_trace_is_optional_diagnostics_not_authority(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            output = Path(scratch) / 'site'
+            self.build_release(output)
+            report = self.run_public_source(output, """
+                import json
+                from beryl.compilation_trace import CompilationTrace
+                from beryl.playground_service import (get_examples, prepare_compiled_demo,
+                    compiled_request_source, compiled_request_inputs)
+                source = get_examples()['examples'][0]['source']
+                plain = prepare_compiled_demo(source)
+                trace = CompilationTrace()
+                traced = prepare_compiled_demo(source, trace=trace)
+                snapshot = trace.report()
+                snapshot['counts']['semantic_checks'] = 999
+                request = dict(source=source, input_mode='ramp')
+                forged = compiled_request_source(dict(request, trace=snapshot))
+                invalid = prepare_compiled_demo('module ;', trace=trace)
+                stale = compiled_request_inputs(request)
+                print(json.dumps(dict(plain=plain, traced=traced, trace=trace.report(),
+                                      forged=forged, invalid=invalid, stale=stale)))
+                """)
+            self.assertEqual(report['plain'], report['traced'])
+            self.assertEqual(report['traced']['schema_version'], 2)
+            self.assertEqual(report['trace']['counts']['source_admissions'], 1)
+            self.assertEqual(report['trace']['counts']['plan_validations'], 3)
+            self.assertEqual(report['trace']['counts']['semantic_checks'], 1)
+            self.assertEqual(report['trace']['phases']['loop_correspondence']['calls'], 1)
+            self.assertEqual(report['trace']['phases']['code_emission']['calls'], 1)
+            self.assertEqual(report['trace']['phases']['total_fresh_source_preparation']['calls'], 2)
+            self.assertEqual(report['trace']['timing_semantics'], 'inclusive')
+            self.assertEqual(report['forged']['diagnostic']['code'], 'INVALID_REQUEST')
+            self.assertEqual(report['invalid']['status'], 'error')
+            self.assertEqual(report['stale']['diagnostic']['code'], 'NOT_PREPARED')
+
     def test_standalone_public_wasm_reuses_module_and_compares_every_output(self):
         node = shutil.which('node')
         if node is None:
@@ -281,7 +316,7 @@ class PlaygroundSiteTests(unittest.TestCase):
                       for path in outputs[1].rglob('*') if path.is_file()}
             self.assertEqual(first, second)
             readme = first[Path('README.md')].decode()
-            self.assertIn('22 compiler/runtime Python modules', readme)
+            self.assertIn('23 compiler/runtime Python modules', readme)
             self.assertIn('compiled Wasm instance is reused', readme)
             self.assertIn('independent evaluation of the source', readme)
             self.assertIn('finite-plan native C generator', readme)

@@ -51,7 +51,7 @@ python3 tools/build-playground-site.py --output /tmp/axiom-playground-site
 
 Choose a new/empty output directory. The builder downloads pinned, SHA-256-checked
 Pyodide0.27.7/Python3.12.7 runtime files over verified HTTPS. It bundles the same
-22 Python modules used by the demo, runtime license texts, and an exact
+23 Python modules used by the demo, runtime license texts, and an exact
 release manifest. The output is about14MB and contains no Core, research,
 recovery records, or Git history. It still discloses the bounded Axiom compiler
 source, available through the playground's Demo source link.
@@ -270,9 +270,10 @@ bounded hints are freshly matched against the checked finite stream; typed hint
 rejection uses the finite backend, while unexpected emitter faults fail closed.
 
 The explicit public allowlist adds only `compilation`, `compilation_selection`,
-`source_compilation`, and the six `bounded_loop_` modules (model, codec, planner,
-correspondence, C, Wasm). All 22 modules are covered by the release MIT license.
-The release excludes tracing tooling, scalable plan v2, Core bindings, research,
+`source_compilation`, the optional `compilation_trace` diagnostic collector, and the six `bounded_loop_` modules (model, codec, planner,
+correspondence, C, Wasm). All 23 modules are covered by the release MIT license.
+The collector observes inclusive timing and counts; it grants no proof authority.
+The release excludes research measurement harnesses, scalable plan v2, Core bindings, research,
 recovery records and session material. Standalone ZIP tests audit relative-import
 closure and public branding, then execute the actual compact Wasm module.
 

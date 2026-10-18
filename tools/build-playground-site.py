@@ -18,7 +18,7 @@ VERSION = '0.27.7'
 CDN = f'https://cdn.jsdelivr.net/pyodide/v{VERSION}/full/'
 MODULES = ('__init__', 'runtime', 'playground_service', 'frontend', 'model',
            'checker', 'codec', 'plan_format', 'planner', 'selection', 'reference',
-           'wasm', 'native_codegen', 'compilation', 'compilation_selection',
+           'wasm', 'native_codegen', 'compilation', 'compilation_trace', 'compilation_selection',
            'source_compilation', 'bounded_loop_model', 'bounded_loop_codec',
            'bounded_loop_planner', 'bounded_loop_correspondence',
            'bounded_loop_c', 'bounded_loop_wasm')
