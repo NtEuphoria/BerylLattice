@@ -20,11 +20,11 @@ def _emit_native_c_compact(owned, hint_bytes, *, hint_limits=HintLimits()):
     have the same contract as the straight-stream emitter.
     """
     from .compilation import _require_owned
-    from .bounded_loop_correspondence import validate_loop_correspondence
+    from .bounded_loop_correspondence import _validate_owned_loop_correspondence
     _require_owned(owned)
     with owned.owner.phase('loop_correspondence'):
-        correspondence = validate_loop_correspondence(
-            owned.kernel, owned.plan, hint_bytes, owned.limits, hint_limits)
+        correspondence = _validate_owned_loop_correspondence(
+            owned, hint_bytes, hint_limits)
         owned.owner.count('loop_correspondences')
         owned.owner.count('loop_correspondence_work', correspondence.work_steps)
     with owned.owner.phase('code_emission'):

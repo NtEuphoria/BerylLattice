@@ -141,9 +141,9 @@ class CompactCTest(unittest.TestCase):
             self.backend._emit_native_c_compact(replace(owned, owner=other.owner), other_hint)
         with self.assertRaises(HintError):
             self.backend._emit_native_c_compact(owned, hint, hint_limits=HintLimits(encoded_bytes=32))
-        from axiom.bounded_loop_correspondence import validate_loop_correspondence
-        with patch('axiom.bounded_loop_correspondence.validate_loop_correspondence',
-                   wraps=validate_loop_correspondence) as validate:
+        from axiom.bounded_loop_correspondence import _validate_owned_loop_correspondence
+        with patch('axiom.bounded_loop_correspondence._validate_owned_loop_correspondence',
+                   wraps=_validate_owned_loop_correspondence) as validate:
             self.backend._emit_native_c_compact(owned, hint)
             self.backend._emit_native_c_compact(owned, hint)
             self.assertEqual(validate.call_count, 2)

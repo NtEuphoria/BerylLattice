@@ -19,7 +19,7 @@ from .plan_format import Operation, Plan
 class LoopCorrespondence:
     plan: Plan
     program: LoopProgram
-    expanded_plan: Plan
+    expanded_plan: Plan | None
     hint_bytes: bytes
     hint_digest: str
     plan_digest: str
@@ -87,7 +87,7 @@ def _cost(body, work_limit, operation_limit):
     return work, operations
 
 
-def _expand(kernel, program, limits, hint_limits):
+def _expand_operations(kernel, program, limits, hint_limits):
     if type(limits) is not Limits:
         raise HintError('INVALID_HINT', 'expected explicit finite Limits')
     validate_loop_program(program, hint_limits)
@@ -147,8 +147,13 @@ def _expand(kernel, program, limits, hint_limits):
     block(program.body)
     if used != predicted_work or len(operations) != predicted_ops:
         raise HintError('HINT_ACCOUNTING', 'internal traversal accounting disagreement')
+    return tuple(operations), used
+
+
+def _expand(kernel, program, limits, hint_limits):
+    operations, used = _expand_operations(kernel, program, limits, hint_limits)
     expanded = Plan(1, program.semantic_digest, program.label,
-                    program.scratch_capacity_cells, tuple(operations))
+                    program.scratch_capacity_cells, operations)
     validate_plan(expanded, limits)
     return expanded, used
 
@@ -163,17 +168,43 @@ def validate_loop_correspondence(kernel, plan, loop_bytes, limits, hint_limits=H
     validate_plan(plan, limits)
     program = decode_loop_program(loop_bytes, hint_limits)
     expanded, work = _expand(kernel, program, limits, hint_limits)
-    if plan.semantic_digest != kernel.semantic_digest:
-        raise HintError('HINT_SPECIALIZATION', 'finite plan source binding differs')
-    if (plan.scratch_capacity_cells != expanded.scratch_capacity_cells or
-            len(plan.operations) != len(expanded.operations)):
-        raise HintError('HINT_MISMATCH', 'reservation or complete operation count differs')
-    for actual, expected in zip(plan.operations, expanded.operations):
-        if (actual.opcode, actual.dst, actual.operands, actual.index, actual.value) != (
-                expected.opcode, expected.dst, expected.operands, expected.index, expected.value):
-            raise HintError('HINT_MISMATCH', 'complete executable operation stream differs')
+    _match_operations(kernel, plan, program, expanded.operations)
     return LoopCorrespondence(plan, program, expanded, loop_bytes,
                               hashlib.sha256(loop_bytes).hexdigest(),
                               hashlib.sha256(encode_plan(plan, limits=limits)).hexdigest(),
                               kernel.source_digest, kernel.semantic_digest,
                               len(expanded.operations), work)
+
+
+def _match_operations(kernel, plan, program, operations):
+    """Compare all executable fields, including dead and trailing operations."""
+    if plan.semantic_digest != kernel.semantic_digest:
+        raise HintError('HINT_SPECIALIZATION', 'finite plan source binding differs')
+    if (plan.scratch_capacity_cells != program.scratch_capacity_cells or
+            len(plan.operations) != len(operations)):
+        raise HintError('HINT_MISMATCH', 'reservation or complete operation count differs')
+    for actual, expected in zip(plan.operations, operations):
+        if (actual.opcode, actual.dst, actual.operands, actual.index, actual.value) != (
+                expected.opcode, expected.dst, expected.operands, expected.index, expected.value):
+            raise HintError('HINT_MISMATCH', 'complete executable operation stream differs')
+
+
+def _validate_owned_loop_correspondence(owned, loop_bytes, hint_limits=HintLimits()):
+    """Freshly match a hint to the exact live, owned, successfully checked plan.
+
+    The owning transaction already validated and encoded this immutable finite
+    plan. Reuse its retained identity; do not validate/encode it a second time or
+    construct an artificial expanded Plan whose label/origins are not emitted.
+    All hint decoding, lexical validation, work/index checks and complete stream
+    comparisons are shared with the public path. No caller-created result grants
+    backend authority. ``expanded_plan`` is None on this private path.
+    """
+    from .compilation import _require_owned
+    _require_owned(owned)
+    program = decode_loop_program(loop_bytes, hint_limits)
+    operations, work = _expand_operations(owned.kernel, program, owned.limits, hint_limits)
+    _match_operations(owned.kernel, owned.plan, program, operations)
+    return LoopCorrespondence(owned.plan, program, None, loop_bytes,
+                              hashlib.sha256(loop_bytes).hexdigest(),
+                              owned.checked.plan_digest, owned.kernel.source_digest,
+                              owned.kernel.semantic_digest, len(operations), work)

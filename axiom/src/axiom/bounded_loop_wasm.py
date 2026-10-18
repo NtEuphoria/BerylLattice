@@ -8,7 +8,7 @@ This is a bounded v1 optimization, not scalable loop-proof authority.
 """
 from hashlib import sha256
 
-from .bounded_loop_correspondence import validate_loop_correspondence
+from .bounded_loop_correspondence import _validate_owned_loop_correspondence
 from .bounded_loop_model import CORRESPONDENCE_VERSION, HintLimits, Loop
 from .compilation import _require_owned
 from .wasm import WasmArtifact, _MEMORY_BYTES, _const, _get, _layout, _module, _uleb
@@ -115,8 +115,8 @@ def _compile_wasm_compact(owned, hint_bytes, *, hint_limits=HintLimits()):
     """Never accept caller-created correspondence as emission authority."""
     _require_owned(owned)
     with owned.owner.phase('loop_correspondence'):
-        correspondence = validate_loop_correspondence(
-            owned.kernel, owned.plan, hint_bytes, owned.limits, hint_limits)
+        correspondence = _validate_owned_loop_correspondence(
+            owned, hint_bytes, hint_limits)
         owned.owner.count('loop_correspondences')
         owned.owner.count('loop_correspondence_work', correspondence.work_steps)
     with owned.owner.phase('code_emission'):
