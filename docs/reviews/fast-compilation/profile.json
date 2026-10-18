@@ -1,0 +1,5772 @@
+{
+  "revision": "39dc2f6df136c643cfd030ce4470503e807750fe",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "scope": "Warm imports/runtime and filesystem; fresh source preparation without artifact cache; timings descriptive, no implemented speedup. Profiled timings separate from unprofiled samples.",
+  "clang_version": "Debian clang version 19.1.7 (3+b1)",
+  "samples": 7,
+  "cases": [
+    {
+      "h": 1,
+      "w": 1,
+      "cap": 64,
+      "source_sha256": "98d097a3644021097002258f23085c8b731cb000616f768d6cd09be369e37427",
+      "selected": {
+        "plan_id": "inline-v1",
+        "workspace_bytes": 0,
+        "multiplication_ops": 4,
+        "plan_digest": "df093f6aca7b356cd49494e3e38ddea60c8a99ed21e8e7cbe2e2328115390b73"
+      },
+      "samples_ms": [
+        6.173537,
+        5.119094,
+        5.983171,
+        4.673585,
+        5.265914,
+        4.88964,
+        4.771232
+      ],
+      "median_ms": 5.119094,
+      "wasm_bytes": 267,
+      "profile": [
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 197,
+          "name": "prepare_compiled_demo",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.048403,
+          "cumulative_ms": 13.962207000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 97,
+          "name": "select_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.14569800000000002,
+          "cumulative_ms": 7.768141
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 205,
+          "name": "check_plan",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.167782,
+          "cumulative_ms": 7.422621
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 258,
+          "name": "parse_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.05817900000000001,
+          "cumulative_ms": 6.769881
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 113,
+          "name": "compile_wasm",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.013490000000000002,
+          "cumulative_ms": 4.793125000000001
+        },
+        {
+          "file": "axiom/src/axiom/runtime.py",
+          "line": 32,
+          "name": "_checked_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.019148000000000002,
+          "cumulative_ms": 4.667937
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 81,
+          "name": "__init__",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.012936000000000001,
+          "cumulative_ms": 3.449917
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 30,
+          "name": "_lex",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 1.588114,
+          "cumulative_ms": 3.4369810000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 175,
+          "name": "parse",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.253524,
+          "cumulative_ms": 3.261785
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 133,
+          "name": "expression",
+          "calls": 210,
+          "primitive_calls": 98,
+          "self_ms": 0.228893,
+          "cumulative_ms": 2.5325580000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 144,
+          "name": "product",
+          "calls": 301,
+          "primitive_calls": 133,
+          "self_ms": 0.106823,
+          "cumulative_ms": 2.302513
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 153,
+          "name": "atom",
+          "calls": 308,
+          "primitive_calls": 140,
+          "self_ms": 0.445788,
+          "cumulative_ms": 2.226036
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 417,
+          "name": "admit_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.123041,
+          "cumulative_ms": 1.778772
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 329,
+          "name": "encode_plan",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.029593,
+          "cumulative_ms": 1.501984
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 219,
+          "name": "validate_plan",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 0.9089640000000001,
+          "cumulative_ms": 1.483285
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 340,
+          "name": "decode_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.029917000000000003,
+          "cumulative_ms": 1.2614330000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 121,
+          "name": "_source_expression",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.45512300000000006,
+          "cumulative_ms": 1.194283
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 364,
+          "name": "plan_digest",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.004927000000000001,
+          "cumulative_ms": 0.8819130000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 132,
+          "name": "strict_json_loads",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.009034,
+          "cumulative_ms": 0.84589
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 62,
+          "name": "value",
+          "calls": 165,
+          "primitive_calls": 1,
+          "self_ms": 0.475992,
+          "cumulative_ms": 0.834783
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 113,
+          "name": "node",
+          "calls": 427,
+          "primitive_calls": 427,
+          "self_ms": 0.26099100000000003,
+          "cumulative_ms": 0.699191
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 325,
+          "name": "_validate",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.134401,
+          "cumulative_ms": 0.654932
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 376,
+          "name": "_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.09274000000000002,
+          "cumulative_ms": 0.6547450000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 123,
+          "name": "integer",
+          "calls": 133,
+          "primitive_calls": 133,
+          "self_ms": 0.24686100000000002,
+          "cumulative_ms": 0.6212030000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 66,
+          "name": "<genexpr>",
+          "calls": 518,
+          "primitive_calls": 518,
+          "self_ms": 0.201015,
+          "cumulative_ms": 0.5192850000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 360,
+          "name": "_normalized",
+          "calls": 364,
+          "primitive_calls": 84,
+          "self_ms": 0.26815700000000003,
+          "cumulative_ms": 0.49409400000000003
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 96,
+          "name": "binary",
+          "calls": 104,
+          "primitive_calls": 104,
+          "self_ms": 0.22823300000000002,
+          "cumulative_ms": 0.43966500000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 102,
+          "name": "identifier",
+          "calls": 259,
+          "primitive_calls": 259,
+          "self_ms": 0.18208500000000002,
+          "cumulative_ms": 0.43936600000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 300,
+          "name": "_validate_scalar",
+          "calls": 14,
+          "primitive_calls": 14,
+          "self_ms": 0.13544899999999999,
+          "cumulative_ms": 0.353047
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 158,
+          "name": "canonical_json",
+          "calls": 18,
+          "primitive_calls": 18,
+          "self_ms": 0.023507,
+          "cumulative_ms": 0.300592
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 93,
+          "name": "take",
+          "calls": 959,
+          "primitive_calls": 959,
+          "self_ms": 0.19965100000000002,
+          "cumulative_ms": 0.26643100000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 263,
+          "name": "_ungroup",
+          "calls": 756,
+          "primitive_calls": 756,
+          "self_ms": 0.131978,
+          "cumulative_ms": 0.190189
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 109,
+          "name": "span_from",
+          "calls": 273,
+          "primitive_calls": 273,
+          "self_ms": 0.100775,
+          "cumulative_ms": 0.1896
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 117,
+          "name": "<genexpr>",
+          "calls": 735,
+          "primitive_calls": 735,
+          "self_ms": 0.155954,
+          "cumulative_ms": 0.182444
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 83,
+          "name": "allocate",
+          "calls": 188,
+          "primitive_calls": 188,
+          "self_ms": 0.13287300000000002,
+          "cumulative_ms": 0.18237300000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 89,
+          "name": "token",
+          "calls": 2401,
+          "primitive_calls": 2401,
+          "self_ms": 0.17142200000000002,
+          "cumulative_ms": 0.17142200000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 92,
+          "name": "input",
+          "calls": 48,
+          "primitive_calls": 48,
+          "self_ms": 0.033177000000000005,
+          "cumulative_ms": 0.165298
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 18,
+          "name": "make_plan",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.027549000000000004,
+          "cumulative_ms": 0.16062
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 160,
+          "name": "visit",
+          "calls": 196,
+          "primitive_calls": 18,
+          "self_ms": 0.137187,
+          "cumulative_ms": 0.15721700000000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 45,
+          "name": "whitespace",
+          "calls": 654,
+          "primitive_calls": 654,
+          "self_ms": 0.11052000000000001,
+          "cumulative_ms": 0.148984
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 282,
+          "name": "_interval",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.10090400000000001,
+          "cumulative_ms": 0.14794600000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 269,
+          "name": "_constant",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.073132,
+          "cumulative_ms": 0.126889
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 398,
+          "name": "_canonical_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.07445,
+          "cumulative_ms": 0.10384600000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 185,
+          "name": "_equal",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.060567,
+          "cumulative_ms": 0.097486
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 80,
+          "name": "_body",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.029595,
+          "cumulative_ms": 0.09706600000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 35,
+          "name": "emit",
+          "calls": 67,
+          "primitive_calls": 67,
+          "self_ms": 0.040616000000000006,
+          "cumulative_ms": 0.096985
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 54,
+          "name": "string",
+          "calls": 126,
+          "primitive_calls": 126,
+          "self_ms": 0.046016,
+          "cumulative_ms": 0.08627900000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 209,
+          "name": "_integer",
+          "calls": 608,
+          "primitive_calls": 608,
+          "self_ms": 0.08391,
+          "cumulative_ms": 0.08391
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 323,
+          "name": "_plan_object",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.039151000000000005,
+          "cumulative_ms": 0.082525
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 89,
+          "name": "literal",
+          "calls": 36,
+          "primitive_calls": 36,
+          "self_ms": 0.021846,
+          "cumulative_ms": 0.07919899999999999
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 298,
+          "name": "<genexpr>",
+          "calls": 368,
+          "primitive_calls": 368,
+          "self_ms": 0.063602,
+          "cumulative_ms": 0.07641700000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 47,
+          "name": "produce",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.009711000000000001,
+          "cumulative_ms": 0.059317
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 69,
+          "name": "stage",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.006272000000000001,
+          "cumulative_ms": 0.056245
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 339,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006,
+          "cumulative_ms": 0.053570000000000007
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 59,
+          "name": "charge",
+          "calls": 516,
+          "primitive_calls": 516,
+          "self_ms": 0.052722,
+          "cumulative_ms": 0.052722
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 252,
+          "name": "charge",
+          "calls": 512,
+          "primitive_calls": 512,
+          "self_ms": 0.047175,
+          "cumulative_ms": 0.047175
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 318,
+          "name": "_operation_object",
+          "calls": 151,
+          "primitive_calls": 151,
+          "self_ms": 0.04049,
+          "cumulative_ms": 0.04049
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 71,
+          "name": "ranking_digest",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.004887,
+          "cumulative_ms": 0.030695999999999998
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 102,
+          "name": "<genexpr>",
+          "calls": 216,
+          "primitive_calls": 216,
+          "self_ms": 0.025863000000000004,
+          "cumulative_ms": 0.025863000000000004
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 39,
+          "name": "_uleb",
+          "calls": 46,
+          "primitive_calls": 46,
+          "self_ms": 0.020920000000000005,
+          "cumulative_ms": 0.025177
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 67,
+          "name": "_const",
+          "calls": 27,
+          "primitive_calls": 27,
+          "self_ms": 0.007904999999999999,
+          "cumulative_ms": 0.024646
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 52,
+          "name": "consume",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.0032750000000000006,
+          "cumulative_ms": 0.02016
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 49,
+          "name": "item",
+          "calls": 164,
+          "primitive_calls": 164,
+          "self_ms": 0.017514000000000002,
+          "cumulative_ms": 0.017514000000000002
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 50,
+          "name": "_sleb",
+          "calls": 27,
+          "primitive_calls": 27,
+          "self_ms": 0.013726,
+          "cumulative_ms": 0.016741000000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 231,
+          "name": "result",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.00595,
+          "cumulative_ms": 0.016366000000000002
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 76,
+          "name": "_get",
+          "calls": 23,
+          "primitive_calls": 23,
+          "self_ms": 0.005690000000000001,
+          "cumulative_ms": 0.015735000000000002
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 71,
+          "name": "_load",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.003986000000000001,
+          "cumulative_ms": 0.015062
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 82,
+          "name": "<genexpr>",
+          "calls": 10,
+          "primitive_calls": 10,
+          "self_ms": 0.002965,
+          "cumulative_ms": 0.014222
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 111,
+          "name": "_report",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.008502000000000001,
+          "cumulative_ms": 0.013079000000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 399,
+          "name": "<lambda>",
+          "calls": 91,
+          "primitive_calls": 91,
+          "self_ms": 0.012654,
+          "cumulative_ms": 0.012654
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 115,
+          "name": "<genexpr>",
+          "calls": 11,
+          "primitive_calls": 11,
+          "self_ms": 0.007108000000000001,
+          "cumulative_ms": 0.012477
+        },
+        {
+          "file": "axiom/src/axiom/model.py",
+          "line": 49,
+          "name": "__post_init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.009635,
+          "cumulative_ms": 0.011858
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 107,
+          "name": "<genexpr>",
+          "calls": 96,
+          "primitive_calls": 96,
+          "self_ms": 0.011547000000000002,
+          "cumulative_ms": 0.011547000000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 434,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.0063100000000000005,
+          "cumulative_ms": 0.010456000000000002
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 71,
+          "name": "_request_source",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.008282000000000001,
+          "cumulative_ms": 0.009243000000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 214,
+          "name": "_fields",
+          "calls": 18,
+          "primitive_calls": 18,
+          "self_ms": 0.008402,
+          "cumulative_ms": 0.008402
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 401,
+          "name": "<lambda>",
+          "calls": 84,
+          "primitive_calls": 84,
+          "self_ms": 0.008373,
+          "cumulative_ms": 0.008373
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 356,
+          "name": "<genexpr>",
+          "calls": 42,
+          "primitive_calls": 42,
+          "self_ms": 0.007883000000000001,
+          "cumulative_ms": 0.007883000000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 12,
+          "name": "_ungroup",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.004865,
+          "cumulative_ms": 0.007501000000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 312,
+          "name": "_plan_header_object",
+          "calls": 15,
+          "primitive_calls": 15,
+          "self_ms": 0.006298000000000001,
+          "cumulative_ms": 0.006298000000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 129,
+          "name": "finish",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.0032240000000000003,
+          "cumulative_ms": 0.006069000000000001
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 63,
+          "name": "_section",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 0.002804,
+          "cumulative_ms": 0.005958000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 404,
+          "name": "<lambda>",
+          "calls": 35,
+          "primitive_calls": 35,
+          "self_ms": 0.004946000000000001,
+          "cumulative_ms": 0.004946000000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 26,
+          "name": "<genexpr>",
+          "calls": 9,
+          "primitive_calls": 9,
+          "self_ms": 0.002966,
+          "cumulative_ms": 0.004868000000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 30,
+          "name": "_positive_limit",
+          "calls": 22,
+          "primitive_calls": 22,
+          "self_ms": 0.004757,
+          "cumulative_ms": 0.004757
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 400,
+          "name": "<lambda>",
+          "calls": 28,
+          "primitive_calls": 28,
+          "self_ms": 0.0034230000000000003,
+          "cumulative_ms": 0.0034230000000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 340,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.0032830000000000003,
+          "cumulative_ms": 0.0032830000000000003
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 88,
+          "name": "_key",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.002236,
+          "cumulative_ms": 0.0032760000000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 436,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.002775,
+          "cumulative_ms": 0.002775
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 280,
+          "name": "<genexpr>",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.002463,
+          "cumulative_ms": 0.002463
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 42,
+          "name": "eligible",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.002373,
+          "cumulative_ms": 0.002373
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 81,
+          "name": "<genexpr>",
+          "calls": 18,
+          "primitive_calls": 18,
+          "self_ms": 0.001773,
+          "cumulative_ms": 0.001773
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 200,
+          "name": "_cap",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 0.001663,
+          "cumulative_ms": 0.001663
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 77,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.000912,
+          "cumulative_ms": 0.000912
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 55,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.000671,
+          "cumulative_ms": 0.000671
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 83,
+          "name": "_allowance",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00032100000000000005,
+          "cumulative_ms": 0.00032100000000000005
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 36,
+          "name": "__init__",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.000221,
+          "cumulative_ms": 0.000221
+        }
+      ]
+    },
+    {
+      "h": 5,
+      "w": 7,
+      "cap": 64,
+      "source_sha256": "d524b924fe7488d1664ea0f63c1938ab15357faa0681604b66a690389958336d",
+      "selected": {
+        "plan_id": "rows2-v1",
+        "workspace_bytes": 64,
+        "multiplication_ops": 48,
+        "plan_digest": "387c2ee208975f0a73f325d36765d09d8b08e94158196932dd41c674b53886e8"
+      },
+      "samples_ms": [
+        40.630808,
+        39.637527,
+        44.610562,
+        40.48586,
+        45.088669,
+        40.164608,
+        38.615904
+      ],
+      "median_ms": 40.48586,
+      "wasm_bytes": 5383,
+      "profile": [
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 197,
+          "name": "prepare_compiled_demo",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.141623,
+          "cumulative_ms": 120.932754
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 205,
+          "name": "check_plan",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 2.0094360000000004,
+          "cumulative_ms": 72.885182
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 97,
+          "name": "select_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.360121,
+          "cumulative_ms": 67.119619
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 113,
+          "name": "compile_wasm",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.021472,
+          "cumulative_ms": 52.348938000000004
+        },
+        {
+          "file": "axiom/src/axiom/runtime.py",
+          "line": 32,
+          "name": "_checked_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.14623000000000003,
+          "cumulative_ms": 50.140162000000004
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 121,
+          "name": "_source_expression",
+          "calls": 140,
+          "primitive_calls": 140,
+          "self_ms": 16.602024,
+          "cumulative_ms": 41.680662
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 340,
+          "name": "decode_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.5594169999999999,
+          "cumulative_ms": 30.198839000000003
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 132,
+          "name": "strict_json_loads",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.010708000000000002,
+          "cumulative_ms": 25.664263000000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 62,
+          "name": "value",
+          "calls": 4275,
+          "primitive_calls": 1,
+          "self_ms": 15.56361,
+          "cumulative_ms": 25.647548000000004
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 329,
+          "name": "encode_plan",
+          "calls": 6,
+          "primitive_calls": 6,
+          "self_ms": 0.189798,
+          "cumulative_ms": 23.523200000000003
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 219,
+          "name": "validate_plan",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 13.667771,
+          "cumulative_ms": 21.953402
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 364,
+          "name": "plan_digest",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.00865,
+          "cumulative_ms": 15.429971
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 96,
+          "name": "binary",
+          "calls": 3088,
+          "primitive_calls": 3088,
+          "self_ms": 6.799256,
+          "cumulative_ms": 13.693670000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 258,
+          "name": "parse_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.068193,
+          "cumulative_ms": 7.029801000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 83,
+          "name": "allocate",
+          "calls": 5616,
+          "primitive_calls": 5616,
+          "self_ms": 2.779774,
+          "cumulative_ms": 4.380755
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 45,
+          "name": "whitespace",
+          "calls": 17088,
+          "primitive_calls": 17088,
+          "self_ms": 3.2010300000000003,
+          "cumulative_ms": 4.308520000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 92,
+          "name": "input",
+          "calls": 1404,
+          "primitive_calls": 1404,
+          "self_ms": 0.8978370000000001,
+          "cumulative_ms": 3.651258
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 175,
+          "name": "parse",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.29720100000000005,
+          "cumulative_ms": 3.5538130000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 81,
+          "name": "__init__",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.064847,
+          "cumulative_ms": 3.4077950000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 30,
+          "name": "_lex",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 1.7241370000000003,
+          "cumulative_ms": 3.3429480000000003
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 185,
+          "name": "_equal",
+          "calls": 140,
+          "primitive_calls": 140,
+          "self_ms": 1.9758080000000002,
+          "cumulative_ms": 3.1371180000000005
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 18,
+          "name": "make_plan",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.150984,
+          "cumulative_ms": 2.742768
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 133,
+          "name": "expression",
+          "calls": 210,
+          "primitive_calls": 98,
+          "self_ms": 0.23839700000000003,
+          "cumulative_ms": 2.646724
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 89,
+          "name": "literal",
+          "calls": 1124,
+          "primitive_calls": 1124,
+          "self_ms": 0.5814920000000001,
+          "cumulative_ms": 2.5244350000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 144,
+          "name": "product",
+          "calls": 301,
+          "primitive_calls": 133,
+          "self_ms": 0.166583,
+          "cumulative_ms": 2.398981
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 153,
+          "name": "atom",
+          "calls": 308,
+          "primitive_calls": 140,
+          "self_ms": 0.44692,
+          "cumulative_ms": 2.318844
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 54,
+          "name": "string",
+          "calls": 3318,
+          "primitive_calls": 3318,
+          "self_ms": 1.175653,
+          "cumulative_ms": 2.2331960000000004
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 35,
+          "name": "emit",
+          "calls": 1507,
+          "primitive_calls": 1507,
+          "self_ms": 0.7796010000000001,
+          "cumulative_ms": 2.1985419999999998
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 80,
+          "name": "_body",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.484667,
+          "cumulative_ms": 2.132982
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 59,
+          "name": "charge",
+          "calls": 17100,
+          "primitive_calls": 17100,
+          "self_ms": 2.1083070000000004,
+          "cumulative_ms": 2.1083070000000004
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 323,
+          "name": "_plan_object",
+          "calls": 6,
+          "primitive_calls": 6,
+          "self_ms": 0.9818520000000001,
+          "cumulative_ms": 1.857558
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 209,
+          "name": "_integer",
+          "calls": 12250,
+          "primitive_calls": 12250,
+          "self_ms": 1.8545010000000002,
+          "cumulative_ms": 1.8545010000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 417,
+          "name": "admit_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.106581,
+          "cumulative_ms": 1.47822
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 298,
+          "name": "<genexpr>",
+          "calls": 7522,
+          "primitive_calls": 7522,
+          "self_ms": 1.190125,
+          "cumulative_ms": 1.420986
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 47,
+          "name": "produce",
+          "calls": 236,
+          "primitive_calls": 236,
+          "self_ms": 0.131681,
+          "cumulative_ms": 1.266224
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 102,
+          "name": "<genexpr>",
+          "calls": 6732,
+          "primitive_calls": 6732,
+          "self_ms": 1.025794,
+          "cumulative_ms": 1.025794
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 252,
+          "name": "charge",
+          "calls": 10468,
+          "primitive_calls": 10468,
+          "self_ms": 0.945511,
+          "cumulative_ms": 0.945511
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 318,
+          "name": "_operation_object",
+          "calls": 3014,
+          "primitive_calls": 3014,
+          "self_ms": 0.871758,
+          "cumulative_ms": 0.871758
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 39,
+          "name": "_uleb",
+          "calls": 882,
+          "primitive_calls": 882,
+          "self_ms": 0.6196790000000001,
+          "cumulative_ms": 0.736738
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 123,
+          "name": "integer",
+          "calls": 133,
+          "primitive_calls": 133,
+          "self_ms": 0.322931,
+          "cumulative_ms": 0.7281270000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 113,
+          "name": "node",
+          "calls": 427,
+          "primitive_calls": 427,
+          "self_ms": 0.29428,
+          "cumulative_ms": 0.7035210000000001
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 76,
+          "name": "_get",
+          "calls": 485,
+          "primitive_calls": 485,
+          "self_ms": 0.167967,
+          "cumulative_ms": 0.668695
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 52,
+          "name": "consume",
+          "calls": 105,
+          "primitive_calls": 105,
+          "self_ms": 0.10524,
+          "cumulative_ms": 0.627017
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 69,
+          "name": "stage",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.042875,
+          "cumulative_ms": 0.607855
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 325,
+          "name": "_validate",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.10487800000000001,
+          "cumulative_ms": 0.5988590000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 82,
+          "name": "<genexpr>",
+          "calls": 350,
+          "primitive_calls": 350,
+          "self_ms": 0.096348,
+          "cumulative_ms": 0.507189
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 66,
+          "name": "<genexpr>",
+          "calls": 518,
+          "primitive_calls": 518,
+          "self_ms": 0.335851,
+          "cumulative_ms": 0.5060600000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 49,
+          "name": "item",
+          "calls": 4274,
+          "primitive_calls": 4274,
+          "self_ms": 0.45751000000000003,
+          "cumulative_ms": 0.45751000000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 376,
+          "name": "_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.07256000000000001,
+          "cumulative_ms": 0.45640400000000003
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 67,
+          "name": "_const",
+          "calls": 513,
+          "primitive_calls": 513,
+          "self_ms": 0.10450900000000002,
+          "cumulative_ms": 0.44500800000000007
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 102,
+          "name": "identifier",
+          "calls": 259,
+          "primitive_calls": 259,
+          "self_ms": 0.22945300000000002,
+          "cumulative_ms": 0.418864
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 360,
+          "name": "_normalized",
+          "calls": 364,
+          "primitive_calls": 84,
+          "self_ms": 0.22021400000000002,
+          "cumulative_ms": 0.372191
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 71,
+          "name": "_load",
+          "calls": 284,
+          "primitive_calls": 284,
+          "self_ms": 0.101135,
+          "cumulative_ms": 0.3587
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 158,
+          "name": "canonical_json",
+          "calls": 17,
+          "primitive_calls": 17,
+          "self_ms": 0.031685,
+          "cumulative_ms": 0.349584
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 50,
+          "name": "_sleb",
+          "calls": 513,
+          "primitive_calls": 513,
+          "self_ms": 0.265695,
+          "cumulative_ms": 0.340499
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 300,
+          "name": "_validate_scalar",
+          "calls": 14,
+          "primitive_calls": 14,
+          "self_ms": 0.12663,
+          "cumulative_ms": 0.327604
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 93,
+          "name": "take",
+          "calls": 959,
+          "primitive_calls": 959,
+          "self_ms": 0.20783300000000002,
+          "cumulative_ms": 0.279568
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 107,
+          "name": "<genexpr>",
+          "calls": 2532,
+          "primitive_calls": 2532,
+          "self_ms": 0.266957,
+          "cumulative_ms": 0.266957
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 109,
+          "name": "span_from",
+          "calls": 273,
+          "primitive_calls": 273,
+          "self_ms": 0.107187,
+          "cumulative_ms": 0.199743
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 263,
+          "name": "_ungroup",
+          "calls": 756,
+          "primitive_calls": 756,
+          "self_ms": 0.126267,
+          "cumulative_ms": 0.186337
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 89,
+          "name": "token",
+          "calls": 2401,
+          "primitive_calls": 2401,
+          "self_ms": 0.181846,
+          "cumulative_ms": 0.181846
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 214,
+          "name": "_fields",
+          "calls": 474,
+          "primitive_calls": 474,
+          "self_ms": 0.17680900000000002,
+          "cumulative_ms": 0.17680900000000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 160,
+          "name": "visit",
+          "calls": 185,
+          "primitive_calls": 17,
+          "self_ms": 0.141471,
+          "cumulative_ms": 0.16102100000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 117,
+          "name": "<genexpr>",
+          "calls": 735,
+          "primitive_calls": 735,
+          "self_ms": 0.11282600000000001,
+          "cumulative_ms": 0.13917200000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 282,
+          "name": "_interval",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.07101,
+          "cumulative_ms": 0.13173100000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 269,
+          "name": "_constant",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.071229,
+          "cumulative_ms": 0.125064
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 398,
+          "name": "_canonical_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.05291300000000001,
+          "cumulative_ms": 0.077917
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 339,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.005979000000000001,
+          "cumulative_ms": 0.052749000000000004
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 231,
+          "name": "result",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.011059000000000001,
+          "cumulative_ms": 0.037487
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 71,
+          "name": "ranking_digest",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00755,
+          "cumulative_ms": 0.030175
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 81,
+          "name": "<genexpr>",
+          "calls": 474,
+          "primitive_calls": 474,
+          "self_ms": 0.028543000000000002,
+          "cumulative_ms": 0.028543000000000002
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 111,
+          "name": "_report",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.012036000000000002,
+          "cumulative_ms": 0.020811
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 129,
+          "name": "finish",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.0049180000000000005,
+          "cumulative_ms": 0.012519000000000002
+        },
+        {
+          "file": "axiom/src/axiom/model.py",
+          "line": 49,
+          "name": "__post_init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.009151000000000001,
+          "cumulative_ms": 0.011086
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 434,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006161,
+          "cumulative_ms": 0.010566
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 71,
+          "name": "_request_source",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.007882,
+          "cumulative_ms": 0.009254
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 401,
+          "name": "<lambda>",
+          "calls": 84,
+          "primitive_calls": 84,
+          "self_ms": 0.008593,
+          "cumulative_ms": 0.008593
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 399,
+          "name": "<lambda>",
+          "calls": 91,
+          "primitive_calls": 91,
+          "self_ms": 0.008351,
+          "cumulative_ms": 0.008351
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 12,
+          "name": "_ungroup",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.005038000000000001,
+          "cumulative_ms": 0.008272
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 312,
+          "name": "_plan_header_object",
+          "calls": 13,
+          "primitive_calls": 13,
+          "self_ms": 0.008064000000000002,
+          "cumulative_ms": 0.008064000000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 356,
+          "name": "<genexpr>",
+          "calls": 42,
+          "primitive_calls": 42,
+          "self_ms": 0.007955,
+          "cumulative_ms": 0.007955
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 63,
+          "name": "_section",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 0.004024,
+          "cumulative_ms": 0.007129000000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 115,
+          "name": "<genexpr>",
+          "calls": 11,
+          "primitive_calls": 11,
+          "self_ms": 0.005005000000000001,
+          "cumulative_ms": 0.0069900000000000006
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 26,
+          "name": "<genexpr>",
+          "calls": 9,
+          "primitive_calls": 9,
+          "self_ms": 0.0032970000000000005,
+          "cumulative_ms": 0.00584
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 404,
+          "name": "<lambda>",
+          "calls": 35,
+          "primitive_calls": 35,
+          "self_ms": 0.004758,
+          "cumulative_ms": 0.004758
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 30,
+          "name": "_positive_limit",
+          "calls": 20,
+          "primitive_calls": 20,
+          "self_ms": 0.004529,
+          "cumulative_ms": 0.004529
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 42,
+          "name": "eligible",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.004058,
+          "cumulative_ms": 0.004058
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 88,
+          "name": "_key",
+          "calls": 2,
+          "primitive_calls": 2,
+          "self_ms": 0.0024430000000000003,
+          "cumulative_ms": 0.003355
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 400,
+          "name": "<lambda>",
+          "calls": 28,
+          "primitive_calls": 28,
+          "self_ms": 0.0033020000000000002,
+          "cumulative_ms": 0.0033020000000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 340,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.003246,
+          "cumulative_ms": 0.003246
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 436,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.0027150000000000004,
+          "cumulative_ms": 0.0027150000000000004
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 200,
+          "name": "_cap",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 0.002422,
+          "cumulative_ms": 0.002422
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 280,
+          "name": "<genexpr>",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.002383,
+          "cumulative_ms": 0.002383
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 55,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.001243,
+          "cumulative_ms": 0.001243
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 77,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.00084,
+          "cumulative_ms": 0.00084
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 83,
+          "name": "_allowance",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.000351,
+          "cumulative_ms": 0.000351
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 36,
+          "name": "__init__",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00029000000000000006,
+          "cumulative_ms": 0.00029000000000000006
+        }
+      ]
+    },
+    {
+      "h": 15,
+      "w": 15,
+      "cap": 64,
+      "source_sha256": "2b189ba2a2b362ecba67484ecb9dac8caa35a45bba00cc98b216fa0808cb0375",
+      "selected": {
+        "plan_id": "inline-v1",
+        "workspace_bytes": 0,
+        "multiplication_ops": 900,
+        "plan_digest": "29bf4b2343f9db94b3328a3d9389326c523392b500694331a31a52b679af1dba"
+      },
+      "samples_ms": [
+        248.077431,
+        264.658009,
+        246.909998,
+        259.236161,
+        267.906375,
+        250.749302,
+        246.879764
+      ],
+      "median_ms": 250.749302,
+      "wasm_bytes": 40536,
+      "profile": [
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 197,
+          "name": "prepare_compiled_demo",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 1.4502990000000002,
+          "cumulative_ms": 717.8043
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 205,
+          "name": "check_plan",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 12.928129,
+          "cumulative_ms": 429.24726300000003
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 97,
+          "name": "select_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 2.483439,
+          "cumulative_ms": 365.91742200000004
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 113,
+          "name": "compile_wasm",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.040828,
+          "cumulative_ms": 348.98349900000005
+        },
+        {
+          "file": "axiom/src/axiom/runtime.py",
+          "line": 32,
+          "name": "_checked_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 1.981825,
+          "cumulative_ms": 333.633143
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 121,
+          "name": "_source_expression",
+          "calls": 900,
+          "primitive_calls": 900,
+          "self_ms": 92.440391,
+          "cumulative_ms": 241.70702200000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 340,
+          "name": "decode_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 4.508996000000001,
+          "cumulative_ms": 212.71514200000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 132,
+          "name": "strict_json_loads",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.011429,
+          "cumulative_ms": 179.571412
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 62,
+          "name": "value",
+          "calls": 33989,
+          "primitive_calls": 1,
+          "self_ms": 101.81582500000002,
+          "cumulative_ms": 179.53323400000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 329,
+          "name": "encode_plan",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 1.0264440000000001,
+          "cumulative_ms": 139.390137
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 219,
+          "name": "validate_plan",
+          "calls": 6,
+          "primitive_calls": 6,
+          "self_ms": 76.98845800000001,
+          "cumulative_ms": 122.82785600000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 364,
+          "name": "plan_digest",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.09133700000000002,
+          "cumulative_ms": 106.568712
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 96,
+          "name": "binary",
+          "calls": 20824,
+          "primitive_calls": 20824,
+          "self_ms": 44.28158500000001,
+          "cumulative_ms": 91.592685
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 45,
+          "name": "whitespace",
+          "calls": 134382,
+          "primitive_calls": 134382,
+          "self_ms": 24.569023,
+          "cumulative_ms": 32.91486200000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 83,
+          "name": "allocate",
+          "calls": 37540,
+          "primitive_calls": 37540,
+          "self_ms": 16.870339,
+          "cumulative_ms": 26.910716
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 323,
+          "name": "_plan_object",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 12.063088,
+          "cumulative_ms": 22.728816000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 185,
+          "name": "_equal",
+          "calls": 900,
+          "primitive_calls": 900,
+          "self_ms": 15.017298,
+          "cumulative_ms": 21.990001000000003
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 92,
+          "name": "input",
+          "calls": 9512,
+          "primitive_calls": 9512,
+          "self_ms": 5.1825790000000005,
+          "cumulative_ms": 21.032175
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 89,
+          "name": "literal",
+          "calls": 7204,
+          "primitive_calls": 7204,
+          "self_ms": 3.96214,
+          "cumulative_ms": 16.785655
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 54,
+          "name": "string",
+          "calls": 25214,
+          "primitive_calls": 25214,
+          "self_ms": 8.537951,
+          "cumulative_ms": 16.677401
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 18,
+          "name": "make_plan",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.776145,
+          "cumulative_ms": 16.465156
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 80,
+          "name": "_body",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 4.4732,
+          "cumulative_ms": 15.023326000000003
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 35,
+          "name": "emit",
+          "calls": 9251,
+          "primitive_calls": 9251,
+          "self_ms": 4.741804,
+          "cumulative_ms": 13.39766
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 59,
+          "name": "charge",
+          "calls": 110052,
+          "primitive_calls": 110052,
+          "self_ms": 10.985151,
+          "cumulative_ms": 10.985151
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 318,
+          "name": "_operation_object",
+          "calls": 16453,
+          "primitive_calls": 16453,
+          "self_ms": 10.659318,
+          "cumulative_ms": 10.659318
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 209,
+          "name": "_integer",
+          "calls": 72448,
+          "primitive_calls": 72448,
+          "self_ms": 9.957382,
+          "cumulative_ms": 9.957382
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 298,
+          "name": "<genexpr>",
+          "calls": 46464,
+          "primitive_calls": 46464,
+          "self_ms": 7.443113,
+          "cumulative_ms": 9.013574
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 47,
+          "name": "produce",
+          "calls": 1412,
+          "primitive_calls": 1412,
+          "self_ms": 0.785671,
+          "cumulative_ms": 7.051526000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 258,
+          "name": "parse_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.072314,
+          "cumulative_ms": 7.02949
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 102,
+          "name": "<genexpr>",
+          "calls": 44736,
+          "primitive_calls": 44736,
+          "self_ms": 6.9640830000000005,
+          "cumulative_ms": 6.9640830000000005
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 39,
+          "name": "_uleb",
+          "calls": 8558,
+          "primitive_calls": 8558,
+          "self_ms": 4.077717000000001,
+          "cumulative_ms": 5.398949
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 252,
+          "name": "charge",
+          "calls": 60168,
+          "primitive_calls": 60168,
+          "self_ms": 5.246702000000001,
+          "cumulative_ms": 5.246702000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 52,
+          "name": "consume",
+          "calls": 675,
+          "primitive_calls": 675,
+          "self_ms": 0.522502,
+          "cumulative_ms": 4.421925
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 76,
+          "name": "_get",
+          "calls": 5175,
+          "primitive_calls": 5175,
+          "self_ms": 1.022071,
+          "cumulative_ms": 4.247786
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 49,
+          "name": "item",
+          "calls": 33988,
+          "primitive_calls": 33988,
+          "self_ms": 3.5278180000000003,
+          "cumulative_ms": 3.5278180000000003
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 69,
+          "name": "stage",
+          "calls": 32,
+          "primitive_calls": 32,
+          "self_ms": 0.24662000000000003,
+          "cumulative_ms": 3.516891
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 81,
+          "name": "__init__",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.01908,
+          "cumulative_ms": 3.481838
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 175,
+          "name": "parse",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.328954,
+          "cumulative_ms": 3.4753380000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 30,
+          "name": "_lex",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 1.715193,
+          "cumulative_ms": 3.4627580000000004
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 82,
+          "name": "<genexpr>",
+          "calls": 2250,
+          "primitive_calls": 2250,
+          "self_ms": 0.71276,
+          "cumulative_ms": 3.113548
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 133,
+          "name": "expression",
+          "calls": 210,
+          "primitive_calls": 98,
+          "self_ms": 0.26343900000000003,
+          "cumulative_ms": 2.48656
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 67,
+          "name": "_const",
+          "calls": 2407,
+          "primitive_calls": 2407,
+          "self_ms": 0.5915900000000001,
+          "cumulative_ms": 2.332453
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 144,
+          "name": "product",
+          "calls": 301,
+          "primitive_calls": 133,
+          "self_ms": 0.113472,
+          "cumulative_ms": 2.227858
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 153,
+          "name": "atom",
+          "calls": 308,
+          "primitive_calls": 140,
+          "self_ms": 0.42621800000000004,
+          "cumulative_ms": 2.146448
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 107,
+          "name": "<genexpr>",
+          "calls": 17736,
+          "primitive_calls": 17736,
+          "self_ms": 2.075436,
+          "cumulative_ms": 2.075436
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 417,
+          "name": "admit_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.14559700000000003,
+          "cumulative_ms": 1.901834
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 214,
+          "name": "_fields",
+          "calls": 3602,
+          "primitive_calls": 3602,
+          "self_ms": 1.7950260000000002,
+          "cumulative_ms": 1.7950260000000002
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 50,
+          "name": "_sleb",
+          "calls": 2407,
+          "primitive_calls": 2407,
+          "self_ms": 1.3703610000000002,
+          "cumulative_ms": 1.740863
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 71,
+          "name": "_load",
+          "calls": 1412,
+          "primitive_calls": 1412,
+          "self_ms": 0.281221,
+          "cumulative_ms": 1.5754110000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 113,
+          "name": "node",
+          "calls": 427,
+          "primitive_calls": 427,
+          "self_ms": 0.296653,
+          "cumulative_ms": 0.712983
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 325,
+          "name": "_validate",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.12394700000000002,
+          "cumulative_ms": 0.6932929999999999
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 376,
+          "name": "_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.087164,
+          "cumulative_ms": 0.6915770000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 123,
+          "name": "integer",
+          "calls": 133,
+          "primitive_calls": 133,
+          "self_ms": 0.240846,
+          "cumulative_ms": 0.657536
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 360,
+          "name": "_normalized",
+          "calls": 364,
+          "primitive_calls": 84,
+          "self_ms": 0.344117,
+          "cumulative_ms": 0.590653
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 158,
+          "name": "canonical_json",
+          "calls": 16,
+          "primitive_calls": 16,
+          "self_ms": 0.051128,
+          "cumulative_ms": 0.457955
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 66,
+          "name": "<genexpr>",
+          "calls": 518,
+          "primitive_calls": 518,
+          "self_ms": 0.215639,
+          "cumulative_ms": 0.38690800000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 102,
+          "name": "identifier",
+          "calls": 259,
+          "primitive_calls": 259,
+          "self_ms": 0.194493,
+          "cumulative_ms": 0.349328
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 300,
+          "name": "_validate_scalar",
+          "calls": 14,
+          "primitive_calls": 14,
+          "self_ms": 0.148465,
+          "cumulative_ms": 0.335575
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 93,
+          "name": "take",
+          "calls": 959,
+          "primitive_calls": 959,
+          "self_ms": 0.255581,
+          "cumulative_ms": 0.324874
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 81,
+          "name": "<genexpr>",
+          "calls": 3602,
+          "primitive_calls": 3602,
+          "self_ms": 0.24592900000000004,
+          "cumulative_ms": 0.24592900000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 109,
+          "name": "span_from",
+          "calls": 273,
+          "primitive_calls": 273,
+          "self_ms": 0.106977,
+          "cumulative_ms": 0.196972
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 269,
+          "name": "_constant",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.13163200000000003,
+          "cumulative_ms": 0.189279
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 263,
+          "name": "_ungroup",
+          "calls": 756,
+          "primitive_calls": 756,
+          "self_ms": 0.113751,
+          "cumulative_ms": 0.17619800000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 89,
+          "name": "token",
+          "calls": 2401,
+          "primitive_calls": 2401,
+          "self_ms": 0.17559500000000003,
+          "cumulative_ms": 0.17559500000000003
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 160,
+          "name": "visit",
+          "calls": 174,
+          "primitive_calls": 16,
+          "self_ms": 0.146483,
+          "cumulative_ms": 0.17059600000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 117,
+          "name": "<genexpr>",
+          "calls": 735,
+          "primitive_calls": 735,
+          "self_ms": 0.11334700000000002,
+          "cumulative_ms": 0.13856400000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 282,
+          "name": "_interval",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.06941,
+          "cumulative_ms": 0.11615600000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 339,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006321,
+          "cumulative_ms": 0.11324200000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 231,
+          "name": "result",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.036705,
+          "cumulative_ms": 0.108503
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 398,
+          "name": "_canonical_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.059051,
+          "cumulative_ms": 0.0877
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 129,
+          "name": "finish",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.0067800000000000004,
+          "cumulative_ms": 0.03381100000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 71,
+          "name": "ranking_digest",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.007381,
+          "cumulative_ms": 0.032269
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 111,
+          "name": "_report",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.017869000000000003,
+          "cumulative_ms": 0.027191
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 63,
+          "name": "_section",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 0.018211,
+          "cumulative_ms": 0.023668
+        },
+        {
+          "file": "axiom/src/axiom/model.py",
+          "line": 49,
+          "name": "__post_init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.012006,
+          "cumulative_ms": 0.014271
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 434,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.010117,
+          "cumulative_ms": 0.014182
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 71,
+          "name": "_request_source",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.010636000000000001,
+          "cumulative_ms": 0.012739
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 312,
+          "name": "_plan_header_object",
+          "calls": 11,
+          "primitive_calls": 11,
+          "self_ms": 0.011938000000000002,
+          "cumulative_ms": 0.011938000000000002
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 12,
+          "name": "_ungroup",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006049,
+          "cumulative_ms": 0.010446
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 399,
+          "name": "<lambda>",
+          "calls": 91,
+          "primitive_calls": 91,
+          "self_ms": 0.009942000000000001,
+          "cumulative_ms": 0.009942000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 401,
+          "name": "<lambda>",
+          "calls": 84,
+          "primitive_calls": 84,
+          "self_ms": 0.009169,
+          "cumulative_ms": 0.009169
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 356,
+          "name": "<genexpr>",
+          "calls": 42,
+          "primitive_calls": 42,
+          "self_ms": 0.007839,
+          "cumulative_ms": 0.007839
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 42,
+          "name": "eligible",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.007500000000000001,
+          "cumulative_ms": 0.007500000000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 115,
+          "name": "<genexpr>",
+          "calls": 11,
+          "primitive_calls": 11,
+          "self_ms": 0.005207000000000001,
+          "cumulative_ms": 0.007201
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 26,
+          "name": "<genexpr>",
+          "calls": 9,
+          "primitive_calls": 9,
+          "self_ms": 0.003746,
+          "cumulative_ms": 0.006971000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 404,
+          "name": "<lambda>",
+          "calls": 35,
+          "primitive_calls": 35,
+          "self_ms": 0.005279000000000001,
+          "cumulative_ms": 0.005279000000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 30,
+          "name": "_positive_limit",
+          "calls": 18,
+          "primitive_calls": 18,
+          "self_ms": 0.0045460000000000006,
+          "cumulative_ms": 0.0045460000000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 400,
+          "name": "<lambda>",
+          "calls": 28,
+          "primitive_calls": 28,
+          "self_ms": 0.004259000000000001,
+          "cumulative_ms": 0.004259000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 340,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.003281,
+          "cumulative_ms": 0.003281
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 200,
+          "name": "_cap",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 0.003176,
+          "cumulative_ms": 0.003176
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 88,
+          "name": "_key",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.002272,
+          "cumulative_ms": 0.003044
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 436,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.0029360000000000002,
+          "cumulative_ms": 0.0029360000000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 280,
+          "name": "<genexpr>",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.0027630000000000003,
+          "cumulative_ms": 0.0027630000000000003
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 55,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.0014310000000000002,
+          "cumulative_ms": 0.0014310000000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 77,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.000903,
+          "cumulative_ms": 0.000903
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 83,
+          "name": "_allowance",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00042100000000000004,
+          "cumulative_ms": 0.00042100000000000004
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 36,
+          "name": "__init__",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00033,
+          "cumulative_ms": 0.00033
+        }
+      ]
+    },
+    {
+      "h": 15,
+      "w": 15,
+      "cap": 128,
+      "source_sha256": "3ada6b8408c9e7c13fb7084845794253898e72c73c925e6b01d71cadbec38f6c",
+      "selected": {
+        "plan_id": "rows2-v1",
+        "workspace_bytes": 128,
+        "multiplication_ops": 256,
+        "plan_digest": "761e6d8456e2a37ffc56d043b13ffb62c42c751aafb6c8e32450d33c104e2f78"
+      },
+      "samples_ms": [
+        213.395274,
+        214.143849,
+        214.714771,
+        213.398861,
+        215.93112,
+        217.78369,
+        224.131823
+      ],
+      "median_ms": 214.714771,
+      "wasm_bytes": 32924,
+      "profile": [
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 197,
+          "name": "prepare_compiled_demo",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 1.352375,
+          "cumulative_ms": 737.4344860000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 205,
+          "name": "check_plan",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 11.958347000000002,
+          "cumulative_ms": 482.39691
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 97,
+          "name": "select_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 3.3633390000000003,
+          "cumulative_ms": 449.095653
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 113,
+          "name": "compile_wasm",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.026156000000000002,
+          "cumulative_ms": 285.668173
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 121,
+          "name": "_source_expression",
+          "calls": 900,
+          "primitive_calls": 900,
+          "self_ms": 105.307167,
+          "cumulative_ms": 281.68009700000005
+        },
+        {
+          "file": "axiom/src/axiom/runtime.py",
+          "line": 32,
+          "name": "_checked_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 1.907332,
+          "cumulative_ms": 274.35642
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 329,
+          "name": "encode_plan",
+          "calls": 6,
+          "primitive_calls": 6,
+          "self_ms": 1.254199,
+          "cumulative_ms": 170.733165
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 340,
+          "name": "decode_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 4.702127000000001,
+          "cumulative_ms": 166.35692100000003
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 219,
+          "name": "validate_plan",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 93.97296800000001,
+          "cumulative_ms": 144.54494100000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 132,
+          "name": "strict_json_loads",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.011998000000000002,
+          "cumulative_ms": 138.44307
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 62,
+          "name": "value",
+          "calls": 25461,
+          "primitive_calls": 1,
+          "self_ms": 76.542579,
+          "cumulative_ms": 138.407498
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 364,
+          "name": "plan_digest",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.014963,
+          "cumulative_ms": 122.32678100000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 96,
+          "name": "binary",
+          "calls": 19536,
+          "primitive_calls": 19536,
+          "self_ms": 48.161120000000004,
+          "cumulative_ms": 95.22408300000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 92,
+          "name": "input",
+          "calls": 8868,
+          "primitive_calls": 8868,
+          "self_ms": 4.983071000000001,
+          "cumulative_ms": 27.181933
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 45,
+          "name": "whitespace",
+          "calls": 101814,
+          "primitive_calls": 101814,
+          "self_ms": 18.177391,
+          "cumulative_ms": 25.013331000000004
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 83,
+          "name": "allocate",
+          "calls": 35608,
+          "primitive_calls": 35608,
+          "self_ms": 15.432047,
+          "cumulative_ms": 24.188792
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 185,
+          "name": "_equal",
+          "calls": 900,
+          "primitive_calls": 900,
+          "self_ms": 13.890606000000002,
+          "cumulative_ms": 21.020216
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 323,
+          "name": "_plan_object",
+          "calls": 6,
+          "primitive_calls": 6,
+          "self_ms": 6.229456000000001,
+          "cumulative_ms": 20.674353000000004
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 18,
+          "name": "make_plan",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.921701,
+          "cumulative_ms": 17.278675
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 89,
+          "name": "literal",
+          "calls": 7204,
+          "primitive_calls": 7204,
+          "self_ms": 3.9692190000000003,
+          "cumulative_ms": 15.235708
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 318,
+          "name": "_operation_object",
+          "calls": 18502,
+          "primitive_calls": 18502,
+          "self_ms": 14.436866000000002,
+          "cumulative_ms": 14.436866000000002
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 35,
+          "name": "emit",
+          "calls": 9251,
+          "primitive_calls": 9251,
+          "self_ms": 5.221961,
+          "cumulative_ms": 14.07585
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 54,
+          "name": "string",
+          "calls": 19782,
+          "primitive_calls": 19782,
+          "self_ms": 7.7505250000000006,
+          "cumulative_ms": 13.970273
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 102,
+          "name": "<genexpr>",
+          "calls": 42804,
+          "primitive_calls": 42804,
+          "self_ms": 11.125896000000001,
+          "cumulative_ms": 11.125896000000001
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 80,
+          "name": "_body",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 2.78397,
+          "cumulative_ms": 11.093622000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 59,
+          "name": "charge",
+          "calls": 109276,
+          "primitive_calls": 109276,
+          "self_ms": 10.880122,
+          "cumulative_ms": 10.880122
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 209,
+          "name": "_integer",
+          "calls": 74880,
+          "primitive_calls": 74880,
+          "self_ms": 10.107903000000002,
+          "cumulative_ms": 10.107903000000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 298,
+          "name": "<genexpr>",
+          "calls": 45952,
+          "primitive_calls": 45952,
+          "self_ms": 7.5314000000000005,
+          "cumulative_ms": 9.009193
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 47,
+          "name": "produce",
+          "calls": 1412,
+          "primitive_calls": 1412,
+          "self_ms": 0.8933530000000001,
+          "cumulative_ms": 7.330915
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 258,
+          "name": "parse_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.07511999999999999,
+          "cumulative_ms": 7.021335
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 252,
+          "name": "charge",
+          "calls": 63988,
+          "primitive_calls": 63988,
+          "self_ms": 5.666098000000001,
+          "cumulative_ms": 5.666098000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 52,
+          "name": "consume",
+          "calls": 675,
+          "primitive_calls": 675,
+          "self_ms": 0.55108,
+          "cumulative_ms": 4.298722000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 82,
+          "name": "<genexpr>",
+          "calls": 2250,
+          "primitive_calls": 2250,
+          "self_ms": 0.61521,
+          "cumulative_ms": 3.6723740000000005
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 69,
+          "name": "stage",
+          "calls": 32,
+          "primitive_calls": 32,
+          "self_ms": 0.194909,
+          "cumulative_ms": 3.6388170000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 175,
+          "name": "parse",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.330968,
+          "cumulative_ms": 3.6316960000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 81,
+          "name": "__init__",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.020339,
+          "cumulative_ms": 3.314519
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 30,
+          "name": "_lex",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 1.6062530000000002,
+          "cumulative_ms": 3.2941800000000003
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 39,
+          "name": "_uleb",
+          "calls": 5206,
+          "primitive_calls": 5206,
+          "self_ms": 2.452907,
+          "cumulative_ms": 3.2257680000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 133,
+          "name": "expression",
+          "calls": 210,
+          "primitive_calls": 98,
+          "self_ms": 0.251265,
+          "cumulative_ms": 2.6986510000000004
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 49,
+          "name": "item",
+          "calls": 25460,
+          "primitive_calls": 25460,
+          "self_ms": 2.697119,
+          "cumulative_ms": 2.697119
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 67,
+          "name": "_const",
+          "calls": 2919,
+          "primitive_calls": 2919,
+          "self_ms": 0.586945,
+          "cumulative_ms": 2.650532
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 144,
+          "name": "product",
+          "calls": 301,
+          "primitive_calls": 133,
+          "self_ms": 0.14044700000000002,
+          "cumulative_ms": 2.435271
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 153,
+          "name": "atom",
+          "calls": 308,
+          "primitive_calls": 140,
+          "self_ms": 0.453706,
+          "cumulative_ms": 2.328147
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 76,
+          "name": "_get",
+          "calls": 2855,
+          "primitive_calls": 2855,
+          "self_ms": 0.6190530000000001,
+          "cumulative_ms": 2.308325
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 50,
+          "name": "_sleb",
+          "calls": 2919,
+          "primitive_calls": 2919,
+          "self_ms": 1.5987540000000002,
+          "cumulative_ms": 2.063587
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 417,
+          "name": "admit_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.130226,
+          "cumulative_ms": 1.92558
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 107,
+          "name": "<genexpr>",
+          "calls": 15804,
+          "primitive_calls": 15804,
+          "self_ms": 1.9237540000000002,
+          "cumulative_ms": 1.9237540000000002
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 71,
+          "name": "_load",
+          "calls": 1668,
+          "primitive_calls": 1668,
+          "self_ms": 0.37716900000000003,
+          "cumulative_ms": 1.917175
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 214,
+          "name": "_fields",
+          "calls": 2826,
+          "primitive_calls": 2826,
+          "self_ms": 1.351432,
+          "cumulative_ms": 1.351432
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 325,
+          "name": "_validate",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.12387500000000001,
+          "cumulative_ms": 0.814481
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 113,
+          "name": "node",
+          "calls": 427,
+          "primitive_calls": 427,
+          "self_ms": 0.280032,
+          "cumulative_ms": 0.717798
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 123,
+          "name": "integer",
+          "calls": 133,
+          "primitive_calls": 133,
+          "self_ms": 0.24391200000000002,
+          "cumulative_ms": 0.662428
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 376,
+          "name": "_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.099288,
+          "cumulative_ms": 0.601087
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 158,
+          "name": "canonical_json",
+          "calls": 17,
+          "primitive_calls": 17,
+          "self_ms": 0.058099,
+          "cumulative_ms": 0.547278
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 360,
+          "name": "_normalized",
+          "calls": 364,
+          "primitive_calls": 84,
+          "self_ms": 0.235874,
+          "cumulative_ms": 0.48842700000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 66,
+          "name": "<genexpr>",
+          "calls": 518,
+          "primitive_calls": 518,
+          "self_ms": 0.276321,
+          "cumulative_ms": 0.44913800000000004
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 81,
+          "name": "<genexpr>",
+          "calls": 2826,
+          "primitive_calls": 2826,
+          "self_ms": 0.43161800000000006,
+          "cumulative_ms": 0.43161800000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 300,
+          "name": "_validate_scalar",
+          "calls": 14,
+          "primitive_calls": 14,
+          "self_ms": 0.198822,
+          "cumulative_ms": 0.40285200000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 102,
+          "name": "identifier",
+          "calls": 259,
+          "primitive_calls": 259,
+          "self_ms": 0.190356,
+          "cumulative_ms": 0.34470700000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 263,
+          "name": "_ungroup",
+          "calls": 756,
+          "primitive_calls": 756,
+          "self_ms": 0.11867500000000002,
+          "cumulative_ms": 0.279529
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 93,
+          "name": "take",
+          "calls": 959,
+          "primitive_calls": 959,
+          "self_ms": 0.210919,
+          "cumulative_ms": 0.279527
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 89,
+          "name": "token",
+          "calls": 2401,
+          "primitive_calls": 2401,
+          "self_ms": 0.25423,
+          "cumulative_ms": 0.25423
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 269,
+          "name": "_constant",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.18743700000000002,
+          "cumulative_ms": 0.24383800000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 109,
+          "name": "span_from",
+          "calls": 273,
+          "primitive_calls": 273,
+          "self_ms": 0.10629300000000001,
+          "cumulative_ms": 0.196466
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 160,
+          "name": "visit",
+          "calls": 185,
+          "primitive_calls": 17,
+          "self_ms": 0.16092900000000002,
+          "cumulative_ms": 0.18871100000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 117,
+          "name": "<genexpr>",
+          "calls": 735,
+          "primitive_calls": 735,
+          "self_ms": 0.115229,
+          "cumulative_ms": 0.14178300000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 282,
+          "name": "_interval",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.073033,
+          "cumulative_ms": 0.121854
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 398,
+          "name": "_canonical_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.05897000000000001,
+          "cumulative_ms": 0.08803000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 339,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.005679,
+          "cumulative_ms": 0.05482900000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 231,
+          "name": "result",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.016555,
+          "cumulative_ms": 0.05378
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 71,
+          "name": "ranking_digest",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.008652000000000002,
+          "cumulative_ms": 0.03358
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 111,
+          "name": "_report",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.019208,
+          "cumulative_ms": 0.027360000000000002
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 129,
+          "name": "finish",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.006229,
+          "cumulative_ms": 0.016935
+        },
+        {
+          "file": "axiom/src/axiom/model.py",
+          "line": 49,
+          "name": "__post_init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.012698000000000001,
+          "cumulative_ms": 0.015041
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 312,
+          "name": "_plan_header_object",
+          "calls": 13,
+          "primitive_calls": 13,
+          "self_ms": 0.014619,
+          "cumulative_ms": 0.014619
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 71,
+          "name": "_request_source",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.010106,
+          "cumulative_ms": 0.012329
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 12,
+          "name": "_ungroup",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.005556000000000001,
+          "cumulative_ms": 0.011165000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 434,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006168,
+          "cumulative_ms": 0.010261000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 399,
+          "name": "<lambda>",
+          "calls": 91,
+          "primitive_calls": 91,
+          "self_ms": 0.009745,
+          "cumulative_ms": 0.009745
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 401,
+          "name": "<lambda>",
+          "calls": 84,
+          "primitive_calls": 84,
+          "self_ms": 0.009043,
+          "cumulative_ms": 0.009043
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 63,
+          "name": "_section",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 0.004688,
+          "cumulative_ms": 0.008494
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 356,
+          "name": "<genexpr>",
+          "calls": 42,
+          "primitive_calls": 42,
+          "self_ms": 0.00821,
+          "cumulative_ms": 0.00821
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 26,
+          "name": "<genexpr>",
+          "calls": 9,
+          "primitive_calls": 9,
+          "self_ms": 0.00408,
+          "cumulative_ms": 0.007823000000000002
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 88,
+          "name": "_key",
+          "calls": 2,
+          "primitive_calls": 2,
+          "self_ms": 0.005548,
+          "cumulative_ms": 0.007151
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 42,
+          "name": "eligible",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.006971000000000001,
+          "cumulative_ms": 0.006971000000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 115,
+          "name": "<genexpr>",
+          "calls": 11,
+          "primitive_calls": 11,
+          "self_ms": 0.0049180000000000005,
+          "cumulative_ms": 0.006821000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 404,
+          "name": "<lambda>",
+          "calls": 35,
+          "primitive_calls": 35,
+          "self_ms": 0.005685000000000001,
+          "cumulative_ms": 0.005685000000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 30,
+          "name": "_positive_limit",
+          "calls": 20,
+          "primitive_calls": 20,
+          "self_ms": 0.005618000000000001,
+          "cumulative_ms": 0.005618000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 400,
+          "name": "<lambda>",
+          "calls": 28,
+          "primitive_calls": 28,
+          "self_ms": 0.004587,
+          "cumulative_ms": 0.004587
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 200,
+          "name": "_cap",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 0.0033640000000000002,
+          "cumulative_ms": 0.0033640000000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 340,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.003295,
+          "cumulative_ms": 0.003295
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 436,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.0029330000000000003,
+          "cumulative_ms": 0.0029330000000000003
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 280,
+          "name": "<genexpr>",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.002655,
+          "cumulative_ms": 0.002655
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 55,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.001814,
+          "cumulative_ms": 0.001814
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 77,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.00102,
+          "cumulative_ms": 0.00102
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 83,
+          "name": "_allowance",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.000561,
+          "cumulative_ms": 0.000561
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 36,
+          "name": "__init__",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00030000000000000003,
+          "cumulative_ms": 0.00030000000000000003
+        }
+      ]
+    },
+    {
+      "h": 1,
+      "w": 127,
+      "cap": 1024,
+      "source_sha256": "3c8e3a0651978650b94cb40c2daf47a5bde4d5a50908f0780eb3ca10245131a1",
+      "selected": {
+        "plan_id": "materialize-v1",
+        "workspace_bytes": 1024,
+        "multiplication_ops": 256,
+        "plan_digest": "8a18ffab7fc6369e8c1e26264a9ee6ade77defcf06227cb38294d5f038e28793"
+      },
+      "samples_ms": [
+        149.85768,
+        159.60004,
+        153.302342,
+        161.55505,
+        152.867015,
+        154.085991,
+        154.966971
+      ],
+      "median_ms": 154.085991,
+      "wasm_bytes": 25564,
+      "profile": [
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 197,
+          "name": "prepare_compiled_demo",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.6967420000000001,
+          "cumulative_ms": 440.80166800000006
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 97,
+          "name": "select_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 2.152759,
+          "cumulative_ms": 254.39019300000004
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 205,
+          "name": "check_plan",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 7.5459760000000005,
+          "cumulative_ms": 250.638429
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 113,
+          "name": "compile_wasm",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.029152,
+          "cumulative_ms": 184.25455300000002
+        },
+        {
+          "file": "axiom/src/axiom/runtime.py",
+          "line": 32,
+          "name": "_checked_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.6943010000000001,
+          "cumulative_ms": 175.38431000000003
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 121,
+          "name": "_source_expression",
+          "calls": 508,
+          "primitive_calls": 508,
+          "self_ms": 51.82341400000001,
+          "cumulative_ms": 132.567461
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 329,
+          "name": "encode_plan",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.986425,
+          "cumulative_ms": 118.773058
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 340,
+          "name": "decode_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 2.607181,
+          "cumulative_ms": 113.953286
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 219,
+          "name": "validate_plan",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 66.254981,
+          "cumulative_ms": 103.088706
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 132,
+          "name": "strict_json_loads",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.011746000000000001,
+          "cumulative_ms": 96.07745700000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 62,
+          "name": "value",
+          "calls": 18503,
+          "primitive_calls": 1,
+          "self_ms": 53.800306000000006,
+          "cumulative_ms": 96.05284
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 364,
+          "name": "plan_digest",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.014862,
+          "cumulative_ms": 71.269418
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 96,
+          "name": "binary",
+          "calls": 11696,
+          "primitive_calls": 11696,
+          "self_ms": 23.704936000000004,
+          "cumulative_ms": 48.521017
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 45,
+          "name": "whitespace",
+          "calls": 73884,
+          "primitive_calls": 73884,
+          "self_ms": 13.295994,
+          "cumulative_ms": 17.820062
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 83,
+          "name": "allocate",
+          "calls": 21104,
+          "primitive_calls": 21104,
+          "self_ms": 9.449838999999999,
+          "cumulative_ms": 14.503327000000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 323,
+          "name": "_plan_object",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 8.922874,
+          "cumulative_ms": 14.153341000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 185,
+          "name": "_equal",
+          "calls": 508,
+          "primitive_calls": 508,
+          "self_ms": 7.664394000000001,
+          "cumulative_ms": 12.106472
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 92,
+          "name": "input",
+          "calls": 5340,
+          "primitive_calls": 5340,
+          "self_ms": 3.1192860000000002,
+          "cumulative_ms": 11.611930000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 18,
+          "name": "make_plan",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.525511,
+          "cumulative_ms": 11.420295000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 35,
+          "name": "emit",
+          "calls": 6115,
+          "primitive_calls": 6115,
+          "self_ms": 3.1847010000000004,
+          "cumulative_ms": 9.517866
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 54,
+          "name": "string",
+          "calls": 14294,
+          "primitive_calls": 14294,
+          "self_ms": 4.814465,
+          "cumulative_ms": 9.207975
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 80,
+          "name": "_body",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 2.431645,
+          "cumulative_ms": 8.687799000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 89,
+          "name": "literal",
+          "calls": 4068,
+          "primitive_calls": 4068,
+          "self_ms": 2.0593440000000003,
+          "cumulative_ms": 8.669155000000002
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 209,
+          "name": "_integer",
+          "calls": 57104,
+          "primitive_calls": 57104,
+          "self_ms": 7.728223,
+          "cumulative_ms": 7.728223
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 258,
+          "name": "parse_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.072276,
+          "cumulative_ms": 6.774852
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 298,
+          "name": "<genexpr>",
+          "calls": 35168,
+          "primitive_calls": 35168,
+          "self_ms": 5.571860000000001,
+          "cumulative_ms": 6.642510000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 59,
+          "name": "charge",
+          "calls": 63020,
+          "primitive_calls": 63020,
+          "self_ms": 6.247709,
+          "cumulative_ms": 6.247709
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 318,
+          "name": "_operation_object",
+          "calls": 14271,
+          "primitive_calls": 14271,
+          "self_ms": 5.2236270000000005,
+          "cumulative_ms": 5.2236270000000005
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 47,
+          "name": "produce",
+          "calls": 1020,
+          "primitive_calls": 1020,
+          "self_ms": 0.543898,
+          "cumulative_ms": 4.9308250000000005
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 252,
+          "name": "charge",
+          "calls": 48944,
+          "primitive_calls": 48944,
+          "self_ms": 4.119324000000001,
+          "cumulative_ms": 4.119324000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 69,
+          "name": "stage",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.262247,
+          "cumulative_ms": 3.827436
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 175,
+          "name": "parse",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.444232,
+          "cumulative_ms": 3.5414980000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 81,
+          "name": "__init__",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.018799,
+          "cumulative_ms": 3.1610780000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 30,
+          "name": "_lex",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 1.652285,
+          "cumulative_ms": 3.142279
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 102,
+          "name": "<genexpr>",
+          "calls": 25164,
+          "primitive_calls": 25164,
+          "self_ms": 3.129712,
+          "cumulative_ms": 3.129712
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 52,
+          "name": "consume",
+          "calls": 381,
+          "primitive_calls": 381,
+          "self_ms": 0.32021900000000003,
+          "cumulative_ms": 3.1180390000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 133,
+          "name": "expression",
+          "calls": 210,
+          "primitive_calls": 98,
+          "self_ms": 0.24202700000000002,
+          "cumulative_ms": 2.4989350000000004
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 39,
+          "name": "_uleb",
+          "calls": 3834,
+          "primitive_calls": 3834,
+          "self_ms": 1.81637,
+          "cumulative_ms": 2.392801
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 144,
+          "name": "product",
+          "calls": 301,
+          "primitive_calls": 133,
+          "self_ms": 0.109456,
+          "cumulative_ms": 2.243478
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 67,
+          "name": "_const",
+          "calls": 2429,
+          "primitive_calls": 2429,
+          "self_ms": 0.48352400000000006,
+          "cumulative_ms": 2.207661
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 153,
+          "name": "atom",
+          "calls": 308,
+          "primitive_calls": 140,
+          "self_ms": 0.43788000000000005,
+          "cumulative_ms": 2.1637600000000003
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 49,
+          "name": "item",
+          "calls": 18502,
+          "primitive_calls": 18502,
+          "self_ms": 1.923816,
+          "cumulative_ms": 1.923816
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 107,
+          "name": "<genexpr>",
+          "calls": 9924,
+          "primitive_calls": 9924,
+          "self_ms": 1.804716,
+          "cumulative_ms": 1.804716
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 76,
+          "name": "_get",
+          "calls": 2169,
+          "primitive_calls": 2169,
+          "self_ms": 0.431775,
+          "cumulative_ms": 1.7520550000000001
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 50,
+          "name": "_sleb",
+          "calls": 2429,
+          "primitive_calls": 2429,
+          "self_ms": 1.3540910000000002,
+          "cumulative_ms": 1.7241370000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 417,
+          "name": "admit_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.15815400000000002,
+          "cumulative_ms": 1.6601380000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 82,
+          "name": "<genexpr>",
+          "calls": 1270,
+          "primitive_calls": 1270,
+          "self_ms": 0.225214,
+          "cumulative_ms": 1.569199
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 71,
+          "name": "_load",
+          "calls": 1276,
+          "primitive_calls": 1276,
+          "self_ms": 0.29022600000000004,
+          "cumulative_ms": 1.501603
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 214,
+          "name": "_fields",
+          "calls": 2042,
+          "primitive_calls": 2042,
+          "self_ms": 0.974022,
+          "cumulative_ms": 0.974022
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 113,
+          "name": "node",
+          "calls": 427,
+          "primitive_calls": 427,
+          "self_ms": 0.270367,
+          "cumulative_ms": 0.707086
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 123,
+          "name": "integer",
+          "calls": 133,
+          "primitive_calls": 133,
+          "self_ms": 0.23993,
+          "cumulative_ms": 0.6718430000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 325,
+          "name": "_validate",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.12109700000000001,
+          "cumulative_ms": 0.64709
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 158,
+          "name": "canonical_json",
+          "calls": 18,
+          "primitive_calls": 18,
+          "self_ms": 0.048349,
+          "cumulative_ms": 0.48783000000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 376,
+          "name": "_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.09084,
+          "cumulative_ms": 0.47391200000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 66,
+          "name": "<genexpr>",
+          "calls": 518,
+          "primitive_calls": 518,
+          "self_ms": 0.20803300000000002,
+          "cumulative_ms": 0.37837
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 360,
+          "name": "_normalized",
+          "calls": 364,
+          "primitive_calls": 84,
+          "self_ms": 0.22115500000000002,
+          "cumulative_ms": 0.370039
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 102,
+          "name": "identifier",
+          "calls": 259,
+          "primitive_calls": 259,
+          "self_ms": 0.19162400000000002,
+          "cumulative_ms": 0.34347800000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 300,
+          "name": "_validate_scalar",
+          "calls": 14,
+          "primitive_calls": 14,
+          "self_ms": 0.13448400000000002,
+          "cumulative_ms": 0.332139
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 93,
+          "name": "take",
+          "calls": 959,
+          "primitive_calls": 959,
+          "self_ms": 0.22136800000000004,
+          "cumulative_ms": 0.288934
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 109,
+          "name": "span_from",
+          "calls": 273,
+          "primitive_calls": 273,
+          "self_ms": 0.12760000000000002,
+          "cumulative_ms": 0.21841500000000003
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 160,
+          "name": "visit",
+          "calls": 196,
+          "primitive_calls": 18,
+          "self_ms": 0.161637,
+          "cumulative_ms": 0.184509
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 263,
+          "name": "_ungroup",
+          "calls": 756,
+          "primitive_calls": 756,
+          "self_ms": 0.115638,
+          "cumulative_ms": 0.179032
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 89,
+          "name": "token",
+          "calls": 2401,
+          "primitive_calls": 2401,
+          "self_ms": 0.175243,
+          "cumulative_ms": 0.175243
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 117,
+          "name": "<genexpr>",
+          "calls": 735,
+          "primitive_calls": 735,
+          "self_ms": 0.126463,
+          "cumulative_ms": 0.152596
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 269,
+          "name": "_constant",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.09251800000000002,
+          "cumulative_ms": 0.150722
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 81,
+          "name": "<genexpr>",
+          "calls": 2042,
+          "primitive_calls": 2042,
+          "self_ms": 0.13583900000000002,
+          "cumulative_ms": 0.13583900000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 282,
+          "name": "_interval",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.074918,
+          "cumulative_ms": 0.12463900000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 398,
+          "name": "_canonical_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.055609000000000006,
+          "cumulative_ms": 0.08013
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 231,
+          "name": "result",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.016472999999999998,
+          "cumulative_ms": 0.057615000000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 339,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006329,
+          "cumulative_ms": 0.05619400000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 71,
+          "name": "ranking_digest",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00724,
+          "cumulative_ms": 0.032879
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 111,
+          "name": "_report",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.013974,
+          "cumulative_ms": 0.023205000000000003
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 129,
+          "name": "finish",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.005257,
+          "cumulative_ms": 0.015453000000000003
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 312,
+          "name": "_plan_header_object",
+          "calls": 15,
+          "primitive_calls": 15,
+          "self_ms": 0.01431,
+          "cumulative_ms": 0.01431
+        },
+        {
+          "file": "axiom/src/axiom/model.py",
+          "line": 49,
+          "name": "__post_init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.010808,
+          "cumulative_ms": 0.01307
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 71,
+          "name": "_request_source",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.009955,
+          "cumulative_ms": 0.011417000000000002
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 12,
+          "name": "_ungroup",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.005629,
+          "cumulative_ms": 0.010224
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 434,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006216,
+          "cumulative_ms": 0.010094
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 63,
+          "name": "_section",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 0.00505,
+          "cumulative_ms": 0.008855
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 401,
+          "name": "<lambda>",
+          "calls": 84,
+          "primitive_calls": 84,
+          "self_ms": 0.008137,
+          "cumulative_ms": 0.008137
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 399,
+          "name": "<lambda>",
+          "calls": 91,
+          "primitive_calls": 91,
+          "self_ms": 0.008071000000000002,
+          "cumulative_ms": 0.008071000000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 356,
+          "name": "<genexpr>",
+          "calls": 42,
+          "primitive_calls": 42,
+          "self_ms": 0.007942000000000001,
+          "cumulative_ms": 0.007942000000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 88,
+          "name": "_key",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.006079,
+          "cumulative_ms": 0.007922
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 26,
+          "name": "<genexpr>",
+          "calls": 9,
+          "primitive_calls": 9,
+          "self_ms": 0.004339,
+          "cumulative_ms": 0.007913
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 42,
+          "name": "eligible",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.007772000000000001,
+          "cumulative_ms": 0.007772000000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 115,
+          "name": "<genexpr>",
+          "calls": 11,
+          "primitive_calls": 11,
+          "self_ms": 0.005157,
+          "cumulative_ms": 0.007202000000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 30,
+          "name": "_positive_limit",
+          "calls": 22,
+          "primitive_calls": 22,
+          "self_ms": 0.006031000000000001,
+          "cumulative_ms": 0.006031000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 404,
+          "name": "<lambda>",
+          "calls": 35,
+          "primitive_calls": 35,
+          "self_ms": 0.004927000000000001,
+          "cumulative_ms": 0.004927000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 400,
+          "name": "<lambda>",
+          "calls": 28,
+          "primitive_calls": 28,
+          "self_ms": 0.003386,
+          "cumulative_ms": 0.003386
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 340,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.003334,
+          "cumulative_ms": 0.003334
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 200,
+          "name": "_cap",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 0.0027540000000000004,
+          "cumulative_ms": 0.0027540000000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 436,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.002713,
+          "cumulative_ms": 0.002713
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 280,
+          "name": "<genexpr>",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.002403,
+          "cumulative_ms": 0.002403
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 55,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.0012720000000000001,
+          "cumulative_ms": 0.0012720000000000001
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 77,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.0009130000000000001,
+          "cumulative_ms": 0.0009130000000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 36,
+          "name": "__init__",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.000401,
+          "cumulative_ms": 0.000401
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 83,
+          "name": "_allowance",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00036,
+          "cumulative_ms": 0.00036
+        }
+      ]
+    },
+    {
+      "h": 127,
+      "w": 1,
+      "cap": 16,
+      "source_sha256": "070968aec0f9826d653fa068e9b77ad29a1cb43898d209379c32a10dbc1cd23a",
+      "selected": {
+        "plan_id": "rows2-v1",
+        "workspace_bytes": 16,
+        "multiplication_ops": 256,
+        "plan_digest": "3174a65923aed7da0708797f2f3524cf634dec95a6ce3b8d22512c3b6b48065f"
+      },
+      "samples_ms": [
+        151.099716,
+        144.860785,
+        155.889654,
+        143.861408,
+        147.020883,
+        144.726985,
+        153.159103
+      ],
+      "median_ms": 147.020883,
+      "wasm_bytes": 25585,
+      "profile": [
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 197,
+          "name": "prepare_compiled_demo",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.918457,
+          "cumulative_ms": 447.99153700000005
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 205,
+          "name": "check_plan",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 8.306025,
+          "cumulative_ms": 263.156806
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 97,
+          "name": "select_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 1.970888,
+          "cumulative_ms": 250.81756199999998
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 113,
+          "name": "compile_wasm",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.027653,
+          "cumulative_ms": 194.54616600000003
+        },
+        {
+          "file": "axiom/src/axiom/runtime.py",
+          "line": 32,
+          "name": "_checked_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 1.137295,
+          "cumulative_ms": 184.887121
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 121,
+          "name": "_source_expression",
+          "calls": 508,
+          "primitive_calls": 508,
+          "self_ms": 53.88386200000001,
+          "cumulative_ms": 146.371235
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 340,
+          "name": "decode_plan",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 4.131221,
+          "cumulative_ms": 120.433548
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 329,
+          "name": "encode_plan",
+          "calls": 6,
+          "primitive_calls": 6,
+          "self_ms": 1.16274,
+          "cumulative_ms": 101.054394
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 132,
+          "name": "strict_json_loads",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.012128000000000002,
+          "cumulative_ms": 98.22744900000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 62,
+          "name": "value",
+          "calls": 18503,
+          "primitive_calls": 1,
+          "self_ms": 55.091305,
+          "cumulative_ms": 98.196893
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 219,
+          "name": "validate_plan",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 58.596998000000006,
+          "cumulative_ms": 91.549412
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 364,
+          "name": "plan_digest",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.019047,
+          "cumulative_ms": 66.100311
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 96,
+          "name": "binary",
+          "calls": 11696,
+          "primitive_calls": 11696,
+          "self_ms": 24.911263,
+          "cumulative_ms": 57.14789100000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 45,
+          "name": "whitespace",
+          "calls": 73884,
+          "primitive_calls": 73884,
+          "self_ms": 13.360002000000001,
+          "cumulative_ms": 18.031305
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 83,
+          "name": "allocate",
+          "calls": 21104,
+          "primitive_calls": 21104,
+          "self_ms": 9.396122,
+          "cumulative_ms": 15.103693000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 92,
+          "name": "input",
+          "calls": 5340,
+          "primitive_calls": 5340,
+          "self_ms": 3.335677,
+          "cumulative_ms": 13.486051
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 185,
+          "name": "_equal",
+          "calls": 508,
+          "primitive_calls": 508,
+          "self_ms": 8.733,
+          "cumulative_ms": 13.406128
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 323,
+          "name": "_plan_object",
+          "calls": 6,
+          "primitive_calls": 6,
+          "self_ms": 4.902727,
+          "cumulative_ms": 11.263571
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 18,
+          "name": "make_plan",
+          "calls": 3,
+          "primitive_calls": 3,
+          "self_ms": 0.543416,
+          "cumulative_ms": 10.498963
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 102,
+          "name": "<genexpr>",
+          "calls": 25164,
+          "primitive_calls": 25164,
+          "self_ms": 10.021159,
+          "cumulative_ms": 10.021159
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 54,
+          "name": "string",
+          "calls": 14294,
+          "primitive_calls": 14294,
+          "self_ms": 4.916378,
+          "cumulative_ms": 9.510381
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 80,
+          "name": "_body",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 2.4097440000000003,
+          "cumulative_ms": 9.480448
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 89,
+          "name": "literal",
+          "calls": 4068,
+          "primitive_calls": 4068,
+          "self_ms": 2.1219430000000004,
+          "cumulative_ms": 9.076771
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 35,
+          "name": "emit",
+          "calls": 6115,
+          "primitive_calls": 6115,
+          "self_ms": 3.0541440000000004,
+          "cumulative_ms": 8.43898
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 209,
+          "name": "_integer",
+          "calls": 50086,
+          "primitive_calls": 50086,
+          "self_ms": 7.532769000000001,
+          "cumulative_ms": 7.532769000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 258,
+          "name": "parse_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.09294100000000001,
+          "cumulative_ms": 7.3774560000000005
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 59,
+          "name": "charge",
+          "calls": 63020,
+          "primitive_calls": 63020,
+          "self_ms": 7.319241000000001,
+          "cumulative_ms": 7.319241000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 318,
+          "name": "_operation_object",
+          "calls": 12230,
+          "primitive_calls": 12230,
+          "self_ms": 6.353324000000001,
+          "cumulative_ms": 6.353324000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 298,
+          "name": "<genexpr>",
+          "calls": 30958,
+          "primitive_calls": 30958,
+          "self_ms": 4.917287,
+          "cumulative_ms": 5.936523
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 47,
+          "name": "produce",
+          "calls": 1020,
+          "primitive_calls": 1020,
+          "self_ms": 0.528494,
+          "cumulative_ms": 4.820856
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 252,
+          "name": "charge",
+          "calls": 42820,
+          "primitive_calls": 42820,
+          "self_ms": 3.786381,
+          "cumulative_ms": 3.786381
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 81,
+          "name": "__init__",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.02006,
+          "cumulative_ms": 3.6967590000000006
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 30,
+          "name": "_lex",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 1.9010690000000001,
+          "cumulative_ms": 3.676699
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 175,
+          "name": "parse",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.351075,
+          "cumulative_ms": 3.587756
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 69,
+          "name": "stage",
+          "calls": 256,
+          "primitive_calls": 256,
+          "self_ms": 0.31345,
+          "cumulative_ms": 3.3953490000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 133,
+          "name": "expression",
+          "calls": 210,
+          "primitive_calls": 98,
+          "self_ms": 0.32843500000000003,
+          "cumulative_ms": 2.5743720000000003
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 67,
+          "name": "_const",
+          "calls": 2429,
+          "primitive_calls": 2429,
+          "self_ms": 0.517607,
+          "cumulative_ms": 2.5161710000000004
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 39,
+          "name": "_uleb",
+          "calls": 3834,
+          "primitive_calls": 3834,
+          "self_ms": 1.8429190000000002,
+          "cumulative_ms": 2.465179
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 52,
+          "name": "consume",
+          "calls": 381,
+          "primitive_calls": 381,
+          "self_ms": 0.29919100000000004,
+          "cumulative_ms": 2.384902
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 144,
+          "name": "product",
+          "calls": 301,
+          "primitive_calls": 133,
+          "self_ms": 0.111596,
+          "cumulative_ms": 2.3094580000000002
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 76,
+          "name": "_get",
+          "calls": 2169,
+          "primitive_calls": 2169,
+          "self_ms": 0.8637330000000001,
+          "cumulative_ms": 2.257739
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 153,
+          "name": "atom",
+          "calls": 308,
+          "primitive_calls": 140,
+          "self_ms": 0.436176,
+          "cumulative_ms": 2.227332
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 49,
+          "name": "item",
+          "calls": 18502,
+          "primitive_calls": 18502,
+          "self_ms": 2.029809,
+          "cumulative_ms": 2.029809
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 50,
+          "name": "_sleb",
+          "calls": 2429,
+          "primitive_calls": 2429,
+          "self_ms": 1.6356810000000002,
+          "cumulative_ms": 1.998564
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 417,
+          "name": "admit_source",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.171603,
+          "cumulative_ms": 1.9283100000000002
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 71,
+          "name": "_load",
+          "calls": 1276,
+          "primitive_calls": 1276,
+          "self_ms": 0.25555900000000004,
+          "cumulative_ms": 1.7979180000000001
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 82,
+          "name": "<genexpr>",
+          "calls": 1270,
+          "primitive_calls": 1270,
+          "self_ms": 0.349262,
+          "cumulative_ms": 1.7518540000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 107,
+          "name": "<genexpr>",
+          "calls": 9924,
+          "primitive_calls": 9924,
+          "self_ms": 1.3499860000000001,
+          "cumulative_ms": 1.3499860000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 214,
+          "name": "_fields",
+          "calls": 2042,
+          "primitive_calls": 2042,
+          "self_ms": 1.2067290000000002,
+          "cumulative_ms": 1.2067290000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 376,
+          "name": "_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.088801,
+          "cumulative_ms": 0.74675
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 113,
+          "name": "node",
+          "calls": 427,
+          "primitive_calls": 427,
+          "self_ms": 0.28193500000000005,
+          "cumulative_ms": 0.707941
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 123,
+          "name": "integer",
+          "calls": 133,
+          "primitive_calls": 133,
+          "self_ms": 0.24405200000000002,
+          "cumulative_ms": 0.6649670000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 360,
+          "name": "_normalized",
+          "calls": 364,
+          "primitive_calls": 84,
+          "self_ms": 0.446083,
+          "cumulative_ms": 0.6452019999999999
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 325,
+          "name": "_validate",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.11789500000000001,
+          "cumulative_ms": 0.629984
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 66,
+          "name": "<genexpr>",
+          "calls": 518,
+          "primitive_calls": 518,
+          "self_ms": 0.430969,
+          "cumulative_ms": 0.6015790000000001
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 158,
+          "name": "canonical_json",
+          "calls": 17,
+          "primitive_calls": 17,
+          "self_ms": 0.052847000000000005,
+          "cumulative_ms": 0.467231
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 102,
+          "name": "identifier",
+          "calls": 259,
+          "primitive_calls": 259,
+          "self_ms": 0.194558,
+          "cumulative_ms": 0.350062
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 300,
+          "name": "_validate_scalar",
+          "calls": 14,
+          "primitive_calls": 14,
+          "self_ms": 0.148323,
+          "cumulative_ms": 0.33506
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 93,
+          "name": "take",
+          "calls": 959,
+          "primitive_calls": 959,
+          "self_ms": 0.239155,
+          "cumulative_ms": 0.31071
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 81,
+          "name": "<genexpr>",
+          "calls": 2042,
+          "primitive_calls": 2042,
+          "self_ms": 0.23232000000000003,
+          "cumulative_ms": 0.23232000000000003
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 109,
+          "name": "span_from",
+          "calls": 273,
+          "primitive_calls": 273,
+          "self_ms": 0.107316,
+          "cumulative_ms": 0.198891
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 160,
+          "name": "visit",
+          "calls": 185,
+          "primitive_calls": 17,
+          "self_ms": 0.15813400000000002,
+          "cumulative_ms": 0.183396
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 89,
+          "name": "token",
+          "calls": 2401,
+          "primitive_calls": 2401,
+          "self_ms": 0.179909,
+          "cumulative_ms": 0.179909
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 263,
+          "name": "_ungroup",
+          "calls": 756,
+          "primitive_calls": 756,
+          "self_ms": 0.11586700000000001,
+          "cumulative_ms": 0.17879400000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 117,
+          "name": "<genexpr>",
+          "calls": 735,
+          "primitive_calls": 735,
+          "self_ms": 0.11324000000000001,
+          "cumulative_ms": 0.13911500000000002
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 269,
+          "name": "_constant",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.073881,
+          "cumulative_ms": 0.132578
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 282,
+          "name": "_interval",
+          "calls": 140,
+          "primitive_calls": 84,
+          "self_ms": 0.06954900000000001,
+          "cumulative_ms": 0.11628100000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 398,
+          "name": "_canonical_profile",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.058472,
+          "cumulative_ms": 0.085718
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 231,
+          "name": "result",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.017275,
+          "cumulative_ms": 0.060131000000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 339,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006125,
+          "cumulative_ms": 0.05622800000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 71,
+          "name": "ranking_digest",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00763,
+          "cumulative_ms": 0.03333
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 111,
+          "name": "_report",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.014613000000000001,
+          "cumulative_ms": 0.023295000000000003
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 129,
+          "name": "finish",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.005648,
+          "cumulative_ms": 0.015122
+        },
+        {
+          "file": "axiom/src/axiom/model.py",
+          "line": 49,
+          "name": "__post_init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.011738,
+          "cumulative_ms": 0.01396
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 312,
+          "name": "_plan_header_object",
+          "calls": 13,
+          "primitive_calls": 13,
+          "self_ms": 0.013179,
+          "cumulative_ms": 0.013179
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 12,
+          "name": "_ungroup",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006300000000000001,
+          "cumulative_ms": 0.012700000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 434,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.006831,
+          "cumulative_ms": 0.011027000000000002
+        },
+        {
+          "file": "axiom/src/axiom/playground_service.py",
+          "line": 71,
+          "name": "_request_source",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.009314000000000001,
+          "cumulative_ms": 0.010866
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 399,
+          "name": "<lambda>",
+          "calls": 91,
+          "primitive_calls": 91,
+          "self_ms": 0.009353,
+          "cumulative_ms": 0.009353
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 401,
+          "name": "<lambda>",
+          "calls": 84,
+          "primitive_calls": 84,
+          "self_ms": 0.009108,
+          "cumulative_ms": 0.009108
+        },
+        {
+          "file": "axiom/src/axiom/wasm.py",
+          "line": 63,
+          "name": "_section",
+          "calls": 5,
+          "primitive_calls": 5,
+          "self_ms": 0.004819,
+          "cumulative_ms": 0.008984
+        },
+        {
+          "file": "axiom/src/axiom/planner.py",
+          "line": 26,
+          "name": "<genexpr>",
+          "calls": 9,
+          "primitive_calls": 9,
+          "self_ms": 0.004607,
+          "cumulative_ms": 0.008593
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 356,
+          "name": "<genexpr>",
+          "calls": 42,
+          "primitive_calls": 42,
+          "self_ms": 0.007572000000000001,
+          "cumulative_ms": 0.007572000000000001
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 88,
+          "name": "_key",
+          "calls": 2,
+          "primitive_calls": 2,
+          "self_ms": 0.005249,
+          "cumulative_ms": 0.0071010000000000005
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 42,
+          "name": "eligible",
+          "calls": 7,
+          "primitive_calls": 7,
+          "self_ms": 0.0064080000000000005,
+          "cumulative_ms": 0.0064080000000000005
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 115,
+          "name": "<genexpr>",
+          "calls": 11,
+          "primitive_calls": 11,
+          "self_ms": 0.004634,
+          "cumulative_ms": 0.006301
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 30,
+          "name": "_positive_limit",
+          "calls": 20,
+          "primitive_calls": 20,
+          "self_ms": 0.005358,
+          "cumulative_ms": 0.005358
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 404,
+          "name": "<lambda>",
+          "calls": 35,
+          "primitive_calls": 35,
+          "self_ms": 0.004920000000000001,
+          "cumulative_ms": 0.004920000000000001
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 400,
+          "name": "<lambda>",
+          "calls": 28,
+          "primitive_calls": 28,
+          "self_ms": 0.0038650000000000004,
+          "cumulative_ms": 0.0038650000000000004
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 340,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.0033650000000000004,
+          "cumulative_ms": 0.0033650000000000004
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 200,
+          "name": "_cap",
+          "calls": 8,
+          "primitive_calls": 8,
+          "self_ms": 0.003033,
+          "cumulative_ms": 0.003033
+        },
+        {
+          "file": "axiom/src/axiom/frontend.py",
+          "line": 436,
+          "name": "<genexpr>",
+          "calls": 21,
+          "primitive_calls": 21,
+          "self_ms": 0.0027660000000000002,
+          "cumulative_ms": 0.0027660000000000002
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 280,
+          "name": "<genexpr>",
+          "calls": 12,
+          "primitive_calls": 12,
+          "self_ms": 0.0025740000000000003,
+          "cumulative_ms": 0.0025740000000000003
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 55,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.001371,
+          "cumulative_ms": 0.001371
+        },
+        {
+          "file": "axiom/src/axiom/checker.py",
+          "line": 77,
+          "name": "__init__",
+          "calls": 4,
+          "primitive_calls": 4,
+          "self_ms": 0.00093,
+          "cumulative_ms": 0.00093
+        },
+        {
+          "file": "axiom/src/axiom/selection.py",
+          "line": 83,
+          "name": "_allowance",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.000401,
+          "cumulative_ms": 0.000401
+        },
+        {
+          "file": "axiom/src/axiom/codec.py",
+          "line": 36,
+          "name": "__init__",
+          "calls": 1,
+          "primitive_calls": 1,
+          "self_ms": 0.00028000000000000003,
+          "cumulative_ms": 0.00028000000000000003
+        }
+      ]
+    }
+  ],
+  "native": [
+    {
+      "h": 15,
+      "w": 15,
+      "cap": 0,
+      "selected": "inline-v1",
+      "plan_operations": 3601,
+      "c_bytes": 302336,
+      "c_sha256": "f1b62e269816c29f06085ecafc08c5cd53d50e97426da17529a60cb33198edda",
+      "samples_ms": {
+        "-O1": [
+          385.944025,
+          383.019127,
+          351.5323,
+          363.628158,
+          362.451522
+        ],
+        "-O2": [
+          420.343718,
+          381.938623,
+          374.278433,
+          378.265135,
+          405.813471
+        ],
+        "-O3": [
+          424.950757,
+          400.884176,
+          368.568727,
+          352.795077,
+          399.916049
+        ]
+      },
+      "median_ms": {
+        "-O1": 363.628158,
+        "-O2": 381.938623,
+        "-O3": 399.916049
+      },
+      "object_bytes": 15680,
+      "clang_trace_totals_ms": {
+        "Total ExecuteCompiler": 338.798,
+        "Total Backend": 257.237,
+        "Total Optimizer": 128.475,
+        "Total CodeGenPasses": 127.086,
+        "Total OptModule": 127.04,
+        "Total OptFunction": 126.724,
+        "Total RunPass": 126.624,
+        "Total PassManager<Function>": 112.354,
+        "Total Frontend": 80.118,
+        "Total ModuleToFunctionPassAdaptor": 66.248,
+        "Total InstCombinePass": 57.398,
+        "Total ParseDeclarationOrFunctionDefinition": 51.472,
+        "Total ParseFunctionDefinition": 48.808,
+        "Total ModuleInlinerWrapperPass": 47.928,
+        "Total ModuleToPostOrderCGSCCPassAdaptor": 47.803,
+        "Total DevirtSCCRepeatedPass": 47.643,
+        "Total PassManager<LazyCallGraph::SCC, CGSCCAnalysisManager, LazyCallGraph &, CGSCCUpdateResult &>": 47.494,
+        "Total CGSCCToFunctionPassAdaptor": 46.354,
+        "Total CodeGen Function": 24.385,
+        "Total SROAPass": 15.316,
+        "Total IPSCCPPass": 8.573,
+        "Total SLPVectorizerPass": 7.31,
+        "Total EvaluateForOverflow": 6.062,
+        "Total EarlyCSEPass": 5.445,
+        "Total EvaluateAsRValue": 5.431,
+        "Total GVNPass": 4.812,
+        "Total CorrelatedValuePropagationPass": 4.301,
+        "Total FunctionToLoopPassAdaptor": 4.247,
+        "Total CalledValuePropagationPass": 4.007,
+        "Total SimplifyCFGPass": 2.984,
+        "Total PassManager<Loop, LoopAnalysisManager, LoopStandardAnalysisResults &, LPMUpdater &>": 2.825,
+        "Total ReassociatePass": 1.817,
+        "Total EvaluateAsInitializer": 1.591,
+        "Total RunLoopPass": 1.526,
+        "Total SCCPPass": 1.472,
+        "Total IndVarSimplifyPass": 1.127,
+        "Total MemorySSAAnalysis": 1.041,
+        "Total GlobalOptPass": 0.995,
+        "Total LoopUnrollPass": 0.828,
+        "Total BDCEPass": 0.805,
+        "Total DSEPass": 0.729,
+        "Total PostOrderFunctionAttrsPass": 0.701,
+        "Total EvaluateAsInt": 0.695,
+        "Total JumpThreadingPass": 0.692,
+        "Total ADCEPass": 0.605,
+        "Total LICMPass": 0.599,
+        "Total LowerExpectIntrinsicPass": 0.469,
+        "Total InstSimplifyPass": 0.395,
+        "Total InlinerPass": 0.355,
+        "Total MemCpyOptPass": 0.333,
+        "Total LoopRotatePass": 0.329,
+        "Total LoopIdiomRecognizePass": 0.324,
+        "Total InferAlignmentPass": 0.306,
+        "Total TargetIRAnalysis": 0.278,
+        "Total TailCallElimPass": 0.276,
+        "Total LoopDeletionPass": 0.27,
+        "Total LoopVectorizePass": 0.264,
+        "Total LoopSimplifyPass": 0.243,
+        "Total ScalarEvolutionAnalysis": 0.243,
+        "Total ConstraintEliminationPass": 0.225,
+        "Total LoopFullUnrollPass": 0.222,
+        "Total isIntegerConstantExpr": 0.209,
+        "Total AssignmentTrackingPass": 0.207,
+        "Total BlockFrequencyAnalysis": 0.196,
+        "Total VectorCombinePass": 0.188,
+        "Total AggressiveInstCombinePass": 0.168,
+        "Total Source": 0.154,
+        "Total CallSiteSplittingPass": 0.15,
+        "Total AAManager": 0.143,
+        "Total BranchProbabilityAnalysis": 0.142,
+        "Total LoopAnalysis": 0.13,
+        "Total EvaluateAsBooleanCondition": 0.126,
+        "Total DominatorTreeAnalysis": 0.122,
+        "Total LCSSAPass": 0.113,
+        "Total InferFunctionAttrsPass": 0.105,
+        "Total CallGraphAnalysis": 0.1,
+        "Total Float2IntPass": 0.088,
+        "Total AlwaysInlinerPass": 0.087,
+        "Total RequireAnalysisPass<llvm::GlobalsAA, llvm::Module, llvm::AnalysisManager<Module>>": 0.086,
+        "Total GlobalsAA": 0.078,
+        "Total ReversePostOrderFunctionAttrsPass": 0.077,
+        "Total LoopInstSimplifyPass": 0.06,
+        "Total EvaluateKnownConstIntCheckOverflow": 0.059,
+        "Total RecomputeGlobalsAAPass": 0.058,
+        "Total InjectTLIMappings": 0.053,
+        "Total PostDominatorTreeAnalysis": 0.051,
+        "Total SimpleLoopUnswitchPass": 0.051,
+        "Total LowerConstantIntrinsicsPass": 0.041,
+        "Total DivRemPairsPass": 0.041,
+        "Total CGProfilePass": 0.033,
+        "Total BasicAA": 0.033,
+        "Total GlobalDCEPass": 0.029,
+        "Total LibCallsShrinkWrapPass": 0.029,
+        "Total LoopSinkPass": 0.025,
+        "Total LoopSimplifyCFGPass": 0.024,
+        "Total DeadArgumentEliminationPass": 0.023,
+        "Total ArgumentPromotionPass": 0.022,
+        "Total LazyCallGraphAnalysis": 0.016,
+        "Total InnerAnalysisManagerProxy<CGSCCAnalysisManager, Module>": 0.016,
+        "Total LoopDistributePass": 0.015,
+        "Total TargetLibraryAnalysis": 0.015,
+        "Total InnerAnalysisManagerProxy<LoopAnalysisManager, Function>": 0.011,
+        "Total WarnMissedTransformationsPass": 0.01,
+        "Total AlignmentFromAssumptionsPass": 0.01,
+        "Total LoopLoadEliminationPass": 0.008,
+        "Total DemandedBitsAnalysis": 0.008,
+        "Total FunctionAnalysisManagerCGSCCProxy": 0.007,
+        "Total MemoryDependenceAnalysis": 0.007,
+        "Total ConstantMergePass": 0.006,
+        "Total RequireAnalysisPass<llvm::ShouldNotRunFunctionPassesAnalysis, llvm::Function, llvm::AnalysisManager<Function>>": 0.006,
+        "Total MergedLoadStoreMotionPass": 0.006,
+        "Total LazyValueAnalysis": 0.006,
+        "Total OpenMPOptCGSCCPass": 0.005,
+        "Total SpeculativeExecutionPass": 0.005,
+        "Total MoveAutoInitPass": 0.005,
+        "Total Annotation2MetadataPass": 0.005,
+        "Total PromotePass": 0.005,
+        "Total CoroEarlyPass": 0.005,
+        "Total CoroElidePass": 0.005,
+        "Total EntryExitInstrumenterPass": 0.005,
+        "Total ControlHeightReductionPass": 0.004,
+        "Total EvaluateKnownConstInt": 0.004,
+        "Total RelLookupTableConverterPass": 0.004,
+        "Total PerformPendingInstantiations": 0.004,
+        "Total OpenMPOptPass": 0.003,
+        "Total AssumptionAnalysis": 0.003,
+        "Total LoopAccessAnalysis": 0.003,
+        "Total CoroSplitPass": 0.003,
+        "Total OptimizationRemarkEmitterAnalysis": 0.003,
+        "Total OuterAnalysisManagerProxy<FunctionAnalysisManager, Loop, LoopStandardAnalysisResults &>": 0.002,
+        "Total InvalidateAnalysisPass<llvm::ShouldNotRunFunctionPassesAnalysis>": 0.002,
+        "Total InvalidateAnalysisPass<llvm::AAManager>": 0.002,
+        "Total OuterAnalysisManagerProxy<ModuleAnalysisManager, Function>": 0.002,
+        "Total OuterAnalysisManagerProxy<ModuleAnalysisManager, LazyCallGraph::SCC, LazyCallGraph &>": 0.001,
+        "Total ProfileSummaryAnalysis": 0.001,
+        "Total ScopedNoAliasAA": 0.001,
+        "Total CoroCleanupPass": 0.001,
+        "Total TypeBasedAA": 0.001,
+        "Total ShouldNotRunFunctionPassesAnalysis": 0.001,
+        "Total ForceFunctionAttrsPass": 0.0,
+        "Total AnnotationRemarksPass": 0.0,
+        "Total InnerAnalysisManagerProxy<FunctionAnalysisManager, Module>": 0.0,
+        "Total EliminateAvailableExternallyPass": 0.0,
+        "Total InlineAdvisorAnalysis": 0.0,
+        "Total RequireAnalysisPass<llvm::ProfileSummaryAnalysis, llvm::Module, llvm::AnalysisManager<Module>>": 0.0
+      },
+      "flags_note": "Optimization levels are throwaway compilation experiments only; runtime throughput is not evaluated and no release policy is changed."
+    },
+    {
+      "h": 15,
+      "w": 15,
+      "cap": 128,
+      "selected": "rows2-v1",
+      "plan_operations": 2825,
+      "c_bytes": 200517,
+      "c_sha256": "cb9ae7165d668fef8e3c08cb298895d1667feef2eb1fd9de3c32738979439109",
+      "samples_ms": {
+        "-O1": [
+          235.92824,
+          270.312042,
+          289.209828,
+          233.956764,
+          260.468989
+        ],
+        "-O2": [
+          280.791964,
+          330.314349,
+          296.719068,
+          297.71905,
+          335.283537
+        ],
+        "-O3": [
+          320.963357,
+          327.552359,
+          299.462515,
+          307.930254,
+          308.536042
+        ]
+      },
+      "median_ms": {
+        "-O1": 260.468989,
+        "-O2": 297.71905,
+        "-O3": 308.536042
+      },
+      "object_bytes": 11560,
+      "clang_trace_totals_ms": {
+        "Total ExecuteCompiler": 248.129,
+        "Total Backend": 192.504,
+        "Total Optimizer": 127.147,
+        "Total PassManager<Function>": 118.926,
+        "Total ModuleToFunctionPassAdaptor": 89.822,
+        "Total CodeGenPasses": 63.826,
+        "Total OptModule": 63.801,
+        "Total OptFunction": 63.491,
+        "Total RunPass": 63.419,
+        "Total Frontend": 54.163,
+        "Total SLPVectorizerPass": 47.951,
+        "Total InstCombinePass": 37.958,
+        "Total ParseDeclarationOrFunctionDefinition": 33.438,
+        "Total ParseFunctionDefinition": 30.836,
+        "Total ModuleInlinerWrapperPass": 30.599,
+        "Total ModuleToPostOrderCGSCCPassAdaptor": 30.424,
+        "Total DevirtSCCRepeatedPass": 30.29,
+        "Total PassManager<LazyCallGraph::SCC, CGSCCAnalysisManager, LazyCallGraph &, CGSCCUpdateResult &>": 30.207,
+        "Total CGSCCToFunctionPassAdaptor": 29.269,
+        "Total CodeGen Function": 16.485,
+        "Total SROAPass": 12.338,
+        "Total EvaluateForOverflow": 4.06,
+        "Total GVNPass": 3.497,
+        "Total FunctionToLoopPassAdaptor": 3.469,
+        "Total IPSCCPPass": 3.462,
+        "Total EvaluateAsRValue": 3.238,
+        "Total SimplifyCFGPass": 2.838,
+        "Total PassManager<Loop, LoopAnalysisManager, LoopStandardAnalysisResults &, LPMUpdater &>": 2.531,
+        "Total EarlyCSEPass": 2.409,
+        "Total CalledValuePropagationPass": 1.87,
+        "Total RunLoopPass": 1.48,
+        "Total EvaluateAsInitializer": 1.4,
+        "Total ReassociatePass": 1.302,
+        "Total CorrelatedValuePropagationPass": 1.292,
+        "Total IndVarSimplifyPass": 1.12,
+        "Total DSEPass": 1.021,
+        "Total EvaluateAsInt": 0.893,
+        "Total GlobalOptPass": 0.722,
+        "Total LoopUnrollPass": 0.671,
+        "Total JumpThreadingPass": 0.67,
+        "Total SCCPPass": 0.659,
+        "Total MemorySSAAnalysis": 0.607,
+        "Total InlinerPass": 0.446,
+        "Total PostOrderFunctionAttrsPass": 0.406,
+        "Total BDCEPass": 0.356,
+        "Total LoopIdiomRecognizePass": 0.328,
+        "Total TargetIRAnalysis": 0.315,
+        "Total LowerExpectIntrinsicPass": 0.314,
+        "Total BlockFrequencyAnalysis": 0.309,
+        "Total LoopDeletionPass": 0.3,
+        "Total LoopSimplifyPass": 0.267,
+        "Total BranchProbabilityAnalysis": 0.229,
+        "Total LoopFullUnrollPass": 0.228,
+        "Total LICMPass": 0.22,
+        "Total LoopRotatePass": 0.218,
+        "Total ConstraintEliminationPass": 0.207,
+        "Total LoopAnalysis": 0.206,
+        "Total InstSimplifyPass": 0.204,
+        "Total ADCEPass": 0.204,
+        "Total DominatorTreeAnalysis": 0.201,
+        "Total AssignmentTrackingPass": 0.183,
+        "Total isIntegerConstantExpr": 0.177,
+        "Total TailCallElimPass": 0.172,
+        "Total AAManager": 0.166,
+        "Total MemCpyOptPass": 0.154,
+        "Total InferAlignmentPass": 0.154,
+        "Total LoopVectorizePass": 0.151,
+        "Total VectorCombinePass": 0.143,
+        "Total EvaluateAsBooleanCondition": 0.139,
+        "Total Source": 0.125,
+        "Total InferFunctionAttrsPass": 0.119,
+        "Total BasicAA": 0.111,
+        "Total AggressiveInstCombinePass": 0.105,
+        "Total RequireAnalysisPass<llvm::GlobalsAA, llvm::Module, llvm::AnalysisManager<Module>>": 0.097,
+        "Total LCSSAPass": 0.092,
+        "Total ScalarEvolutionAnalysis": 0.091,
+        "Total GlobalsAA": 0.09,
+        "Total CallGraphAnalysis": 0.088,
+        "Total DeadArgumentEliminationPass": 0.075,
+        "Total EvaluateKnownConstIntCheckOverflow": 0.057,
+        "Total ReversePostOrderFunctionAttrsPass": 0.057,
+        "Total CallSiteSplittingPass": 0.054,
+        "Total AlwaysInlinerPass": 0.053,
+        "Total PostDominatorTreeAnalysis": 0.052,
+        "Total SimpleLoopUnswitchPass": 0.047,
+        "Total LoopInstSimplifyPass": 0.047,
+        "Total RecomputeGlobalsAAPass": 0.037,
+        "Total CGProfilePass": 0.032,
+        "Total Float2IntPass": 0.029,
+        "Total GlobalDCEPass": 0.029,
+        "Total InjectTLIMappings": 0.027,
+        "Total DivRemPairsPass": 0.025,
+        "Total LoopSimplifyCFGPass": 0.025,
+        "Total LowerConstantIntrinsicsPass": 0.022,
+        "Total ArgumentPromotionPass": 0.02,
+        "Total LazyCallGraphAnalysis": 0.017,
+        "Total InnerAnalysisManagerProxy<CGSCCAnalysisManager, Module>": 0.016,
+        "Total LibCallsShrinkWrapPass": 0.015,
+        "Total LoopDistributePass": 0.015,
+        "Total TargetLibraryAnalysis": 0.015,
+        "Total WarnMissedTransformationsPass": 0.012,
+        "Total ConstantMergePass": 0.009,
+        "Total DemandedBitsAnalysis": 0.008,
+        "Total AlignmentFromAssumptionsPass": 0.008,
+        "Total LoopLoadEliminationPass": 0.008,
+        "Total InnerAnalysisManagerProxy<LoopAnalysisManager, Function>": 0.007,
+        "Total FunctionAnalysisManagerCGSCCProxy": 0.007,
+        "Total MemoryDependenceAnalysis": 0.007,
+        "Total MergedLoadStoreMotionPass": 0.007,
+        "Total RequireAnalysisPass<llvm::ShouldNotRunFunctionPassesAnalysis, llvm::Function, llvm::AnalysisManager<Function>>": 0.007,
+        "Total CoroElidePass": 0.006,
+        "Total MoveAutoInitPass": 0.006,
+        "Total LazyValueAnalysis": 0.006,
+        "Total OpenMPOptCGSCCPass": 0.006,
+        "Total CoroEarlyPass": 0.005,
+        "Total SpeculativeExecutionPass": 0.005,
+        "Total Annotation2MetadataPass": 0.005,
+        "Total PromotePass": 0.005,
+        "Total LoopSinkPass": 0.004,
+        "Total EntryExitInstrumenterPass": 0.004,
+        "Total EvaluateKnownConstInt": 0.004,
+        "Total ControlHeightReductionPass": 0.004,
+        "Total PerformPendingInstantiations": 0.003,
+        "Total LoopAccessAnalysis": 0.003,
+        "Total OpenMPOptPass": 0.003,
+        "Total RelLookupTableConverterPass": 0.003,
+        "Total CoroSplitPass": 0.003,
+        "Total AssumptionAnalysis": 0.003,
+        "Total InvalidateAnalysisPass<llvm::ShouldNotRunFunctionPassesAnalysis>": 0.002,
+        "Total InvalidateAnalysisPass<llvm::AAManager>": 0.002,
+        "Total OuterAnalysisManagerProxy<FunctionAnalysisManager, Loop, LoopStandardAnalysisResults &>": 0.002,
+        "Total OuterAnalysisManagerProxy<ModuleAnalysisManager, Function>": 0.002,
+        "Total OptimizationRemarkEmitterAnalysis": 0.002,
+        "Total OuterAnalysisManagerProxy<ModuleAnalysisManager, LazyCallGraph::SCC, LazyCallGraph &>": 0.001,
+        "Total CoroCleanupPass": 0.001,
+        "Total ProfileSummaryAnalysis": 0.001,
+        "Total ScopedNoAliasAA": 0.001,
+        "Total ForceFunctionAttrsPass": 0.0,
+        "Total ShouldNotRunFunctionPassesAnalysis": 0.0,
+        "Total TypeBasedAA": 0.0,
+        "Total InnerAnalysisManagerProxy<FunctionAnalysisManager, Module>": 0.0,
+        "Total AnnotationRemarksPass": 0.0,
+        "Total EliminateAvailableExternallyPass": 0.0,
+        "Total InlineAdvisorAnalysis": 0.0,
+        "Total RequireAnalysisPass<llvm::ProfileSummaryAnalysis, llvm::Module, llvm::AnalysisManager<Module>>": 0.0
+      },
+      "flags_note": "Optimization levels are throwaway compilation experiments only; runtime throughput is not evaluated and no release policy is changed."
+    }
+  ]
+}

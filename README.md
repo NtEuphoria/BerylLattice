@@ -30,6 +30,12 @@ The [prototype guide](axiom/docs/prototype.md) documents exact replay, evaluatio
 
 Use the [cloud setup guide](docs/cloud-environment.md) for environment preparation. The [implementation record](docs/implementation-record.md) tracks validation, implementation decisions and remaining research gates.
 
+The [compilation latency research](docs/reviews/fast-compilation/README.md) records
+current bottlenecks and primary sources. Its [architecture](docs/superpowers/specs/2026-10-17-fast-compilation-design.md)
+and [implementation plan](docs/superpowers/plans/2026-10-17-fast-compilation.md)
+propose retaining checked artifacts and emitting compact loops; these changes are
+planned, not implemented performance results.
+
 Run the suites from `axiom/` in this configured cloud workspace:
 
 ```sh

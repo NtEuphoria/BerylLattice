@@ -1,0 +1,386 @@
+{
+  "browser": "154.0.8037.57",
+  "runtime": "0.27.7",
+  "python": "3.12.7 (main, Jun  4 2025, 22:38:17) [Clang 19.0.0git (https:/github.com/llvm/llvm-project 0a8cd1ed1f4f35905df318015b",
+  "scope": "Separate cProfile run for call counts only. These runs are excluded from phase timing samples.",
+  "compiler_archive": {
+    "bytes": 35300,
+    "sha256": "cb7304afabbfee94c4184f1c34574732f0f241c2a674222d6c3a8ee014bb6634"
+  },
+  "harness_sha256": {
+    "counts.cjs": "0161892ae05a2d30fff4132f3c79ee97215e33359b5ebf3c1ccf237b96b9af55",
+    "counts-worker.js": "abf25d15650ac90c6d2cc9936220656b8d8b35254229dfc6894261c72aa41101",
+    "worker.js": "edfae12994c99ce80b3d5f6b3d9777488d638fcb27ff4b3d2938c748b95a59a5"
+  },
+  "cases": [
+    {
+      "height": 1,
+      "width": 1,
+      "cap": 64,
+      "status": "prepared",
+      "selected": {
+        "plan_id": "inline-v1",
+        "workspace_bytes": 0,
+        "multiplication_ops": 4,
+        "plan_digest": "520ab32ecf5a7d20b2a1980182ede0bbf08657626574623c6ea5ce412a363eac"
+      },
+      "source_sha256": "284c40583984103bd581052f8bcf3b57ed1ee458ff5ea87479002c43f9c5fbb4",
+      "entries": [
+        {
+          "function": "_equal",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 185,
+          "calls": 4,
+          "recursive_calls": 0
+        },
+        {
+          "function": "_source_expression",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 121,
+          "calls": 4,
+          "recursive_calls": 0
+        },
+        {
+          "function": "admit_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 417,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "canonical_json",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 158,
+          "calls": 18,
+          "recursive_calls": 0
+        },
+        {
+          "function": "check_plan",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 205,
+          "calls": 4,
+          "recursive_calls": 0
+        },
+        {
+          "function": "decode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 340,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "encode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 329,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "make_plan",
+          "file": "/beryl-release/beryl/planner.py",
+          "line": 18,
+          "calls": 3,
+          "recursive_calls": 0
+        },
+        {
+          "function": "parse_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 258,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "strict_json_loads",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 132,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "validate_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 219,
+          "calls": 8,
+          "recursive_calls": 0
+        }
+      ]
+    },
+    {
+      "height": 5,
+      "width": 7,
+      "cap": 64,
+      "status": "prepared",
+      "selected": {
+        "plan_id": "rows2-v1",
+        "workspace_bytes": 64,
+        "multiplication_ops": 48,
+        "plan_digest": "e7a9b247bcc78478b86123168424b0fa2aea494fa27b9d77957194bcec7919c3"
+      },
+      "source_sha256": "2c1f0a40ed394cc8b854fa67735e5ab7c987594ea1522c188fd3ad4086433b61",
+      "entries": [
+        {
+          "function": "_equal",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 185,
+          "calls": 140,
+          "recursive_calls": 0
+        },
+        {
+          "function": "_source_expression",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 121,
+          "calls": 140,
+          "recursive_calls": 0
+        },
+        {
+          "function": "admit_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 417,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "canonical_json",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 158,
+          "calls": 17,
+          "recursive_calls": 0
+        },
+        {
+          "function": "check_plan",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 205,
+          "calls": 4,
+          "recursive_calls": 0
+        },
+        {
+          "function": "decode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 340,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "encode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 329,
+          "calls": 6,
+          "recursive_calls": 0
+        },
+        {
+          "function": "make_plan",
+          "file": "/beryl-release/beryl/planner.py",
+          "line": 18,
+          "calls": 3,
+          "recursive_calls": 0
+        },
+        {
+          "function": "parse_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 258,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "strict_json_loads",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 132,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "validate_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 219,
+          "calls": 7,
+          "recursive_calls": 0
+        }
+      ]
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "status": "prepared",
+      "selected": {
+        "plan_id": "inline-v1",
+        "workspace_bytes": 0,
+        "multiplication_ops": 900,
+        "plan_digest": "de3b466bc728426bd340110de7165e3257456858cb8ad5aec2bdefaa115de1fe"
+      },
+      "source_sha256": "c8b03b77e342a359173c1e3325cf95c276db77371a2e43dc1e85e28f333de212",
+      "entries": [
+        {
+          "function": "_equal",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 185,
+          "calls": 900,
+          "recursive_calls": 0
+        },
+        {
+          "function": "_source_expression",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 121,
+          "calls": 900,
+          "recursive_calls": 0
+        },
+        {
+          "function": "admit_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 417,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "canonical_json",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 158,
+          "calls": 16,
+          "recursive_calls": 0
+        },
+        {
+          "function": "check_plan",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 205,
+          "calls": 4,
+          "recursive_calls": 0
+        },
+        {
+          "function": "decode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 340,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "encode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 329,
+          "calls": 5,
+          "recursive_calls": 0
+        },
+        {
+          "function": "make_plan",
+          "file": "/beryl-release/beryl/planner.py",
+          "line": 18,
+          "calls": 3,
+          "recursive_calls": 0
+        },
+        {
+          "function": "parse_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 258,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "strict_json_loads",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 132,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "validate_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 219,
+          "calls": 6,
+          "recursive_calls": 0
+        }
+      ]
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 128,
+      "status": "prepared",
+      "selected": {
+        "plan_id": "rows2-v1",
+        "workspace_bytes": 128,
+        "multiplication_ops": 256,
+        "plan_digest": "ea28b8a8a470fc4219ab61b3fec1b85562254918b297b576524587dca7768d21"
+      },
+      "source_sha256": "e52d98ba42683e75367c06c857f17bc4b7e5696f973f5ac6d5aa2ae940489995",
+      "entries": [
+        {
+          "function": "_equal",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 185,
+          "calls": 900,
+          "recursive_calls": 0
+        },
+        {
+          "function": "_source_expression",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 121,
+          "calls": 900,
+          "recursive_calls": 0
+        },
+        {
+          "function": "admit_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 417,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "canonical_json",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 158,
+          "calls": 17,
+          "recursive_calls": 0
+        },
+        {
+          "function": "check_plan",
+          "file": "/beryl-release/beryl/checker.py",
+          "line": 205,
+          "calls": 4,
+          "recursive_calls": 0
+        },
+        {
+          "function": "decode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 340,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "encode_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 329,
+          "calls": 6,
+          "recursive_calls": 0
+        },
+        {
+          "function": "make_plan",
+          "file": "/beryl-release/beryl/planner.py",
+          "line": 18,
+          "calls": 3,
+          "recursive_calls": 0
+        },
+        {
+          "function": "parse_source",
+          "file": "/beryl-release/beryl/frontend.py",
+          "line": 258,
+          "calls": 7,
+          "recursive_calls": 0
+        },
+        {
+          "function": "strict_json_loads",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 132,
+          "calls": 1,
+          "recursive_calls": 0
+        },
+        {
+          "function": "validate_plan",
+          "file": "/beryl-release/beryl/codec.py",
+          "line": 219,
+          "calls": 7,
+          "recursive_calls": 0
+        }
+      ]
+    }
+  ],
+  "status": "passed"
+}
