@@ -6,6 +6,7 @@ import importlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -16,7 +17,7 @@ from axiom.bounded_loop_codec import encode_loop_program
 from axiom.bounded_loop_model import HintError, HintLimits, IndexExpr, IndexTerm, Loop, Primitive
 from axiom.bounded_loop_planner import make_loop_program
 from axiom.compilation import _CompilationContext
-from axiom.native_codegen import _emit_native_c_checked
+from axiom.native_codegen import _emit_native_c_checked, emit_native_c
 from axiom.planner import PLAN_IDS, make_plan
 from axiom.plan_format import Operation
 from axiom.reference import evaluate_source
@@ -85,6 +86,86 @@ class CompactCTest(unittest.TestCase):
         self.assertEqual(ast, finite)
         status = 0 if finite.first_bad_index is None else finite.first_bad_index + 1
         return status, finite.input_after, finite.output
+
+    def llvm_ir(self, artifact, optimization='-O0'):
+        self.serial += 1
+        source = self.root / f'contract{self.serial}.c'
+        source.write_bytes(artifact.c_source)
+        # O0 makes these frontend parameter contracts, not inferred O3 facts.
+        compiled = subprocess.run(
+            [self.compiler, '-std=c11', optimization, '-S', '-emit-llvm',
+             str(source), '-o', '-'], capture_output=True, text=True, timeout=60)
+        self.assertEqual(compiled.returncode, 0, compiled.stderr)
+        return compiled.stdout
+
+    def test_compact_disjoint_parameters_have_llvm_noalias_contract(self):
+        for schedule in PLAN_IDS:
+            with self.subTest(schedule=schedule):
+                owned, hint = self.owned(schedule=schedule)
+                compact = self.backend._emit_native_c_compact(owned, hint)
+                finite = emit_native_c(owned.source, owned.plan_bytes)
+                for artifact, expected in ((finite, False), (compact, True)):
+                    ir = self.llvm_ir(artifact)
+                    definition = re.search(
+                        r'^define\b[^\n]*@beryl_kernel\(([^)]*)\)', ir, re.MULTILINE)
+                    self.assertIsNotNone(definition, ir)
+                    parameters = definition.group(1).split(',')
+                    self.assertEqual(len(parameters), 2)
+                    for index, parameter in enumerate(parameters):
+                        self.assertEqual(bool(re.search(r'\bnoalias\b', parameter)),
+                                         expected, (schedule, index, parameter))
+
+    def test_public_finite_bytes_remain_stable_for_all_schedules(self):
+        digests = {
+            'inline-v1': '592f4da51fa1ce2bcd365c89992f2c7adfeaa8b5fa7ed5b83d90566edae00b07',
+            'rows2-v1': '164542d739eca49bbccd586a42a0a3ad64ac81df91947c4c6a52c6b5564d49a6',
+            'materialize-v1': 'f10df14be14edc955ee6357edcdd52877d17639e62aace1972dbf6fe074a687c',
+        }
+        for schedule in PLAN_IDS:
+            with self.subTest(schedule=schedule):
+                owned, hint = self.owned(schedule=schedule)
+                before = emit_native_c(owned.source, owned.plan_bytes)
+                self.backend._emit_native_c_compact(owned, hint)
+                after = emit_native_c(owned.source, owned.plan_bytes)
+                self.assertEqual(before.c_digest, digests[schedule])
+                self.assertEqual(before.c_source, after.c_source)
+                self.assertEqual(_emit_native_c_checked(owned).c_source, before.c_source)
+
+    def test_valid_preflight_has_an_optimized_vector_reduction(self):
+        owned, hint = self.owned(15, 15)
+        compact = self.backend._emit_native_c_compact(owned, hint)
+        ir = self.llvm_ir(compact, '-O3')
+        kernel = re.search(r'^define\b[^\n]*@beryl_kernel\([^\n]*\{\n(.*?)^}',
+                           ir, re.MULTILINE | re.DOTALL)
+        self.assertIsNotNone(kernel, ir)
+        # The valid-input check must reduce lane predicates, not branch once
+        # per scalar cell. A missing reduction cannot hide in the I/O driver.
+        self.assertRegex(kernel.group(1), r'@llvm\.vector\.reduce\.or\.')
+        self.assertRegex(kernel.group(1), r'icmp \w+ <\d+ x i32>')
+
+    def test_rejection_preserves_full_buffers_across_vector_lanes_and_reuse(self):
+        for schedule in PLAN_IDS:
+            with self.subTest(schedule=schedule):
+                owned, hint = self.owned(3, 4, schedule)
+                artifact = self.backend._emit_native_c_compact(owned, hint)
+                library = self.build(artifact)
+                n, m = artifact.input_count, artifact.output_count
+                initial = tuple(-2147483648 + i*7919 for i in range(m))
+                valid = tuple((i*277+41)%1024 for i in range(n))
+                for first in range(n):
+                    for invalid in (-2147483648, -1, 1024, 2147483647):
+                        data = list(valid)
+                        # Two invalid values must still report the first one;
+                        # every lane, including the final partial group, occurs.
+                        data[-1] = 2147483647
+                        data[first] = invalid
+                        expected = (first+1, tuple(data), initial)
+                        self.assertEqual(self.observation(owned, data, initial), expected)
+                        self.assertEqual(self.invoke(library, data, initial), expected)
+                    # Reusing the same compiled kernel after rejection must not
+                    # retain either invalid predicates or scratch state.
+                    self.assertEqual(self.invoke(library, valid, initial),
+                                     self.observation(owned, valid, initial))
 
     def test_boundaries_all_schedules_repeated_inputs_and_scratch_poison(self):
         for shape in ((1, 1), (1, 127), (127, 1), (3, 4), (15, 15)):

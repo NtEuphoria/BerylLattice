@@ -135,13 +135,16 @@ def _emit_finite(kernel, plan, source_digest, plan_digest):
     return _finish_native(parts, kernel, source_digest, plan_digest)
 
 
-def _native_kernel_parts(kernel, plan, *, comment=None):
+def _native_kernel_parts(kernel, plan, *, comment=None, disjoint_parameters=False,
+                         reduction_preflight=False):
     """Shared preflight and storage contract; keep legacy emitted bytes stable."""
     input_count = (kernel.height + 1) * (kernel.width + 1)
     output_count = kernel.height * kernel.width
     if max(input_count, output_count, plan.scratch_capacity_cells) > 256:
         raise DiagnosticError('BACKEND_STORAGE_LIMIT', kernel.source_module.span,
                               'native fixed storage exceeds 256 scalar cells')
+
+    qualifier = 'restrict ' if disjoint_parameters else ''
 
     parts = ['''/* Generated from a freshly checked finite Axiom physical plan. */
 #include <ctype.h>
@@ -160,12 +163,25 @@ _Static_assert(sizeof(int64_t) == 8, "eight-byte i64 required");
 
 /* Caller owns disjoint initialized arrays of the exact compiled counts.
  * No alias, offset view, concurrent access, or lifetime change is permitted. */
-int32_t beryl_kernel(const int32_t *input, int32_t *output) {{
+int32_t beryl_kernel(const int32_t *{qualifier}input, int32_t *{qualifier}output) {{
 ''']
     if comment is not None:
         parts[0] = comment + '\n' + parts[0].partition('\n')[2]
     lower, upper = kernel.input_interval
-    parts.append(f'''    for (int32_t i = 0; i < {input_count}; ++i)
+    if reduction_preflight:
+        # Every borrowed input cell is initialized and stable for this call.
+        # Reduce validity without scalar early exits on the success path; on
+        # rejection recover the same first invalid index before any effects.
+        parts.append(f'''    uint32_t ax_invalid = 0;
+    for (int32_t i = 0; i < {input_count}; ++i)
+        ax_invalid |= (uint32_t)(input[i] < {lower} || input[i] > {upper});
+    if (ax_invalid) {{
+        for (int32_t i = 0; i < {input_count}; ++i)
+            if (input[i] < {lower} || input[i] > {upper}) return i + 1;
+    }}
+''')
+    else:
+        parts.append(f'''    for (int32_t i = 0; i < {input_count}; ++i)
         if (input[i] < {lower} || input[i] > {upper}) return i + 1;
 ''')
     if plan.scratch_capacity_cells:

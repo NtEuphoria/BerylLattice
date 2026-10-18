@@ -30,6 +30,7 @@ def _emit_native_c_compact(owned, hint_bytes, *, hint_limits=HintLimits()):
     with owned.owner.phase('code_emission'):
         parts = _native_kernel_parts(
             owned.kernel, owned.plan,
+            disjoint_parameters=True, reduction_preflight=True,
             comment='/* Generated from a freshly checked beryl bounded loop program. */')
         serial = 0
 
