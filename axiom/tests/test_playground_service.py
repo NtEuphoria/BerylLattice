@@ -1,5 +1,7 @@
 """Real demo behavior, independent observation failures, and fixed JSON worker."""
 from dataclasses import replace
+import base64
+from hashlib import sha256
 import importlib
 import importlib.util
 import json
@@ -10,6 +12,7 @@ import sys
 import unittest
 from unittest.mock import patch
 
+from axiom.frontend import parse_source
 from axiom.reference import evaluate_source
 from axiom.selection import select_plan
 from tests.helpers import stencil_source
@@ -177,6 +180,232 @@ class PlaygroundServiceTests(unittest.TestCase):
         self.assertIsNone(result['selected'])
         self.assertIsNone(result['output'])
         self.assertIsNone(result['comparison'])
+
+    def compiled_service(self):
+        service = self.service()
+        for name in ('compiled_request_source', 'prepare_compiled_demo',
+                     'compiled_request_inputs', 'finish_compiled_demo'):
+            self.assertTrue(callable(getattr(service, name, None)),
+                            f'compiled presentation entry {name} is missing')
+        return service
+
+    def compiled_observation(self, request):
+        module = parse_source(request['source'].encode())
+        if request['input_mode'] == 'custom':
+            data = request['inputs']
+        else:
+            data = self.service().compiled_request_inputs(request)['input']
+        initial = self.service().compiled_request_inputs(request)['initial_output']
+        expected = evaluate_source(module, data, initial)
+        return dict(status=0 if expected.first_bad_index is None else expected.first_bad_index + 1,
+                    input=list(expected.input_after), output=list(expected.output))
+
+    def test_compiled_source_validation_echoes_exact_source_without_preparation(self):
+        service = self.compiled_service()
+        service.prepare_compiled_demo('module ;')
+        for source in (self.request()['source'], '// λ🙂\nmodule ;', ''):
+            request = dict(source=source, input_mode='ramp')
+            with patch.object(service, 'compile_wasm', side_effect=AssertionError('validation only')), \
+                 patch.object(service, 'parse_source', side_effect=AssertionError('validation only')):
+                self.assertEqual(service.compiled_request_source(request),
+                                 {'status': 'valid', 'source': source})
+        self.assertEqual(service.compiled_request_inputs(self.request())['diagnostic']['code'],
+                         'NOT_PREPARED')
+
+    def test_compiled_source_validation_matches_legacy_schema_and_encoding_errors(self):
+        service = self.compiled_service()
+        request = self.request()
+        invalid = [None, [], {}, dict(request, extra='forged'), dict(request, input_mode='wrong'),
+                   dict(request, source=12), dict(request, inputs=[]),
+                   dict(request, input_mode='custom'),
+                   dict(request, input_mode='custom', inputs=()),
+                   dict(request, source='aλ🙂\ud800'), dict(request, source='x' * 65537)]
+        expected = [service.run_demo(value) for value in invalid]
+        with patch.object(service, 'compile_wasm', side_effect=AssertionError('validation only')), \
+             patch.object(service, 'parse_source', side_effect=AssertionError('validation only')):
+            for value, error in zip(invalid, expected):
+                with self.subTest(request=repr(value)[:60]):
+                    self.assertEqual(service.compiled_request_source(value), error)
+
+    def test_compiled_preparation_binds_fresh_module_and_selection_metadata(self):
+        service = self.compiled_service()
+        request = self.request()
+        legacy = service.run_demo(request)
+        prepared = service.prepare_compiled_demo(request['source'])
+        self.assertEqual(prepared['status'], 'prepared')
+        self.assertEqual(prepared['schema_version'], 1)
+        module_bytes = base64.b64decode(prepared['wasm_base64'], validate=True)
+        self.assertTrue(module_bytes.startswith(b'\0asm\x01\0\0\0'))
+        self.assertEqual(prepared['module_digest'], sha256(module_bytes).hexdigest())
+        self.assertEqual(prepared['source_digest'], sha256(request['source'].encode()).hexdigest())
+        self.assertEqual(prepared['plan_digest'], prepared['selected']['plan_digest'])
+        for field in ('shape', 'objective', 'workspace_cap', 'selected', 'attempts', 'search'):
+            self.assertEqual(prepared[field], legacy[field])
+        self.assertEqual((prepared['input_count'], prepared['output_count']), (48, 35))
+        self.assertGreaterEqual(prepared['input_offset'], 0)
+        self.assertGreaterEqual(prepared['output_offset'], prepared['input_offset'] + 4 * 48)
+        self.assertGreaterEqual(prepared['memory_bytes'], prepared['output_offset'] + 4 * 35)
+
+    def test_compiled_preparation_is_reused_for_changing_inputs_and_fresh_comparison(self):
+        service = self.compiled_service()
+        request = self.request(h=1, w=1)
+        service.prepare_compiled_demo(request['source'])
+        requests = [self.request(h=1, w=1, mode='zeros'),
+                    self.request(h=1, w=1, mode='custom', inputs=[0, 1, 2, 3]),
+                    self.request(h=1, w=1, mode='checkerboard')]
+        observations = [self.compiled_observation(item) for item in requests]
+        with patch.object(service, 'parse_source', side_effect=AssertionError('must retain source')), \
+             patch.object(service, 'select_plan', side_effect=AssertionError('must retain selection')), \
+             patch.object(service, 'compile_wasm', side_effect=AssertionError('must retain module')), \
+             patch.object(service, 'execute_plan', side_effect=AssertionError('compiled path')), \
+             patch.object(service, 'evaluate_source', wraps=evaluate_source) as evaluator:
+            results = [service.finish_compiled_demo(item, observation)
+                       for item, observation in zip(requests, observations)]
+        self.assertEqual([result['output'] for result in results], [[4], [30], [2097154]])
+        self.assertEqual(evaluator.call_count, len(requests))
+        for result in results:
+            self.assertEqual(result['backend'], 'checked-plan-wasm-v1')
+            self.assertEqual(result['comparison'], {'matches': True, 'cells_compared': 1})
+            self.assertNotIn('wasm_base64', result)
+            self.assertEqual(set(result), set(service.run_demo(request)))
+
+    def test_compiled_source_identity_and_preparation_replacement_are_private(self):
+        service = self.compiled_service()
+        request = self.request(h=1, w=1)
+        service.prepare_compiled_demo('module ;')
+        self.assertEqual(service.compiled_request_inputs(request)['diagnostic']['code'], 'NOT_PREPARED')
+        self.assertEqual(service.finish_compiled_demo(request, {})['diagnostic']['code'], 'NOT_PREPARED')
+        prepared = service.prepare_compiled_demo(request['source'])
+        selected_id = prepared['selected']['plan_id']
+        observation = self.compiled_observation(request)
+        changed = dict(request, source=request['source'] + '\n')
+        for result in (service.compiled_request_inputs(changed),
+                       service.finish_compiled_demo(changed, observation)):
+            self.assertEqual(result['diagnostic']['code'], 'PREPARED_SOURCE_MISMATCH')
+        prepared['selected']['plan_id'] = 'forged'
+        prepared['shape']['height'] = 99
+        self.assertEqual(service.finish_compiled_demo(request, observation)['selected']['plan_id'],
+                         selected_id)
+        replacement = self.request(h=1, w=1, cap=0)
+        self.assertEqual(service.prepare_compiled_demo(replacement['source'])['status'], 'prepared')
+        self.assertEqual(service.compiled_request_inputs(request)['diagnostic']['code'],
+                         'PREPARED_SOURCE_MISMATCH')
+        for bad_source in ('module ;', None, '\ud800', 'x' * 65537):
+            with self.subTest(source=repr(bad_source)[:20]):
+                service.prepare_compiled_demo(replacement['source'])
+                self.assertEqual(service.prepare_compiled_demo(bad_source)['status'], 'error')
+                self.assertEqual(service.compiled_request_inputs(replacement)['diagnostic']['code'],
+                                 'NOT_PREPARED')
+
+    def test_compiled_requests_reject_exact_shape_and_scalar_boundary_errors(self):
+        service = self.compiled_service()
+        request = self.request(h=1, w=1)
+        service.prepare_compiled_demo(request['source'])
+        invalid = [None, [], {}, dict(request, module_digest='forged'),
+                   dict(request, input_mode='other'), dict(request, source=12),
+                   dict(request, inputs=[]), dict(request, input_mode='custom')]
+        for item in invalid:
+            with self.subTest(request=item):
+                self.assertEqual(service.compiled_request_inputs(item)['diagnostic']['code'],
+                                 'INVALID_REQUEST')
+                self.assertEqual(service.finish_compiled_demo(item, {})['diagnostic']['code'],
+                                 'INVALID_REQUEST')
+        for inputs, code in (([0], 'BOUNDARY_LENGTH'), ([False, 0, 0, 0], 'BOUNDARY_TYPE'),
+                             ([0.5, 0, 0, 0], 'BOUNDARY_TYPE'), (['1', 0, 0, 0], 'BOUNDARY_TYPE'),
+                             ([2**31, 0, 0, 0], 'BOUNDARY_I32'),
+                             ([-2**31 - 1, 0, 0, 0], 'BOUNDARY_I32')):
+            item = dict(request, input_mode='custom', inputs=inputs)
+            with self.subTest(inputs=inputs):
+                self.assertEqual(service.compiled_request_inputs(item)['diagnostic']['code'], code)
+                self.assertEqual(service.finish_compiled_demo(item, {})['diagnostic']['code'], code)
+        custom = dict(request, input_mode='custom', inputs=[0, 1, 2, 3])
+        ready = service.compiled_request_inputs(custom)
+        self.assertEqual(ready, dict(status='ready', input=[0, 1, 2, 3], initial_output=[-9]))
+        ready['input'][0] = 99
+        self.assertEqual(custom['inputs'][0], 0)
+
+    def test_compiled_preconditions_compare_first_bad_and_preserve_every_sentinel(self):
+        service = self.compiled_service()
+        request = self.request()
+        service.prepare_compiled_demo(request['source'])
+        for index in (0, 24, 47):
+            for value in (-2**31, 1024, 2**31 - 1):
+                inputs = [0] * 48
+                inputs[index] = value
+                inputs[-1] = value
+                item = dict(request, input_mode='custom', inputs=inputs)
+                with self.subTest(index=index, value=value):
+                    self.assertEqual(service.compiled_request_inputs(item)['status'], 'ready')
+                    observation = self.compiled_observation(item)
+                    self.assertEqual(observation['status'], index + 1)
+                    result = service.finish_compiled_demo(item, observation)
+                    self.assertEqual(result['status'], 'input_precondition_failed')
+                    self.assertEqual(result['first_bad_index'], index)
+                    self.assertEqual(result['input'], inputs)
+                    self.assertEqual(result['output'], [-9] * 35)
+                    self.assertEqual(result['comparison'], {'matches': True, 'cells_compared': 35})
+
+    def test_compiled_observation_requires_exact_fields_lists_and_i32_scalars(self):
+        service = self.compiled_service()
+        request = self.request(h=1, w=1)
+        service.prepare_compiled_demo(request['source'])
+        observation = self.compiled_observation(request)
+        malformed = [None, [], {}, dict(observation, extra=1),
+                     dict(observation, input=tuple(observation['input'])),
+                     dict(observation, output=tuple(observation['output']))]
+        for value in malformed:
+            self.assertEqual(service.finish_compiled_demo(request, value)['diagnostic']['code'],
+                             'INVALID_REQUEST')
+        for field in ('status', 'input', 'output'):
+            for value, code in ((False, 'BOUNDARY_TYPE'), (1.0, 'BOUNDARY_TYPE'),
+                                (2**31, 'BOUNDARY_I32'), (-2**31 - 1, 'BOUNDARY_I32')):
+                changed = dict(observation)
+                changed[field] = value if field == 'status' else [value] + observation[field][1:]
+                with self.subTest(field=field, value=value):
+                    self.assertEqual(service.finish_compiled_demo(request, changed)['diagnostic']['code'],
+                                     code)
+        for field in ('input', 'output'):
+            changed = dict(observation, **{field: observation[field] + [0]})
+            self.assertEqual(service.finish_compiled_demo(request, changed)['diagnostic']['code'],
+                             'BOUNDARY_LENGTH')
+
+    def test_compiled_observations_and_fresh_reference_disagreements_fail_independently(self):
+        service = self.compiled_service()
+        request = self.request(h=1, w=1)
+        service.prepare_compiled_demo(request['source'])
+        observation = self.compiled_observation(request)
+        for changed in (dict(observation, input=[999] + observation['input'][1:]),
+                        dict(observation, output=[observation['output'][0] + 1]),
+                        dict(observation, status=1), dict(observation, status=-1),
+                        dict(observation, status=5)):
+            result = service.finish_compiled_demo(request, changed)
+            self.assertEqual(result['diagnostic']['code'], 'INDEPENDENT_COMPARISON_FAILED')
+            self.assertNotIn('output', result)
+        def changed_output(module, data, initial):
+            expected = evaluate_source(module, data, initial)
+            return replace(expected, output=(expected.output[0] + 1,))
+        with patch.object(service, 'evaluate_source', changed_output):
+            result = service.finish_compiled_demo(request, observation)
+        self.assertEqual(result['diagnostic']['code'], 'INDEPENDENT_COMPARISON_FAILED')
+
+    def test_compiled_preparation_no_eligible_plan_or_compiler_failure_clears_context(self):
+        service = self.compiled_service()
+        request = self.request()
+        service.prepare_compiled_demo(request['source'])
+        def no_budget(kernel, limits, total, objective):
+            return select_plan(kernel, limits, 0, objective)
+        with patch.object(service, 'select_plan', no_budget), \
+             patch.object(service, 'compile_wasm', side_effect=AssertionError('no selected plan')):
+            prepared = service.prepare_compiled_demo(request['source'])
+        self.assertEqual(prepared['status'], 'no_eligible_plan')
+        self.assertNotIn('wasm_base64', prepared)
+        self.assertEqual(service.compiled_request_inputs(request)['diagnostic']['code'], 'NOT_PREPARED')
+        service.prepare_compiled_demo(request['source'])
+        with patch.object(service, 'compile_wasm', side_effect=RuntimeError('/private/path')):
+            prepared = service.prepare_compiled_demo(request['source'])
+        self.assertEqual(prepared['diagnostic']['code'], 'INTERNAL_ERROR')
+        self.assertNotIn('/private/path', json.dumps(prepared))
+        self.assertEqual(service.compiled_request_inputs(request)['diagnostic']['code'], 'NOT_PREPARED')
 
     def worker(self, raw):
         self.service()

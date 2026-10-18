@@ -17,7 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = '0.27.7'
 CDN = f'https://cdn.jsdelivr.net/pyodide/v{VERSION}/full/'
 MODULES = ('__init__', 'runtime', 'playground_service', 'frontend', 'model',
-           'checker', 'codec', 'plan_format', 'planner', 'selection', 'reference')
+           'checker', 'codec', 'plan_format', 'planner', 'selection', 'reference',
+           'wasm', 'native_codegen')
 ASSETS = ('index.html', 'app.js', 'style.css', 'transport.js', 'worker.js',
           'benchmarks.html', 'benchmarks.js', 'benchmark-results.json')
 # Export only these reviewed branding changes; private compiler sources stay intact.
@@ -35,6 +36,14 @@ PUBLIC_SOURCE_REPLACEMENTS = {
                b"SEMANTICS_VERSION = 'beryl-stencil-i32-v1'"),),
     'checker': ((b"CHECKER_VERSION = 'axiom-checker-v1'",
                  b"CHECKER_VERSION = 'beryl-checker-v1'"),),
+    'native_codegen': (
+        (b'Private C11 lowering of freshly checked bounded Axiom physical plans.',
+         b'C11 lowering of freshly checked bounded beryl physical plans.'),
+        (b'This backend implements the finite Axiom plan directly; it is independent of',
+         b'This backend implements the finite beryl plan directly; it is independent of'),
+        (b'/* Generated from a freshly checked finite Axiom physical plan. */',
+         b'/* Generated from a freshly checked finite beryl physical plan. */'),
+    ),
 }
 # Verified upstream release bytes. No additional Python packages are installed.
 RUNTIME = {
@@ -135,8 +144,8 @@ def build(output, runtime, cache):
 
 An experimental playground for describing a calculation, setting its storage
 limit, and exploring the plan chosen to carry it out. The browser runs the Python
-compiler, checked plan interpreter, and independent source evaluator in a Web
-Worker. No compilation server or account is needed.
+compiler and independent source evaluator in a Web Worker, and executes the
+checked plan as compiled WebAssembly. No compilation server or account is needed.
 
 Serve this folder over HTTP/HTTPS; opening index.html as file:// does not support
 Workers. For a local preview: `python -m http.server 8765 --directory PATH`.
@@ -144,21 +153,25 @@ Workers. For a local preview: `python -m http.server 8765 --directory PATH`.
 ## Scope
 
 This early demo supports one exact i32 two-stage stencil, with
-(H+1)*(W+1) <= 256 and input values 0..1023. Each run compares the checked plan's
-output with an independent evaluation of the source. Reports describe these
-bounded interpreter runs; they do not measure native performance or certify
-larger computations. Browser code and downloaded reports can be modified, so
-reports are not authoritative attestations.
+(H+1)*(W+1) <= 256 and input values 0..1023. The compiled Wasm instance is reused
+while the exact source stays unchanged. Every run validates inputs and compares
+the complete compiled observation with an independent evaluation of the source.
+Reports describe these bounded runs; they do not certify larger computations.
+Browser code and downloaded reports can be modified, so reports are not
+authoritative attestations. The Performance page distinguishes browser and
+same-host native measurements; C and Rust programs are compiled before timing.
 
 ## License and source
 
 The demo is released under the MIT License in LICENSE, copyright 2026 NtEuphoria.
-This grant covers the eleven compiler/runtime Python modules named in
+This grant covers the thirteen compiler/runtime Python modules named in
 release-manifest.json, the five UI/transport assets (index.html, app.js,
 style.css, transport.js, worker.js), and their accompanying demo documentation.
-The Python sources are included in beryl-compiler.zip. The license covers this
-release only and does not grant rights to material outside it. Third-party
-runtime files retain their own licenses described below.
+The Python sources are included in beryl-compiler.zip, including the Wasm backend
+and finite-plan native C generator for reproducing compiled programs. The
+same-host C and Rust comparison sources are benchmark.c and benchmark.rs. The
+license covers this release only and does not grant rights to material outside
+it. Third-party runtime files retain their own licenses described below.
 
 ## Runtime and network
 
@@ -190,7 +203,7 @@ For CDN mode also allow https://cdn.jsdelivr.net in script-src and connect-src.
 Do not add unsafe-eval, broad wildcard origins, or disable TLS to fix startup.
 
 release-manifest.json lists every release file's size and SHA-256, excluding
-itself to avoid a recursive hash. Its compiler_modules field lists the eleven
+itself to avoid a recursive hash. Its compiler_modules field lists the thirteen
 Python sources; compiler_archive_members additionally records the LICENSE
 carried inside beryl-compiler.zip for standalone downloads. Rebuilds are
 deterministic for identical inputs.

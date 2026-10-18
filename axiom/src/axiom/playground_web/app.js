@@ -174,6 +174,9 @@ import { getExamples, runDemo } from "./transport.js";
     details.replaceChildren();
     const fields = [
       ["Execution", result.backend], ["Objective", result.objective],
+      ["Compilation", result.timings ? (result.timings.reused_compilation ? `${result.timings.initial_compilation_ms.toFixed(2)} ms once; reused` : `${result.timings.compilation_ms.toFixed(2)} ms`) : null],
+      ["Compiled execution", result.timings ? `${result.timings.execution_ms.toFixed(3)} ms` : null],
+      ["Independent comparison", result.timings ? `${result.timings.verification_ms.toFixed(2)} ms` : null],
       ["Scratch limit", result.workspace_cap == null ? "None declared" : `${result.workspace_cap} bytes`],
       ["Search stopped", result.search?.termination_reason], ["Search work", result.search?.work_used],
       ["Source digest", result.source_digest], ["Plan digest", result.selected?.plan_digest],
@@ -249,7 +252,7 @@ import { getExamples, runDemo } from "./transport.js";
     let timedOut = false;
     const timeout = window.setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
     setRunning(true);
-    setStatus("loading", "Running your computation…", "beryl checks the selected plan, runs it, and compares its output with a separate calculation.");
+    setStatus("loading", "Running your computation…", "beryl prepares the program when the source changes, then runs it and independently checks the result.");
     try {
       const result = await runDemo(request, { signal: controller.signal });
       if (id !== requestId) return;

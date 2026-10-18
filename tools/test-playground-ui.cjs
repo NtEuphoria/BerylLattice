@@ -124,6 +124,21 @@ test('Reset clears a completed report, restores defaults, preserves focus, and c
   assert.equal(h.node('status-title').textContent, 'Run complete');
 });
 
+test('Repeated execution keeps the original compilation cost visible', async () => {
+  let count = 0;
+  const h = appHarness({runDemo: async () => ({...success, timings: {
+    compilation_ms: count ? 0 : 73, initial_compilation_ms: 73,
+    reused_compilation: Boolean(count++), execution_ms: 0.01, verification_ms: 2,
+  }})});
+  await flush();
+  await h.node('run').click();
+  assert.match(h.node('run-details').children.map(node => node.textContent).join(' '), /73\.00 ms/);
+  await h.node('run').click();
+  const details = h.node('run-details').children.map(node => node.textContent).join(' ');
+  assert.match(details, /73\.00 ms/);
+  assert.match(details, /reused/i);
+});
+
 test('Reset clears an invalid custom-input diagnostic', async () => {
   const h = appHarness();
   await flush();
@@ -170,7 +185,7 @@ function transportHarness(browser = true, fetch) {
   const clock = timers();
   const context = vm.createContext({ document: { documentElement: { dataset: { runtime: browser ? 'browser' : '' } } },
     Worker, URL, TextEncoder, AbortController, DOMException, fetch, ...clock });
-  vm.runInContext(`${transportSource}\nglobalThis.api = { getExamples, runDemo };`, context);
+  vm.runInContext(`${transportSource}\nglobalThis.api = { getExamples, runDemo, prepareDemo };`, context);
   return { ...context.api, workers, clock };
 }
 
@@ -181,6 +196,23 @@ async function boot(h) {
   h.workers[0].respond(undefined, { examples });
   await loading;
 }
+
+test('Compiled preparation uses a cancellable worker request before execution', async () => {
+  const h = transportHarness();
+  await boot(h);
+  const controller = new AbortController();
+  const preparation = h.prepareDemo({ source: 'program', input_mode: 'ramp' }, { signal: controller.signal });
+  const outcome = assert.rejects(preparation, /cancelled/i);
+  await flush();
+  const current = h.workers[0];
+  assert.equal(current.messages.at(-1).method, 'prepare');
+  assert.equal(JSON.parse(current.messages.at(-1).request).source, 'program');
+  controller.abort();
+  await outcome;
+  assert.equal(current.terminated, true);
+  assert.equal(h.clock.active.size, 0);
+  assert.equal(getEventListeners(controller.signal, 'abort').length, 0);
+});
 
 test('Worker cancellation terminates computation, ignores old messages, and permits immediate rerun', async () => {
   const h = transportHarness();

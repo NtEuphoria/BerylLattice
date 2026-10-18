@@ -1,0 +1,24 @@
+{
+  "implementation_revision": "5c14386b78bbc0ddb8f589d0dca5be1a74b0e5df",
+  "compiler_archive_sha256": "cb7304afabbfee94c4184f1c34574732f0f241c2a674222d6c3a8ee014bb6634",
+  "compiler_modules": 13,
+  "release_files": 24,
+  "public_report_sha256": "531c2f9da8a446f63293140537238ea9a11ae7bbbbc465f387fd643c16c15dc0",
+  "all_six_native_cases_within_2x_each": true,
+  "max_beryl_over_C": 1.0671111552163777,
+  "validation": {
+    "python_tests": 341,
+    "core_prerequisite_skips": 22,
+    "ui_tests": 14,
+    "package_tests": 9,
+    "real_browser_main_and_benchmark": "passed"
+  },
+  "source_and_runtime_manifest_verified": true,
+  "archive_matches_measured_compiler": true,
+  "historical_windows_copy": {
+    "original_sha256": "47007a5036515c46d28df8a380b3f5eeabaa30db49b1b52461ca61452b185860",
+    "retained_sha256": "84fdc7dd5c8743a1d8c9c2c809ec75f05c9f5c8a8c9d37a8959f1b5b58f6f2eb",
+    "line_endings_normalized_to_lf": true,
+    "json_values_unchanged": true
+  }
+}

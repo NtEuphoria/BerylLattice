@@ -151,3 +151,12 @@ export async function runDemo(request, {signal} = {}) {
   }
   return browserRuntime ? callWorker('run', encoded, signal) : callApi('./api/run', request, signal);
 }
+
+export async function prepareDemo(request, {signal} = {}) {
+  if (!browserRuntime) throw new Error('Compiled benchmarks require the browser playground.');
+  const encoded = JSON.stringify(request);
+  if (new TextEncoder().encode(encoded).byteLength > REQUEST_LIMIT) {
+    throw new Error('The request exceeds the 128 KiB demo limit.');
+  }
+  return callWorker('prepare', encoded, signal);
+}

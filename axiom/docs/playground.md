@@ -10,8 +10,9 @@ demo; it is not Lattice Core. Earlier public Git commits retain the old codename
 This is a working demonstration of Axiom's bounded declarative language: write a
 computation and scratch constraint, let Axiom select and check a schedule, then
 execute that schedule and compare every result with the independent source
-evaluator. Lattice Core is a separate language. This demo uses Axiom's checked
-Python plan interpreter; it does not require or claim native Core execution.
+evaluator. Lattice Core is a separate language. The browser compiles Axiom's
+checked finite plan to WebAssembly; the local server retains the Python plan
+interpreter. Neither requires or claims native Core execution.
 
 ## Start
 
@@ -50,21 +51,29 @@ python3 tools/build-playground-site.py --output /tmp/axiom-playground-site
 
 Choose a new/empty output directory. The builder downloads pinned, SHA-256-checked
 Pyodide0.27.7/Python3.12.7 runtime files over verified HTTPS. It bundles the same
-eleven Python modules used by the demo, runtime license texts, and an exact
+thirteen Python modules used by the demo, runtime license texts, and an exact
 release manifest. The output is about14MB and contains no Core, research,
 recovery records, or Git history. It still discloses the bounded Axiom compiler
 source, available through the playground's Demo source link.
 
 The public source archive is `beryl-compiler.zip`, with the Python package named
-`beryl`. The builder applies six explicit branding substitutions to docstrings
-and semantic/checker version labels. Private compiler sources remain unchanged.
+`beryl`. Its exact allowlist includes the bounded Wasm backend and native C
+generator, with no Core or research modules. The builder applies nine explicit,
+reviewed branding substitutions to docstrings, the generated C header, and
+semantic/checker version labels. Private compiler sources remain unchanged.
 The branded package produces the same outputs and resource metrics, but its
 plan digests differ; do not interchange plans or verification identities between
 the private and public distributions. The package tests compare both versions.
+The ZIP can prepare compiled Wasm and generate standalone finite-plan C programs
+without the private checkout. The Performance page also provides the comparison
+C and Rust sources; both programs are compiled before execution timing starts.
 
 The built site needs only static HTTP/HTTPS hosting. The entire computation runs
 in a Web Worker in the visitor's browser; source and input data stay there. All
-runtime files are served from the site's own origin. Relative URLs support a
+runtime files are served from the site's own origin. A prepared Wasm instance is
+reused while the exact source stays unchanged; every invocation validates its
+inputs and compares the complete observation with a fresh evaluation of the
+retained source. Relative URLs support a
 GitHub Pages repository subpath. Opening the HTML as a local file is unsupported;
 use an HTTP server to test the built directory. This browser version makes the
 same finite-profile claims as the local server version.
@@ -128,10 +137,13 @@ The maximum input is256 cells: `(H+1)*(W+1) <= 256`. A15×15 output fits;32×32 
 not. Input values are exact integers0..1023; arithmetic is checked i32.
 
 All three candidate schedules are checked against source. The chosen plan is
-checked again at the execution boundary; saved success flags grant no authority.
+checked again before interpreter execution or Wasm emission; compiled invocations
+enforce the admitted input precondition. Saved success flags grant no authority.
 Execution and the source evaluator operate independently and their complete
-observations must agree. The browser is a client of the real Python compiler,
-not a canned animation or a second JavaScript language implementation.
+observations must agree. The browser uses the real Python compiler to produce
+an import-free Wasm module with one fixed memory page. Source changes trigger
+fresh selection, checking, and compilation; changing inputs reuses the prepared
+module and still requires an independent comparison on every run.
 
 Plan scratch is the plan's logical scratch arena. It excludes input/output,
 SSA temporaries, Python memory and backend overhead. Multiplications are counted
@@ -172,7 +184,7 @@ node --test --test-timeout=5000 tools/test-playground-ui.cjs
 From `axiom/`:
 
 ```sh
-PYTHONPATH=src python3 -m unittest tests.test_runtime tests.test_playground_service tests.test_playground_http -v
+PYTHONPATH=src python3 -m unittest tests.test_runtime tests.test_playground_service tests.test_playground_http tests.test_playground_site -v
 PYTHONPATH=src python3 -O -m unittest tests.test_runtime tests.test_playground_service tests.test_playground_http -v
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
@@ -180,8 +192,9 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 The full suite includes separately gated native tests. Skips are not native
 qualification. See the retained presentation review for the actual current run.
 
-Optional browser verification uses Playwright and Chromium installed separately
-as developer tools, not runtime dependencies:
+Optional compiled-browser verification uses Playwright and Chromium installed
+separately as developer tools, not runtime dependencies. Serve the generated
+static release directory, then use its URL (or the hosted playground):
 
 ```sh
 node tools/check-playground-browser.cjs http://YOUR_TEST_SERVER
@@ -193,4 +206,6 @@ existing Playwright installation and `CHROMIUM_PATH` an existing browser binary.
 TLS verification remains enabled.
 It exercises actual execution, output equality, schedule changes, downloads,
 rejections, stale-result clearing, keyboard reset after reports and diagnostics,
-default restoration and rerunning, narrow screens, and keyboard navigation.
+default restoration and rerunning, narrow screens, keyboard navigation, compiled
+reuse, visible compilation costs, and both performance tables. The legacy HTTP
+service remains covered by its Python tests.

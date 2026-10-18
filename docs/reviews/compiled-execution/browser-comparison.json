@@ -1,0 +1,117 @@
+{
+  "browser": "154.0.8037.57",
+  "scope": "Same-host repeated verified browser requests. Before interprets and recompiles each request; after reuses a freshly checked compiled module. Initial runtime startup excluded; first request and compilation are recorded separately.",
+  "cases": [
+    {
+      "height": 5,
+      "width": 7,
+      "cap": 64,
+      "mode": "ramp",
+      "first_compiled_request": {
+        "request_ms": 125.5,
+        "compilation_ms": 118,
+        "initial_compilation_ms": 118,
+        "reused_compilation": false,
+        "execution_ms": 0.599999999627471,
+        "verification_ms": 3.199999999254942
+      },
+      "samples_ms": {
+        "before": [
+          89.90000000037253,
+          86.40000000037253,
+          94.10000000149012,
+          88.59999999962747,
+          89.10000000149012
+        ],
+        "after": [
+          5.099999999627471,
+          6,
+          7.600000001490116,
+          5.400000000372529,
+          5.800000000745058
+        ]
+      },
+      "median_ms": {
+        "before": 89.10000000149012,
+        "after": 5.800000000745058
+      },
+      "ratio": 15.362068963800773,
+      "observations_and_plan_reports_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "mode": "ramp",
+      "first_compiled_request": {
+        "request_ms": 637.0999999996275,
+        "compilation_ms": 602.6000000014901,
+        "initial_compilation_ms": 602.6000000014901,
+        "reused_compilation": false,
+        "execution_ms": 16.40000000037253,
+        "verification_ms": 11.300000000745058
+      },
+      "samples_ms": {
+        "before": [
+          587.4000000003725,
+          568.8999999985099,
+          575.8999999985099,
+          549.5,
+          554.5999999996275
+        ],
+        "after": [
+          13.900000000372529,
+          14.800000000745058,
+          13.199999999254942,
+          14.099999999627471,
+          12.5
+        ]
+      },
+      "median_ms": {
+        "before": 568.8999999985099,
+        "after": 13.900000000372529
+      },
+      "ratio": 40.92805755275273,
+      "observations_and_plan_reports_identical": true,
+      "independent_formula_matches": true
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "cap": 64,
+      "mode": "checkerboard",
+      "first_compiled_request": {
+        "request_ms": 13.900000000372529,
+        "compilation_ms": 0,
+        "initial_compilation_ms": 602.6000000014901,
+        "reused_compilation": true,
+        "execution_ms": 0.09999999962747097,
+        "verification_ms": 10.400000000372529
+      },
+      "samples_ms": {
+        "before": [
+          569.0999999996275,
+          520.5,
+          562.9000000003725,
+          534.8000000007451,
+          553.2999999988824
+        ],
+        "after": [
+          15.200000001117587,
+          18.800000000745058,
+          13,
+          13.300000000745058,
+          14.200000001117587
+        ]
+      },
+      "median_ms": {
+        "before": 553.2999999988824,
+        "after": 14.200000001117587
+      },
+      "ratio": 38.96478872924901,
+      "observations_and_plan_reports_identical": true,
+      "independent_formula_matches": true
+    }
+  ]
+}

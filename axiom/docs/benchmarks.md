@@ -2,10 +2,11 @@
 
 The published [Performance lab](https://nteuphoria.github.io/beryl-playground/benchmarks.html)
 can run three audited browser workloads, supports cancellation, and shows saved
-Windows C/Rust comparisons separately. Browser runs use one warm-up and three
-samples per size, with a two-minute overall limit.
+native comparisons separately. Browser and native process times have different
+boundaries and must be interpreted separately. Saved reports are reviewed
+snapshots; running a local command does not replace or publish them.
 
-## C and Rust comparison
+## Precompiled native comparison
 
 ```powershell
 py -3 tools/compare-playground.py --output .local/comparison.json
@@ -13,24 +14,59 @@ py -3 tools/compare-playground.py --output .local/comparison.json
 
 Requires `clang` and `rustc` on PATH, or use `--cc` and `--rustc` to select them.
 Windows GNU Rust can use `--rust-self-contained` when its bundled linker
-libraries are needed. C uses `-O3 -std=c11`; Rust uses `-O`. Native compilation
-is outside the measured interval. Executables are temporary and removed.
+libraries are needed. Both generated beryl C and the direct C baseline use
+`-O3 -std=c11`; Rust uses `-O`. The direct baseline sources in
+`tools/benchmarks/` are unchanged. All executables, including beryl's three
+shape-specific programs, are compiled before the first warm-up. Executables
+are temporary and removed.
 
 Six workloads cover three sizes and two input patterns. Each backend runs one
-warm-up and five measured subprocesses, with rotating order. All receive the
-same values, and every output is compared with a direct formula. beryl uses a
-zero-scratch plan; C and Rust calculate the stencil directly. Native sources
-are in `tools/benchmarks/` and included as downloads in the public release.
+warm-up and five measured subprocesses, with rotating order (`--samples`
+accepts 1 through 30). Ramp and checkerboard values change between iterations,
+stay within 0 through 1023, and are identical for all three programs in an
+iteration. Every warm-up and measured output is checked against an independent
+direct formula after timing. A mismatch stops the command without a report.
+Each beryl program lowers a selected, freshly checked zero-scratch physical
+plan; inputs are supplied at runtime. It is compiled once per shape and reused
+for both input patterns. C and Rust calculate the stencil directly and accept
+bounded dimensions at runtime.
 
-The measured interval includes process startup, input decoding and stdout
-transfer. beryl also parses source, selects and freshly checks a plan and
-performs its reference comparison, returning a richer report. Consequently
-these are implementation/request-latency observations, not kernel-only or
-equal-feature language rankings. Small native measurements are dominated by
-startup. Do not compare the saved native numbers directly with browser times.
-Compiler versions, flags, native source hashes and raw samples are recorded.
-The published JSON is a deliberately reviewed snapshot; running the script
-does not automatically replace or publish it.
+The primary measured interval includes fresh process startup, identical text
+input transfer and decoding, preflight, computation, JSON output and stdout
+transfer. JSON decoding and the external correctness audit happen after the
+clock stops. These are process-latency observations; small measurements are
+dominated by startup and do not establish kernel throughput or a language
+ranking. Shape specialization and the programs' different parsers also affect
+the observations. Reports record each beryl-to-baseline median ratio and whether
+the observed latency meets the 2x target for both baselines. The target is not
+a guarantee, and a failed target remains visible in the report.
+
+Source admission and checked selection, fresh checking and C emission, and
+native compilation have separate durations. Reports retain exact source and
+generated C, source/plan/generated-C/binary/request SHA-256 identities, raw
+samples, compiler commands and flags, compiler/Python versions and executable
+hashes, CPU information, runner/compiler module hashes, and Git provenance.
+Temporary compiler output paths identify the commands that actually ran; the
+files are removed afterward. Output paths are never overwritten.
+
+To reproduce the compiler pipeline from a reviewed public compiler ZIP, add
+`--compiler-archive path/to/beryl-compiler.zip`. This loads its `beryl` modules
+and records the archive hash and the `beryl/...` module hashes. Generated C is
+included in each shape's compilation record for independent review.
+
+The older Python service cost remains available explicitly:
+
+```powershell
+py -3 tools/compare-playground.py --include-python --output .local/comparison-with-python.json
+```
+
+Each case then has a separate `python_full_request` result, described in
+`optional_scopes`. It includes fresh Python startup, source parsing, checked
+selection, fresh checking, interpreted execution, independent source evaluation
+and a richer JSON response. The primary `measurements.beryl`, `C`, and `Rust`
+fields still refer to precompiled native programs. Archive mode also runs this
+optional service from the selected public ZIP. This scope is distinct from
+both native process latency and the warm in-process audit below.
 
 ## In-process beryl audit
 
