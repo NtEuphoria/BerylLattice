@@ -1,0 +1,15 @@
+test_actual_registry_counts_and_view_visits_match_independent_walk (tests.test_source_names_v2.SourceNameBoundaryTests.test_actual_registry_counts_and_view_visits_match_independent_walk) ... ok
+test_all_accepted_variants_retain_exact_original_ast (tests.test_source_names_v2.SourceNameBoundaryTests.test_all_accepted_variants_retain_exact_original_ast) ... ok
+test_all_rejected_variants_still_reject (tests.test_source_names_v2.SourceNameBoundaryTests.test_all_rejected_variants_still_reject) ... ok
+test_necessary_guards_run_before_general_validation (tests.test_source_names_v2.SourceNameBoundaryTests.test_necessary_guards_run_before_general_validation) ... ok
+test_original_name_diagnostics_do_not_cascade_or_expose_alias_traceback (tests.test_source_names_v2.SourceNameBoundaryTests.test_original_name_diagnostics_do_not_cascade_or_expose_alias_traceback) ... ok
+test_private_view_exists_and_retains_original_ast_and_identities (tests.test_source_names_v2.SourceNameBoundaryTests.test_private_view_exists_and_retains_original_ast_and_identities) ... ok
+test_private_view_preserves_every_non_name_field_and_shared_declaration (tests.test_source_names_v2.SourceNameBoundaryTests.test_private_view_preserves_every_non_name_field_and_shared_declaration) ... ok
+test_registry_scans_each_resident_once_without_hash_or_whole_name_equality (tests.test_source_names_v2.SourceNameBoundaryTests.test_registry_scans_each_resident_once_without_hash_or_whole_name_equality) ... ok
+test_shared_validator_and_profile_receive_only_fixed_aliases (tests.test_source_names_v2.SourceNameBoundaryTests.test_shared_validator_and_profile_receive_only_fixed_aliases) ... ok
+test_tenth_spelling_rejects_at_original_occurrence (tests.test_source_names_v2.SourceNameBoundaryTests.test_tenth_spelling_rejects_at_original_occurrence) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.334s
+
+OK

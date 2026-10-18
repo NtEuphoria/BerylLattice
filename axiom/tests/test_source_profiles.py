@@ -163,6 +163,33 @@ class SourceProfileTests(unittest.TestCase):
             self.assertNotEqual(new.family_digest, semantic_digest)
             self.assertNotEqual(new.specialization_digest, semantic_digest)
 
+    def test_forged_configuration_and_private_view_cannot_bypass_fresh_parsing(self):
+        from axiom.source_names_v2 import _build_name_view
+        source = stencil_source(5, 7)
+        view = _build_name_view(parse_source(source))
+        for value in (view, view.module, {'source_bytes': source, 'aliases': view.original_names}):
+            with self.subTest(value=type(value)), self.assertRaises(DiagnosticError) as caught:
+                self.admit(value)
+            self.assertEqual(caught.exception.code, 'INVALID_SOURCE')
+        for record, field, bad in ((SourceProfileV2, 'max_height', 8193),
+                                   (SourceProfileV2, 'version', True),
+                                   (SourceLimitsV2, 'expression_nodes', 100001),
+                                   (SourceLimitsV2, 'source_bytes', True)):
+            forged = record()
+            object.__setattr__(forged, field, bad)
+            kwargs = {'profile': SourceProfileV2(), 'limits': SourceLimitsV2()}
+            kwargs['profile' if record is SourceProfileV2 else 'limits'] = forged
+            with self.subTest(record=record, field=field), self.assertRaises(ValueError):
+                admit_source_v2(source, **kwargs)
+        with self.assertRaises(DiagnosticError) as caught:
+            admit_source_v2(source, profile=SourceProfileV2(),
+                            limits=SourceLimitsV2(source_bytes=len(source)-1))
+        self.assertEqual(caught.exception.code, 'SOURCE_BYTES_LIMIT')
+        result = admit_source_v2(source, profile=SourceProfileV2(),
+                                 limits=SourceLimitsV2(source_bytes=len(source)))
+        self.assertEqual(result, AdmittedLoopKernel(source, profile=SourceProfileV2(),
+                                                   limits=SourceLimitsV2()))
+
 
 if __name__ == '__main__':
     unittest.main()

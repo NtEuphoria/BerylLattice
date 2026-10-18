@@ -1,0 +1,147 @@
+{
+  "accepted_exact_matches": 32,
+  "rejections_preserved": 27,
+  "normal_optimized_exact_match": true,
+  "intentional_diagnostic_changes": {
+    "input_rank": {
+      "baseline": {
+        "code": "INVALID_INDEX",
+        "message": "tensor rank does not match read",
+        "span": [
+          110,
+          10
+        ],
+        "status": "rejected"
+      },
+      "integrated": {
+        "code": "UNSUPPORTED_PROFILE",
+        "message": "input and equations must have rank two",
+        "span": [
+          0,
+          283
+        ],
+        "status": "rejected"
+      }
+    },
+    "negative_before_nonliteral": {
+      "baseline": {
+        "code": "INVALID_SHAPE",
+        "message": "shape dimensions must be positive",
+        "span": [
+          23,
+          2
+        ],
+        "status": "rejected"
+      },
+      "integrated": {
+        "code": "UNSUPPORTED_PROFILE",
+        "message": "shape parameters must be literal declarations",
+        "span": [
+          0,
+          290
+        ],
+        "status": "rejected"
+      }
+    },
+    "output_rank": {
+      "baseline": {
+        "code": "UNDEFINED_NAME",
+        "message": "undefined index 'c'",
+        "span": [
+          179,
+          1
+        ],
+        "status": "rejected"
+      },
+      "integrated": {
+        "code": "UNSUPPORTED_PROFILE",
+        "message": "input and equations must have rank two",
+        "span": [
+          0,
+          277
+        ],
+        "status": "rejected"
+      }
+    },
+    "producer_rank": {
+      "baseline": {
+        "code": "UNDEFINED_NAME",
+        "message": "undefined index 'c'",
+        "span": [
+          110,
+          1
+        ],
+        "status": "rejected"
+      },
+      "integrated": {
+        "code": "UNSUPPORTED_PROFILE",
+        "message": "input and equations must have rank two",
+        "span": [
+          0,
+          275
+        ],
+        "status": "rejected"
+      }
+    },
+    "shape_missing": {
+      "baseline": {
+        "code": "UNDEFINED_NAME",
+        "message": "undefined shape 'W'",
+        "span": [
+          47,
+          1
+        ],
+        "status": "rejected"
+      },
+      "integrated": {
+        "code": "UNSUPPORTED_PROFILE",
+        "message": "requires exactly two shapes, one input, one producer and one output",
+        "span": [
+          0,
+          274
+        ],
+        "status": "rejected"
+      }
+    },
+    "tenth_name": {
+      "baseline": {
+        "code": "UNDEFINED_NAME",
+        "message": "undefined index 'unknown'",
+        "span": [
+          187,
+          7
+        ],
+        "status": "rejected"
+      },
+      "integrated": {
+        "code": "UNSUPPORTED_PROFILE",
+        "message": "source uses more than nine distinct semantic names",
+        "span": [
+          187,
+          7
+        ],
+        "status": "rejected"
+      }
+    },
+    "undefined_before_extra_shape": {
+      "baseline": {
+        "code": "UNDEFINED_NAME",
+        "message": "undefined shape 'missing'",
+        "span": [
+          56,
+          7
+        ],
+        "status": "rejected"
+      },
+      "integrated": {
+        "code": "UNSUPPORTED_PROFILE",
+        "message": "requires exactly two shapes, one input, one producer and one output",
+        "span": [
+          0,
+          309
+        ],
+        "status": "rejected"
+      }
+    }
+  }
+}

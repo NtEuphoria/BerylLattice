@@ -11,6 +11,17 @@ except ModuleNotFoundError:
     import oracle_receipt as receipt
 
 class QualificationBoundaryTests(unittest.TestCase):
+    def test_source_name_helper_and_existing_cache_are_required_runtime_paths(self):
+        from axiom import source_names_v2
+        actual = receipt._runtime_paths()
+        origin = Path(source_names_v2.__spec__.origin).resolve()
+        self.assertEqual(actual.get(origin), 'implementation')
+        with tempfile.TemporaryDirectory() as directory:
+            cache = Path(directory)/'source_names_v2.pyc'
+            cache.write_bytes(b'fixture cache bytes')
+            with patch.object(source_names_v2, '__cached__', str(cache)):
+                self.assertEqual(receipt._runtime_paths().get(cache), 'implementation')
+
     def test_forged_closed_handles_cannot_delete_caller_paths(self):
         with tempfile.TemporaryDirectory() as directory:
             for handle_type in (receipt.OracleQualification, receipt.VerifiedOracle):
@@ -185,6 +196,65 @@ class SelectedQualificationTests(unittest.TestCase):
         return receipt.select_oracle_qualification(root/'approval.json',
             approved_root_sha256=approved or self.approved, live_roots=self.roots,
             scratch_directory=self.root/'bad-scratch', **kwargs)
+
+    def test_source_name_helper_omission_rejects_rehashed_approval(self):
+        root = self.mutated_subject(lambda p: None)
+        qualification = json.loads((root/'qualification.json').read_bytes())
+        logical = 'repository/src/axiom/source_names_v2.py'
+        self.assertTrue(any(item['logical_path'] == logical for item in qualification['inventory']))
+        qualification['inventory'] = [item for item in qualification['inventory']
+                                      if item['logical_path'] != logical]
+        qref = document(root, 'qualification.json', qualification)
+        evidence = json.loads((root/'tests.json').read_bytes())
+        evidence['qualification_sha256'] = qref['sha256']
+        eref = document(root, 'tests.json', evidence)
+        review = json.loads((root/'review.json').read_bytes())
+        review['qualification_sha256'] = qref['sha256']
+        review['test_evidence_sha256'] = eref['sha256']
+        rref = document(root, 'review.json', review)
+        approved = document(root, 'approval.json', dict(schema='axiom-oracle-approval-v1',
+            qualification=qref, test_evidence=eref, review=rref))['sha256']
+        with self.assertRaisesRegex(ValueError, 'omits or substitutes'):
+            self.select_changed(root, approved)
+
+    def test_live_source_name_helper_or_cache_change_invalidates_qualification(self):
+        from axiom import source_names_v2
+        helper_temp = tempfile.TemporaryDirectory(prefix='.a1-live-fixture-',
+            dir=Path(__file__).resolve().parents[2])
+        self.addCleanup(helper_temp.cleanup)
+        helper_root = Path(helper_temp.name)
+        helper = helper_root/'source_names_v2.py'
+        original_source = Path(source_names_v2.__spec__.origin).read_bytes()
+        helper.write_bytes(original_source)
+        cache = helper_root/'source_names_v2.pyc'
+        original_cache = b'SYNTHETIC cache bytes; never executed'
+        cache.write_bytes(original_cache)
+        subject = self.root/'adapter-subject'
+        subject.mkdir()
+        # Use owned fixture files for live byte changes; never mutate the loaded
+        # repository source or execute these substitute cache bytes.
+        with patch.object(source_names_v2.__spec__, 'origin', str(helper)), \
+                patch.object(source_names_v2, '__cached__', str(cache)):
+            roots, approved = synthetic_approval(subject)
+            handle = receipt.select_oracle_qualification(subject/'approval.json',
+                approved_root_sha256=approved, live_roots=roots,
+                scratch_directory=self.root/'adapter-scratch')
+            try:
+                for path, original in ((helper, original_source), (cache, original_cache)):
+                    with self.subTest(file=path.name):
+                        path.write_bytes(original + b'\nchanged live dependency\n')
+                        try:
+                            with self.assertRaises(ValueError):
+                                handle.revalidate()
+                            with self.assertRaises(ValueError):
+                                receipt.select_oracle_qualification(subject/'approval.json',
+                                    approved_root_sha256=approved, live_roots=roots,
+                                    scratch_directory=self.root/'mutated-adapter-scratch')
+                        finally:
+                            path.write_bytes(original)
+                        handle.revalidate()
+            finally:
+                handle.close()
 
     def test_forged_qualification_does_not_admit(self):
         with self.assertRaises(ValueError):

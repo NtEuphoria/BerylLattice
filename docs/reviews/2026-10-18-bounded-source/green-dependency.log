@@ -1,0 +1,8 @@
+test_source_name_helper_and_existing_cache_are_required_runtime_paths (research.tests.test_oracle_receipts.QualificationBoundaryTests.test_source_name_helper_and_existing_cache_are_required_runtime_paths) ... ok
+test_source_name_helper_omission_rejects_rehashed_approval (research.tests.test_oracle_receipts.SelectedQualificationTests.test_source_name_helper_omission_rejects_rehashed_approval) ... ok
+test_live_source_name_helper_or_cache_change_invalidates_qualification (research.tests.test_oracle_receipts.SelectedQualificationTests.test_live_source_name_helper_or_cache_change_invalidates_qualification) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.039s
+
+OK

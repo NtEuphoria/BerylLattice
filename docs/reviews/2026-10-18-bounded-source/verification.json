@@ -1,0 +1,336 @@
+{
+  "schema": "axiom-bounded-source-verification-v1",
+  "date": "2026-10-18",
+  "base_commit": "ebce26d9a2127540181530d0f24ada0c223e80b4",
+  "runs": [
+    {
+      "group": "product",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_source_names_v2",
+        "tests.test_source_profiles",
+        "tests.test_frontend",
+        "tests.test_reference",
+        "tests.test_invocation_v2",
+        "tests.test_artifact_chunks_v2",
+        "-v"
+      ],
+      "cwd": "/workspace/BerylLattice/axiom",
+      "environment": {
+        "PYTHONPATH": "src:research",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.7577700614929199,
+      "mode": "normal",
+      "tests": 58,
+      "passed": 58,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0,
+      "log": "product-normal.log"
+    },
+    {
+      "group": "research",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_state",
+        "tests.test_source_oracle",
+        "tests.test_oracle_receipts",
+        "tests.test_receipts",
+        "-v"
+      ],
+      "cwd": "/workspace/BerylLattice/axiom/research",
+      "environment": {
+        "PYTHONPATH": "../src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 116.93144416809082,
+      "mode": "normal",
+      "tests": 112,
+      "passed": 112,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0,
+      "log": "research-normal.log"
+    },
+    {
+      "group": "product",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-O",
+        "-m",
+        "unittest",
+        "tests.test_source_names_v2",
+        "tests.test_source_profiles",
+        "tests.test_frontend",
+        "tests.test_reference",
+        "tests.test_invocation_v2",
+        "tests.test_artifact_chunks_v2",
+        "-v"
+      ],
+      "cwd": "/workspace/BerylLattice/axiom",
+      "environment": {
+        "PYTHONPATH": "src:research",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.9706375598907471,
+      "mode": "optimized",
+      "tests": 58,
+      "passed": 58,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0,
+      "log": "product-optimized.log"
+    },
+    {
+      "group": "research",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-O",
+        "-m",
+        "unittest",
+        "tests.test_state",
+        "tests.test_source_oracle",
+        "tests.test_oracle_receipts",
+        "tests.test_receipts",
+        "-v"
+      ],
+      "cwd": "/workspace/BerylLattice/axiom/research",
+      "environment": {
+        "PYTHONPATH": "../src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 116.84645462036133,
+      "mode": "optimized",
+      "tests": 112,
+      "passed": 112,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0,
+      "log": "research-optimized.log"
+    }
+  ],
+  "initial_launch_errors_retained": [
+    "initial-combined-normal.json",
+    "initial-combined-optimized.json"
+  ],
+  "red_green_evidence": {
+    "adapter": {
+      "red": "red-adapter.log.gz",
+      "expected_failures": 2,
+      "green": "green-adapter.log",
+      "green_tests": 10
+    },
+    "dependency": {
+      "red": "red-dependency.log.gz",
+      "expected_failures": 4,
+      "test_methods": 3,
+      "green": "green-dependency.log",
+      "green_tests": 3
+    }
+  },
+  "differential": {
+    "accepted_exact_matches": 32,
+    "rejections_preserved": 27,
+    "normal_optimized_exact_match": true,
+    "intentional_diagnostic_changes": {
+      "input_rank": {
+        "baseline": {
+          "code": "INVALID_INDEX",
+          "message": "tensor rank does not match read",
+          "span": [
+            110,
+            10
+          ],
+          "status": "rejected"
+        },
+        "integrated": {
+          "code": "UNSUPPORTED_PROFILE",
+          "message": "input and equations must have rank two",
+          "span": [
+            0,
+            283
+          ],
+          "status": "rejected"
+        }
+      },
+      "negative_before_nonliteral": {
+        "baseline": {
+          "code": "INVALID_SHAPE",
+          "message": "shape dimensions must be positive",
+          "span": [
+            23,
+            2
+          ],
+          "status": "rejected"
+        },
+        "integrated": {
+          "code": "UNSUPPORTED_PROFILE",
+          "message": "shape parameters must be literal declarations",
+          "span": [
+            0,
+            290
+          ],
+          "status": "rejected"
+        }
+      },
+      "output_rank": {
+        "baseline": {
+          "code": "UNDEFINED_NAME",
+          "message": "undefined index 'c'",
+          "span": [
+            179,
+            1
+          ],
+          "status": "rejected"
+        },
+        "integrated": {
+          "code": "UNSUPPORTED_PROFILE",
+          "message": "input and equations must have rank two",
+          "span": [
+            0,
+            277
+          ],
+          "status": "rejected"
+        }
+      },
+      "producer_rank": {
+        "baseline": {
+          "code": "UNDEFINED_NAME",
+          "message": "undefined index 'c'",
+          "span": [
+            110,
+            1
+          ],
+          "status": "rejected"
+        },
+        "integrated": {
+          "code": "UNSUPPORTED_PROFILE",
+          "message": "input and equations must have rank two",
+          "span": [
+            0,
+            275
+          ],
+          "status": "rejected"
+        }
+      },
+      "shape_missing": {
+        "baseline": {
+          "code": "UNDEFINED_NAME",
+          "message": "undefined shape 'W'",
+          "span": [
+            47,
+            1
+          ],
+          "status": "rejected"
+        },
+        "integrated": {
+          "code": "UNSUPPORTED_PROFILE",
+          "message": "requires exactly two shapes, one input, one producer and one output",
+          "span": [
+            0,
+            274
+          ],
+          "status": "rejected"
+        }
+      },
+      "tenth_name": {
+        "baseline": {
+          "code": "UNDEFINED_NAME",
+          "message": "undefined index 'unknown'",
+          "span": [
+            187,
+            7
+          ],
+          "status": "rejected"
+        },
+        "integrated": {
+          "code": "UNSUPPORTED_PROFILE",
+          "message": "source uses more than nine distinct semantic names",
+          "span": [
+            187,
+            7
+          ],
+          "status": "rejected"
+        }
+      },
+      "undefined_before_extra_shape": {
+        "baseline": {
+          "code": "UNDEFINED_NAME",
+          "message": "undefined shape 'missing'",
+          "span": [
+            56,
+            7
+          ],
+          "status": "rejected"
+        },
+        "integrated": {
+          "code": "UNSUPPORTED_PROFILE",
+          "message": "requires exactly two shapes, one input, one producer and one output",
+          "span": [
+            0,
+            309
+          ],
+          "status": "rejected"
+        }
+      }
+    }
+  },
+  "all_four_restored_files_match_archive": true,
+  "unchanged_dependencies": {
+    "axiom/src/axiom/frontend.py": "2b6f291ce350fa32c1a09e64a0de425a3d02e9633535b13949fac1a8063afa71",
+    "axiom/src/axiom/model.py": "dd45837debec9302a19d194d1fe8805176c902164f4432fc5391bcc274b96408"
+  },
+  "source_hashes": {
+    "axiom/src/axiom/source_names_v2.py": "e78a06b8acd0f854a04a538eda753bc7665aa3fef9bb7290358bdc447b6585c9",
+    "axiom/src/axiom/source_profiles.py": "4219fb082c4711f676897a8b0de777b504b99973560250d8a079403ff1b06328",
+    "axiom/tests/test_source_names_v2.py": "00ee2b0439e5b5198068e3d2d40f258f2d0b290097b9f1dd63163dd55e7397c6",
+    "axiom/tests/test_source_profiles.py": "54606dae5e4b388cfa809c1195f62ba225eb6e3827586d24d6ab01732279333b",
+    "axiom/research/oracle_receipt.py": "67c38bddd245621fc780e0cc56cd584f4cf92217196ffd07fcaca3a02991ea42",
+    "axiom/research/tests/test_oracle_receipts.py": "403493bc95a38bde84012f7cb464c293dbc3cc61b0ecb0a6145ef813f84137e6",
+    "axiom/research/protocol/source-oracle-v1.md": "9b6a7e37095b2676c25910025aba91bca452fb03e32b9717e920fc7fde75a294",
+    "axiom/src/axiom/frontend.py": "2b6f291ce350fa32c1a09e64a0de425a3d02e9633535b13949fac1a8063afa71",
+    "axiom/src/axiom/model.py": "dd45837debec9302a19d194d1fe8805176c902164f4432fc5391bcc274b96408",
+    "axiom/research/source_oracle.py": "a29677691160c2f9b19fa580f47429760ca647d9ff0d7340d66ea07a35dbcb8f"
+  },
+  "git_diff_check_exit_code": 0,
+  "evidence_sha256": {
+    "baseline-normal.json": "e9636bb00eae80cf88df3eca985594dc7c3d5c552e3a7c0657367153c10d5f27",
+    "baseline-optimized.json": "e9636bb00eae80cf88df3eca985594dc7c3d5c552e3a7c0657367153c10d5f27",
+    "compressed-log-manifest.json": "4e53cb4184cd7150aef44d74134185624566853a185f33251e31b52a37961b5a",
+    "dependency-hashes.json": "41d3961341b23284be7f7076e08cbf26cc201a73cc23e54c87e03138aa93d580",
+    "differential-summary.json": "d319961d32704da41fd5a18f3377ed7c90999992ada64a76fed884324a5187fb",
+    "differential.py": "f20b9500a64a01d7345eaa498eeb45e2b4f4b050ccf035c9c60e2a79c1e7732d",
+    "focused-normal.json": "f9d51e39b283a384577a3f14214ea6ef4a1f65339b478fe99aba4eb4000b13e2",
+    "focused-optimized.json": "5841a054c2c9384c25e4b0ca81c1662e0f0d06312e57d238daee4a6fa9f0a00a",
+    "green-adapter.log": "6d58073cf61a6572edbb927a5f870928051753a112528358d96ed01a872385ad",
+    "green-dependency.log": "bc271ad9119fb216677f727f1cef6713e4e1f632a6504c20327e76082604ae29",
+    "initial-combined-normal.json": "17a0dd7ca22fab3fd98cb07c04c1e2c51b5a290fd49bd6db4adfca0beb74c098",
+    "initial-combined-normal.log": "98764484cd171242ecb8733591cae350bfecf780eee2b573f7aad4bba6942a56",
+    "initial-combined-optimized.json": "9bd8c1e2b117b40c58fec5dc7700e18dec69370057e79fe925c75d0732bcb808",
+    "initial-combined-optimized.log": "a857ad6b2358ce19ebdf541d72d28f88513938404f25c67c1ef9a1d482edbb76",
+    "integrated-normal.json": "0bd6c1a440d4ca0f879d59d66d7ab0fcb3e6aeda3ad89a7eb81d694b75a08717",
+    "integrated-optimized.json": "0bd6c1a440d4ca0f879d59d66d7ab0fcb3e6aeda3ad89a7eb81d694b75a08717",
+    "product-normal.log": "191e4335a26f5a1b451fdd5176743a5587e13ad8d8f92e12402f0788040a729a",
+    "product-optimized.log": "3169deff44da2f0c81f01c88b88bdc5d2613cf12c67a8ac741279cc9312a807f",
+    "recovery-inspection.json": "497de66cbddbfebd78ee4639598faac4bdb3fecbe826780ca85128b40963512a",
+    "red-adapter.log.gz": "a4dfe819fd51831245b11ec758e56e88d9e9570be6afabbf09e6e7b88f57910a",
+    "red-dependency.log.gz": "ccc1fbac2e1009b1be03d8967bcf4d191b6e66f402015e70e2c56ebd7a4eba6b",
+    "research-normal.log": "06eed66a7fb19ce73e0c5a8268d730a8ae7718eee85af82c227d8dd72ac4482c",
+    "research-optimized.log": "b6d57d9bc1dc78a2da76acd59acecaf42841fd893a03e690135771e1a48408f3"
+  },
+  "limitations": [
+    "Focused tests only; full-suite integration belongs to controller.",
+    "No independent author approval or production O3 qualification.",
+    "P1/F1 complete rule/source work bound remains unresolved.",
+    "No native or performance claim."
+  ]
+}
