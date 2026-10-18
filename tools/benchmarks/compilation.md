@@ -20,23 +20,46 @@ Both revisions execute in separate Python processes. Imports finish before
 preparation timing; process startup is excluded. Revision order reverses each
 round. Every sample retains exact source, source/plan/module identities, candidate
 metadata, generated module bytes/local count, revision/module/harness hashes and
-raw preparation time. `--diagnostics` adds separate first-round cProfile counts
+raw preparation time. An extracted Git archive can be measured directly: pass
+`--baseline-revision COMMIT` (or `--repo-revision COMMIT` for a candidate archive).
+Such snapshots retain `revision: null`, unknown dirty state, a separately declared
+origin revision and exact module hashes. This caller-supplied annotation does not
+claim that the snapshot was independently checked against Git. Archives nested
+inside another checkout never inherit that parent's HEAD. `--diagnostics` adds separate first-round cProfile counts
 and request-local trace reports where supported. These instrumented preparations
 are outside wall samples. An absent trace field in an older compiler means no
 trace API, rather than zero compiler work. The profiler does not execute Wasm;
 use the browser audit below for independently checked observations.
 
-Add `--cc /path/to/clang` for a distinct native scope: legacy public
-admission/selection, a freshly checked public byte emitter, complete compiler/link,
-then an independently audited native execution outside compilation timing.
-Native source/plan/operations, C bytes/hash, executable bytes/hash, toolchain
-binary/version and flags are retained. With `--diagnostics`, separate instrumented
-object and LLVM IR builds also retain complete Clang time-trace events and
-object/optimized-IR sizes and hashes. These extra builds are excluded from the
-complete-link samples. They require Clang; ordinary Python preparation does not.
-The native scope is deliberately named separately from the browser service's
-owned compilation transaction. Its legacy selection preserves comparison with
-existing `compare-playground.py` behavior.
+Add `--cc /path/to/clang` for fresh source-to-native preparation. Checkouts with
+`source_compilation.compile_native_source` use that actual source coordinator:
+fresh admission, ranked proof, compact C emission or its typed finite fallback.
+Older checkouts without the coordinator/API use their original public
+admission/legacy selection followed by freshly checked public byte emission.
+The report labels these `source-coordinator` and `legacy-public-bytes`; a missing
+dependency inside a present coordinator is an error, rather than silent fallback.
+No prior service/Wasm proof is reused for the native preparation.
+
+`source_compilation_seconds` (and its nanosecond equivalent) covers the full fresh
+frontend through returned C for either pipeline. It does not invent old
+selection/emission subdivisions for the new coordinator.
+`native_compiler_link_ns` separately measures the real Clang invocation on the
+actual returned C. `total_fresh_native_preparation_ns`/`_seconds` measures the
+whole wall interval through source preparation, C-file materialization and real
+compiler/link. API resolution/imports precede this runtime-ready interval;
+artifact hashing and independently audited execution follow it. These native
+fields (native measurement schema version 2) are distinct from the service's Wasm
+preparation samples. `native_medians_ns` summarizes each pipeline's source,
+compiler/link and whole-wall medians; every raw interval remains in `rounds`.
+
+Native source/plan/operations, actual codegen/hint identities and fallback reason,
+candidate states, C bytes/hash, executable bytes/hash, toolchain binary/version
+and flags are retained. With `--diagnostics`, separate native cProfile and
+supported request-local trace preparations must reproduce the timed C identity.
+Separate instrumented object and LLVM IR builds retain complete Clang time-trace
+events and object/optimized-IR sizes and hashes. All diagnostic preparations and
+extra builds are excluded from the native wall samples. Clang is required for
+the native option; ordinary Python preparation does not need it.
 
 Default flags remain `-O3 -std=c11`. An optimization experiment must pass every
 flag explicitly, for example `--cflag=-O2 --cflag=-std=c11`, and report kernel

@@ -1,6 +1,12 @@
 """Measurement contracts: exact identities/counts, never latency thresholds."""
 import importlib.util
 import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from unittest.mock import patch
 from pathlib import Path
 import unittest
 
@@ -110,6 +116,108 @@ class NativeCompilationFieldTests(unittest.TestCase):
             self.assertEqual(result['phase'], 'native_compiler_link')
             self.assertEqual(result['command'], command)
             self.assertIn('seconds', result)
+
+
+class NativeSourceProfilerTests(unittest.TestCase):
+    def test_native_pipeline_emits_actual_compact_15x15_source(self):
+        profiler = load_profiler()
+        case = next(case for case in profiler.build_fixtures() if (case['height'], case['cap']) == (15, 128))
+        source = profiler.fixture_source(case).encode()
+        pipeline, prepare = profiler.native_pipeline()
+        from axiom import native_codegen
+        with patch.object(native_codegen, 'emit_native_c', side_effect=AssertionError('legacy byte emitter used')):
+            result = prepare(source)
+        self.assertEqual(pipeline, 'source-coordinator')
+        self.assertEqual(result.artifact.codegen_version, 'beryl-bounded-loop-c-v1')
+        self.assertEqual(result.search.policy_id, 'ranked-proof-v1')
+        self.assertEqual(result.artifact.source_digest, profiler.sha256(source))
+        self.assertEqual(result.artifact.plan_digest, profiler.sha256(result.search.selected_plan_bytes))
+        self.assertEqual(result.artifact.c_digest, profiler.sha256(result.artifact.c_source))
+        self.assertIsNotNone(result.artifact.hint_digest)
+        finite = native_codegen.emit_native_c(source, result.search.selected_plan_bytes)
+        self.assertLess(len(result.artifact.c_source) * 10, len(finite.c_source))
+
+    def test_old_checkout_detection_uses_real_legacy_public_pipeline(self):
+        profiler = load_profiler()
+        original_import = profiler.importlib.import_module
+        def old_import(name):
+            if name == 'axiom.source_compilation':
+                raise ModuleNotFoundError(name, name=name)
+            return original_import(name)
+        with patch.object(profiler.importlib, 'import_module', side_effect=old_import):
+            pipeline, prepare = profiler.native_pipeline()
+        case = profiler.build_fixtures('smoke')[0]
+        result = prepare(profiler.fixture_source(case).encode())
+        self.assertEqual(pipeline, 'legacy-public-bytes')
+        self.assertEqual(result.artifact.codegen_version, 'beryl-finite-c-v1')
+        self.assertEqual(result.artifact.plan_digest, profiler.sha256(result.search.selected_plan_bytes))
+        self.assertIsNone(result.hint_failure)
+        with patch.object(profiler.importlib, 'import_module', side_effect=ModuleNotFoundError('dependency', name='axiom.broken_dependency')):
+            with self.assertRaises(ModuleNotFoundError):
+                profiler.native_pipeline()
+
+    def test_native_wall_fields_cover_frontend_file_write_and_real_compiler(self):
+        profiler = load_profiler()
+        cc = os.environ.get('AXIOM_TEST_NATIVE_CLANG') or shutil.which('clang')
+        if cc is None:
+            self.skipTest('Clang required for real native profiler audit')
+        case = profiler.build_fixtures('smoke')[0]
+        source = profiler.fixture_source(case)
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(profiler, 'perf_counter_ns', side_effect=(100, 120, 130, 160)):
+                result = profiler.native_sample(source, case, cc, Path(directory), ['-O3', '-std=c11'])
+            generated = (Path(directory) / 'sample.c').read_bytes()
+        self.assertEqual(result['pipeline'], 'source-coordinator')
+        self.assertEqual(result['source_compilation_ns'], 20)
+        self.assertEqual(result['source_compilation_seconds'], 20 / 1e9)
+        self.assertEqual(result['native_compiler_link_ns'], 30)
+        self.assertEqual(result['total_fresh_native_preparation_ns'], 60)
+        self.assertEqual(result['generated_c_sha256'], profiler.sha256(generated))
+        self.assertEqual(result['generated_c_bytes'], len(generated))
+        self.assertEqual(result['source_sha256'], profiler.sha256(source.encode()))
+        self.assertEqual(result['codegen_version'], 'beryl-bounded-loop-c-v1')
+        self.assertEqual(result['independent_audit'], 'passed')
+        self.assertNotIn('selection_and_check_ns', result)
+        self.assertNotIn('fresh_check_and_emit_ns', result)
+
+    def test_native_trace_diagnostics_are_separate_and_preserve_c_identity(self):
+        profiler = load_profiler()
+        _, prepare = profiler.native_pipeline()
+        source = profiler.fixture_source(profiler.build_fixtures('smoke')[0]).encode()
+        compiled = prepare(source)
+        report = profiler.native_diagnostic(prepare, source, compiled.artifact.c_digest)
+        self.assertIn('separate native diagnostic', report['scope'])
+        self.assertEqual(report['trace']['counts']['source_admissions'], 1)
+        self.assertEqual(report['trace']['counts']['semantic_checks'], 1)
+        self.assertTrue(report['call_counts'])
+
+    def test_archive_provenance_keeps_declared_revision_distinct_from_git_identity(self):
+        profiler = load_profiler()
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            modules = repo / 'axiom/src/axiom'
+            modules.mkdir(parents=True)
+            (modules / 'example.py').write_bytes(b'# snapshot')
+            identity = profiler.git_identity(repo, declared_revision='39dc2f6')
+        self.assertEqual(identity['kind'], 'source-snapshot')
+        self.assertIsNone(identity['revision'])
+        self.assertIsNone(identity['working_tree_dirty'])
+        self.assertEqual(identity['declared_revision'], '39dc2f6')
+        self.assertEqual(identity['modules'], {'axiom/src/axiom/example.py': profiler.sha256(b'# snapshot')})
+
+    def test_cli_refuses_existing_output_and_lists_unchanged_fixtures(self):
+        command = [sys.executable, str(ROOT / 'tools/profile-compilation.py')]
+        listed = subprocess.run(command + ['--list-fixtures', '--fixture-set', 'smoke'],
+                                check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(listed.stdout)[0]['id'], '1x1-cap64-multiplication_ops')
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'existing.json'
+            output.write_text('preserve me')
+            attempted = subprocess.run(command + ['--fixture-set', 'smoke', '--samples', '1', '--output', str(output)],
+                                       capture_output=True, text=True)
+            self.assertNotEqual(attempted.returncode, 0)
+            self.assertIn('new --output', attempted.stderr)
+            self.assertEqual(output.read_text(), 'preserve me')
 
 
 if __name__ == '__main__':

@@ -17,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 from time import perf_counter_ns
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 SHAPES = ((1, 1), (5, 7), (15, 15), (1, 127), (127, 1), (2, 4), (3, 2))
@@ -126,12 +127,23 @@ def wasm_local_count(module):
     return count
 
 
-def git_identity(repo):
+def git_identity(repo, declared_revision=None):
     def git(*args):
-        return subprocess.check_output(['git', '-C', str(repo), *args], text=True).strip()
-    return dict(revision=git('rev-parse', 'HEAD'), working_tree_dirty=bool(git('status', '--porcelain')),
-                modules={str(path.relative_to(repo)): sha256(path.read_bytes())
-                         for path in sorted((repo / 'axiom/src/axiom').glob('*.py'))})
+        return subprocess.check_output(['git', '-C', str(repo), *args], text=True,
+                                       stderr=subprocess.DEVNULL).strip()
+    identity = dict(kind='source-snapshot', revision=None, working_tree_dirty=None,
+                    declared_revision=declared_revision,
+                    provenance_note='declared_revision is caller-supplied; exact module hashes identify source snapshots',
+                    modules={str(path.relative_to(repo)): sha256(path.read_bytes())
+                             for path in sorted((repo / 'axiom/src/axiom').glob('*.py'))})
+    try:
+        # An archive inside another checkout must not inherit its parent's HEAD.
+        if Path(git('rev-parse', '--show-toplevel')).resolve() == repo.resolve():
+            identity.update(kind='git-checkout', revision=git('rev-parse', 'HEAD'),
+                            working_tree_dirty=bool(git('status', '--porcelain')))
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    return identity
 
 
 def diagnostic(service, source):
@@ -155,41 +167,121 @@ def diagnostic(service, source):
                 call_counts=functions, trace=trace)
 
 
-def native_sample(source, case, cc, directory, flags, diagnostics=False):
+def native_pipeline():
+    """Resolve the selected checkout's API before timing runtime-ready source work.
+
+    A broken dependency in a new compiler must fail rather than silently measure
+    the legacy path. Only absence of the coordinator/API enables old-checkout use.
+    """
+    try:
+        coordinator = importlib.import_module('axiom.source_compilation')
+    except ModuleNotFoundError as error:
+        if error.name != 'axiom.source_compilation':
+            raise
+        coordinator = None
+    if coordinator is not None and hasattr(coordinator, 'compile_native_source'):
+        return 'source-coordinator', coordinator.compile_native_source
     from axiom.frontend import admit_source, parse_source
     from axiom.model import Limits
     from axiom.selection import select_plan
     from axiom.native_codegen import emit_native_c
-    limits = Limits()
-    start = perf_counter_ns()
-    kernel = admit_source(parse_source(source.encode(), limits))
-    selection = select_plan(kernel, limits, 100000, kernel.objective)
-    if selection.selected_plan_bytes is None:
-        raise ValueError('no eligible native plan')
-    selected_ns = perf_counter_ns() - start
-    start = perf_counter_ns()
-    artifact = emit_native_c(source.encode(), selection.selected_plan_bytes, limits)
-    emission_ns = perf_counter_ns() - start
+
+    def legacy_prepare(source):
+        limits = Limits()
+        kernel = admit_source(parse_source(source, limits))
+        search = select_plan(kernel, limits, 100000, kernel.objective)
+        if search.selected_plan_bytes is None:
+            raise ValueError('no eligible native plan')
+        artifact = emit_native_c(source, search.selected_plan_bytes, limits)
+        return SimpleNamespace(kernel=kernel, search=search, artifact=artifact, hint_failure=None)
+
+    return 'legacy-public-bytes', legacy_prepare
+
+
+def native_diagnostic(prepare, source, expected_c_digest):
+    """Separate diagnostic source preparations, never part of native wall samples."""
+    profiler = cProfile.Profile()
+    result = profiler.runcall(prepare, source)
+    if result.artifact is None or sha256(result.artifact.c_source) != expected_c_digest:
+        raise ValueError('diagnostic native artifact differs from timed preparation')
+    counts = []
+    for (filename, line, name), (_, calls, _, _, _) in pstats.Stats(profiler).stats.items():
+        if '/axiom/' in filename.replace('\\', '/'):
+            counts.append(dict(file=Path(filename).name, line=line, function=name, calls=calls))
+    trace = None
+    if 'trace' in inspect.signature(prepare).parameters:
+        from axiom.compilation_trace import CompilationTrace
+        sink = CompilationTrace()
+        traced = prepare(source, trace=sink)
+        if traced.artifact is None or sha256(traced.artifact.c_source) != expected_c_digest:
+            raise ValueError('traced native artifact differs from timed preparation')
+        trace = sink.report()
+    return dict(scope='separate native diagnostic preparations after wall samples and output audit',
+                call_counts=counts, trace=trace)
+
+
+def native_sample(source, case, cc, directory, flags, diagnostics=False):
+    pipeline, prepare = native_pipeline()
+    source_bytes = source.encode()
+    # Imports/API resolution precede this runtime-ready interval. Both paths
+    # freshly admit the entire source; no prior service proof enters this call.
+    total_start = perf_counter_ns()
+    compiled = prepare(source_bytes)
+    source_ns = perf_counter_ns() - total_start
+    artifact, selection = compiled.artifact, compiled.search
+    if artifact is None or selection.selected_plan_bytes is None:
+        raise ValueError('no eligible native artifact')
+    # File materialization is part of total source-to-executable wall time.
     c_path, executable = directory / 'sample.c', directory / 'sample'
     c_path.write_bytes(artifact.c_source)
     command = [cc, *flags, str(c_path), '-o', str(executable)]
     start = perf_counter_ns()
     subprocess.run(command, check=True, capture_output=True, timeout=180)
-    compile_ns = perf_counter_ns() - start
-    data = [index % 1024 for index in range((case['height'] + 1) * (case['width'] + 1))]
+    compiled_at = perf_counter_ns()
+    compile_ns = compiled_at - start
+    total_ns = compiled_at - total_start
+    # Identity and independent execution audits occur after compilation timing.
+    if (artifact.source_digest != sha256(source_bytes)
+            or artifact.plan_digest != sha256(selection.selected_plan_bytes)
+            or artifact.c_digest != sha256(artifact.c_source)):
+        raise ValueError('native source/plan/generated-C identity mismatch')
+    if (artifact.height, artifact.width, artifact.input_count, artifact.output_count) != (
+            case['height'], case['width'], (case['height'] + 1) * (case['width'] + 1),
+            case['height'] * case['width']):
+        raise ValueError('native artifact dimensions differ from fixture')
+    data = [index % 1024 for index in range(artifact.input_count)]
     raw = subprocess.check_output([str(executable)], input=' '.join(map(str,
         [case['height'], case['width'], *data])).encode(), timeout=30)
     audit_output(json.loads(raw), data, case['height'], case['width'])
-    record = dict(scope='legacy public fresh admission/selection then separately fresh public native backend; not owned service preparation',
-                  selection_and_check_ns=selected_ns, fresh_check_and_emit_ns=emission_ns,
-                  native_compiler_link_ns=compile_ns, flags=flags,
-                  generated_c_bytes=len(artifact.c_source), generated_c_sha256=sha256(artifact.c_source),
+    record = dict(measurement_schema_version=2, pipeline=pipeline,
+                  scope=('fresh source coordinator admission/ranked proof/compact emission (or typed finite fallback), '
+                         if pipeline == 'source-coordinator' else
+                         'legacy fresh public admission/selection and separately fresh public byte emission, ')
+                        + 'C-file materialization and real compiler/link; execution and audits excluded',
+                  source_compilation_ns=source_ns, source_compilation_seconds=source_ns / 1e9,
+                  native_compiler_link_ns=compile_ns, native_compiler_link_seconds=compile_ns / 1e9,
+                  total_fresh_native_preparation_ns=total_ns,
+                  total_fresh_native_preparation_seconds=total_ns / 1e9, flags=flags,
+                  source_sha256=artifact.source_digest,
+                  generated_c_bytes=len(artifact.c_source), generated_c_sha256=artifact.c_digest,
+                  codegen_version=getattr(artifact, 'codegen_version', 'legacy-finite-c-unversioned'),
+                  hint_sha256=getattr(artifact, 'hint_digest', None),
+                  loop_version=getattr(artifact, 'loop_version', None), hint_failure=compiled.hint_failure,
                   executable_bytes=executable.stat().st_size, executable_sha256=sha256(executable.read_bytes()),
                   selected_plan_id=selection.selected_plan.plan_id,
+                  policy_id=getattr(selection, 'policy_id', 'legacy-select-plan'),
+                  policy_digest=getattr(selection, 'policy_digest', None),
+                  deterministic_check_work=selection.total_work_used,
                   termination_reason=str(selection.termination_reason), artifact_state=str(selection.artifact_state),
-                  plan_sha256=sha256(selection.selected_plan_bytes), plan_operations=len(selection.selected_plan.operations),
+                  plan_sha256=artifact.plan_digest, plan_bytes=len(selection.selected_plan_bytes),
+                  plan_operations=len(selection.selected_plan.operations),
+                  candidate_states=[dict(candidate_id=attempt.candidate_id,
+                                         state=str(attempt.state) if hasattr(attempt, 'state') else None,
+                                         reason=attempt.reason, work_used=attempt.work_used)
+                                    for attempt in selection.attempts],
                   command=command, independent_audit='passed')
     if diagnostics:
+        record['diagnostic'] = native_diagnostic(prepare, source_bytes, artifact.c_digest)
         object_path, ir_path, trace_path = directory / 'sample.o', directory / 'sample.ll', directory / 'sample-trace.json'
         subprocess.run([cc, *flags, '-c', str(c_path), '-o', str(object_path),
                         '-ftime-trace=' + str(trace_path)], check=True, capture_output=True, timeout=180)
@@ -206,8 +298,10 @@ def worker(repo, specification):
     boot = perf_counter_ns()
     sys.path.insert(0, str(repo / 'axiom/src'))
     service = importlib.import_module('axiom.playground_service')
+    if specification['cc']:
+        native_pipeline()  # Preload the selected native path inside compiler boot.
     boot_ns = perf_counter_ns() - boot
-    output = dict(identity=git_identity(repo), total_app_boot_ns=boot_ns,
+    output = dict(identity=git_identity(repo, specification.get('declared_revision')), total_app_boot_ns=boot_ns,
                   boot_scope='Python compiler imports only; interpreter process startup excluded', cases=[])
     with tempfile.TemporaryDirectory(prefix='beryl-compile-profile-') as temporary:
         for case in specification['fixtures']:
@@ -236,12 +330,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repo', type=Path, default=ROOT)
     parser.add_argument('--baseline-repo', type=Path, help='exact baseline checkout; loaded in a separate process')
+    parser.add_argument('--repo-revision', help='declared origin revision for an archived candidate (not a verified Git identity)')
+    parser.add_argument('--baseline-revision', help='declared origin revision for an archived baseline (not a verified Git identity)')
     parser.add_argument('--fixture-set', choices=('smoke', 'qualification', 'boundary'), default='qualification')
     parser.add_argument('--fixture-id', action='append', help='restrict to these exact fixture IDs (repeatable)')
     parser.add_argument('--list-fixtures', action='store_true')
     parser.add_argument('--samples', type=int, default=7)
     parser.add_argument('--diagnostics', action='store_true', help='separate cProfile/trace and optional Clang trace/IR builds, first round only')
-    parser.add_argument('--cc', help='also measure separate native public-byte preparation and compiler/link')
+    parser.add_argument('--cc', help='also measure fresh source-native preparation and compiler/link, with old-checkout public-byte fallback')
     parser.add_argument('--cflag', action='append', help='explicit compiler experiment flags; default -O3 -std=c11')
     parser.add_argument('--output', type=Path)
     parser.add_argument('--worker', action='store_true', help=argparse.SUPPRESS)
@@ -280,7 +376,8 @@ def main():
             names.reverse()
         round_record = dict(index=round_index, order=names, revisions={})
         for name in names:
-            spec = dict(fixtures=fixtures, diagnostics=args.diagnostics and round_index == 0, cc=cc, flags=flags)
+            spec = dict(fixtures=fixtures, diagnostics=args.diagnostics and round_index == 0, cc=cc, flags=flags,
+                        declared_revision=args.baseline_revision if name == 'baseline' else args.repo_revision)
             result = subprocess.run([sys.executable, str(Path(__file__).resolve()), '--worker', '--repo', str(revisions[name])],
                 input=json.dumps(spec), text=True, capture_output=True, check=True, timeout=1800)
             round_record['revisions'][name] = json.loads(result.stdout)
@@ -289,6 +386,14 @@ def main():
     report['medians_ns'] = {name: {case['id']: statistics.median(
         round_record['revisions'][name]['cases'][index]['total_fresh_source_preparation_ns']
         for round_record in report['rounds']) for index, case in enumerate(fixtures)} for name in revisions}
+    if cc:
+        report['native_medians_ns'] = {name: {case['id']: {
+            'pipeline': report['rounds'][0]['revisions'][name]['cases'][index]['native']['pipeline'],
+            **{field: statistics.median(
+                item['revisions'][name]['cases'][index]['native'][field]
+                for item in report['rounds']) for field in (
+                    'source_compilation_ns', 'native_compiler_link_ns', 'total_fresh_native_preparation_ns')}
+        } for index, case in enumerate(fixtures)} for name in revisions}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open('x') as stream:
         json.dump(report, stream, indent=2, allow_nan=False)
