@@ -1,8 +1,11 @@
 # Axiom playground
 
-Try the [live playground](https://nteuphoria.github.io/axiom-playground/).
+Try the [live playground](https://nteuphoria.github.io/beryl-playground/).
 The approved MIT demo source is in
-[NtEuphoria/axiom-playground](https://github.com/NtEuphoria/axiom-playground).
+[NtEuphoria/beryl-playground](https://github.com/NtEuphoria/beryl-playground).
+
+The public presentation is branded **beryl**. Its compiler is the bounded Axiom
+demo; it is not Lattice Core. Earlier public Git commits retain the old codename.
 
 This is a working demonstration of Axiom's bounded declarative language: write a
 computation and scratch constraint, let Axiom select and check a schedule, then
@@ -45,6 +48,13 @@ eleven Python modules used by the demo, runtime license texts, and an exact
 release manifest. The output is about14MB and contains no Core, research,
 recovery records, or Git history. It still discloses the bounded Axiom compiler
 source, available through the playground's Demo source link.
+
+The public source archive is `beryl-compiler.zip`, with the Python package named
+`beryl`. The builder applies six explicit branding substitutions to docstrings
+and semantic/checker version labels. Private compiler sources remain unchanged.
+The branded package produces the same outputs and resource metrics, but its
+plan digests differ; do not interchange plans or verification identities between
+the private and public distributions. The package tests compare both versions.
 
 The built site needs only static HTTP/HTTPS hosting. The entire computation runs
 in a Web Worker in the visitor's browser; source and input data stay there. All

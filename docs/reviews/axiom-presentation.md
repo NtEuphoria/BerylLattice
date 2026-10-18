@@ -47,3 +47,9 @@ Python mode and preserves the original frontend/model bytes and admitted identit
 The subsequent [playground clarity review](playground-polish/review.md) records
 the simpler interface, accessibility checks, unchanged compiler/runtime bytes,
 and verified public update at commit `83da6e1`.
+
+The public presentation is now branded **beryl** at
+https://nteuphoria.github.io/beryl-playground/. The
+[branding review](beryl-brand/review.md) records the source-package export,
+behavior comparisons, and live verification. Historical public commits retain
+the previous name.

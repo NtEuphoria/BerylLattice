@@ -20,7 +20,7 @@ import { getExamples, runDemo } from "./transport.js";
   };
   const exampleCopy = {
     "balanced": { title: "Fewer calculations", description: "Allow 64 bytes of temporary storage and prefer fewer multiplications." },
-    "no-scratch": { title: "No temporary storage", description: "Allow no temporary storage. Axiom must recalculate values instead of saving them." },
+    "no-scratch": { title: "No temporary storage", description: "Allow no temporary storage. beryl must recalculate values instead of saving them." },
     "small-memory": { title: "Least storage", description: "Allow up to 64 bytes, but prefer the plan that uses the least temporary storage." },
   };
   let examples = [];
@@ -237,7 +237,7 @@ import { getExamples, runDemo } from "./transport.js";
     let timedOut = false;
     const timeout = window.setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
     setRunning(true);
-    setStatus("loading", "Running your computation…", "Axiom checks the selected plan, runs it, and compares its output with a separate calculation.");
+    setStatus("loading", "Running your computation…", "beryl checks the selected plan, runs it, and compares its output with a separate calculation.");
     try {
       const aborted = new Promise((resolve, reject) => {
         controller.signal.addEventListener("abort", () => reject(new Error("Run cancelled.")), { once: true });
@@ -270,7 +270,7 @@ import { getExamples, runDemo } from "./transport.js";
     const initialSource = ui.source.value;
     const initialRequestId = requestId;
     const initializing = !initialSource.trim() && !currentReport && !activeController;
-    if (initializing) setStatus("loading", inBrowser ? "Preparing the Axiom runtime…" : "Loading the examples…", inBrowser ? "The first visit downloads the Python runtime. Computations then run in this browser." : "Connecting to the local Python runtime.");
+    if (initializing) setStatus("loading", inBrowser ? "Preparing the beryl runtime…" : "Loading the examples…", inBrowser ? "The first visit downloads the Python runtime. Computations then run in this browser." : "Connecting to the local Python runtime.");
     try {
       const data = await getExamples();
       if (!Array.isArray(data.examples) || data.examples.length === 0 || data.examples.some((item) => !item || ["id", "title", "description", "source"].some((key) => typeof item[key] !== "string"))) throw new Error("Invalid example response");
@@ -287,7 +287,7 @@ import { getExamples, runDemo } from "./transport.js";
       }
       if (!initialSource && !ui.source.value) ui.source.value = examples[0].source;
       updateExampleSelection();
-      if (initializing && requestId === initialRequestId) setStatus("idle", "Ready to run", "An example is loaded. Run it to see the output and the plan Axiom chooses.");
+      if (initializing && requestId === initialRequestId) setStatus("idle", "Ready to run", "An example is loaded. Run it to see the output and the plan beryl chooses.");
     } catch (error) {
       const failureCopy = cell("p", "Examples could not be loaded.");
       failureCopy.className = "loading-copy";
@@ -314,7 +314,7 @@ import { getExamples, runDemo } from "./transport.js";
     const url = URL.createObjectURL(new Blob([`${JSON.stringify(currentReport, null, 2)}\n`], { type: "application/json" }));
     const link = document.createElement("a");
     link.href = url;
-    link.download = "axiom-playground-result.json";
+    link.download = "beryl-result.json";
     document.body.append(link);
     link.click();
     link.remove();

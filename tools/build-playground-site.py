@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a reviewed static Axiom demo without exposing the research checkout.
+"""Build a reviewed static beryl demo without exposing the research checkout.
 
 This command only writes a new local output directory. It never publishes it.
 Default runtime assets are pinned, hash-checked and vendored for same-origin use.
@@ -19,6 +19,22 @@ CDN = f'https://cdn.jsdelivr.net/pyodide/v{VERSION}/full/'
 MODULES = ('__init__', 'runtime', 'playground_service', 'frontend', 'model',
            'checker', 'codec', 'plan_format', 'planner', 'selection', 'reference')
 ASSETS = ('index.html', 'app.js', 'style.css', 'transport.js', 'worker.js')
+# Export only these reviewed branding changes; private compiler sources stay intact.
+# Public version names intentionally give the exported plans distinct identities.
+PUBLIC_SOURCE_REPLACEMENTS = {
+    '__init__': ((b"Axiom's bounded correctness prototype.",
+                  b"beryl's bounded correctness prototype."),),
+    'runtime': ((b'Freshly checked execution of finite Axiom plans on owned Python buffers.',
+                 b'Freshly checked execution of finite beryl plans on owned Python buffers.'),),
+    'playground_service': ((b'Bounded presentation requests over the existing Axiom v1 implementation.',
+                            b'Bounded presentation requests for the beryl browser demo.'),),
+    'frontend': ((b'Bounded parsing and structural admission of the single Axiom stencil.',
+                  b'Bounded parsing and structural admission of the supported beryl stencil.'),),
+    'model': ((b"SEMANTICS_VERSION = 'axiom-stencil-i32-v1'",
+               b"SEMANTICS_VERSION = 'beryl-stencil-i32-v1'"),),
+    'checker': ((b"CHECKER_VERSION = 'axiom-checker-v1'",
+                 b"CHECKER_VERSION = 'beryl-checker-v1'"),),
+}
 # Verified upstream release bytes. No additional Python packages are installed.
 RUNTIME = {
     'pyodide.js': ('b4cb23a53aba19c221659b9fb40a2f18281d685691dc06647fb0afd0681baf98', CDN + 'pyodide.js'),
@@ -55,9 +71,15 @@ def archive_modules():
     entries = {}
     with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as output:
         for module in MODULES:
-            name = f'axiom/{module}.py'
-            path = ROOT / 'axiom' / 'src' / name
+            name = f'beryl/{module}.py'
+            path = ROOT / 'axiom' / 'src' / 'axiom' / f'{module}.py'
             raw = path.read_bytes()
+            for old, new in PUBLIC_SOURCE_REPLACEMENTS.get(module, ()):
+                if raw.count(old) != 1:
+                    raise ValueError(f'expected one reviewed public branding marker in {module}.py')
+                raw = raw.replace(old, new, 1)
+            if re.search(b'axiom', raw, flags=re.IGNORECASE):
+                raise ValueError(f'unexpected private codename in public module {module}.py')
             info = zipfile.ZipInfo(name, date_time=(2026, 10, 18, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
@@ -95,7 +117,7 @@ def build(output, runtime, cache):
     index = index.replace('<head>', '<head>\n  <link rel="icon" href="data:,">\n  <meta http-equiv="Content-Security-Policy" '
                           f'content="{policy}">', 1)
     files['index.html'] = index.encode('utf-8')
-    files['axiom-compiler.zip'], entries, archive_members = archive_modules()
+    files['beryl-compiler.zip'], entries, archive_members = archive_modules()
     files['LICENSE'] = (ROOT / 'axiom/playground-LICENSE').read_bytes()
     files['.nojekyll'] = b''
     config = {'version': VERSION, 'indexURL': './runtime/' if runtime == 'vendor' else CDN}
@@ -106,34 +128,34 @@ def build(output, runtime, cache):
     files['_headers'] = ("/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n"
                           "  X-Frame-Options: DENY\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n"
                           f"  Content-Security-Policy: {policy}; frame-ancestors 'none'\n").encode()
-    readme = f'''# Axiom browser playground release
+    readme = f'''# beryl
 
-This folder is a runnable, static presentation of the experimental finite v1
-Axiom language. Serve it over HTTP/HTTPS; opening index.html as file:// does not
-support Workers. For a local preview: `python -m http.server 8765 --directory PATH`.
-The browser runs the real Python compiler, checked plan interpreter, and original
-source evaluator in a Web Worker. No compilation server or account is needed.
+An experimental playground for describing a calculation, setting its storage
+limit, and exploring the plan chosen to carry it out. The browser runs the Python
+compiler, checked plan interpreter, and independent source evaluator in a Web
+Worker. No compilation server or account is needed.
 
-## Scope and publication
+Serve this folder over HTTP/HTTPS; opening index.html as file:// does not support
+Workers. For a local preview: `python -m http.server 8765 --directory PATH`.
 
-Publishing this folder discloses the source of the eleven modules listed in
-release-manifest.json. The ZIP is source code, not a secrecy mechanism. This
-artifact excludes Core, scalable research, receipts, recovery material, session
-logs and Git history. Review these exact bytes before any public upload.
-The bounded demo is released under the MIT License in LICENSE, copyright 2026
-NtEuphoria. This grant covers the eleven compiler/runtime Python modules named
-in release-manifest.json, the five UI/transport assets (index.html, app.js,
+## Scope
+
+This early demo supports one exact i32 two-stage stencil, with
+(H+1)*(W+1) <= 256 and input values 0..1023. Each run compares the checked plan's
+output with an independent evaluation of the source. Reports describe these
+bounded interpreter runs; they do not measure native performance or certify
+larger computations. Browser code and downloaded reports can be modified, so
+reports are not authoritative attestations.
+
+## License and source
+
+The demo is released under the MIT License in LICENSE, copyright 2026 NtEuphoria.
+This grant covers the eleven compiler/runtime Python modules named in
+release-manifest.json, the five UI/transport assets (index.html, app.js,
 style.css, transport.js, worker.js), and their accompanying demo documentation.
-It does not grant a license to excluded Axiom research, recovery records, Core,
-or any other private repository material. Third-party runtime files retain their
-own licenses described below. The build command itself does not deploy, create
-a public repository, or register a Stardance submission.
-
-The supported profile is one exact i32 two-stage stencil, with
-(H+1)*(W+1) <= 256 and input values 0..1023. Reports are independently compared
-observations, not native performance measurements, scalable proof certificates,
-or O3 qualification receipts. The user can inspect and modify browser code;
-therefore a downloaded report is not an authoritative attestation.
+The Python sources are included in beryl-compiler.zip. The license covers this
+release only and does not grant rights to material outside it. Third-party
+runtime files retain their own licenses described below.
 
 ## Runtime and network
 
@@ -152,8 +174,8 @@ The vendor build includes their license texts under runtime/.
 
 ## Hosting
 
-Upload this folder as static files only after publication approval. Relative
-asset paths support a site root or a repository subpath. Serve .js as JavaScript,
+Serve this folder as static files. Relative asset paths support a site root or a
+repository subpath. Serve .js as JavaScript,
 .wasm as application/wasm, and .json as application/json. No SPA rewrite or
 backend function is needed. HTTPS is recommended for public hosting.
 
@@ -167,7 +189,7 @@ Do not add unsafe-eval, broad wildcard origins, or disable TLS to fix startup.
 release-manifest.json lists every release file's size and SHA-256, excluding
 itself to avoid a recursive hash. Its compiler_modules field lists the eleven
 Python sources; compiler_archive_members additionally records the LICENSE
-carried inside axiom-compiler.zip for standalone downloads. Rebuilds are
+carried inside beryl-compiler.zip for standalone downloads. Rebuilds are
 deterministic for identical inputs.
 '''
     files['README.md'] = readme.encode()

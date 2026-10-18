@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "files": 19,
+  "archive_members": 12,
+  "owned_text_and_source_codename_scan": "clear",
+  "runtime_assets": "unchanged",
+  "license": "unchanged",
+  "manifest_sha256": "d6097aa66dbcd7fa18d1cd250ba94ad23888118d9b7fa72d211085e9da2e482b"
+}

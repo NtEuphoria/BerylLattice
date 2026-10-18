@@ -1,0 +1,9 @@
+test_nonempty_output_is_preserved (test_playground_site.PlaygroundSiteTests.test_nonempty_output_is_preserved) ... ok
+test_public_source_preserves_demo_behavior_with_distinct_plan_identity (test_playground_site.PlaygroundSiteTests.test_public_source_preserves_demo_behavior_with_distinct_plan_identity) ... ok
+test_static_release_runs_same_compiler_without_private_sources (test_playground_site.PlaygroundSiteTests.test_static_release_runs_same_compiler_without_private_sources) ... ok
+test_unreviewed_source_branding_is_rejected (test_playground_site.PlaygroundSiteTests.test_unreviewed_source_branding_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.328s
+
+OK

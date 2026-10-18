@@ -1,0 +1,1 @@
+{"status":"passed","browser":"chromium","address":"http://127.0.0.1:8876/site/","checks":["real rows2 execution","report download","cap changes selection","stale result cleared","zero input","unsupported shape","precondition rejection","responsive widths","keyboard navigation","no page errors"]}
