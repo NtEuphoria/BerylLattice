@@ -192,8 +192,9 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 The full suite includes separately gated native tests. Skips are not native
 qualification. See the retained presentation review for the actual current run.
 
-Optional browser verification uses Playwright and Chromium installed separately
-as developer tools, not runtime dependencies:
+Optional compiled-browser verification uses Playwright and Chromium installed
+separately as developer tools, not runtime dependencies. Serve the generated
+static release directory, then use its URL (or the hosted playground):
 
 ```sh
 node tools/check-playground-browser.cjs http://YOUR_TEST_SERVER
@@ -205,4 +206,6 @@ existing Playwright installation and `CHROMIUM_PATH` an existing browser binary.
 TLS verification remains enabled.
 It exercises actual execution, output equality, schedule changes, downloads,
 rejections, stale-result clearing, keyboard reset after reports and diagnostics,
-default restoration and rerunning, narrow screens, and keyboard navigation.
+default restoration and rerunning, narrow screens, keyboard navigation, compiled
+reuse, visible compilation costs, and both performance tables. The legacy HTTP
+service remains covered by its Python tests.

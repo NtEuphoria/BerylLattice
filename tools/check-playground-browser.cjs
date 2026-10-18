@@ -75,6 +75,13 @@ async function main() {
     await page.locator('#input-mode').selectOption('zeros');
     await run();
     assert.deepEqual(await page.locator('#output-grid td').allTextContents(), Array(35).fill('4'));
+    const repeatedDownloadPromise = page.waitForEvent('download');
+    await page.locator('#download').click();
+    const repeatedReport = JSON.parse(await fs.readFile(await (await repeatedDownloadPromise).path(), 'utf8'));
+    const repeated = repeatedReport.result || repeatedReport;
+    assert.equal(repeated.timings.reused_compilation, true);
+    assert.equal(repeated.timings.compilation_ms, 0);
+    assert.ok(repeated.timings.initial_compilation_ms > 0);
     await page.locator('#source').fill(original.replace('shape H = 5', 'shape H = 32').replace('shape W = 7', 'shape W = 32'));
     await run();
     assert.equal(await page.locator('#diagnostic').isVisible(), true);
@@ -105,11 +112,20 @@ async function main() {
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'input-mode');
     if (process.env.AXIOM_SCREENSHOT) await page.screenshot({ path: process.env.AXIOM_SCREENSHOT, fullPage: true });
+    await page.goto(new URL('benchmarks.html', address).href);
+    await page.waitForFunction(() => document.querySelectorAll('#native-rows tr').length === 6, null, {timeout: 30000});
+    assert.match(await page.locator('#comparison-compilation').innerText(), /excluded from execution/);
+    await page.locator('#benchmark-run').click();
+    await page.waitForFunction(() => document.querySelector('#benchmark-status').textContent.startsWith('Complete.'), null, {timeout: 120000});
+    assert.equal(await page.locator('#browser-rows tr').count(), 3);
+    assert.equal(await page.locator('#browser-rows td').count(), 12);
+    assert.match(await page.locator('#browser-rows').innerText(), /All values verified/);
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ status: 'passed', browser: 'chromium', address,
       checks: ['real rows2 execution', 'report download', 'cap changes selection', 'stale result cleared',
         'zero input', 'unsupported shape', 'precondition rejection', 'keyboard reset after report and diagnostic',
-        'reset restores defaults and reruns', 'responsive widths', 'keyboard navigation', 'no page errors'] }));
+        'reset restores defaults and reruns', 'responsive widths', 'keyboard navigation',
+        'compiled reuse with visible cold cost', 'saved native comparison', 'compiled browser benchmark', 'no page errors'] }));
   } finally {
     await browser.close();
   }
