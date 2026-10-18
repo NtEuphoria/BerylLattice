@@ -29,15 +29,8 @@ def _snapshot(values, count, label, span):
     return snapshot
 
 
-def execute_plan(source_bytes: bytes, plan_bytes: bytes, data, initial_output,
-                 limits: Limits = Limits()) -> ExecutionResult:
-    """Re-admit and freshly check exact bytes before any plan interpretation.
-
-    Caller buffers remain unchanged. Every input and initialized destination
-    scalar is validated before the complete row-major precondition scan. Failed
-    input preconditions return the original complete destination; no operation
-    is executed. Saved checks and plan labels never grant execution authority.
-    """
+def _checked_plan(source_bytes: bytes, plan_bytes: bytes, limits: Limits):
+    """Fresh source/plan admission shared by interpreting and compiling."""
     if type(source_bytes) is not bytes or type(plan_bytes) is not bytes or type(limits) is not Limits:
         raise DiagnosticError('INVALID_EXECUTION_ARGUMENT', Span(0, 0),
                               'execution requires immutable source/plan bytes and Limits')
@@ -49,6 +42,20 @@ def execute_plan(source_bytes: bytes, plan_bytes: bytes, data, initial_output,
         reason = 'CONSTRAINT_VIOLATED' if checked.reason == 'VALID' else checked.reason
         raise DiagnosticError(reason, module.span,
                               'plan did not pass fresh semantic and constraint checks')
+    return kernel, plan, checked
+
+
+def execute_plan(source_bytes: bytes, plan_bytes: bytes, data, initial_output,
+                 limits: Limits = Limits()) -> ExecutionResult:
+    """Re-admit and freshly check exact bytes before any plan interpretation.
+
+    Caller buffers remain unchanged. Every input and initialized destination
+    scalar is validated before the complete row-major precondition scan. Failed
+    input preconditions return the original complete destination; no operation
+    is executed. Saved checks and plan labels never grant execution authority.
+    """
+    kernel, plan, checked = _checked_plan(source_bytes, plan_bytes, limits)
+    module = kernel.source_module
 
     if data is initial_output:
         raise DiagnosticError('BOUNDARY_ALIAS', module.span, 'input and output must be disjoint')

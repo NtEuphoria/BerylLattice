@@ -1,4 +1,4 @@
-import { getExamples, runDemo } from './transport.js';
+import { getExamples, prepareDemo, runDemo } from './transport.js';
 
 const run = document.getElementById('benchmark-run');
 const cancel = document.getElementById('benchmark-cancel');
@@ -20,7 +20,12 @@ fetch('./benchmark-results.json').then(response => {
   if (!response.ok) throw new Error('Saved results unavailable');
   return response.json();
 }).then(report => {
-  document.getElementById('comparison-environment').textContent = `${report.platform}; Python ${report.python}; ${report.compilers.C}; ${report.compilers.Rust}. Measured ${report.created_utc.slice(0, 10)}. C: -O3; Rust: -O. Full flags in the download.`;
+  if (report.schema_version !== 2) throw new Error('The compiled results are not available yet.');
+  document.getElementById('comparison-environment').textContent = `${report.platform}; ${report.compilers.C}; ${report.compilers.Rust}. Measured ${report.created_utc.slice(0, 10)}. Full build settings and source hashes are in the download.`;
+  const builds = report.compilation;
+  const berylBuilds = Object.entries(builds.beryl).map(([shape, build]) => `${shape}: ${(build.total_seconds * 1000).toFixed(0)} ms`).join(', ');
+  document.getElementById('comparison-compilation').textContent = `Build time, excluded from execution: beryl ${berylBuilds}; C ${(builds.C.seconds * 1000).toFixed(0)} ms; Rust ${(builds.Rust.seconds * 1000).toFixed(0)} ms. Each beryl program specializes its declared shape; the C and Rust baselines accept the shape at runtime.`;
+  document.getElementById('native-caption').textContent = `Process wall time · median of ${report.samples} runs after one warm-up`;
   for (const item of report.cases) {
     row(document.getElementById('native-rows'), [
       `${item.height} × ${item.width} · ${item.input_mode}`,
@@ -48,23 +53,28 @@ run.addEventListener('click', async () => {
     for (const [h, w] of [[1, 1], [5, 7], [15, 15]]) {
       const samples = [];
       const source = data.examples[0].source.replace('H = 5;', `H = ${h};`).replace('W = 7;', `W = ${w};`);
-      for (let sample = 0; sample < 4; sample++) {
+      status.textContent = `${h} × ${w}: compiling the program…`;
+      const preparation = await prepareDemo({source, input_mode: 'ramp'}, {signal: controller.signal});
+      if (preparation.status !== 'prepared') throw new Error('Compilation failed');
+      for (let sample = 0; sample < 6; sample++) {
         if (controller.signal.aborted) throw new DOMException('Cancelled', 'AbortError');
-        status.textContent = `${h} × ${w}: ${sample === 0 ? 'warming up' : `sample ${sample} of 3`}…`;
+        status.textContent = `${h} × ${w}: ${sample === 0 ? 'warming up' : `sample ${sample} of 5`}…`;
+        const inputs = Array.from({length: (h + 1) * (w + 1)}, (_, i) => (i + 7 * sample) % 1024);
         const start = performance.now();
-        const result = await runDemo({ source, input_mode: 'ramp' }, { signal: controller.signal });
+        const result = await runDemo({source, input_mode: 'custom', inputs}, {signal: controller.signal});
         const elapsed = performance.now() - start;
         if (controller.signal.aborted) throw new DOMException('Cancelled', 'AbortError');
-        if (result.status !== 'success' || result.comparison?.matches !== true || result.output?.length !== h * w) throw new Error('Correctness check failed');
+        if (result.status !== 'success' || result.backend !== 'checked-plan-wasm-v1' || result.timings?.reused_compilation !== true || result.comparison?.matches !== true || result.output?.length !== h * w) throw new Error('Correctness check failed');
         for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
           const i = r * (w + 1) + c;
-          const expected = [i, i + 1, i + w + 1, i + w + 2].reduce((sum, x) => sum + (x + 1) ** 2, 0);
+          const expected = [i, i + 1, i + w + 1, i + w + 2].reduce((sum, j) => sum + (inputs[j] + 1) ** 2, 0);
           if (result.output[r * w + c] !== expected) throw new Error('Output mismatch');
         }
         if (sample) samples.push(elapsed);
       }
       samples.sort((a, b) => a - b);
-      row(rows, [`${h} × ${w}`, `${samples[1].toFixed(2)} ms`, 'All values verified']);
+      const compileMs = preparation.reused_compilation ? preparation.initial_compilation_ms : preparation.compilation_ms;
+      row(rows, [`${h} × ${w}`, `${compileMs.toFixed(2)} ms${preparation.reused_compilation ? ' (once; reused)' : ''}`, `${samples[2].toFixed(2)} ms`, 'All values verified']);
     }
     status.textContent = 'Complete. All three workloads passed correctness checks.';
   } catch (error) {

@@ -4,17 +4,21 @@ The fixed worker reads one JSON request from stdin and emits one JSON response.
 It accepts neither commands nor filesystem paths. Successful observations are
 demo reports, not native execution or scalable-oracle qualification receipts.
 """
+import base64
+from dataclasses import dataclass
 import sys
 
 from .codec import DecodeError, canonical_json, strict_json_loads
 from .frontend import admit_source, parse_source
 from .model import DiagnosticError, Limits, Span
-from .reference import evaluate_source
-from .runtime import execute_plan
+from .reference import ExecutionResult, ExecutionStatus, evaluate_source
+from .runtime import _snapshot, execute_plan
 from .selection import select_plan
+from .wasm import compile_wasm
 
 REQUEST_BYTES = 131072
 _BACKEND = 'checked-plan-interpreter-v1'
+_COMPILED_BACKEND = 'checked-plan-wasm-v1'
 _SOURCE = '''module demo;
 shape H = 5;
 shape W = 7;
@@ -30,6 +34,18 @@ prefer {objective};
 
 class _RequestError(ValueError):
     pass
+
+
+@dataclass(frozen=True, slots=True)
+class _PreparedDemo:
+    """Privately owned authority, never reconstructed from request records."""
+    source: bytes
+    module: object
+    kernel: object
+    search: object
+
+
+_active_preparation = None
 
 
 def get_examples() -> dict:
@@ -92,14 +108,8 @@ def _inputs(request, kernel):
     return [0] * count
 
 
-def _run(request):
-    limits = Limits()
-    source = _request_source(request, limits)
-    module = parse_source(source, limits)
-    kernel = admit_source(module)
-    data = _inputs(request, kernel)
-    initial = [-9] * (kernel.height * kernel.width)
-    search = select_plan(kernel, limits, 100000, kernel.objective)
+def _report(kernel, search, data, backend):
+    """Build a fresh presentation record without exposing retained state."""
     attempts = []
     for attempt in search.attempts:
         checked = attempt.check
@@ -110,7 +120,7 @@ def _run(request):
             reason=attempt.reason,
             workspace_bytes=checked.workspace_bytes if checked is not None else None,
             multiplication_ops=checked.multiplication_ops if checked is not None else None))
-    result = dict(schema_version=1, status='no_eligible_plan', backend=_BACKEND,
+    result = dict(schema_version=1, status='no_eligible_plan', backend=backend,
         source_digest=kernel.source_digest,
         shape=dict(height=kernel.height, width=kernel.width,
                    input_height=kernel.height + 1, input_width=kernel.width + 1),
@@ -118,23 +128,39 @@ def _run(request):
         attempts=attempts,
         search=dict(termination_reason=search.termination_reason.value, work_used=search.total_work_used),
         input=data, output=None, comparison=None, first_bad_index=None, diagnostic=None)
-    if search.selected_plan is None:
-        return result
-    checked = search.selected_check
-    result['selected'] = dict(plan_id=search.selected_plan.plan_id,
-        workspace_bytes=checked.workspace_bytes, multiplication_ops=checked.multiplication_ops,
-        plan_digest=checked.plan_digest)
-    observed = execute_plan(source, search.selected_plan_bytes, data, initial, limits)
-    expected = evaluate_source(module, data, initial)
+    if search.selected_plan is not None:
+        checked = search.selected_check
+        result['selected'] = dict(plan_id=search.selected_plan.plan_id,
+            workspace_bytes=checked.workspace_bytes, multiplication_ops=checked.multiplication_ops,
+            plan_digest=checked.plan_digest)
+    return result
+
+
+def _compared_report(result, observed, expected):
     if observed != expected:
         return _error('INDEPENDENT_COMPARISON_FAILED',
                       'Plan execution disagreed with the independent source evaluation.')
     result.update(status=observed.status.value, output=list(observed.output),
-        # The displayed count names output cells; equality above also checks
-        # every input cell, the boundary status, and first-failure position.
+        # Equality checks input, boundary status and first-failure position too.
         comparison=dict(matches=True, cells_compared=len(observed.output)),
         first_bad_index=observed.first_bad_index)
     return result
+
+
+def _run(request):
+    limits = Limits()
+    source = _request_source(request, limits)
+    module = parse_source(source, limits)
+    kernel = admit_source(module)
+    data = _inputs(request, kernel)
+    initial = [-9] * (kernel.height * kernel.width)
+    search = select_plan(kernel, limits, 100000, kernel.objective)
+    result = _report(kernel, search, data, _BACKEND)
+    if search.selected_plan is None:
+        return result
+    observed = execute_plan(source, search.selected_plan_bytes, data, initial, limits)
+    expected = evaluate_source(module, data, initial)
+    return _compared_report(result, observed, expected)
 
 
 def run_demo(request) -> dict:
@@ -150,6 +176,117 @@ def run_demo(request) -> dict:
     except Exception:
         # Unexpected implementation faults are never returned as successful
         # reports, and exception strings must not expose runtime filesystem data.
+        return _error('INTERNAL_ERROR', 'The demo could not complete.')
+
+
+def compiled_request_source(request: dict) -> dict:
+    """Validate the request envelope before choosing a compiled preparation."""
+    try:
+        _request_source(request, Limits())
+        return dict(status='valid', source=request['source'])
+    except DiagnosticError as error:
+        return _error(error.code, error.message, error.span.offset)
+    except DecodeError as error:
+        return _error(error.code, str(error))
+    except _RequestError as error:
+        return _error('INVALID_REQUEST', str(error))
+    except Exception:
+        return _error('INTERNAL_ERROR', 'The demo could not complete.')
+
+
+def prepare_compiled_demo(source: str) -> dict:
+    """Replace the single source preparation after fresh checking and compilation.
+
+    Only this module's retained original AST and exact admitted source bytes
+    authorize later comparisons. Public metadata never acts as a receipt.
+    Every attempt clears the previous preparation, including failed attempts.
+    """
+    global _active_preparation
+    _active_preparation = None
+    try:
+        limits = Limits()
+        source_bytes = _request_source(dict(source=source, input_mode='ramp'), limits)
+        module = parse_source(source_bytes, limits)
+        kernel = admit_source(module)
+        search = select_plan(kernel, limits, 100000, kernel.objective)
+        result = _report(kernel, search, [], _COMPILED_BACKEND)
+        if search.selected_plan is None:
+            return result
+        artifact = compile_wasm(source_bytes, search.selected_plan_bytes, limits)
+        result.update(status='prepared',
+            wasm_base64=base64.b64encode(artifact.module_bytes).decode('ascii'),
+            memory_bytes=artifact.memory_bytes, input_offset=artifact.input_offset,
+            output_offset=artifact.output_offset, input_count=artifact.input_count,
+            output_count=artifact.output_count, module_digest=artifact.module_digest,
+            source_digest=artifact.source_digest, plan_digest=artifact.plan_digest)
+        _active_preparation = _PreparedDemo(source_bytes, module, kernel, search)
+        return result
+    except DiagnosticError as error:
+        return _error(error.code, error.message, error.span.offset)
+    except DecodeError as error:
+        return _error(error.code, str(error))
+    except _RequestError as error:
+        return _error('INVALID_REQUEST', str(error))
+    except Exception:
+        return _error('INTERNAL_ERROR', 'The demo could not complete.')
+
+
+def _compiled_boundaries(request):
+    source = _request_source(request, Limits())
+    prepared = _active_preparation
+    if prepared is None:
+        raise DiagnosticError('NOT_PREPARED', Span(0, 0),
+                              'Prepare the source before compiled execution.')
+    if source != prepared.source:
+        raise DiagnosticError('PREPARED_SOURCE_MISMATCH', Span(0, 0),
+                              'The request source does not match the active preparation.')
+    kernel, module = prepared.kernel, prepared.module
+    data = _snapshot(_inputs(request, kernel), (kernel.height + 1) * (kernel.width + 1),
+                     'input', module.inputs[0].span)
+    initial = _snapshot([-9] * (kernel.height * kernel.width), kernel.height * kernel.width,
+                        'output', module.outputs[0].span)
+    return prepared, data, initial
+
+
+def compiled_request_inputs(request: dict) -> dict:
+    """Validate exact Python scalars before any JavaScript typed-array coercion."""
+    try:
+        _, data, initial = _compiled_boundaries(request)
+        return dict(status='ready', input=list(data), initial_output=list(initial))
+    except DiagnosticError as error:
+        return _error(error.code, error.message, error.span.offset)
+    except DecodeError as error:
+        return _error(error.code, str(error))
+    except _RequestError as error:
+        return _error('INVALID_REQUEST', str(error))
+    except Exception:
+        return _error('INTERNAL_ERROR', 'The demo could not complete.')
+
+
+def finish_compiled_demo(request: dict, observation: dict) -> dict:
+    """Compare every compiled observation with fresh retained-AST evaluation."""
+    try:
+        prepared, data, initial = _compiled_boundaries(request)
+        if (type(observation) is not dict or set(observation) != {'status', 'input', 'output'}
+                or type(observation['input']) is not list or type(observation['output']) is not list):
+            raise _RequestError('observation requires exactly status, input, and output fields')
+        module = prepared.module
+        status = _snapshot([observation['status']], 1, 'status', module.span)[0]
+        input_after = _snapshot(observation['input'], len(data), 'input', module.inputs[0].span)
+        output = _snapshot(observation['output'], len(initial), 'output', module.outputs[0].span)
+        observed = ExecutionResult(
+            ExecutionStatus.SUCCESS if status == 0 else ExecutionStatus.INPUT_PRECONDITION_FAILED,
+            None if status == 0 else status - 1, output, input_after)
+        expected = evaluate_source(module, data, initial)
+        result = _report(prepared.kernel, prepared.search, list(data), _COMPILED_BACKEND)
+        return _compared_report(result, observed, expected)
+    except DiagnosticError as error:
+        return _error(error.code, error.message, error.span.offset)
+    except DecodeError as error:
+        return _error(error.code, str(error))
+    except _RequestError as error:
+        return _error('INVALID_REQUEST', str(error))
+    except Exception:
         return _error('INTERNAL_ERROR', 'The demo could not complete.')
 
 

@@ -55,6 +55,11 @@ async function main() {
     const report = JSON.parse(await fs.readFile(await download.path(), 'utf8'));
     const result = report.result || report;
     assert.equal(result.status, 'success');
+    assert.equal(result.backend, 'checked-plan-wasm-v1');
+    assert.equal(result.timings.reused_compilation, false);
+    assert.ok(result.timings.compilation_ms > 0);
+    assert.ok(result.timings.execution_ms >= 0);
+    assert.ok(result.timings.verification_ms >= 0);
     assert.equal(result.selected.plan_id, 'rows2-v1');
     assert.equal(result.comparison.matches, true);
     await reset();

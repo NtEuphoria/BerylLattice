@@ -1,8 +1,11 @@
 """The distributable playground must contain runnable, scoped compiler sources."""
+import ast
+import base64
 import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -13,9 +16,47 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 BUILD = ROOT / 'tools' / 'build-playground-site.py'
+PUBLIC_MODULES = {
+    '__init__', 'runtime', 'playground_service', 'frontend', 'model', 'checker',
+    'codec', 'plan_format', 'planner', 'selection', 'reference', 'wasm', 'native_codegen',
+}
+
+_NODE_COMPILED_RUNNER = r'''
+const fs = require('node:fs');
+const {prepared, runs} = JSON.parse(fs.readFileSync(0, 'utf8'));
+const compiledModule = new WebAssembly.Module(Buffer.from(prepared.wasm_base64, 'base64'));
+if (WebAssembly.Module.imports(compiledModule).length) throw new Error('Unexpected Wasm import');
+const {memory, run} = new WebAssembly.Instance(compiledModule).exports;
+const i32 = new Int32Array(memory.buffer);
+const observed = runs.map(item => {
+  i32.fill(0);
+  i32.set(item.input, prepared.input_offset / 4);
+  i32.set(item.initial_output, prepared.output_offset / 4);
+  return {status: run(),
+    input: Array.from(i32.slice(prepared.input_offset / 4,
+                               prepared.input_offset / 4 + prepared.input_count)),
+    output: Array.from(i32.slice(prepared.output_offset / 4,
+                                prepared.output_offset / 4 + prepared.output_count))};
+});
+process.stdout.write(JSON.stringify(observed));
+'''
 
 
 class PlaygroundSiteTests(unittest.TestCase):
+    def build_release(self, output):
+        result = subprocess.run([sys.executable, str(BUILD), '--output', str(output),
+                                 '--runtime', 'cdn'], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def run_public_source(self, output, script, *arguments):
+        # -I excludes the checkout and caller environment; only this ZIP is added.
+        setup = 'import sys\nsys.path.insert(0, sys.argv[1])\n'
+        result = subprocess.run([sys.executable, '-I', '-c', setup + textwrap.dedent(script),
+                                 str(output / 'beryl-compiler.zip'), *arguments],
+                                capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return json.loads(result.stdout)
+
     def test_static_release_runs_same_compiler_without_private_sources(self):
         with tempfile.TemporaryDirectory() as scratch:
             output = Path(scratch) / 'site'
@@ -33,10 +74,20 @@ class PlaygroundSiteTests(unittest.TestCase):
             self.assertEqual(license_text, (ROOT / 'axiom/playground-LICENSE').read_text())
             with zipfile.ZipFile(output / 'beryl-compiler.zip') as archive:
                 self.assertEqual(set(archive.namelist()), {
-                    'beryl/' + name + '.py' for name in (
-                        '__init__', 'runtime', 'playground_service', 'frontend', 'model',
-                        'checker', 'codec', 'plan_format', 'planner', 'selection', 'reference')} | {'LICENSE'})
+                    'beryl/' + name + '.py' for name in PUBLIC_MODULES} | {'LICENSE'})
                 self.assertEqual(archive.read('LICENSE').decode('utf-8'), license_text)
+                for name in PUBLIC_MODULES:
+                    tree = ast.parse(archive.read(f'beryl/{name}.py'))
+                    for node in ast.walk(tree):
+                        if isinstance(node, ast.ImportFrom):
+                            if node.level:
+                                self.assertEqual(node.level, 1)
+                                self.assertIn(node.module.split('.')[0], PUBLIC_MODULES)
+                            else:
+                                self.assertIn(node.module.split('.')[0], sys.stdlib_module_names)
+                        elif isinstance(node, ast.Import):
+                            for imported in node.names:
+                                self.assertIn(imported.name.split('.')[0], sys.stdlib_module_names)
             # The real release ZIP, without the repository on sys.path, must execute.
             executed = subprocess.run([sys.executable, '-I', '-c',
                 'import sys,json; sys.path.insert(0,sys.argv[1]); '
@@ -71,6 +122,148 @@ class PlaygroundSiteTests(unittest.TestCase):
                 if not name.endswith('.zip'):
                     self.assertNotIn(b'axiom', raw.lower(), name)
             self.assertNotIn('axiom', (output / 'release-manifest.json').read_text().lower())
+
+    def test_standalone_public_preparation_exports_checked_wasm_metadata(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            output = Path(scratch) / 'site'
+            self.build_release(output)
+            report = self.run_public_source(output, '''
+                import base64
+                import json
+                from beryl.codec import encode_plan
+                from beryl.frontend import admit_source, parse_source
+                from beryl.model import Limits
+                from beryl.playground_service import (compiled_request_inputs,
+                    compiled_request_source, get_examples, prepare_compiled_demo)
+                from beryl.selection import select_plan
+                from beryl.wasm import compile_wasm
+                source = get_examples()['examples'][0]['source']
+                source = source.replace('H = 5;', 'H = 1;').replace('W = 7;', 'W = 2;')
+                request = dict(source=source, input_mode='ramp')
+                kernel = admit_source(parse_source(source.encode()))
+                search = select_plan(kernel, Limits(), 100000, kernel.objective)
+                artifact = compile_wasm(source.encode(), encode_plan(search.selected_plan))
+                prepared = prepare_compiled_demo(source)
+                print(json.dumps(dict(prepared=prepared,
+                    source=compiled_request_source(request),
+                    inputs=compiled_request_inputs(request),
+                    direct_module=base64.b64encode(artifact.module_bytes).decode(),
+                    module_digest=artifact.module_digest, plan_digest=artifact.plan_digest,
+                    source_digest=artifact.source_digest)))
+                ''')
+            prepared = report['prepared']
+            self.assertEqual(prepared['status'], 'prepared')
+            self.assertEqual(report['source']['status'], 'valid')
+            self.assertEqual(report['inputs'], dict(status='ready', input=list(range(6)),
+                                                   initial_output=[-9, -9]))
+            self.assertEqual(prepared['wasm_base64'], report['direct_module'])
+            module_bytes = base64.b64decode(prepared['wasm_base64'], validate=True)
+            self.assertTrue(module_bytes.startswith(b'\0asm\x01\0\0\0'))
+            self.assertEqual(prepared['module_digest'], hashlib.sha256(module_bytes).hexdigest())
+            self.assertEqual((prepared['input_count'], prepared['output_count']), (6, 2))
+            self.assertEqual((prepared['input_offset'], prepared['output_offset']), (0, 24))
+            self.assertEqual(prepared['memory_bytes'], 65536)
+            for field in ('module_digest', 'plan_digest', 'source_digest'):
+                self.assertEqual(prepared[field], report[field])
+            self.assertNotIn('axiom', json.dumps(report).lower())
+
+    def test_standalone_public_wasm_reuses_module_and_compares_every_output(self):
+        node = shutil.which('node')
+        if node is None:
+            self.skipTest('Node is required to execute public Wasm modules')
+        with tempfile.TemporaryDirectory() as scratch:
+            output = Path(scratch) / 'site'
+            self.build_release(output)
+            report = self.run_public_source(output, '''
+                import json
+                import subprocess
+                from unittest.mock import patch
+                from beryl import playground_service as service
+                source = service.get_examples()['examples'][0]['source']
+                source = source.replace('H = 5;', 'H = 1;').replace('W = 7;', 'W = 2;')
+                requests = [dict(source=source, input_mode=mode)
+                            for mode in ('ramp', 'zeros', 'checkerboard')]
+                legacy = [service.run_demo(request) for request in requests]
+                prepared = service.prepare_compiled_demo(source)
+                inputs = [service.compiled_request_inputs(request) for request in requests]
+                execution = subprocess.run([sys.argv[2], '-e', sys.argv[3]],
+                    input=json.dumps(dict(prepared=prepared, runs=inputs)),
+                    capture_output=True, text=True, check=True, timeout=15)
+                observations = json.loads(execution.stdout)
+                with patch.object(service, 'parse_source', side_effect=RuntimeError('reparsed')), \\
+                     patch.object(service, 'select_plan', side_effect=RuntimeError('reselected')), \\
+                     patch.object(service, 'compile_wasm', side_effect=RuntimeError('recompiled')), \\
+                     patch.object(service, 'execute_plan', side_effect=RuntimeError('interpreted')), \\
+                     patch.object(service, 'evaluate_source', wraps=service.evaluate_source) as evaluator:
+                    results = [service.finish_compiled_demo(request, observation)
+                               for request, observation in zip(requests, observations)]
+                    observations[0]['output'][0] += 1
+                    rejected = service.finish_compiled_demo(requests[0], observations[0])
+                    comparisons = evaluator.call_count
+                print(json.dumps(dict(results=results, legacy=legacy,
+                                      rejected=rejected, comparisons=comparisons)))
+                ''', node, _NODE_COMPILED_RUNNER)
+            self.assertEqual(report['comparisons'], 4)
+            self.assertEqual(len(report['results']), 3)
+            for compiled, legacy in zip(report['results'], report['legacy']):
+                self.assertEqual(compiled['status'], 'success')
+                self.assertEqual(compiled['backend'], 'checked-plan-wasm-v1')
+                self.assertEqual(compiled['comparison'], dict(matches=True, cells_compared=2))
+                self.assertEqual(compiled['output'], legacy['output'])
+                self.assertEqual(compiled['input'], legacy['input'])
+            self.assertEqual(report['results'][0]['output'], [46, 74])
+            self.assertEqual(report['results'][1]['output'], [4, 4])
+            self.assertEqual(report['rejected']['diagnostic']['code'], 'INDEPENDENT_COMPARISON_FAILED')
+            self.assertNotIn('axiom', json.dumps(report).lower())
+
+    def test_standalone_public_native_source_is_reproducible_and_branded(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            output = Path(scratch) / 'site'
+            self.build_release(output)
+            report = self.run_public_source(output, '''
+                import json
+                from beryl.codec import encode_plan
+                from beryl.frontend import admit_source, parse_source
+                from beryl.native_codegen import emit_native_c
+                from beryl.planner import make_plan
+                from beryl.playground_service import get_examples
+                source = get_examples()['examples'][0]['source']
+                source = source.replace('H = 5;', 'H = 1;').replace('W = 7;', 'W = 2;')
+                plan = make_plan(admit_source(parse_source(source.encode())), 'rows2-v1')
+                plan_bytes = encode_plan(plan)
+                artifact = emit_native_c(source.encode(), plan_bytes)
+                print(json.dumps(dict(c_source=artifact.c_source.decode(),
+                    c_digest=artifact.c_digest, source=source, plan=plan_bytes.decode(),
+                    source_digest=artifact.source_digest, plan_digest=artifact.plan_digest,
+                    counts=[artifact.input_count, artifact.output_count],
+                    repeated=artifact == emit_native_c(source.encode(), plan_bytes))))
+                ''')
+            self.assertTrue(report['repeated'])
+            self.assertEqual(report['counts'], [6, 2])
+            self.assertIn('freshly checked finite beryl physical plan', report['c_source'])
+            self.assertIn('int32_t beryl_kernel(', report['c_source'])
+            self.assertIn('int main(void)', report['c_source'])
+            self.assertEqual(report['c_digest'], hashlib.sha256(report['c_source'].encode()).hexdigest())
+            self.assertEqual(report['source_digest'], hashlib.sha256(report['source'].encode()).hexdigest())
+            self.assertEqual(report['plan_digest'], hashlib.sha256(report['plan'].encode()).hexdigest())
+            self.assertNotIn('axiom', json.dumps(report).lower())
+
+    def test_identical_inputs_produce_identical_public_release_bytes(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            outputs = [Path(scratch) / name for name in ('first', 'second')]
+            for output in outputs:
+                self.build_release(output)
+            first = {path.relative_to(outputs[0]): path.read_bytes()
+                     for path in outputs[0].rglob('*') if path.is_file()}
+            second = {path.relative_to(outputs[1]): path.read_bytes()
+                      for path in outputs[1].rglob('*') if path.is_file()}
+            self.assertEqual(first, second)
+            readme = first[Path('README.md')].decode()
+            self.assertIn('thirteen compiler/runtime Python modules', readme)
+            self.assertIn('compiled Wasm instance is reused', readme)
+            self.assertIn('independent evaluation of the source', readme)
+            self.assertIn('finite-plan native C generator', readme)
+            self.assertIn('C and Rust programs are compiled before timing', readme)
 
     def test_public_source_preserves_demo_behavior_with_distinct_plan_identity(self):
         with tempfile.TemporaryDirectory() as scratch:
@@ -155,6 +348,26 @@ class PlaygroundSiteTests(unittest.TestCase):
             source = root / 'axiom/src/axiom/__init__.py'
             source.parent.mkdir(parents=True)
             with patch.object(builder, 'ROOT', root), patch.object(builder, 'MODULES', ('__init__',)):
+                for name, raw in cases:
+                    with self.subTest(case=name):
+                        source.write_bytes(raw)
+                        with self.assertRaises(ValueError):
+                            builder.archive_modules()
+
+    def test_unreviewed_native_source_branding_is_rejected(self):
+        spec = importlib.util.spec_from_file_location('playground_site_build', BUILD)
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        original = (ROOT / 'axiom/src/axiom/native_codegen.py').read_bytes()
+        cases = [('additional codename', original + b'# Unexpected AXIOM reference.\n')]
+        for old, _ in builder.PUBLIC_SOURCE_REPLACEMENTS['native_codegen']:
+            cases.extend((('missing ' + old.decode(), original.replace(old, b'unreviewed', 1)),
+                          ('duplicate ' + old.decode(), original + b'\n' + old)))
+        with tempfile.TemporaryDirectory() as scratch:
+            root = Path(scratch)
+            source = root / 'axiom/src/axiom/native_codegen.py'
+            source.parent.mkdir(parents=True)
+            with patch.object(builder, 'ROOT', root), patch.object(builder, 'MODULES', ('native_codegen',)):
                 for name, raw in cases:
                     with self.subTest(case=name):
                         source.write_bytes(raw)
