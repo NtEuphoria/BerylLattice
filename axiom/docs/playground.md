@@ -31,6 +31,10 @@ isolated process group. If port8765 is occupied:
 python3 tools/run-playground.py --port 8766
 ```
 
+Or use `--port 0` to choose an available port automatically, then open the
+address printed by the server. Starting a second server on an occupied port
+reports an error and leaves the existing server running.
+
 There is no npm/pip install and no CDN or external font. The playground works
 offline after obtaining Python and the source. It binds to the local computer
 only. This server is not a public hosting service; a hosted deployment needs a

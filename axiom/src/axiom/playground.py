@@ -7,6 +7,7 @@ Python worker at a time. It is intended for local presentation, not hosting.
 from __future__ import annotations
 
 import argparse
+import errno
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -88,6 +89,8 @@ class _PlaygroundServer(ThreadingHTTPServer):
     # Browser pre-opened sockets must not stall asset/API requests. Bound both
     # connection threads and compiler concurrency instead of serializing reads.
     daemon_threads = False
+    # Windows SO_REUSEADDR can allow two live servers to bind the same port.
+    allow_reuse_address = sys.platform != "win32"
 
     def __init__(self, address, handler):
         self._connections = threading.BoundedSemaphore(16)
@@ -303,6 +306,9 @@ def main(argv=None):
     try:
         server = create_server(arguments.port)
     except OSError as error:
+        if error.errno == errno.EADDRINUSE or getattr(error, "winerror", None) == 10048:
+            parser.exit(1, f"Port {arguments.port} is already in use. Stop the other server or "
+                        "restart with --port 0 to choose a free port, then open the printed address.\n")
         parser.exit(1, f"Could not start the local playground: {error.strerror}\n")
     previous_break_handler = None
     try:

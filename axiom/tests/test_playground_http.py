@@ -268,6 +268,19 @@ class PlaygroundBoundaryTests(HTTPFixture):
 
 
 class PlaygroundIntegrationTests(HTTPFixture):
+    def test_busy_port_explains_how_to_choose_a_free_port(self):
+        launcher = Path(__file__).resolve().parents[2] / "tools" / "run-playground.py"
+        result = subprocess.run(
+            [sys.executable, str(launcher), "--port", str(self.port)],
+            capture_output=True, text=True, timeout=5,
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stdout, "")
+        self.assertIn(str(self.port), result.stderr)
+        self.assertIn("--port 0", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(self.request()[0], 200)
+
     def test_all_bundled_assets_are_served_without_external_dependencies(self):
         for path, content_type in (("/", "text/html"), ("/app.js", "text/javascript"),
                                    ("/transport.js", "text/javascript"), ("/style.css", "text/css")):
