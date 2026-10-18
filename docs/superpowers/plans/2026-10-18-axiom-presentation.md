@@ -13,7 +13,7 @@
 ## Global constraints
 
 - Preserve v1 language/profile limits and source/checker identities.
-- No user code execution, shell interpolation, arbitrary paths, external assets, or public deployment.
+- No shell execution of submitted source, shell interpolation, arbitrary paths, or disclosure of private research. A pinned vendored browser runtime supports the user's subsequently requested public static site.
 - Every executed plan is freshly checked from exact source and plan bytes.
 - Compare every output with the independent original-source evaluator.
 - Plan scratch is not total memory; operation count is not measured speed.
@@ -30,24 +30,31 @@
 
 ## Task1: Working checked runtime and demo service
 
-- [ ] Add failing behavioral tests in `axiom/tests/test_runtime.py` and `test_playground_service.py`.
-- [ ] Implement `axiom/src/axiom/runtime.py` and `playground_service.py` with the spec's API.
-- [ ] Verify all schedules, adversarial byte mutation, precondition handling, source errors, maximum shape, and full comparison.
-- [ ] Independently review the runtime/service diff and resolve material findings.
+- [x] Add failing behavioral tests in `axiom/tests/test_runtime.py` and `test_playground_service.py`.
+- [x] Implement `axiom/src/axiom/runtime.py` and `playground_service.py` with the spec's API.
+- [x] Verify all schedules, adversarial byte mutation, precondition handling, source errors, maximum shape, and full comparison.
+- [x] Independently review the runtime/service diff and resolve material findings.
 
 ## Task2: Local web playground
 
-- [ ] Implement `axiom/src/axiom/playground.py` and `playground_web/{index.html,app.js,style.css}`.
-- [ ] Add `axiom/tests/test_playground_http.py` before the HTTP implementation.
-- [ ] Run real HTTP/worker tests, browser interaction, narrow-screen and accessibility checks.
-- [ ] Independently review the HTTP/UI diff and resolve material findings.
+- [x] Implement `axiom/src/axiom/playground.py` and `playground_web/{index.html,app.js,style.css}`.
+- [x] Add `axiom/tests/test_playground_http.py` before the HTTP implementation.
+- [x] Run real HTTP/worker tests, browser interaction, narrow-screen and accessibility checks.
+- [x] Independently review the HTTP/UI diff and resolve material findings.
 
 ## Task3: Presentation and reproducibility
 
-- [ ] Document exact startup, supported scope, a two-minute walkthrough, troubleshooting, and honest claims in `axiom/docs/playground.md`.
-- [ ] Add a CLI demo/smoke path and tested packaging/start instructions; update README.
-- [ ] Run product suite and relevant optimized tests; retain current evidence and independent review.
-- [ ] Commit/push a reviewable private branch and draft PR; leave publishing/registration for explicit user action.
+- [x] Document exact startup, supported scope, a two-minute walkthrough, troubleshooting, and honest claims in `axiom/docs/playground.md`.
+- [x] Add a CLI demo/smoke path and tested packaging/start instructions; update README.
+- [x] Run product suite and relevant optimized tests; retain current evidence and independent review.
+- [x] Commit/push a reviewable private branch and draft PR; publish only the explicitly authorized bounded MIT release. Registration remains the owner’s action.
+
+## Task4: Public-hosting preparation (user amendment)
+
+- [x] Add `transport.js` and `worker.js` to run the same Python service via pinned Pyodide when browser mode is explicitly selected.
+- [x] Add an allowlisted static-site builder with exact inclusion/hash manifest and runtime licensing.
+- [x] Test actual built artifact in Chromium, including alternate schedules, errors, and hosted subpaths.
+- [x] Check GitHub Pages capability; complete reviewable package before any source-disclosure or external-action blocker is handed to the user.
 
 ## Parallel proof prerequisite
 
@@ -61,3 +68,11 @@ proof construction remains a separately reported research gate.
 Initial design uses the user's explicit request to build the working copy and
 playground as authorization to proceed. Existing recovery checkout and O3 worktree
 are reused; no new worktree or public deployment is created.
+
+## Deployment follow-through
+
+- [ ] Verify GitHub Pages after the owner enables main/root; API creation returned403.
+
+The owner approved MIT publication and created the separate public repository.
+The exact19-file release is pushed as7a608cb. Independent final review approved
+all code and the release manifest; no private research was included.

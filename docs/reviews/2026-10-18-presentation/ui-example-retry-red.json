@@ -1,0 +1,23 @@
+{
+  "kind": "Mock transport example retry regression",
+  "checks": [
+    {
+      "retryFails": false,
+      "before": "Execution checked. Every output matches.",
+      "during": "Loading the examples…",
+      "after": "Ready when you are",
+      "reportActive": true,
+      "outputVisible": true,
+      "passed": false
+    },
+    {
+      "retryFails": true,
+      "before": "Execution checked. Every output matches.",
+      "during": "Loading the examples…",
+      "after": "The examples are unavailable",
+      "reportActive": true,
+      "outputVisible": true,
+      "passed": false
+    }
+  ]
+}

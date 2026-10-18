@@ -92,6 +92,9 @@ Static routes are allowlisted; no directory or arbitrary-file serving. Disable
 CORS, use restrictive CSP and no-sniff headers, do not log submitted source.
 This is a local presentation server, not a multi-tenant hosted service.
 
+Use at most16 connection threads to tolerate browser idle/preconnected sockets;
+only one compiler worker may run at a time and concurrent runs receive429.
+
 ## Playground
 
 An accessible responsive workbench with Axiom branding: restrained forest-green
@@ -117,7 +120,33 @@ Browser checks cover examples, edits, errors, result download, keyboard use, and
 320/768/1024/1440 widths. Full product suite and targeted optimized Python tests
 provide regression evidence. Independent review is required before delivery.
 
-## Subsequent milestones
+## Public-hosting amendment
+
+The user subsequently selected a public hosted link and GitHub Pages if available.
+Prepare a static site using a dedicated Web Worker and pinned, vendored Pyodide
+runtime to execute the same Python compiler. `transport.js` selects local HTTP
+or browser execution through an explicit `data-runtime="browser"` HTML attribute.
+There is no alternate JavaScript semantics. Loading/run timeouts terminate and
+reset a stuck worker. The static builder includes only the eleven required Axiom
+modules, UI assets, and pinned runtime dependencies, with an exact hash manifest.
+The build includes no research, recovery, session, Core, or oracle-qualification
+material. The precise source payload is reviewable before publication. First
+build needs network access to obtain verified pinned runtime files; the built
+site serves all assets from its own origin. Test through HTTP in a real browser.
+
+GitHub Pages availability must be established from actual API results. A public
+link request does not authorize changing the full private research repository's
+visibility. Deployment target creation and release of the concrete bounded demo
+must be explicit; prepare all code and artifacts before any required final scope
+confirmation. The working local server remains the presentation fallback.
+
+The owner explicitly approved publishing this bounded demo under MIT as
+`NtEuphoria/axiom-playground`. Include its scoped license both in the site and
+standalone compiler source ZIP. Retain upstream runtime licenses separately.
+The existing integration rejected both Pages API access and repository creation;
+publication now depends on account access rather than another scope approval.
+
+## Subsequent milestones (research)
 
 Finish and independently review bounded v2 name handling without changing v1;
 complete constructive loop certificates and exact work accounting; admit the

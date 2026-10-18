@@ -4,6 +4,16 @@ Project Axiom is the experimental constraint-directed language developed by Latt
 
 The initial implementation lives in `axiom/`. A programmer declares a two-stage stencil, an optional scratch-space constraint and an arithmetic objective. Axiom constructs three schedules, checks their actual operations independently and retains an eligible plan with replayable evidence.
 
+Try the local web playground with `python3 tools/run-playground.py` (Python3.12+).
+It runs the selected checked plan and compares every result with the independent
+source evaluator. The [playground guide](axiom/docs/playground.md) includes setup,
+a presentation walkthrough and the exact supported language scope. No Core build,
+package installation or internet connection is needed to run the demo.
+For static hosting, `python3 tools/build-playground-site.py --output /tmp/axiom-site`
+builds a browser version with the same Python compiler and a pinned bundled
+runtime. The first build downloads the runtime; the generated release manifest
+lists the exact source and assets that a public upload would disclose.
+
 The prototype supports fixed shapes with at most 256 input cells and checked i32 arithmetic. Its workspace metric measures the reserved plan scratch arena; it excludes scalar temporaries and native memory. Native Core witnesses are fixed-case correctness experiments. They establish neither a reusable native ABI nor a speedup.
 
 Start with Python 3.12 or newer; the implementation uses only the standard library:

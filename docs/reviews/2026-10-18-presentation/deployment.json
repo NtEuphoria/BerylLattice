@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "public_repository": "https://github.com/NtEuphoria/axiom-playground",
+  "public_commit": "7a608cb03cc24ff5b61b7a98d8ba65108614a565",
+  "public_files": 19,
+  "publication_authorization": "Owner explicitly approved bounded demo under MIT in conversation on2026-10-18",
+  "source_push": "verified_success",
+  "pages_enablement": "API returned403; owner assisted with Settings > Pages > main/root",
+  "live_verified": false,
+  "release_manifest_sha256": "bdf1bd7bd5678a9f33f643f1a46deb1812381a9f72ca01a9a44f90a50f5f131c"
+}

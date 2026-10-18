@@ -1,0 +1,41 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+(async()=>{
+ const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
+ const source=fs.readFileSync('/workspace/BerylLattice-o3-fixes/axiom/examples/stencil.ax','utf8');
+ const result={schema_version:1,status:'success',backend:'checked-plan-interpreter-v1',source_digest:'mock',shape:{height:5,width:7,input_height:6,input_width:8},objective:'multiplication_ops',workspace_cap:64,selected:{plan_id:'rows2-v1',workspace_bytes:64,multiplication_ops:48,plan_digest:'mock'},attempts:[],search:{termination_reason:'mock',work_used:0},input:Array(48).fill(0),output:Array(35).fill(4),comparison:{matches:true,cells_compared:35},diagnostic:null};
+ const checks=[];
+ for(const retryFails of [false,true]) {
+  const page=await browser.newPage();
+  await page.route('**/transport.js',route=>route.fulfill({contentType:'application/javascript',body:`let calls=0; export async function getExamples(){calls++;await new Promise(r=>setTimeout(r,100));if(calls===1||${retryFails})throw new Error('forced example failure');return {examples:[{id:'balanced',title:'Balanced',description:'Mock example',source:${JSON.stringify(source)}}]}}; export async function runDemo(){return ${JSON.stringify(result)}}`}));
+  await page.goto('http://127.0.0.1:8873/');
+  await page.locator('#retry-examples').waitFor({state:'visible'});
+  await page.locator('#source').fill(source);
+  await page.locator('#run').click();
+  await page.getByText('Execution checked. Every output matches.').waitFor();
+  const before=await page.locator('#status-title').textContent();
+  await page.locator('#retry-examples').click();
+  const during=await page.locator('#status-title').textContent();
+  await page.waitForFunction(()=>document.getElementById('examples').getAttribute('aria-busy')==='false');
+  const after=await page.locator('#status-title').textContent();
+  const reportActive=await page.locator('#download').isEnabled();
+  const outputVisible=await page.locator('#result-content').isVisible();
+  checks.push({retryFails,before,during,after,reportActive,outputVisible,passed:before===during&&before===after&&reportActive&&outputVisible});
+  await page.close();
+ }
+ const page=await browser.newPage();
+ await page.route('**/transport.js',route=>route.fulfill({contentType:'application/javascript',body:`let calls=0; export async function getExamples(){calls++;await new Promise(r=>setTimeout(r,100));if(calls===1)throw new Error('forced example failure');return {examples:[{id:'balanced',title:'Balanced',description:'Mock example',source:${JSON.stringify(source)}}]}}; export async function runDemo(){await new Promise(r=>setTimeout(r,800));return ${JSON.stringify(result)}}`}));
+ await page.goto('http://127.0.0.1:8873/');
+ await page.locator('#retry-examples').waitFor({state:'visible'});
+ await page.locator('#source').fill(source);
+ await page.locator('#run').click();
+ await page.locator('#retry-examples').click();
+ await page.waitForFunction(()=>document.getElementById('examples').getAttribute('aria-busy')==='false');
+ const stillRunning=await page.locator('.results-panel').getAttribute('aria-busy')==='true'&&await page.locator('#run').isDisabled()&&(await page.locator('#status-title').textContent())==='Checking plans and executing…';
+ await page.getByText('Execution checked. Every output matches.').waitFor();
+ checks.push({case:'Retry while computation is running',passed:stillRunning,localReleaseLinksHidden:await page.locator('#release-links').isHidden()});
+ await page.close();
+ console.log(JSON.stringify({kind:'Mock transport example retry regression',checks},null,2));
+ await browser.close();
+ if(checks.some(c=>!c.passed))process.exitCode=1;
+})();

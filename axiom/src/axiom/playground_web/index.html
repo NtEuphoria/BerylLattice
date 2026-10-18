@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Explore Axiom's experimental declarative language with checked execution and independent result comparison.">
+  <title>Axiom — Playground</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#source">Skip to source editor</a>
+  <header class="site-header">
+    <a class="wordmark" href="./" aria-label="Axiom playground home"><span class="brand-mark" aria-hidden="true">A</span>Axiom<span class="wordmark-divider" aria-hidden="true">/</span><span class="wordmark-context">Playground</span></a>
+    <span class="edition"><span class="edition-dot" aria-hidden="true"></span>Experimental · v1</span>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Lattice research / Project Axiom</p>
+        <h1 id="page-title">The computation is yours.<br>The schedule is Axiom’s.</h1>
+        <p class="intro-copy">Write a computation and its constraints. Axiom selects a plan, checks it, and compares every output with a separate source evaluator.</p>
+      </div>
+      <div class="intro-note"><span class="note-number" aria-hidden="true">01—03</span><p>Declare.<br>Constrain.<br>Inspect.</p></div>
+    </section>
+
+    <div class="workspace">
+      <section class="editor-panel" aria-labelledby="editor-heading">
+        <div class="panel-heading"><div><p class="eyebrow">01 / Your intent</p><h2 id="editor-heading">Source &amp; constraints</h2></div><span class="file-label">stencil.ax</span></div>
+        <div class="examples-area">
+          <p class="field-label" id="examples-label">Start with an example</p>
+          <div id="examples" class="example-list" role="group" aria-labelledby="examples-label" aria-busy="true"><p class="loading-copy">Loading examples…</p></div>
+          <button id="retry-examples" class="text-button" type="button" hidden>Retry loading examples</button>
+          <p id="example-description" class="helper">Choose a memory constraint or change the source below.</p>
+        </div>
+
+        <div class="source-heading"><label for="source">Axiom source</label><span class="editable-label">Editable</span></div>
+        <textarea id="source" class="source-editor" aria-describedby="source-help" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" placeholder="Load an example or enter an Axiom stencil."></textarea>
+        <p id="source-help" class="editor-help">This version supports the two-stage stencil shown here. Edit its shape, scratch limit, or objective. The source is the request.</p>
+
+        <div class="input-controls">
+          <label for="input-mode">Input pattern</label>
+          <select id="input-mode" aria-describedby="input-help"><option value="ramp">Ramp · increasing integers</option><option value="zeros">Zeros · uniform input</option><option value="checkerboard">Checkerboard · alternating values</option><option value="custom">Custom · JSON array</option></select>
+          <p id="input-help" class="helper">Inputs must be integers from 0 to 1023. The source determines the array size.</p>
+          <div id="custom-input-area" hidden><label for="custom-input">Custom input array</label><textarea id="custom-input" class="custom-input" spellcheck="false" placeholder="[0, 1, 2, 3, …]" aria-describedby="custom-help"></textarea><p id="custom-help" class="helper">A flat JSON array, in row order, with (H + 1) × (W + 1) entries.</p></div>
+        </div>
+
+        <div class="run-controls"><button id="run" class="primary-button" type="button" disabled><span id="run-label">Run computation</span><span class="run-arrow" aria-hidden="true"></span></button><span class="shortcut-hint">Ctrl / ⌘ + Enter</span></div>
+      </section>
+
+      <section class="results-panel" aria-labelledby="results-heading" aria-busy="false">
+        <div class="panel-heading"><div><p class="eyebrow">02 / Axiom’s choice</p><h2 id="results-heading">Execution &amp; results</h2></div><button id="download" class="download-button" type="button" disabled aria-label="Download the current result as a JSON report">Export JSON <span aria-hidden="true">↓</span></button></div>
+
+        <div id="status" class="status status-idle" role="status" aria-live="polite" aria-atomic="true"><span id="status-symbol" class="status-symbol" aria-hidden="true">○</span><div><p id="status-title">Ready when you are</p><p id="status-detail">Choose an example, then run it to see the checked plan and its results.</p></div></div>
+        <div id="diagnostic" class="diagnostic" hidden><p id="diagnostic-code"></p><p id="diagnostic-message"></p></div>
+
+        <div id="empty-state" class="empty-state"><div class="stencil-diagram" aria-hidden="true"><span></span><span></span><span></span><span></span><span class="stencil-active"></span><span class="stencil-active"></span><span></span><span class="stencil-active"></span><span class="stencil-active"></span></div><h3>One computation. Three ways to run it.</h3><p>Recompute values, retain two rows, or store every intermediate. Your constraints help Axiom choose.</p><ol class="flow-list"><li><span>1</span>Check candidate plans</li><li><span>2</span>Execute the selected plan</li><li><span>3</span>Compare all output cells</li></ol></div>
+
+        <div id="result-content" hidden>
+          <div id="selection-summary" class="selection-summary" hidden><p class="section-kicker">Selected plan</p><div class="selected-title-row"><h3 id="selected-name"></h3><span class="result-tag">Checked</span></div><p id="selected-explanation" class="helper"></p><dl class="metrics"><div><dt>Scratch storage</dt><dd id="selected-workspace"></dd></div><div><dt>Multiplications</dt><dd id="selected-multiplications"></dd></div><div><dt>Output shape</dt><dd id="selected-shape"></dd></div></dl></div>
+
+          <div class="candidate-section"><div class="section-title-row"><h3>Candidate plans</h3><span id="objective-label" class="small-label"></span></div><div class="table-scroll" tabindex="0" role="region" aria-label="Candidate comparison, scroll horizontally if needed"><table class="candidate-table"><caption class="sr-only">Checked candidate plans, storage, operation counts, and eligibility</caption><thead><tr><th scope="col">Schedule</th><th scope="col">Scratch</th><th scope="col">Multiplies</th><th scope="col">Decision</th></tr></thead><tbody id="candidate-rows"></tbody></table></div><p class="metric-note">Scratch counts plan storage only, not total memory. Multiplication counts are a cost metric, not a speed measurement.</p></div>
+
+          <section id="output-section" class="output-section" aria-labelledby="output-heading" hidden><div class="section-title-row"><h3 id="output-heading">Output</h3><span id="comparison-label" class="comparison-label"></span></div><div id="output-grid" class="table-scroll matrix-scroll" tabindex="0" role="region" aria-label="Output matrix, scroll horizontally if needed"></div></section>
+          <details id="input-details" class="data-details"><summary>Inspect input values <span id="input-shape-label"></span></summary><div id="input-grid" class="table-scroll matrix-scroll" tabindex="0" role="region" aria-label="Input matrix, scroll horizontally if needed"></div></details>
+          <details class="data-details"><summary>Run details</summary><dl id="run-details" class="run-details"></dl><p class="metric-note">This JSON report records a playground observation. It is not an oracle qualification receipt.</p></details>
+        </div>
+      </section>
+    </div>
+
+    <aside class="scope-note" aria-label="Supported scope"><span class="scope-marker" aria-hidden="true">i</span><p><strong>A working research slice.</strong> Exact i32 stencil computations, three schedules, and at most 256 input cells. This demo uses a checked plan interpreter. Axiom is a separate language from Lattice Core; native execution and scalable loop proofs are later milestones.</p></aside>
+  </main>
+  <footer class="site-footer"><span>Axiom <span aria-hidden="true">/</span> Lattice research</span><nav id="release-links" class="release-links" aria-label="Demo release files" hidden><a href="./axiom-compiler.zip" download>Demo source</a><a href="./README.md">Release notes</a></nav><span id="runtime-label">Local Python runtime · v1 profile</span></footer>
+  <noscript><p class="noscript-message">Enable JavaScript to use the playground. The Axiom command-line tools remain available without JavaScript.</p></noscript>
+</body>
+</html>

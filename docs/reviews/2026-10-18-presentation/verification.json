@@ -1,0 +1,60 @@
+{
+  "final_packaging_normal": {
+    "exit_code": 0,
+    "log": "static-nojekyll-green.log.gz",
+    "seconds": 0.263,
+    "skipped": 0,
+    "tests": 2
+  },
+  "final_packaging_optimized": {
+    "exit_code": 0,
+    "log": "static-nojekyll-optimized.log.gz",
+    "seconds": 0.271,
+    "skipped": 0,
+    "tests": 2
+  },
+  "final_runtime_service_http": {
+    "exit_code": 0,
+    "log": "final-runtime-http-tests.log.gz",
+    "seconds": 15.323,
+    "skipped": 0,
+    "tests": 48
+  },
+  "implementation_sha256": {
+    "axiom/playground-LICENSE": "673f0bfcb392c499679e681044b81018222fdcfe14ad3adffc8d4735f89e62aa",
+    "axiom/src/axiom/playground.py": "e70675ae47f1859b711a034b831afa7083e4dfacb94fcb3c972172bfa974af39",
+    "axiom/src/axiom/playground_service.py": "562dc076bd787641804af4cab8a7b8b691bb7f51d5fbed2d33751118d654eb23",
+    "axiom/src/axiom/playground_web/app.js": "fcf8337386ad2f045b8053302b0a85650d3b55af61465c3003975b137f6cfc8a",
+    "axiom/src/axiom/playground_web/index.html": "8241a9e87b0118583514f46d316254bcae00b05a4a28caf945f8c6d2af3a6cf7",
+    "axiom/src/axiom/playground_web/style.css": "af8329ebc631476071ab2761427a9f97d753e23ce96881c45aa8adf03ca37572",
+    "axiom/src/axiom/playground_web/transport.js": "12c9ff21ac41766ccec06c41dc196bc99055ccd9be4575646b9afae101ae8e4b",
+    "axiom/src/axiom/playground_web/worker.js": "f01138516637a4ee1d9f5ad3b98b1e536b4d02a4c1420097cd11fabe3cba2211",
+    "axiom/src/axiom/runtime.py": "54d35cd52e4ad19944ea4f0807ccadac7ef999a0c635e4776cd2ea111308b71b",
+    "tools/build-playground-site.py": "f69dcfaf6c0faf44bf2cd73fc4e8dd03be97769d6e06ea89d797a257474549bf",
+    "tools/check-playground-browser.cjs": "3a12b842ad9c202e2a8286e7b614f3c870622d5af969833038399c43e604636e",
+    "tools/run-playground.py": "bf3e8ed582cf88b29e2d433a98438d56e7681eeb165f10141436a916eeb6f403"
+  },
+  "limitations": [
+    "No native or scalable-v2 qualification",
+    "Product full suite ran while final HTTP test additions were completed; final focused normal/optimized checks cover those additions",
+    "Windows, Safari, Firefox and physical mobile devices were not executed",
+    "Public Pages activation not yet confirmed"
+  ],
+  "optimized_demo_before_packaging_only_amendment": {
+    "exit_code": 0,
+    "log": "optimized-demo-tests.log.gz",
+    "seconds": 16.053,
+    "skipped": 0,
+    "tests": 50
+  },
+  "product": {
+    "exit_code": 0,
+    "log": "product-tests.log.gz",
+    "seconds": 396.033,
+    "skipped": 22,
+    "tests": 287
+  },
+  "release_manifest_sha256": "bdf1bd7bd5678a9f33f643f1a46deb1812381a9f72ca01a9a44f90a50f5f131c",
+  "schema_version": 1,
+  "site_zip_sha256": "3591bc0bf259d51d2e0c55f319750e323192739c6dfa28b293311220201577f4"
+}
