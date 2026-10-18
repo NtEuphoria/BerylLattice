@@ -46,4 +46,4 @@ Python mode and preserves the original frontend/model bytes and admitted identit
 
 The subsequent [playground clarity review](playground-polish/review.md) records
 the simpler interface, accessibility checks, unchanged compiler/runtime bytes,
-and verified public update at commit `89b5072`.
+and verified public update at commit `83da6e1`.

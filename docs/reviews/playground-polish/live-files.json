@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "release_commit": "89b5072ab32931936ab1a0a7397a5ea8b50422aa",
+  "release_commit": "83da6e116324947f7ff6686cfc009396be37fe0d",
   "checks": [
     {
       "file": "index.html",
@@ -10,7 +10,7 @@
     },
     {
       "file": "style.css",
-      "sha256": "e27a0dd257620d2b38bfec9ee88fef811ae407aa827fe89acd622f263eee9013",
+      "sha256": "36a8e44860a1a8447b55820ba300536a3ec351ac02b24f6bbd072f0beb325db7",
       "mime": "text/css; charset=utf-8",
       "matches": true
     },
@@ -22,7 +22,7 @@
     },
     {
       "file": "release-manifest.json",
-      "sha256": "a3adef64f29318d997b01b86608e4c2d848e9bef8ef044e2c08a9b4f6a163a59",
+      "sha256": "68194f33efdc47c8bc73d32f118ecef4eff55312042e3a3de64ed3d11bd3ed31",
       "mime": "application/json; charset=utf-8",
       "matches": true
     },

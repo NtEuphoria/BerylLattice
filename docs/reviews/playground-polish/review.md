@@ -25,7 +25,9 @@ and documentation changed; compiler, transport, worker, and runtime bytes did no
   explicit foreground/background color pairs were checked separately; recorded
   ratios exceed 4.5:1. This is automated plus visual verification, not a full
   assistive-technology conformance audit.
-- Desktop/mobile screenshots and forced-color rendering were inspected. Details
+- Desktop/mobile screenshots and forced-color rendering were inspected. A final
+  review corrected the selected-example outline to preserve a distinct keyboard
+  focus indicator; both states passed a fresh Chromium check. Details
   remain keyboard accessible, and the source editor does not trap Tab.
 - An initial accessibility run launched alongside the browser regression timed
   out waiting for success. Its response was not captured. The local server
@@ -34,7 +36,7 @@ and documentation changed; compiler, transport, worker, and runtime bytes did no
 
 ## Release
 
-Public commit `89b5072ab32931936ab1a0a7397a5ea8b50422aa` is built on GitHub Pages:
+Public commit `83da6e116324947f7ff6686cfc009396be37fe0d` is built on GitHub Pages:
 https://nteuphoria.github.io/axiom-playground/
 
 The 19-file manifest was checked in full. Only index.html, style.css, app.js,

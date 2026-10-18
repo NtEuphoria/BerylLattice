@@ -7,5 +7,6 @@
     "style.css"
   ],
   "compiler_zip_and_runtime_unchanged": true,
-  "manifest_sha256": "a3adef64f29318d997b01b86608e4c2d848e9bef8ef044e2c08a9b4f6a163a59"
+  "manifest_sha256": "68194f33efdc47c8bc73d32f118ecef4eff55312042e3a3de64ed3d11bd3ed31",
+  "release_commit": "83da6e116324947f7ff6686cfc009396be37fe0d"
 }
