@@ -76,13 +76,20 @@ class _Node:
 class _Expressions:
     def __init__(self, limit, input_interval):
         self.nodes = []
+        # Accounting v1 bounds conceptual allocations, including source terms
+        # whose already interpreted physical nodes can be reused.
+        self.allocations = 0
         self.limit = limit
         self.input_interval = input_interval
         self.inconclusive = False
+        self.source_kernel = None
+        self.source_free_names = ()
+        self.source_facts = {}
 
     def allocate(self, node):
-        if len(self.nodes) >= self.limit:
+        if self.allocations >= self.limit:
             raise _Stop('EXPRESSION_NODES_EXHAUSTED')
+        self.allocations += 1
         self.nodes.append(node)
         return len(self.nodes) - 1
 
@@ -118,16 +125,41 @@ class _Expressions:
         return self.allocate(_Node(kind, None, left, right, lower, upper, samples))
 
 
+def _source_free_names(producer):
+    """Find actual retained-AST dependencies, without hashing expression trees."""
+    names = set()
+    pending = [producer.expression]
+    while pending:
+        node = pending.pop()
+        if isinstance(node, NameReference):
+            names.add(node.name)
+        elif isinstance(node, GroupExpression):
+            pending.append(node.expression)
+        elif isinstance(node, BinaryExpression):
+            pending.extend((node.left, node.right))
+        elif isinstance(node, ReadExpression):
+            pending.extend(node.indices)
+    return tuple(sorted(names - {axis.name for axis in producer.axes}))
+
+
 def _source_expression(expression, environment, kernel, dag, work):
     """Interpret scalar and index ASTs with an explicit continuation stack.
 
-    Read expansion visits the original producer AST anew each time, including
-    each index expression and grouping node. There is no producer-token shortcut.
-    Index computations are integers; scalar computations create expression nodes.
+    The first producer binding interprets every original index/group/scalar node.
+    Later identical bindings can reuse that successful fact in this arena while
+    charging its full conceptual cost. Near either quota, interpret the AST again
+    to preserve the exact interleaving of charges, allocations and failures.
     """
     module = kernel.source_module
     producer = module.producers[0]
     input_name = module.inputs[0].name
+    if dag.source_kernel is not kernel:
+        # Ownership fixes the actual retained AST, dimensions, tensor names and
+        # interval. Keep the object alive; neither labels nor caller digests key
+        # a fact, and no facts survive this check's arena.
+        dag.source_kernel = kernel
+        dag.source_free_names = _source_free_names(producer)
+        dag.source_facts = {}
     stack = [('visit', expression, environment, 'scalar')]
     values = []
     while stack:
@@ -153,6 +185,13 @@ def _source_expression(expression, environment, kernel, dag, work):
                     stack.append(('visit', index, env, 'index'))
             else:
                 raise _Stop('UNSUPPORTED_SOURCE_EXPRESSION')
+        elif action == 'remember':
+            _, key, first_work, first_allocation = frame
+            if not dag.inconclusive:
+                # Successful observed deltas cannot exceed this call's quotas;
+                # no recursively accumulated or unbounded symbolic weights.
+                dag.source_facts[key] = (values[-1], work.used - first_work,
+                                         dag.allocations - first_allocation)
         elif action == 'binary':
             _, operator, mode = frame
             right, left = values.pop(), values.pop()
@@ -176,6 +215,22 @@ def _source_expression(expression, environment, kernel, dag, work):
                 producer_env = dict(env)
                 producer_env[producer.axes[0].name] = row
                 producer_env[producer.axes[1].name] = column
+                key = (row, column, tuple(producer_env[name] for name in dag.source_free_names))
+                fact = dag.source_facts.get(key)
+                if fact is not None:
+                    value, visits, allocations = fact
+                    next_work = work.used + visits
+                    next_allocations = dag.allocations + allocations
+                    if next_work <= work.limit and next_allocations <= dag.limit:
+                        work.used = next_work
+                        dag.allocations = next_allocations
+                        values.append(value)
+                        continue
+                    # At least one quota cuts through this term. The original
+                    # interpreter reproduces the precise first failure, even
+                    # when both quotas would be exhausted inside the term.
+                else:
+                    stack.append(('remember', key, work.used, dag.allocations))
                 stack.append(('visit', producer.expression, producer_env, 'scalar'))
             else:
                 raise _Stop('UNSUPPORTED_SOURCE_READ')

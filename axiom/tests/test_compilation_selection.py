@@ -265,16 +265,12 @@ class RankedSelectionTests(unittest.TestCase):
         self.assertEqual(result.attempts[0].work_used, result.attempts[0].allowance)
 
     def test_source_expression_quota_exact_boundary(self):
-        allocations = 0
-        original = checker._Expressions.allocate
-        def count(arena, node):
-            nonlocal allocations
-            allocations += 1
-            return original(arena, node)
-        with patch.object(checker._Expressions, 'allocate', count):
-            result, owned = self.select(self.context(2, 2, None))
+        # Immutable accounting-v1 golden: 4*31 conceptual source allocations
+        # plus 1+9*3+4*3 physical plan allocations. Sharing source DAG nodes
+        # cannot lower this quota to the number of physical allocate calls.
+        allocations = 164
+        result, owned = self.select(self.context(2, 2, None))
         self.assertIsNotNone(owned)
-        self.assertGreater(allocations, 100)
         with self.assertRaises(DiagnosticError):
             self.context(2, 2, None, limits=replace(Limits(), expression_nodes=1))
         for quota in (allocations-1, allocations, allocations+1):
