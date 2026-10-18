@@ -1,0 +1,6 @@
+// Draft: elementwise polynomial x^3 + 3x + 7.
+module polymap;
+shape N = 256;
+input x: i32[N] in 0..=1023;
+output y[i in 0..N] = x[i]*x[i]*x[i] + 3*x[i] + 7;
+prefer multiplication_ops;

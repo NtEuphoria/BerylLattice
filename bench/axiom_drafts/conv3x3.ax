@@ -1,0 +1,12 @@
+// Draft: 3x3 weighted convolution [1 2 1; 2 4 2; 1 2 1]. A planner could
+// choose between direct and separable (row then column) schedules.
+module conv3x3;
+shape H = 14;
+shape W = 14;
+input g: i32[H+2,W+2] in 0..=1023;
+output o[r in 0..H,c in 0..W] =
+  g[r,c]+2*g[r,c+1]+g[r,c+2]
+  +2*g[r+1,c]+4*g[r+1,c+1]+2*g[r+1,c+2]
+  +g[r+2,c]+2*g[r+2,c+1]+g[r+2,c+2];
+require plan_workspace_bytes <= 64;
+prefer multiplication_ops;
