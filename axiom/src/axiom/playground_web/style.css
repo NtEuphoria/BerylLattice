@@ -76,9 +76,9 @@ select { width: 100%; min-height: 44px; margin-top: .5rem; border: 1px solid var
 .primary-button:hover:enabled { background: var(--accent-hover); }
 .primary-button:disabled { background: #65796f; border-color: #65796f; }
 .shortcut-hint { color: var(--muted); font-size: .8125rem; }
-.download-button { min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--control-line); border-radius: 4px; background: var(--surface); color: var(--ink); font-size: .875rem; white-space: nowrap; }
-.download-button:hover:enabled { background: var(--subtle); }
-.download-button:disabled { color: #66727b; border-color: var(--line); background: var(--subtle); }
+.secondary-button, .download-button { min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--control-line); border-radius: 4px; background: var(--surface); color: var(--ink); font-size: .875rem; white-space: nowrap; }
+.secondary-button:hover:enabled, .download-button:hover:enabled { background: var(--subtle); }
+.secondary-button:disabled, .download-button:disabled { color: #66727b; border-color: var(--line); background: var(--subtle); }
 .status { display: flex; gap: .75rem; align-items: flex-start; padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); background: var(--subtle); }
 .status-symbol { font-family: var(--mono); font-size: 1rem; line-height: 1.5; min-width: 18px; }
 #status-title { font-size: .9375rem; font-weight: 600; }

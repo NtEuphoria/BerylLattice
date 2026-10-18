@@ -96,6 +96,23 @@ types passed against the live HTTPS site. See the presentation review for eviden
 If showing errors, use an unsupported computation or custom input containing1024.
 The program must report rejection instead of presenting an old success as current.
 
+Use **Reset example** beside Run computation to start over. It restores **Fewer
+calculations** and the increasing-number input pattern, clears the custom input
+and previous report or diagnostic, and leaves the page ready to run. The button
+is available once examples load, including while a computation is running.
+
+For maintenance, `resetExample()` restores `examples[0].source` and input mode
+`ramp`, then uses the existing `invalidate()` path. That path aborts the active
+request and increments its request ID, so an old response cannot replace the
+reset state or a newer run. The transport forwards cancellation to local fetches
+or terminates a running browser worker; a subsequent browser run starts a fresh
+runtime. Cancelling a local fetch stops the client waiting; server execution
+remains bounded by its existing deadline. An immediate local rerun waits for
+that worker by retrying only an explicit `429 WORKER_BUSY` response, every
+250 milliseconds within the same 15-second request timeout. Reset or an edit
+also cancels that wait. Other HTTP errors are not retried. Reset leaves keyboard
+focus on the button and announces readiness through the existing status region.
+
 ## Exactly what works
 
 The current profile accepts one two-stage stencil: square each input plus one,
@@ -135,6 +152,14 @@ a formal proof of the full implementation, or completion of compact-loop researc
 
 ## Validation
 
+From the repository root, Node.js can run the dependency-free UI and transport
+regressions (reset defaults, report clearing, cancellation, stale responses, and
+immediate reruns):
+
+```sh
+node --test --test-timeout=5000 tools/test-playground-ui.cjs
+```
+
 From `axiom/`:
 
 ```sh
@@ -158,4 +183,5 @@ existing Playwright installation and `CHROMIUM_PATH` an existing browser binary.
 `PLAYWRIGHT_PROXY` can select an existing network proxy when testing a public site;
 TLS verification remains enabled.
 It exercises actual execution, output equality, schedule changes, downloads,
-rejections, stale-result clearing, narrow screens, and keyboard navigation.
+rejections, stale-result clearing, keyboard reset after reports and diagnostics,
+default restoration and rerunning, narrow screens, and keyboard navigation.

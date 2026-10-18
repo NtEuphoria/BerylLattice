@@ -20,6 +20,21 @@ async function main() {
     await page.goto(address);
     await page.waitForFunction(() => !document.querySelector('#run').disabled, null, { timeout: 120000 });
     const original = await page.locator('#source').inputValue();
+    const reset = async () => {
+      await page.getByRole('button', { name: 'Reset example', exact: true }).focus();
+      await page.keyboard.press('Space');
+      assert.equal(await page.locator('#source').inputValue(), original);
+      assert.equal(await page.locator('#input-mode').inputValue(), 'ramp');
+      assert.equal(await page.locator('#custom-input').inputValue(), '');
+      assert.equal(await page.locator('#custom-input-area').isHidden(), true);
+      assert.equal(await page.locator('#result-content').isHidden(), true);
+      assert.equal(await page.locator('#diagnostic').isHidden(), true);
+      assert.equal(await page.locator('#download').isDisabled(), true);
+      assert.equal(await page.locator('#run').isEnabled(), true);
+      assert.equal(await page.locator('#status-title').innerText(), 'Ready to run');
+      assert.equal(await page.locator('#examples button[aria-pressed="true"]').innerText(), 'Fewer calculations');
+      assert.equal(await page.evaluate(() => document.activeElement.id), 'reset');
+    };
     const run = async () => {
       await page.locator('#run').click();
       await page.waitForFunction(() => !document.querySelector('#run').disabled
@@ -42,6 +57,7 @@ async function main() {
     assert.equal(result.status, 'success');
     assert.equal(result.selected.plan_id, 'rows2-v1');
     assert.equal(result.comparison.matches, true);
+    await reset();
 
     await page.locator('#source').fill(original.replace('<= 64', '<= 0'));
     assert.equal(await page.locator('#download').isDisabled(), true);
@@ -66,8 +82,15 @@ async function main() {
     assert.equal(await page.locator('#output-grid td').count(), 35);
     assert.deepEqual(await page.locator('#output-grid td').allTextContents(), Array(35).fill('-9'));
 
-    await page.locator('#input-mode').selectOption('ramp');
+    await reset();
+    await page.locator('#input-mode').selectOption('custom');
+    await page.locator('#custom-input').fill('[');
     await run();
+    assert.equal(await page.locator('#diagnostic').isVisible(), true);
+    await reset();
+    await run();
+    assert.equal(await page.locator('#output-grid td').first().innerText(), '186');
+    assert.equal(await page.locator('#output-grid td').last().innerText(), '7634');
     for (const width of [320, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1050 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true,
@@ -80,7 +103,8 @@ async function main() {
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ status: 'passed', browser: 'chromium', address,
       checks: ['real rows2 execution', 'report download', 'cap changes selection', 'stale result cleared',
-        'zero input', 'unsupported shape', 'precondition rejection', 'responsive widths', 'keyboard navigation', 'no page errors'] }));
+        'zero input', 'unsupported shape', 'precondition rejection', 'keyboard reset after report and diagnostic',
+        'reset restores defaults and reruns', 'responsive widths', 'keyboard navigation', 'no page errors'] }));
   } finally {
     await browser.close();
   }

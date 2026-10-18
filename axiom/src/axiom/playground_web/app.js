@@ -5,7 +5,7 @@ import { getExamples, runDemo } from "./transport.js";
   const ui = {
     source: $("source"), examples: $("examples"), retry: $("retry-examples"),
     description: $("example-description"), mode: $("input-mode"), custom: $("custom-input"),
-    customArea: $("custom-input-area"), run: $("run"), runLabel: $("run-label"),
+    customArea: $("custom-input-area"), run: $("run"), runLabel: $("run-label"), reset: $("reset"),
     download: $("download"), status: $("status"), statusTitle: $("status-title"),
     statusDetail: $("status-detail"), statusSymbol: $("status-symbol"),
     diagnostic: $("diagnostic"), empty: $("empty-state"), content: $("result-content"),
@@ -56,6 +56,7 @@ import { getExamples, runDemo } from "./transport.js";
     ui.results.setAttribute("aria-busy", String(running));
     ui.runLabel.textContent = running ? "Running…" : "Run computation";
     ui.run.disabled = running || loadingExamples || !ui.source.value.trim();
+    ui.reset.disabled = loadingExamples || examples.length === 0;
   }
 
   function updateExampleSelection() {
@@ -77,6 +78,17 @@ import { getExamples, runDemo } from "./transport.js";
     setRunning(false);
     updateExampleSelection();
     setStatus("idle", "Changes ready to run", "Run again to see the result for your current code and inputs.");
+  }
+
+  function resetExample() {
+    if (ui.reset.disabled) return;
+    ui.source.value = examples[0].source;
+    ui.mode.value = "ramp";
+    ui.custom.value = "";
+    ui.customArea.hidden = true;
+    // Use the same cancellation and stale-result guard as editing a request.
+    invalidate();
+    setStatus("idle", "Ready to run", "The default example and increasing numbers are restored. Run it to see a new result.");
   }
 
   function showDiagnostic(code, message, offset = null) {
@@ -239,10 +251,7 @@ import { getExamples, runDemo } from "./transport.js";
     setRunning(true);
     setStatus("loading", "Running your computation…", "beryl checks the selected plan, runs it, and compares its output with a separate calculation.");
     try {
-      const aborted = new Promise((resolve, reject) => {
-        controller.signal.addEventListener("abort", () => reject(new Error("Run cancelled.")), { once: true });
-      });
-      const result = await Promise.race([runDemo(request), aborted]);
+      const result = await runDemo(request, { signal: controller.signal });
       if (id !== requestId) return;
       renderResult(result);
     } catch (error) {
@@ -305,6 +314,7 @@ import { getExamples, runDemo } from "./transport.js";
   ui.custom.addEventListener("input", invalidate);
   ui.mode.addEventListener("change", () => { ui.customArea.hidden = ui.mode.value !== "custom"; invalidate(); });
   ui.run.addEventListener("click", run);
+  ui.reset.addEventListener("click", resetExample);
   ui.retry.addEventListener("click", loadExamples);
   document.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); run(); }
