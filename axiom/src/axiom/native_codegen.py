@@ -21,6 +21,9 @@ class NativeArtifact:
     source_digest: str
     plan_digest: str
     c_digest: str
+    codegen_version: str = 'beryl-finite-c-v1'
+    hint_digest: str | None = None
+    loop_version: str | None = None
 
 
 _DRIVER = r'''
@@ -107,6 +110,33 @@ def _emit_native_c_checked(owned):
 
 
 def _emit_finite(kernel, plan, source_digest, plan_digest):
+    parts = _native_kernel_parts(kernel, plan)
+    for operation in plan.operations:
+        opcode = operation.opcode
+        if opcode in ('scratch_store', 'output_store'):
+            destination = 'scratch' if opcode == 'scratch_store' else 'output'
+            parts.append(f'    {destination}[{operation.index}] = ax_v{operation.operands[0]};\n')
+            continue
+        if opcode == 'const':
+            expression = f'(int32_t)({operation.value}LL)'
+        elif opcode == 'input_load':
+            expression = f'input[{operation.index}]'
+        elif opcode == 'scratch_load':
+            expression = f'scratch[{operation.index}]'
+        elif opcode in ('add', 'mul'):
+            left, right = operation.operands
+            operator = '+' if opcode == 'add' else '*'
+            expression = f'(int32_t)((int64_t)ax_v{left} {operator} (int64_t)ax_v{right})'
+        else:
+            raise DiagnosticError('BACKEND_UNSUPPORTED_OPERATION', kernel.source_module.span,
+                                  'native backend cannot lower the checked opcode')
+        parts.append(f'    const int32_t ax_v{operation.dst} = {expression};\n'
+                     f'    (void)ax_v{operation.dst};\n')
+    return _finish_native(parts, kernel, source_digest, plan_digest)
+
+
+def _native_kernel_parts(kernel, plan, *, comment=None):
+    """Shared preflight and storage contract; keep legacy emitted bytes stable."""
     input_count = (kernel.height + 1) * (kernel.width + 1)
     output_count = kernel.height * kernel.width
     if max(input_count, output_count, plan.scratch_capacity_cells) > 256:
@@ -132,6 +162,8 @@ _Static_assert(sizeof(int64_t) == 8, "eight-byte i64 required");
  * No alias, offset view, concurrent access, or lifetime change is permitted. */
 int32_t beryl_kernel(const int32_t *input, int32_t *output) {{
 ''']
+    if comment is not None:
+        parts[0] = comment + '\n' + parts[0].partition('\n')[2]
     lower, upper = kernel.input_interval
     parts.append(f'''    for (int32_t i = 0; i < {input_count}; ++i)
         if (input[i] < {lower} || input[i] > {upper}) return i + 1;
@@ -139,30 +171,17 @@ int32_t beryl_kernel(const int32_t *input, int32_t *output) {{
     if plan.scratch_capacity_cells:
         parts.append(f'    int32_t scratch[{plan.scratch_capacity_cells}] = {{0}};\n'
                      '    (void)scratch;\n')
-    for operation in plan.operations:
-        opcode = operation.opcode
-        if opcode in ('scratch_store', 'output_store'):
-            destination = 'scratch' if opcode == 'scratch_store' else 'output'
-            parts.append(f'    {destination}[{operation.index}] = ax_v{operation.operands[0]};\n')
-            continue
-        if opcode == 'const':
-            expression = f'(int32_t)({operation.value}LL)'
-        elif opcode == 'input_load':
-            expression = f'input[{operation.index}]'
-        elif opcode == 'scratch_load':
-            expression = f'scratch[{operation.index}]'
-        elif opcode in ('add', 'mul'):
-            left, right = operation.operands
-            operator = '+' if opcode == 'add' else '*'
-            expression = f'(int32_t)((int64_t)ax_v{left} {operator} (int64_t)ax_v{right})'
-        else:
-            raise DiagnosticError('BACKEND_UNSUPPORTED_OPERATION', kernel.source_module.span,
-                                  'native backend cannot lower the checked opcode')
-        parts.append(f'    const int32_t ax_v{operation.dst} = {expression};\n'
-                     f'    (void)ax_v{operation.dst};\n')
+    return parts
+
+
+def _finish_native(parts, kernel, source_digest, plan_digest, *,
+                   codegen_version='beryl-finite-c-v1', hint_digest=None,
+                   loop_version=None):
+    """Share the bounded token driver and exact artifact byte identities."""
     parts.append('    return 0;\n}\n')
     parts.append(_DRIVER)
     generated = ''.join(parts).encode('ascii')
-    return NativeArtifact(generated, kernel.height, kernel.width, input_count,
-                          output_count, source_digest, plan_digest,
-                          sha256(generated).hexdigest())
+    return NativeArtifact(generated, kernel.height, kernel.width,
+                          (kernel.height+1)*(kernel.width+1), kernel.height*kernel.width,
+                          source_digest, plan_digest, sha256(generated).hexdigest(),
+                          codegen_version, hint_digest, loop_version)
