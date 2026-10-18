@@ -123,7 +123,7 @@ class _Handler(BaseHTTPRequestHandler):
     def handle(self):
         try:
             super().handle()
-        except (BrokenPipeError, ConnectionResetError):
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             # A closed browser tab is an ordinary disconnect, not a source log.
             pass
 

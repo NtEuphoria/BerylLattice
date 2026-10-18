@@ -62,6 +62,25 @@ class HTTPFixture(unittest.TestCase):
         return self.request("POST", "/api/run", body, values)
 
 
+class PlaygroundDisconnectTests(unittest.TestCase):
+    def test_browser_disconnects_are_quiet(self):
+        playground = importlib.import_module("axiom.playground")
+        handler = object.__new__(playground._Handler)
+        # Inject socket failures at the HTTP boundary: real disconnect timing
+        # is OS-dependent and cannot reliably exercise every exception type.
+        for error in (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+            with self.subTest(error=error.__name__):
+                with mock.patch.object(playground.BaseHTTPRequestHandler, "handle", side_effect=error):
+                    handler.handle()
+
+    def test_unexpected_errors_are_not_silenced(self):
+        playground = importlib.import_module("axiom.playground")
+        handler = object.__new__(playground._Handler)
+        with mock.patch.object(playground.BaseHTTPRequestHandler, "handle", side_effect=OSError("unexpected")):
+            with self.assertRaisesRegex(OSError, "unexpected"):
+                handler.handle()
+
+
 class PlaygroundBoundaryTests(HTTPFixture):
     def test_health_is_loopback_and_has_browser_security_headers(self):
         self.assertEqual(self.server.server_address[0], "127.0.0.1")
