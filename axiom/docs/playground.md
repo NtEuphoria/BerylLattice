@@ -158,6 +158,9 @@ a formal proof of the full implementation, or completion of compact-loop researc
 
 ## Validation
 
+For correctness-audited timings and an optional 20-million-number Python
+file-output baseline, see [Local performance audit](benchmarks.md).
+
 From the repository root, Node.js can run the dependency-free UI and transport
 regressions (reset defaults, report clearing, cancellation, stale responses, and
 immediate reruns):
