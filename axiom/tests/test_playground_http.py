@@ -306,11 +306,19 @@ class PlaygroundIntegrationTests(HTTPFixture):
         import os
         environment = os.environ.copy()
         environment["PYTHONPATH"] = str(Path(self.playground.__file__).resolve().parent.parent)
+        # Windows console events must target an isolated process group.
+        windows = sys.platform == "win32"
         process = subprocess.Popen(
             [sys.executable, "-m", "axiom.playground", "--port", "0"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if windows else 0,
         )
-        self.addCleanup(lambda: process.poll() is None and process.kill())
+        def close_process():
+            if process.poll() is None:
+                process.kill()
+            process.communicate(timeout=5)
+
+        self.addCleanup(close_process)
         output = queue.Queue()
         reader = threading.Thread(target=lambda: output.put(process.stdout.readline()), daemon=True)
         reader.start()
@@ -325,7 +333,7 @@ class PlaygroundIntegrationTests(HTTPFixture):
             self.assertEqual(json.loads(response.read())["status"], "ok")
         finally:
             connection.close()
-            process.send_signal(signal.SIGINT)
+            process.send_signal(signal.CTRL_BREAK_EVENT if windows else signal.SIGINT)
         stdout, stderr = process.communicate(timeout=5)
         self.assertEqual((process.returncode, stdout, stderr), (0, "", ""))
 

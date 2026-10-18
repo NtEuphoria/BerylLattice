@@ -23,7 +23,9 @@ python3 tools/run-playground.py
 
 On Windows, use `py -3.12 tools/run-playground.py`. The server prints its local
 browser address. Leave the terminal running, open that address in your own
-browser, and press Ctrl+C in the terminal to stop. If port8765 is occupied:
+browser, and press Ctrl+C in the terminal to stop. Windows also supports
+Ctrl+Break for a clean shutdown; the subprocess test uses that event with an
+isolated process group. If port8765 is occupied:
 
 ```sh
 python3 tools/run-playground.py --port 8766

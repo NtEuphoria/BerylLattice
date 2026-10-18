@@ -13,6 +13,7 @@ import json
 import math
 import os
 from pathlib import Path
+import signal
 import socket
 import subprocess
 import sys
@@ -303,13 +304,19 @@ def main(argv=None):
         server = create_server(arguments.port)
     except OSError as error:
         parser.exit(1, f"Could not start the local playground: {error.strerror}\n")
-    print(f"Axiom playground: http://127.0.0.1:{server.server_address[1]}", flush=True)
+    previous_break_handler = None
     try:
+        if sys.platform == "win32":
+            # Treat Windows Ctrl+Break like Ctrl+C so normal cleanup runs.
+            previous_break_handler = signal.signal(signal.SIGBREAK, signal.default_int_handler)
+        print(f"Axiom playground: http://127.0.0.1:{server.server_address[1]}", flush=True)
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         server.server_close()
+        if previous_break_handler is not None:
+            signal.signal(signal.SIGBREAK, previous_break_handler)
     return 0
 
 
