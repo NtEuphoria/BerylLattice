@@ -211,6 +211,18 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
     computation have separate byte/operation bounds and are outside that counter.
     Counters become available only after all physical operations are processed.
     """
+    return _check_plan(kernel, plan, limits, additional_cap=additional_cap)
+
+
+def _check_admitted_plan(kernel, plan, limits, identity, *, additional_cap=None,
+                         validation_error=None):
+    """Private handoff: the compilation owner supplies fresh immutable records."""
+    return _check_plan(kernel, plan, limits, additional_cap=additional_cap,
+                       _admitted=True, _identity=identity, _validation_error=validation_error)
+
+
+def _check_plan(kernel, plan, limits, *, additional_cap=None,
+                _admitted=False, _identity=None, _validation_error=None):
     if type(kernel) is not AdmittedKernel or type(limits) is not Limits:
         raise ValueError('expected an AdmittedKernel and Limits')
     _cap(kernel.cap, 'source cap')
@@ -237,7 +249,9 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
     try:
         # Digest encoding validates the complete untrusted record under these
         # same limits before serializing it; do not walk its structure twice.
-        identity = plan_digest(plan, limits=limits)
+        if _validation_error is not None:
+            raise _validation_error
+        identity = _identity if _identity is not None else plan_digest(plan, limits=limits)
     except DecodeError as error:
         unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')
         return result(SemanticStatus.UNKNOWN if unknown else SemanticStatus.INVALID,
@@ -254,34 +268,35 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
     if type(kernel.source_module) is not SourceModule:
         return result(SemanticStatus.INVALID, False, 'INVALID_SOURCE_RECORD',
                       (('field', 'source_module'),))
-    try:
-        # A frozen record is not an admission certificate. Rebuild from the
-        # bytes so replaced metadata/ASTs cannot weaken the source contract.
-        fresh = admit_source(parse_source(kernel.source_module.source_bytes, limits))
-    except DiagnosticError as error:
-        unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')
-        return result(SemanticStatus.UNKNOWN if unknown else SemanticStatus.INVALID,
-                      False, error.code,
-                      None if unknown else (('offset', error.span.offset), ('detail', str(error))))
-    caps = [value for value in (fresh.cap, additional_cap) if value is not None]
-    effective_cap = min(caps) if caps else None
-    constraint_digest = sha256(canonical_json({
-        'version': 1, 'property': 'plan_workspace_bytes', 'source_cap': fresh.cap,
-        'additional_cap': additional_cap, 'effective_cap': effective_cap,
-    })).hexdigest()
-    constraint = (ConstraintStatus.SATISFIED if effective_cap is None or workspace <= effective_cap
-                  else ConstraintStatus.VIOLATED)
-    for field in ('height', 'width', 'cap', 'input_interval', 'objective',
-                  'source_digest', 'semantic_digest', 'semantics_version'):
-        supplied, actual = getattr(kernel, field), getattr(fresh, field)
-        if type(supplied) is not type(actual) or supplied != actual:
+    if not _admitted:
+        try:
+            # A frozen record is not an admission certificate. Rebuild from the
+            # bytes so replaced metadata/ASTs cannot weaken the source contract.
+            fresh = admit_source(parse_source(kernel.source_module.source_bytes, limits))
+        except DiagnosticError as error:
+            unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')
+            return result(SemanticStatus.UNKNOWN if unknown else SemanticStatus.INVALID,
+                          False, error.code,
+                          None if unknown else (('offset', error.span.offset), ('detail', str(error))))
+        caps = [value for value in (fresh.cap, additional_cap) if value is not None]
+        effective_cap = min(caps) if caps else None
+        constraint_digest = sha256(canonical_json({
+            'version': 1, 'property': 'plan_workspace_bytes', 'source_cap': fresh.cap,
+            'additional_cap': additional_cap, 'effective_cap': effective_cap,
+        })).hexdigest()
+        constraint = (ConstraintStatus.SATISFIED if effective_cap is None or workspace <= effective_cap
+                      else ConstraintStatus.VIOLATED)
+        for field in ('height', 'width', 'cap', 'input_interval', 'objective',
+                      'source_digest', 'semantic_digest', 'semantics_version'):
+            supplied, actual = getattr(kernel, field), getattr(fresh, field)
+            if type(supplied) is not type(actual) or supplied != actual:
+                return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',
+                              (('field', field),))
+        if (any(type(value) is not int for value in kernel.input_interval)
+                or kernel.source_module.source_digest != fresh.source_digest):
             return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',
-                          (('field', field),))
-    if (any(type(value) is not int for value in kernel.input_interval)
-            or kernel.source_module.source_digest != fresh.source_digest):
-        return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',
-                      (('field', 'source_module'),))
-    kernel = fresh  # Only the freshly parsed AST supplies symbolic semantics.
+                          (('field', 'source_module'),))
+        kernel = fresh  # Only the freshly parsed AST supplies symbolic semantics.
     dag = _Expressions(limits.expression_nodes, kernel.input_interval)
     try:
         output = kernel.source_module.outputs[0]

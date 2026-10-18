@@ -222,6 +222,11 @@ def validate_plan(plan: Plan, limits: Limits) -> None:
     Dense SSA and prior-use ordering are structural; shape-dependent input and
     output bounds, scratch initialization and output coverage belong to checking.
     """
+    _validate_plan(plan, limits)
+
+
+def _validate_plan(plan, limits):
+    """Validate once and return actual metrics for private compilation ranking."""
     for name in ('plan_bytes', 'plan_operations'):
         _positive_limit(getattr(limits, name, None), name)
     if type(plan) is not Plan:
@@ -257,6 +262,7 @@ def validate_plan(plan: Plan, limits: Limits) -> None:
 
     charge(len(canonical_json(_plan_header_object(plan))), '$')
     next_dst = 0
+    multiplication_ops = 0
     for i, op in enumerate(plan.operations):
         path = f'$.operations[{i}]'
         if type(op) is not Operation:
@@ -264,6 +270,8 @@ def validate_plan(plan: Plan, limits: Limits) -> None:
         if type(op.opcode) is not str or op.opcode not in _SHAPES:
             _fail('UNKNOWN_OPCODE', path + '.opcode', 'unknown physical opcode')
         result, arity, indexed, literal = _SHAPES[op.opcode]
+        if op.opcode == 'mul':
+            multiplication_ops += 1
         if result:
             _integer(op.dst, path + '.dst')
             if op.dst != next_dst:
@@ -308,6 +316,8 @@ def validate_plan(plan: Plan, limits: Limits) -> None:
         if result:
             next_dst += 1
 
+    return multiplication_ops, 4 * plan.scratch_capacity_cells
+
 
 def _plan_header_object(plan):
     return {'format_version': plan.format_version, 'semantic_digest': plan.semantic_digest,
@@ -328,6 +338,11 @@ def _plan_object(plan):
 
 def encode_plan(plan: Plan, *, limits: Limits = Limits()) -> bytes:
     validate_plan(plan, limits)
+    return _encode_validated_plan(plan, limits)
+
+
+def _encode_validated_plan(plan, limits):
+    """Serialize records already validated by their private compilation owner."""
     # Structural validation above already checks every primitive and the exact
     # byte quota before allocating the complete JSON tree and encoded artifact.
     data = json.dumps(_plan_object(plan), sort_keys=True, separators=(',', ':'),

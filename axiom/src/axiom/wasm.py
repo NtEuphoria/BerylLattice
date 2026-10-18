@@ -122,6 +122,19 @@ def compile_wasm(source_bytes: bytes, plan_bytes: bytes,
     arbitrary arenas or silently weakening that metric.
     """
     kernel, plan, checked = _checked_plan(source_bytes, plan_bytes, limits)
+    return _emit_finite(kernel, plan, sha256(source_bytes).hexdigest(), sha256(plan_bytes).hexdigest())
+
+
+def _compile_wasm_checked(owned):
+    """Lower only a live successful result retained by its compilation owner."""
+    from .compilation import _require_owned
+    _require_owned(owned)
+    with owned.owner.phase('code_emission'):
+        return _emit_finite(owned.kernel, owned.plan, owned.checked.source_digest,
+                            owned.checked.plan_digest)
+
+
+def _emit_finite(kernel, plan, source_digest, plan_digest):
     input_count = (kernel.height + 1) * (kernel.width + 1)
     output_count = kernel.height * kernel.width
     output_offset = 4 * input_count
@@ -143,5 +156,5 @@ def compile_wasm(source_bytes: bytes, plan_bytes: bytes,
     ))
     return WasmArtifact(module, kernel.height, kernel.width, 0, output_offset,
                         _MEMORY_BYTES, input_count, output_count, kernel.input_interval,
-                        sha256(source_bytes).hexdigest(), sha256(plan_bytes).hexdigest(),
+                        source_digest, plan_digest,
                         sha256(module).hexdigest())

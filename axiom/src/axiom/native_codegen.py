@@ -94,6 +94,19 @@ def emit_native_c(source: bytes, plan_bytes: bytes,
     before the proved in-range conversion to int32_t.
     """
     kernel, plan, checked = _checked_plan(source, plan_bytes, limits)
+    return _emit_finite(kernel, plan, sha256(source).hexdigest(), sha256(plan_bytes).hexdigest())
+
+
+def _emit_native_c_checked(owned):
+    """Lower only a live successful result retained by its compilation owner."""
+    from .compilation import _require_owned
+    _require_owned(owned)
+    with owned.owner.phase('code_emission'):
+        return _emit_finite(owned.kernel, owned.plan, owned.checked.source_digest,
+                            owned.checked.plan_digest)
+
+
+def _emit_finite(kernel, plan, source_digest, plan_digest):
     input_count = (kernel.height + 1) * (kernel.width + 1)
     output_count = kernel.height * kernel.width
     if max(input_count, output_count, plan.scratch_capacity_cells) > 256:
@@ -151,5 +164,5 @@ int32_t beryl_kernel(const int32_t *input, int32_t *output) {{
     parts.append(_DRIVER)
     generated = ''.join(parts).encode('ascii')
     return NativeArtifact(generated, kernel.height, kernel.width, input_count,
-                          output_count, sha256(source).hexdigest(), sha256(plan_bytes).hexdigest(),
+                          output_count, source_digest, plan_digest,
                           sha256(generated).hexdigest())

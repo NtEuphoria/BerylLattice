@@ -5,6 +5,7 @@ It accepts neither commands nor filesystem paths. Successful observations are
 demo reports, not native execution or scalable-oracle qualification receipts.
 """
 import base64
+from contextlib import nullcontext
 from dataclasses import dataclass
 import sys
 
@@ -14,7 +15,8 @@ from .model import DiagnosticError, Limits, Span
 from .reference import ExecutionResult, ExecutionStatus, evaluate_source
 from .runtime import _snapshot, execute_plan
 from .selection import select_plan
-from .wasm import compile_wasm
+from .wasm import _compile_wasm_checked
+from .compilation import _CompilationContext, _select_legacy
 
 REQUEST_BYTES = 131072
 _BACKEND = 'checked-plan-interpreter-v1'
@@ -43,6 +45,7 @@ class _PreparedDemo:
     module: object
     kernel: object
     search: object
+    context: object
 
 
 _active_preparation = None
@@ -194,32 +197,41 @@ def compiled_request_source(request: dict) -> dict:
         return _error('INTERNAL_ERROR', 'The demo could not complete.')
 
 
-def prepare_compiled_demo(source: str) -> dict:
+def prepare_compiled_demo(source: str, *, trace=None) -> dict:
     """Replace the single source preparation after fresh checking and compilation.
 
     Only this module's retained original AST and exact admitted source bytes
     authorize later comparisons. Public metadata never acts as a receipt.
     Every attempt clears the previous preparation, including failed attempts.
     """
+    with (nullcontext() if trace is None else trace.phase('total_fresh_source_preparation')):
+        return _prepare_compiled_demo(source, trace)
+
+
+def _prepare_compiled_demo(source, trace):
     global _active_preparation
+    if _active_preparation is not None:
+        _active_preparation.context.close()
     _active_preparation = None
+    context = None
     try:
         limits = Limits()
         source_bytes = _request_source(dict(source=source, input_mode='ramp'), limits)
-        module = parse_source(source_bytes, limits)
-        kernel = admit_source(module)
-        search = select_plan(kernel, limits, 100000, kernel.objective)
+        context = _CompilationContext(source_bytes, limits, trace=trace)
+        kernel = context.kernel
+        module = kernel.source_module
+        search, owned = _select_legacy(context, 100000)
         result = _report(kernel, search, [], _COMPILED_BACKEND)
         if search.selected_plan is None:
             return result
-        artifact = compile_wasm(source_bytes, search.selected_plan_bytes, limits)
+        artifact = _compile_wasm_checked(owned)
         result.update(status='prepared',
             wasm_base64=base64.b64encode(artifact.module_bytes).decode('ascii'),
             memory_bytes=artifact.memory_bytes, input_offset=artifact.input_offset,
             output_offset=artifact.output_offset, input_count=artifact.input_count,
             output_count=artifact.output_count, module_digest=artifact.module_digest,
             source_digest=artifact.source_digest, plan_digest=artifact.plan_digest)
-        _active_preparation = _PreparedDemo(source_bytes, module, kernel, search)
+        _active_preparation = _PreparedDemo(source_bytes, module, kernel, search, context)
         return result
     except DiagnosticError as error:
         return _error(error.code, error.message, error.span.offset)
@@ -229,6 +241,12 @@ def prepare_compiled_demo(source: str) -> dict:
         return _error('INVALID_REQUEST', str(error))
     except Exception:
         return _error('INTERNAL_ERROR', 'The demo could not complete.')
+
+    finally:
+        # Interrupted or failed preparation cannot leave authority live.
+        if context is not None and (_active_preparation is None
+                                    or _active_preparation.context is not context):
+            context.close()
 
 
 def _compiled_boundaries(request):

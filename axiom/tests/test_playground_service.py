@@ -205,7 +205,7 @@ class PlaygroundServiceTests(unittest.TestCase):
         service.prepare_compiled_demo('module ;')
         for source in (self.request()['source'], '// λ🙂\nmodule ;', ''):
             request = dict(source=source, input_mode='ramp')
-            with patch.object(service, 'compile_wasm', side_effect=AssertionError('validation only')), \
+            with patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('validation only')), \
                  patch.object(service, 'parse_source', side_effect=AssertionError('validation only')):
                 self.assertEqual(service.compiled_request_source(request),
                                  {'status': 'valid', 'source': source})
@@ -221,7 +221,7 @@ class PlaygroundServiceTests(unittest.TestCase):
                    dict(request, input_mode='custom', inputs=()),
                    dict(request, source='aλ🙂\ud800'), dict(request, source='x' * 65537)]
         expected = [service.run_demo(value) for value in invalid]
-        with patch.object(service, 'compile_wasm', side_effect=AssertionError('validation only')), \
+        with patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('validation only')), \
              patch.object(service, 'parse_source', side_effect=AssertionError('validation only')):
             for value, error in zip(invalid, expected):
                 with self.subTest(request=repr(value)[:60]):
@@ -256,7 +256,7 @@ class PlaygroundServiceTests(unittest.TestCase):
         observations = [self.compiled_observation(item) for item in requests]
         with patch.object(service, 'parse_source', side_effect=AssertionError('must retain source')), \
              patch.object(service, 'select_plan', side_effect=AssertionError('must retain selection')), \
-             patch.object(service, 'compile_wasm', side_effect=AssertionError('must retain module')), \
+             patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('must retain module')), \
              patch.object(service, 'execute_plan', side_effect=AssertionError('compiled path')), \
              patch.object(service, 'evaluate_source', wraps=evaluate_source) as evaluator:
             results = [service.finish_compiled_demo(item, observation)
@@ -392,16 +392,16 @@ class PlaygroundServiceTests(unittest.TestCase):
         service = self.compiled_service()
         request = self.request()
         service.prepare_compiled_demo(request['source'])
-        def no_budget(kernel, limits, total, objective):
-            return select_plan(kernel, limits, 0, objective)
-        with patch.object(service, 'select_plan', no_budget), \
-             patch.object(service, 'compile_wasm', side_effect=AssertionError('no selected plan')):
+        def no_budget(context, total):
+            return select_plan(context.kernel, context.limits, 0, context.kernel.objective), None
+        with patch.object(service, '_select_legacy', no_budget), \
+             patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('no selected plan')):
             prepared = service.prepare_compiled_demo(request['source'])
         self.assertEqual(prepared['status'], 'no_eligible_plan')
         self.assertNotIn('wasm_base64', prepared)
         self.assertEqual(service.compiled_request_inputs(request)['diagnostic']['code'], 'NOT_PREPARED')
         service.prepare_compiled_demo(request['source'])
-        with patch.object(service, 'compile_wasm', side_effect=RuntimeError('/private/path')):
+        with patch.object(service, '_compile_wasm_checked', side_effect=RuntimeError('/private/path')):
             prepared = service.prepare_compiled_demo(request['source'])
         self.assertEqual(prepared['diagnostic']['code'], 'INTERNAL_ERROR')
         self.assertNotIn('/private/path', json.dumps(prepared))

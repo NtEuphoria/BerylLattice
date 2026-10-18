@@ -55,6 +55,16 @@ def execute_plan(source_bytes: bytes, plan_bytes: bytes, data, initial_output,
     is executed. Saved checks and plan labels never grant execution authority.
     """
     kernel, plan, checked = _checked_plan(source_bytes, plan_bytes, limits)
+    return _execute_finite(kernel, plan, data, initial_output)
+
+
+def _execute_checked(owned, data, initial_output):
+    from .compilation import _require_owned
+    _require_owned(owned)
+    return _execute_finite(owned.kernel, owned.plan, data, initial_output)
+
+
+def _execute_finite(kernel, plan, data, initial_output):
     module = kernel.source_module
 
     if data is initial_output:
