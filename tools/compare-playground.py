@@ -120,7 +120,9 @@ def compile_program(command, output):
     start = perf_counter()
     subprocess.run(command, check=True, capture_output=True, timeout=180)
     elapsed = perf_counter() - start
-    return {'seconds': elapsed, 'binary_sha256': file_digest(output), 'command': command}
+    return {'seconds': elapsed, 'phase': 'native_compiler_link',
+            'binary_sha256': file_digest(output), 'binary_bytes': Path(output).stat().st_size,
+            'command': command}
 
 
 def prepare_beryl(height, width, directory, cc):
@@ -153,6 +155,9 @@ def prepare_beryl(height, width, directory, cc):
                   plan_id=selection.selected_plan.plan_id,
                   source_sha256=digest(source), plan_sha256=digest(plan),
                   generated_c_sha256=digest(artifact.c_source),
+                  generated_c_bytes=len(artifact.c_source), plan_bytes=len(plan),
+                  plan_operations=len(selection.selected_plan.operations), native_flags=list(C_FLAGS),
+                  compilation_scope='legacy public source admission/selection, fresh public byte backend and native compiler/link; excluded from process execution samples',
                   source=source.decode('utf-8'), generated_c=artifact.c_source.decode('utf-8'),
                   selection_and_check_seconds=selection_seconds,
                   fresh_check_and_emit_seconds=emission_seconds,

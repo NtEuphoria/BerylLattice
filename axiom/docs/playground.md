@@ -209,3 +209,47 @@ rejections, stale-result clearing, keyboard reset after reports and diagnostics,
 default restoration and rerunning, narrow screens, keyboard navigation, compiled
 reuse, visible compilation costs, and both performance tables. The legacy HTTP
 service remains covered by its Python tests.
+
+## Compilation measurement contract
+
+Research tooling lives outside the public site: `tools/profile-compilation.py`
+and `tools/benchmarks/compilation.cjs`. Existing `tools/compare-playground.py`
+measurements remain **precompiled process execution**; its separately visible
+compilation fields now also retain C/plan/operation and executable sizes. Native
+compiler flags and exact hashes stay alongside those fields.
+
+An optional request-local `CompilationTrace` accepts `phase(name)` contexts and
+`count(name, amount=1)` events. Callers use `trace=None` when disabled; no global
+production functions are wrapped. `report()` returns schema version 1 with
+`timing_unit: "ns"`, `timing_semantics: "inclusive"`, a `phases` mapping from names
+to `{elapsed_ns, calls}`, and a separate integer `counts` mapping. Exceptions
+still close a phase. Nested timings overlap and must not be summed. These
+observational counts/times neither replace nor modify deterministic checker work
+receipts, quotas, eligibility, or selection policy.
+
+Canonical phase names are `source_admission`, `candidate_generation`,
+`structural_validation`, `semantic_checking`, `canonical_encoding`,
+`internal_decode`, `loop_correspondence`, `code_emission`,
+`native_compiler_link`, `wasm_compile`, `wasm_instantiate`, `first_execution`,
+`verification`, `total_fresh_source_preparation`, and `total_app_boot`. Optional
+subphases and counter names may be added without changing schema version 1.
+An absent phase/count means **not observed/instrumented**, rather than zero work.
+Browser phases use the same inclusive interpretation with millisecond fields;
+Python diagnostic traces retain their own nanosecond unit.
+
+Fresh-source/runtime-ready measurements exclude runtime loading and imports,
+which are retained separately. A changing source comment can produce identical
+Wasm bytes; engine code reuse is uncontrolled in the browser harness's
+`source-fresh` mode. Its `engine-cold` mode instead launches a fresh Chromium
+process with a fresh temporary profile and Worker for every source/sample and
+revision. Runtime boot/imports complete before the first user program is timed;
+there is no warmup of that program. First execution is separate because engines
+may compile lazily. Each artifact runs on two changing valid inputs and both
+complete observations are checked against the retained original AST and an
+external stencil formula. Diagnostic cProfile/trace preparations follow the
+measured executions and are labeled separately.
+
+See [research harness instructions](../../tools/benchmarks/compilation.md) for
+paired checkout/site commands, the boundary fixture matrix, retained identities,
+and limitations. These tools report observations; they do not qualify scalable
+plan v2 or assert an implementation speedup by themselves.
