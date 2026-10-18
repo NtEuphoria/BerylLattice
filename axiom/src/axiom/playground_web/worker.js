@@ -67,7 +67,8 @@ async function compiledRequest(method) {
   if (compilation.result) return compilation.result;
   const {metadata, instance} = prepared;
   if (method === 'prepare') {
-    return {schema_version: 1, status: 'prepared', backend: 'checked-plan-wasm-v1',
+    return {schema_version: metadata.schema_version, status: 'prepared', backend: metadata.backend,
+      search: metadata.search, lowering: metadata.lowering,
       shape: metadata.shape, selected: metadata.selected, source_digest: metadata.source_digest,
       plan_digest: metadata.plan_digest, module_digest: metadata.module_digest,
       compilation_ms: compilation.milliseconds, initial_compilation_ms: prepared.milliseconds,

@@ -120,9 +120,17 @@ import { getExamples, runDemo } from "./transport.js";
       row.append(cell("td", scheduleTitle(attempt.plan_id)));
       row.append(cell("td", formatCount(attempt.workspace_bytes, " B")));
       row.append(cell("td", formatCount(attempt.multiplication_ops)));
-      const decision = cell("td", selected ? "Selected" : attempt.eligible ? "Also fits" : "Not available");
+      const states = {
+        not_checked_worse_rank: "Lower priority", not_checked: "Not checked",
+        constraint_rejected: "Exceeds storage limit", structurally_rejected: "Malformed plan",
+        proved_invalid: "Invalid plan", proved_eligible: "Also fits", unknown: "Not established",
+      };
+      const decision = cell("td", selected ? "Selected" : result.schema_version === 2
+        ? (states[attempt.state] || "Not established") : attempt.eligible ? "Also fits" : "Not available");
       if (selected) decision.className = "decision-selected";
-      const reasonText = attempt.constraint_status === "violated" ? "Exceeds storage limit"
+      const reasonText = result.schema_version === 2 && attempt.state === "not_checked_worse_rank" ? "Not checked"
+        : result.schema_version === 2 && attempt.state === "constraint_rejected" ? ""
+        : attempt.constraint_status === "violated" ? "Exceeds storage limit"
         : attempt.constraint_status === "unknown" ? "Constraint not established"
         : attempt.semantic_status === "unknown" ? "Validity not established"
         : attempt.reason;
@@ -179,6 +187,8 @@ import { getExamples, runDemo } from "./transport.js";
       ["Independent comparison", result.timings ? `${result.timings.verification_ms.toFixed(2)} ms` : null],
       ["Scratch limit", result.workspace_cap == null ? "None declared" : `${result.workspace_cap} bytes`],
       ["Search stopped", result.search?.termination_reason], ["Search work", result.search?.work_used],
+      ["Search policy", result.search?.policy_id], ["Code generation", result.lowering?.codegen_version],
+      ["Module digest", result.lowering?.module_digest], ["Hint digest", result.lowering?.hint_digest],
       ["Source digest", result.source_digest], ["Plan digest", result.selected?.plan_digest],
     ];
     for (const [name, value] of fields) {
@@ -187,7 +197,7 @@ import { getExamples, runDemo } from "./transport.js";
   }
 
   function renderResult(result) {
-    if (!result || result.schema_version !== 1 || !["success", "input_precondition_failed", "no_eligible_plan", "error"].includes(result.status)) throw new Error("The server returned an unrecognized result. No execution result is shown.");
+    if (!result || ![1, 2].includes(result.schema_version) || !["success", "input_precondition_failed", "no_eligible_plan", "error"].includes(result.status)) throw new Error("The server returned an unrecognized result. No execution result is shown.");
     if (result.status === "success" && (!result.selected || !result.shape || !Array.isArray(result.output) || result.comparison?.matches !== true || result.comparison.cells_compared !== result.output.length || result.output.length !== result.shape.height * result.shape.width)) throw new Error("The server returned an incomplete comparison. No successful result is shown.");
     ui.empty.hidden = true;
     ui.content.hidden = !Array.isArray(result.attempts);
@@ -197,7 +207,7 @@ import { getExamples, runDemo } from "./transport.js";
     } else if (result.status === "input_precondition_failed") {
       setStatus("warning", "Input rejected", `Input at index ${result.first_bad_index ?? "unknown"} is outside the allowed range. The plan did not run; the output buffer is unchanged.`);
     } else if (result.status === "no_eligible_plan") {
-      setStatus("warning", "No plan fits these constraints", "None of the checked plans meets this request within the search budget. Nothing was run.");
+      setStatus("warning", "No plan selected", "Search did not establish an eligible plan within this request’s constraints and budget. Nothing was run.");
     } else {
       setStatus("error", "This request could not be completed", "Read the diagnostic, adjust the source or inputs, and run again.");
     }

@@ -205,7 +205,7 @@ class PlaygroundServiceTests(unittest.TestCase):
         service.prepare_compiled_demo('module ;')
         for source in (self.request()['source'], '// λ🙂\nmodule ;', ''):
             request = dict(source=source, input_mode='ramp')
-            with patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('validation only')), \
+            with patch.object(service, 'compile_wasm_source', side_effect=AssertionError('validation only')), \
                  patch.object(service, 'parse_source', side_effect=AssertionError('validation only')):
                 self.assertEqual(service.compiled_request_source(request),
                                  {'status': 'valid', 'source': source})
@@ -221,7 +221,7 @@ class PlaygroundServiceTests(unittest.TestCase):
                    dict(request, input_mode='custom', inputs=()),
                    dict(request, source='aλ🙂\ud800'), dict(request, source='x' * 65537)]
         expected = [service.run_demo(value) for value in invalid]
-        with patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('validation only')), \
+        with patch.object(service, 'compile_wasm_source', side_effect=AssertionError('validation only')), \
              patch.object(service, 'parse_source', side_effect=AssertionError('validation only')):
             for value, error in zip(invalid, expected):
                 with self.subTest(request=repr(value)[:60]):
@@ -233,13 +233,21 @@ class PlaygroundServiceTests(unittest.TestCase):
         legacy = service.run_demo(request)
         prepared = service.prepare_compiled_demo(request['source'])
         self.assertEqual(prepared['status'], 'prepared')
-        self.assertEqual(prepared['schema_version'], 1)
+        self.assertEqual(prepared['schema_version'], 2)
+        self.assertEqual(prepared['search']['policy_id'], 'ranked-proof-v1')
+        self.assertTrue(prepared['search']['portfolio_optimal'])
+        self.assertIsNotNone(prepared['lowering']['hint_digest'])
+        skipped = prepared['attempts'][0]
+        self.assertEqual(skipped['state'], 'not_checked_worse_rank')
+        self.assertIsNone(skipped['eligible'])
+        self.assertEqual(skipped['multiplication_ops'], 140)
+        self.assertEqual(skipped['workspace_bytes'], 0)
         module_bytes = base64.b64decode(prepared['wasm_base64'], validate=True)
         self.assertTrue(module_bytes.startswith(b'\0asm\x01\0\0\0'))
         self.assertEqual(prepared['module_digest'], sha256(module_bytes).hexdigest())
         self.assertEqual(prepared['source_digest'], sha256(request['source'].encode()).hexdigest())
         self.assertEqual(prepared['plan_digest'], prepared['selected']['plan_digest'])
-        for field in ('shape', 'objective', 'workspace_cap', 'selected', 'attempts', 'search'):
+        for field in ('shape', 'objective', 'workspace_cap', 'selected'):
             self.assertEqual(prepared[field], legacy[field])
         self.assertEqual((prepared['input_count'], prepared['output_count']), (48, 35))
         self.assertGreaterEqual(prepared['input_offset'], 0)
@@ -256,7 +264,7 @@ class PlaygroundServiceTests(unittest.TestCase):
         observations = [self.compiled_observation(item) for item in requests]
         with patch.object(service, 'parse_source', side_effect=AssertionError('must retain source')), \
              patch.object(service, 'select_plan', side_effect=AssertionError('must retain selection')), \
-             patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('must retain module')), \
+             patch.object(service, 'compile_wasm_source', side_effect=AssertionError('must retain module')), \
              patch.object(service, 'execute_plan', side_effect=AssertionError('compiled path')), \
              patch.object(service, 'evaluate_source', wraps=evaluate_source) as evaluator:
             results = [service.finish_compiled_demo(item, observation)
@@ -264,10 +272,11 @@ class PlaygroundServiceTests(unittest.TestCase):
         self.assertEqual([result['output'] for result in results], [[4], [30], [2097154]])
         self.assertEqual(evaluator.call_count, len(requests))
         for result in results:
-            self.assertEqual(result['backend'], 'checked-plan-wasm-v1')
+            self.assertEqual(result['backend'], 'checked-plan-wasm-v2')
             self.assertEqual(result['comparison'], {'matches': True, 'cells_compared': 1})
             self.assertNotIn('wasm_base64', result)
-            self.assertEqual(set(result), set(service.run_demo(request)))
+            self.assertEqual(result['schema_version'], 2)
+            self.assertIn('lowering', result)
 
     def test_compiled_source_identity_and_preparation_replacement_are_private(self):
         service = self.compiled_service()
@@ -392,16 +401,17 @@ class PlaygroundServiceTests(unittest.TestCase):
         service = self.compiled_service()
         request = self.request()
         service.prepare_compiled_demo(request['source'])
+        from axiom import source_compilation
+        from axiom.compilation_selection import _select_ranked
         def no_budget(context, total):
-            return select_plan(context.kernel, context.limits, 0, context.kernel.objective), None
-        with patch.object(service, '_select_legacy', no_budget), \
-             patch.object(service, '_compile_wasm_checked', side_effect=AssertionError('no selected plan')):
+            return _select_ranked(context, 0)
+        with patch.object(source_compilation, '_select_ranked', no_budget):
             prepared = service.prepare_compiled_demo(request['source'])
         self.assertEqual(prepared['status'], 'no_eligible_plan')
         self.assertNotIn('wasm_base64', prepared)
         self.assertEqual(service.compiled_request_inputs(request)['diagnostic']['code'], 'NOT_PREPARED')
         service.prepare_compiled_demo(request['source'])
-        with patch.object(service, '_compile_wasm_checked', side_effect=RuntimeError('/private/path')):
+        with patch.object(service, 'compile_wasm_source', side_effect=RuntimeError('/private/path')):
             prepared = service.prepare_compiled_demo(request['source'])
         self.assertEqual(prepared['diagnostic']['code'], 'INTERNAL_ERROR')
         self.assertNotIn('/private/path', json.dumps(prepared))

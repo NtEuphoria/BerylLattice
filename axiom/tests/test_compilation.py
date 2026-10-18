@@ -127,15 +127,14 @@ class CompilationTests(unittest.TestCase):
         from axiom import playground_service as service
         source = stencil_source(1, 1, None).decode()
         self.assertEqual(service.prepare_compiled_demo(source)['status'], 'prepared')
-        previous = service._active_preparation.context
         self.assertEqual(service.prepare_compiled_demo('invalid')['status'], 'error')
-        with self.assertRaises(ValueError):
-            previous.candidate(make_plan(previous.kernel, 'inline-v1'))
+        self.assertIsNone(service._active_preparation)
+        from axiom import source_compilation
         captured = []
-        def cancel(owned):
+        def cancel(owned, hint):
             captured.append(owned)
             raise KeyboardInterrupt()
-        with patch.object(service, '_compile_wasm_checked', side_effect=cancel), self.assertRaises(KeyboardInterrupt):
+        with patch.object(source_compilation, '_compile_wasm_compact', side_effect=cancel), self.assertRaises(KeyboardInterrupt):
             service.prepare_compiled_demo(source)
         self.assertIsNone(service._active_preparation)
         with self.assertRaises(ValueError):
@@ -150,11 +149,11 @@ class CompilationTests(unittest.TestCase):
         report = trace.report()
         self.assertEqual(report['counts']['source_admissions'], 1)
         self.assertEqual(report['counts']['plan_validations'], 3)
-        self.assertEqual(report['counts']['plan_encodes'], 3)
-        self.assertEqual(report['counts']['semantic_checks'], 3)
+        self.assertEqual(report['counts']['plan_encodes'], 1)
+        self.assertEqual(report['counts']['semantic_checks'], 1)
         self.assertEqual(report['counts'].get('internal_decodes', 0), 0)
         self.assertEqual(report['phases']['code_emission']['calls'], 1)
-        self.assertEqual(report['phases']['semantic_checking']['calls'], 3)
+        self.assertEqual(report['phases']['semantic_checking']['calls'], 1)
         self.assertEqual(report['phases']['total_fresh_source_preparation']['calls'], 1)
 
     def test_structural_failure_legacy_receipt_is_identical_without_revalidation(self):

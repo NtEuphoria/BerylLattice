@@ -51,7 +51,7 @@ python3 tools/build-playground-site.py --output /tmp/axiom-playground-site
 
 Choose a new/empty output directory. The builder downloads pinned, SHA-256-checked
 Pyodide0.27.7/Python3.12.7 runtime files over verified HTTPS. It bundles the same
-thirteen Python modules used by the demo, runtime license texts, and an exact
+22 Python modules used by the demo, runtime license texts, and an exact
 release manifest. The output is about14MB and contains no Core, research,
 recovery records, or Git history. It still discloses the bounded Axiom compiler
 source, available through the playground's Demo source link.
@@ -136,9 +136,12 @@ Names, positive H/W shapes, comments, scratch cap, and objective may change.
 The maximum input is256 cells: `(H+1)*(W+1) <= 256`. A15×15 output fits;32×32 does
 not. Input values are exact integers0..1023; arithmetic is checked i32.
 
-All three candidate schedules are checked against source. The chosen plan is
-checked again before interpreter execution or Wasm emission; compiled invocations
-enforce the admitted input precondition. Saved success flags grant no authority.
+The legacy interpreter checks all three candidate schedules and checks its chosen
+plan again before execution. Compiled source requests structurally inspect all
+three schedules, then prove candidates in exact rank order until one is eligible.
+That transaction owns the successful check through fresh loop correspondence and
+emission, and closes before returning bytes. Compiled invocations enforce the
+admitted input precondition. Saved success flags grant no authority.
 Execution and the source evaluator operate independently and their complete
 observations must agree. The browser uses the real Python compiler to produce
 an import-free Wasm module with one fixed memory page. Source changes trigger
@@ -225,7 +228,9 @@ production functions are wrapped. `report()` returns schema version 1 with
 to `{elapsed_ns, calls}`, and a separate integer `counts` mapping. Exceptions
 still close a phase. Nested timings overlap and must not be summed. These
 observational counts/times neither replace nor modify deterministic checker work
-receipts, quotas, eligibility, or selection policy.
+receipts, quotas, eligibility, or selection policy. The `plan_validations` counter
+counts candidate-phase validations only; correspondence performs additional
+validation passes. Total wall time includes all work, including uncounted passes.
 
 Canonical phase names are `source_admission`, `candidate_generation`,
 `structural_validation`, `semantic_checking`, `canonical_encoding`,
@@ -253,3 +258,24 @@ See [research harness instructions](../../tools/benchmarks/compilation.md) for
 paired checkout/site commands, the boundary fixture matrix, retained identities,
 and limitations. These tools report observations; they do not qualify scalable
 plan v2 or assert an implementation speedup by themselves.
+
+## Bounded source compilation
+
+`source_compilation.compile_wasm_source` and `compile_native_source` each create
+a fresh admission transaction and use the `ranked-proof-v1` policy. The browser
+uses report schema 2; legacy interpreter and byte APIs retain their existing
+contracts. Exact structural costs are shown even for candidates whose semantics
+were not checked. Only a complete eligible proof permits emission. Compact
+bounded hints are freshly matched against the checked finite stream; typed hint
+rejection uses the finite backend, while unexpected emitter faults fail closed.
+
+The explicit public allowlist adds only `compilation`, `compilation_selection`,
+`source_compilation`, and the six `bounded_loop_` modules (model, codec, planner,
+correspondence, C, Wasm). All 22 modules are covered by the release MIT license.
+The release excludes tracing tooling, scalable plan v2, Core bindings, research,
+recovery records and session material. Standalone ZIP tests audit relative-import
+closure and public branding, then execute the actual compact Wasm module.
+
+Every observed request still uses the retained original AST for an independent
+comparison. Input-only changes reuse the exact prepared source and instance,
+with exact scalar validation and original compilation time visible on every run.

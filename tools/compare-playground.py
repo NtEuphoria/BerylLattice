@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import importlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -65,6 +66,9 @@ def load_compiler(archive=None):
         identity = dict(kind='reviewed-archive', archive_sha256=file_digest(archive), modules=modules)
     modules = {name: importlib.import_module(f'{namespace}.{name}')
                for name in ('frontend', 'model', 'selection', 'native_codegen', 'playground_service')}
+    source_name = f'{namespace}.source_compilation'
+    if importlib.util.find_spec(source_name) is not None:
+        modules['source_compilation'] = importlib.import_module(source_name)
     if archive is not None and any(not str(module.__file__).startswith(str(archive) + os.sep)
                                    for module in modules.values()):
         raise ValueError('compiler modules did not originate in the selected archive')
@@ -74,7 +78,9 @@ def load_compiler(archive=None):
                            Limits=modules['model'].Limits,
                            select_plan=modules['selection'].select_plan,
                            emit_native_c=modules['native_codegen'].emit_native_c,
-                           get_examples=modules['playground_service'].get_examples)
+                           get_examples=modules['playground_service'].get_examples,
+                           compile_native_source=(modules['source_compilation'].compile_native_source
+                               if 'source_compilation' in modules else None))
 
 
 def compiler():
@@ -131,16 +137,31 @@ def prepare_beryl(height, width, directory, cc):
     limits = implementation.Limits()
     source = source_for_shape(height, width).encode('utf-8')
     start = perf_counter()
-    kernel = implementation.admit_source(implementation.parse_source(source, limits))
-    selection = implementation.select_plan(kernel, limits, 100000, kernel.objective)
-    selection_seconds = perf_counter() - start
+    if implementation.compile_native_source is not None:
+        compiled = implementation.compile_native_source(source, limits)
+        source_seconds = perf_counter() - start
+        selection, artifact = compiled.search, compiled.artifact
+        selection_seconds = emission_seconds = None
+        scope = ('fresh source transaction: admission, ranked proof, hint correspondence and compact '
+                 'code emission; native compiler/link separate; excluded from process execution samples')
+    else:
+        kernel = implementation.admit_source(implementation.parse_source(source, limits))
+        selection = implementation.select_plan(kernel, limits, 100000, kernel.objective)
+        selection_seconds = perf_counter() - start
+        artifact = None
+        source_seconds = None
+        scope = ('legacy public source admission/selection, fresh public byte backend and native '
+                 'compiler/link; excluded from process execution samples')
     if (selection.selected_plan_bytes is None or selection.selected_check is None
             or not selection.selected_check.eligible):
         raise ValueError('benchmark source has no checked eligible plan')
     plan = selection.selected_plan_bytes
-    start = perf_counter()
-    artifact = implementation.emit_native_c(source, plan, limits)
-    emission_seconds = perf_counter() - start
+    if implementation.compile_native_source is None:
+        start = perf_counter()
+        artifact = implementation.emit_native_c(source, plan, limits)
+        emission_seconds = perf_counter() - start
+    if artifact is None:
+        raise ValueError('benchmark source compiler produced no artifact')
     if (artifact.height, artifact.width, artifact.input_count, artifact.output_count) != (
             height, width, (height + 1) * (width + 1), height * width):
         raise ValueError('native artifact dimensions do not match the benchmark')
@@ -157,12 +178,17 @@ def prepare_beryl(height, width, directory, cc):
                   generated_c_sha256=digest(artifact.c_source),
                   generated_c_bytes=len(artifact.c_source), plan_bytes=len(plan),
                   plan_operations=len(selection.selected_plan.operations), native_flags=list(C_FLAGS),
-                  compilation_scope='legacy public source admission/selection, fresh public byte backend and native compiler/link; excluded from process execution samples',
+                  compilation_scope=scope,
+                  source_compilation_seconds=source_seconds,
+                  search_policy=getattr(selection, 'policy_id', 'legacy'),
+                  codegen_version=getattr(artifact, 'codegen_version', None),
+                  hint_digest=getattr(artifact, 'hint_digest', None),
                   source=source.decode('utf-8'), generated_c=artifact.c_source.decode('utf-8'),
                   selection_and_check_seconds=selection_seconds,
                   fresh_check_and_emit_seconds=emission_seconds,
                   native_compile=compilation,
-                  total_seconds=selection_seconds + emission_seconds + compilation['seconds'])
+                  total_seconds=(source_seconds if source_seconds is not None else
+                                 selection_seconds + emission_seconds) + compilation['seconds'])
     return {'binary': binary, 'source': source.decode('utf-8'), 'record': record}
 
 

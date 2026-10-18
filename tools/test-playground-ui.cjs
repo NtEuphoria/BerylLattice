@@ -368,3 +368,36 @@ test('Other HTTP 429 errors are not retried', async () => {
   assert.equal(getEventListeners(controller.signal, 'abort').length, 0);
   assert.equal(h.clock.active.size, 0);
 });
+
+test('Version 2 candidates retain costs and distinguish skipped proof from eligibility', async () => {
+  const h = appHarness({runDemo: async () => ({...success, schema_version: 2,
+    attempts: [{plan_id: 'inline-v1', state: 'not_checked_worse_rank', eligible: null,
+      workspace_bytes: 0, multiplication_ops: 140, semantic_status: 'unknown', constraint_status: 'unknown'},
+      {plan_id: 'materialize-v1', state: 'constraint_rejected', eligible: null,
+        workspace_bytes: 192, multiplication_ops: 48, semantic_status: 'unknown', constraint_status: 'violated'}]})});
+  await flush();
+  await h.node('run').click();
+  assert.equal(h.node('status-title').textContent, 'Run complete');
+  const rows = h.node('candidate-rows').children;
+  assert.equal(rows[0].children[1].textContent, '0 B');
+  assert.equal(rows[0].children[2].textContent, '140');
+  assert.equal(rows[0].children[3].textContent, 'Lower priority');
+  assert.equal(rows[0].children[3].children[0].textContent, 'Not checked');
+  assert.equal(rows[1].children[3].textContent, 'Exceeds storage limit');
+});
+
+test('Unknown result schema never displays a successful run', async () => {
+  const h = appHarness({runDemo: async () => ({...success, schema_version: 3})});
+  await flush();
+  await h.node('run').click();
+  assert.notEqual(h.node('status-title').textContent, 'Run complete');
+  assert.equal(h.node('download').disabled, true);
+});
+
+test('An unfinished ranked search does not claim that every plan fails constraints', async () => {
+  const h = appHarness({runDemo: async () => ({schema_version: 2, status: 'no_eligible_plan',
+    attempts: [], selected: null, search: {termination_reason: 'check_limit_exhausted'}})});
+  await flush();
+  await h.node('run').click();
+  assert.equal(h.node('status-title').textContent, 'No plan selected');
+});
