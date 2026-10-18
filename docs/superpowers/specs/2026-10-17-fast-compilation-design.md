@@ -22,7 +22,7 @@ Fresh diagnostic probes at the baseline, with CPython imports/runtime already lo
 | 5×7 / 64 B | two rows | 40.5 ms | 5,383 |
 | 15×15 / 64 B | inline | 250.7 ms | 40,536 |
 | 15×15 / 128 B | two rows | 214.7 ms | 32,924 |
-| 1×127 / 1,024 B | inline | 154.1 ms | 25,564 |
+| 1×127 / 1,024 B | materialize | 154.1 ms | 25,564 |
 | 127×1 / 16 B | two rows | 147.0 ms | 25,585 |
 
 Seven unprofiled samples per case follow one preparation; each preparation rebuilds the artifact. These are descriptive probes, not controlled before/after qualification. Separate cProfile runs establish call counts and relative work, with substantial instrumentation overhead. In the 15×15/64 B profile, four checker calls revisit source expressions 900 times. The internal selected-plan decode calls the strict JSON parser over 33,989 values. Repeated serialization and decoding are substantial work, not just arithmetic proof discovery.
