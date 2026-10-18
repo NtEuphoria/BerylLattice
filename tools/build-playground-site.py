@@ -18,7 +18,8 @@ VERSION = '0.27.7'
 CDN = f'https://cdn.jsdelivr.net/pyodide/v{VERSION}/full/'
 MODULES = ('__init__', 'runtime', 'playground_service', 'frontend', 'model',
            'checker', 'codec', 'plan_format', 'planner', 'selection', 'reference')
-ASSETS = ('index.html', 'app.js', 'style.css', 'transport.js', 'worker.js')
+ASSETS = ('index.html', 'app.js', 'style.css', 'transport.js', 'worker.js',
+          'benchmarks.html', 'benchmarks.js', 'benchmark-results.json')
 # Export only these reviewed branding changes; private compiler sources stay intact.
 # Public version names intentionally give the exported plans distinct identities.
 PUBLIC_SOURCE_REPLACEMENTS = {
@@ -102,6 +103,8 @@ def build(output, runtime, cache):
     # Gather all inputs before writing output, so a failed download leaves no partial release.
     files = {name: (ROOT / 'axiom/src/axiom/playground_web' / name).read_bytes()
              for name in ASSETS}
+    for extension in ('c', 'rs'):
+        files[f'benchmark.{extension}'] = (ROOT / 'tools/benchmarks' / f'stencil.{extension}').read_bytes()
     index = files['index.html'].decode('utf-8')
     index, replacements = re.subn(r'<html\b([^>]*)>', r'<html\1 data-runtime="browser">', index, count=1)
     if replacements != 1 or index.count('data-runtime=') != 1:

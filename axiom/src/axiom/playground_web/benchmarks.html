@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-runtime="browser">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; worker-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>Performance lab · beryl</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./benchmarks.js"></script>
+</head>
+<body>
+  <header class="site-header"><a class="wordmark" href="./">beryl</a><a href="./">Back to playground</a></header>
+  <main>
+    <section class="intro"><h1>Performance lab</h1><p class="intro-copy">Measure small, checked computations. See what the numbers include.</p></section>
+    <section class="editor-panel" aria-labelledby="browser-heading">
+      <h2 id="browser-heading">Try it in your browser</h2>
+      <p>Runs three increasing-number stencils: 1 × 1, 5 × 7 and 15 × 15 outputs. Each has a warm-up and three measured runs. Every output is checked against a direct calculation.</p>
+      <p>Times include worker communication, parsing, planning, safety checks, interpreted execution and reference comparison. Initial runtime download is excluded. This is not native execution.</p>
+      <div class="run-controls"><button id="benchmark-run" class="primary-button" type="button">Run browser benchmark</button><button id="benchmark-cancel" class="secondary-button" type="button" disabled>Cancel</button></div>
+      <p id="benchmark-status" role="status" aria-live="polite">Ready. The first run may need to download the runtime.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Your browser benchmark results"><table class="candidate-table"><caption>Your browser · median of three runs</caption><thead><tr><th scope="col">Output size</th><th scope="col">Time</th><th scope="col">Correctness</th></tr></thead><tbody id="browser-rows"></tbody></table></div>
+    </section>
+    <section class="results-panel" aria-labelledby="native-heading">
+      <h2 id="native-heading">Saved Windows comparison: beryl, C and Rust</h2>
+      <p>Same stencil, identical inputs, every output verified. These are whole-process measurements: startup, input decoding, calculation and output transfer. C and Rust use optimized, direct implementations. beryl additionally parses source, chooses and checks a plan, and independently verifies its output.</p>
+      <p><strong>These measure different implementations and overheads, not inherent language speed.</strong> Small native cases are dominated by startup. The saved local timings are not directly comparable with the browser timings above. There is no native C/Rust execution on this page.</p>
+      <p id="comparison-environment">Loading saved measurements…</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Saved native comparison"><table class="candidate-table"><caption>Local wall time · median of five measured processes after one warm-up</caption><thead><tr><th scope="col">Workload</th><th scope="col">beryl</th><th scope="col">C</th><th scope="col">Rust</th></tr></thead><tbody id="native-rows"></tbody></table></div>
+      <p><a href="./benchmark-results.json" download>Download samples and build settings</a> · <a href="./benchmark.c" download>C source</a> · <a href="./benchmark.rs" download>Rust source</a></p>
+    </section>
+    <aside class="scope-note"><p><strong>About large workloads.</strong> beryl currently allows 256 input values per computation. Repeating bounded requests does not demonstrate support for a 20-million-value program. The earlier 20-million-number file test was a separate Python/disk baseline, not beryl performance. This page does not bypass the language limits.</p><p>Measurements vary with hardware, browser, background activity and caching. The benchmark tooling was implemented with an AI coding agent.</p></aside>
+  </main>
+</body>
+</html>

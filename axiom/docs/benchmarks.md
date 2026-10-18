@@ -1,5 +1,39 @@
 # Local performance audit
 
+The published [Performance lab](https://nteuphoria.github.io/beryl-playground/benchmarks.html)
+can run three audited browser workloads, supports cancellation, and shows saved
+Windows C/Rust comparisons separately. Browser runs use one warm-up and three
+samples per size, with a two-minute overall limit.
+
+## C and Rust comparison
+
+```powershell
+py -3 tools/compare-playground.py --output .local/comparison.json
+```
+
+Requires `clang` and `rustc` on PATH, or use `--cc` and `--rustc` to select them.
+Windows GNU Rust can use `--rust-self-contained` when its bundled linker
+libraries are needed. C uses `-O3 -std=c11`; Rust uses `-O`. Native compilation
+is outside the measured interval. Executables are temporary and removed.
+
+Six workloads cover three sizes and two input patterns. Each backend runs one
+warm-up and five measured subprocesses, with rotating order. All receive the
+same values, and every output is compared with a direct formula. beryl uses a
+zero-scratch plan; C and Rust calculate the stencil directly. Native sources
+are in `tools/benchmarks/` and included as downloads in the public release.
+
+The measured interval includes process startup, input decoding and stdout
+transfer. beryl also parses source, selects and freshly checks a plan and
+performs its reference comparison, returning a richer report. Consequently
+these are implementation/request-latency observations, not kernel-only or
+equal-feature language rankings. Small native measurements are dominated by
+startup. Do not compare the saved native numbers directly with browser times.
+Compiler versions, flags, native source hashes and raw samples are recorded.
+The published JSON is a deliberately reviewed snapshot; running the script
+does not automatically replace or publish it.
+
+## In-process beryl audit
+
 From the repository root, with Python 3.12 or newer:
 
 ```powershell
