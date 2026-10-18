@@ -1,0 +1,6 @@
+// Draft: 1-D weighted 3-point stencil, written in today's grammar.
+module stencil1d3;
+shape N = 254;
+input x: i32[N+2] in 0..=1023;
+output y[i in 0..N] = (x[i]+2*x[i+1])+x[i+2];
+prefer multiplication_ops;
