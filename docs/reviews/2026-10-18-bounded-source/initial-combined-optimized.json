@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "-O",
+    "-m",
+    "unittest",
+    "tests.test_source_names_v2",
+    "tests.test_source_profiles",
+    "tests.test_frontend",
+    "tests.test_reference",
+    "tests.test_invocation_v2",
+    "tests.test_artifact_chunks_v2",
+    "research.tests.test_state",
+    "research.tests.test_source_oracle",
+    "research.tests.test_oracle_receipts",
+    "research.tests.test_receipts",
+    "-v"
+  ],
+  "cwd": "/workspace/BerylLattice/axiom",
+  "environment": {
+    "PYTHONPATH": "src:research",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 1,
+  "elapsed_seconds": 97.9125337600708
+}

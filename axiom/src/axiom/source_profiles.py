@@ -1,8 +1,8 @@
 """Explicit fixed-buffer v2 source admission, separate from v1 identities.
 
 Admission always starts with retained source bytes. A caller-created AST is
-never trusted. The shared frontend helpers only validate structure and compare
-the original scalar tree; the v1 admission function and hashes are untouched.
+never trusted. The shared frontend helpers validate a private alpha-renamed view
+of the same scalar tree; the v1 admission function and hashes are untouched.
 """
 from dataclasses import dataclass
 import hashlib
@@ -12,8 +12,9 @@ from .frontend import (
     _canonical_profile, _fail, _profile, _ungroup, _validate, parse_source,
 )
 from .model import (
-    ConstraintDeclaration, IntegerLiteral, Objective, SourceModule,
+    ConstraintDeclaration, DiagnosticError, IntegerLiteral, Objective, SourceModule,
 )
+from .source_names_v2 import _build_name_view, _original_name_diagnostic
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,7 +75,21 @@ def _admit(source_bytes, profile, limits):
     profile.__post_init__()
     limits.__post_init__()
     module = parse_source(source_bytes, limits)
-    shapes = _validate(module)
+    # Necessary conditions for the existing exact profile, checked before
+    # general constant/index validation. This intentionally changes diagnostic
+    # precedence for already-rejected sources with conflicting errors.
+    if (len(module.shapes), len(module.inputs), len(module.producers), len(module.outputs)) != (2, 1, 1, 1):
+        _fail('UNSUPPORTED_PROFILE', module.span, 'requires exactly two shapes, one input, one producer and one output')
+    if any(not isinstance(_ungroup(decl.value), IntegerLiteral) for decl in module.shapes):
+        _fail('UNSUPPORTED_PROFILE', module.span, 'shape parameters must be literal declarations')
+    if (len(module.inputs[0].dimensions) != 2
+            or len(module.producers[0].axes) != 2 or len(module.outputs[0].axes) != 2):
+        _fail('UNSUPPORTED_PROFILE', module.span, 'input and equations must have rank two')
+    view = _build_name_view(module)
+    try:
+        shapes = _validate(view.module)
+    except DiagnosticError as error:
+        raise _original_name_diagnostic(error, view.original_names) from None
     for constraint in module.constraints:
         if constraint.property_name != 'plan_workspace_bytes':
             _fail('UNSUPPORTED_CONSTRAINT', constraint.span, 'unknown hard property')
@@ -84,16 +99,15 @@ def _admit(source_bytes, profile, limits):
         objective = Objective(module.objective)
     except ValueError:
         _fail('UNSUPPORTED_OBJECTIVE', module.span, 'unknown objective')
-    if (len(module.shapes), len(module.inputs), len(module.producers), len(module.outputs)) != (2, 1, 1, 1):
-        _fail('UNSUPPORTED_PROFILE', module.span, 'requires exactly two shapes, one input, one producer and one output')
-    if any(not isinstance(_ungroup(decl.value), IntegerLiteral) for decl in module.shapes):
-        _fail('UNSUPPORTED_PROFILE', module.span, 'shape parameters must be literal declarations')
     # Roles follow declaration order, never identifier spelling or sorting.
-    height, width = (shapes[decl.name] for decl in module.shapes)
+    height, width = (shapes[decl.name] for decl in view.module.shapes)
     if (not 1 <= height <= profile.max_height or not 1 <= width <= profile.max_width
             or (height+1)*(width+1) > profile.max_input_cells):
         _fail('UNSUPPORTED_PROFILE', module.span, 'source exceeds fixed-buffer dimension/cell envelope')
-    normalized = _profile(module)
+    try:
+        normalized = _profile(view.module)
+    except DiagnosticError as error:
+        raise _original_name_diagnostic(error, view.original_names) from None
     if normalized != _canonical_profile():
         _fail('UNSUPPORTED_PROFILE', module.span, 'source is outside the exact canonical stencil profile')
     return module, height, width, objective, normalized

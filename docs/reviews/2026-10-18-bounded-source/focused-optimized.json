@@ -1,0 +1,46 @@
+[
+  {
+    "group": "product",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-O",
+      "-m",
+      "unittest",
+      "tests.test_source_names_v2",
+      "tests.test_source_profiles",
+      "tests.test_frontend",
+      "tests.test_reference",
+      "tests.test_invocation_v2",
+      "tests.test_artifact_chunks_v2",
+      "-v"
+    ],
+    "cwd": "/workspace/BerylLattice/axiom",
+    "environment": {
+      "PYTHONPATH": "src:research",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 0.9706375598907471
+  },
+  {
+    "group": "research",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-O",
+      "-m",
+      "unittest",
+      "tests.test_state",
+      "tests.test_source_oracle",
+      "tests.test_oracle_receipts",
+      "tests.test_receipts",
+      "-v"
+    ],
+    "cwd": "/workspace/BerylLattice/axiom/research",
+    "environment": {
+      "PYTHONPATH": "../src:.",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 116.84645462036133
+  }
+]

@@ -10,6 +10,13 @@ source model/profile, invocation transport, existing state artifacts and the
 standard library; it uses no reference evaluator, plan, checker, selector,
 emitter, native computation, optimizer DAG or schedule implementation.
 
+V2 source admission uses the private `axiom.source_names_v2` adapter to bound
+original-name comparisons before shared validation. The oracle still evaluates
+the retained original AST. O3's exact implementation inventory includes the
+adapter source and any existing permitted bytecode cache; omitting or changing
+either invalidates qualification. Earlier qualification evidence does not cover
+this revised dependency closure.
+
 ## API and records
 
 ```python

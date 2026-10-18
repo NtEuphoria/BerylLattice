@@ -1,0 +1,14 @@
+[
+  {
+    "path": "red-adapter.log.gz",
+    "raw_sha256": "27f5605a539974e8d7aa0dd2b03c71613679230bd0d2f2b209c638b37e85a482",
+    "raw_bytes": 1920,
+    "gzip_sha256": "a4dfe819fd51831245b11ec758e56e88d9e9570be6afabbf09e6e7b88f57910a"
+  },
+  {
+    "path": "red-dependency.log.gz",
+    "raw_sha256": "e27ce0f9a680c9fd183d9e3c3fbdab2fc60011f46eb1019a1f6be80f1f677a9c",
+    "raw_bytes": 3924,
+    "gzip_sha256": "ccc1fbac2e1009b1be03d8967bcf4d191b6e66f402015e70e2c56ebd7a4eba6b"
+  }
+]

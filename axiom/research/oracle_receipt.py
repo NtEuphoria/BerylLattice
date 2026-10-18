@@ -34,7 +34,7 @@ _VERSIONS = dict(source_admission='axiom-source-v2', ast='original-source-ast-v1
                  invocation='axiom-invocation-v2', state='axiom-state-v1', oracle='source-oracle-v1')
 _IDENTITIES = ('source_sha256', 'family_semantics_sha256', 'specialization_semantics_sha256',
                'invocation_sha256', 'state_invocation_sha256')
-_REPOSITORY_MODULES = ('axiom', 'axiom.model', 'axiom.frontend', 'axiom.source_profiles',
+_REPOSITORY_MODULES = ('axiom', 'axiom.model', 'axiom.frontend', 'axiom.source_names_v2', 'axiom.source_profiles',
                        'axiom.invocation_v2', 'axiom.artifact_chunks_v2',
                        (__package__+'.' if __package__ else '')+'source_oracle',
                        (__package__+'.' if __package__ else '')+'state_artifacts', __name__)

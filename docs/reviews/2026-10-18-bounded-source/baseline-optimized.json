@@ -1,0 +1,921 @@
+{
+  "accepted": {
+    "alias_spellings": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "885c16f02ff4de8a27032e06653ceac93b98631c088b68fc36ba5890ec38aeb1",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "a5e0d6ccce537c7ab2cd6d0687349202e152347c2c208e467a922088c3895302",
+      "status": "accepted"
+    },
+    "axis_shadow_H": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "ecb79c95cfd575dbf1a264d3cfe9d7882c548b9710099f2276d87e60416ec8d8",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "ddf06954be1291270032c507fbbf122db681e3dce902a20057b315fa59fe7877",
+      "status": "accepted"
+    },
+    "axis_shadow_W": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "ce64429c344fe63d9a4c3e15673b4889729d80dca782e90ec65e6fe58fb49731",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "ee24d7fe1d459be24f63181c28cae534a739124cd20f7bf4df921d2072fc0828",
+      "status": "accepted"
+    },
+    "axis_shadow_image": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "390a6791fb16f9e0796da234a0934197179298163739a9d45942964dcc4caf1e",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "1783df518029231ca1cd215ba9d3adfb9c557221d5a463a48747e9d5cae35e25",
+      "status": "accepted"
+    },
+    "axis_shadow_p": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "820f1b9c87489739196dcdab82203e3dcc105515f4120eb1631d899f03ec5f5d",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "a4c5e99a1e174bccd6b4a2673e398062c47bfca1d3ea10b47e3608d9a90fca9c",
+      "status": "accepted"
+    },
+    "axis_shadow_result": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "c69ff0610c2b518ba56ffa4925c08c3fc738736fb9dfb246b9efe7ffcc2b63b6",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "59087ca959e2e6ca60aa4bdcd76d2b2c7b8200128507ead7e912af2e89c3be37",
+      "status": "accepted"
+    },
+    "comments_and_space": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "7f69fa74c830baea192f27ea43f6e1ef8904f66f1e9b5b1eb81fee155ba5fb72",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "f84486120a632a59a6f000070182c7cda8a9481d5d8906b0fa4837fb974882d7",
+      "status": "accepted"
+    },
+    "deep_groups": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "6c60c40255b0506bbe266567e89fc8f4610ad755a9408b83d8931a8354712f94",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "25a0bc3060e4687d3025d51ca8d71a82230e6924a97a7f8cb378a06614fe1b53",
+      "status": "accepted"
+    },
+    "dimensions_1022_8192": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 1022,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "0f4a55b6db97b5e90556362d079f302c4c9d79ddf1f648f95a83ac4b1e53b62b",
+        "specialization_digest": "e34009a43c023465824207e07de0d0413f020d9d09520cff16c9454a8585c83d",
+        "version": 2,
+        "width": 8192
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "100428f2e381bae9ae2d0cd113e8868db91d7e156b221534cd9dc2b257c1d163",
+      "status": "accepted"
+    },
+    "dimensions_1023_8191": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 1023,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "89f0ace80917956fe96b0e455a28f6b41878fcbb9f45e3c411d52aad90555e40",
+        "specialization_digest": "ac893370fa0cd4cedf16f8afa682291cba8e1f5f5cea958772ddf8a3a02005f6",
+        "version": 2,
+        "width": 8191
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "f1262cd6bc27b27406d665d5db8bb7372c6c369af27bfdff9598c011cdf02ba0",
+      "status": "accepted"
+    },
+    "dimensions_1_1": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 1,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "98d097a3644021097002258f23085c8b731cb000616f768d6cd09be369e37427",
+        "specialization_digest": "0d70d177ba88b9fe89d381c95e8cdb82c81284c2e807044f147d5e212f833003",
+        "version": 2,
+        "width": 1
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "eba6022319ce2d113de3da6e23456e9e3daa023a09e166955655db0204c96e9a",
+      "status": "accepted"
+    },
+    "dimensions_1_8192": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 1,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "bcc0d0fd4b2b68b6e72e4f60392999802a4adbd868e4b37ac85c8e813b53afad",
+        "specialization_digest": "059dce0c7fb4cef42008905e4cce72b32a624dcd08f647390e7004f2e76ebcfe",
+        "version": 2,
+        "width": 8192
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "ca2e8978dd336e7834442591eb9c61c70d6a3993fd6c3f0b2f1bdef992e8dfab",
+      "status": "accepted"
+    },
+    "dimensions_2048_2048": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 2048,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "a8bfe36916303e0968fe9cd5265fe47192153e491b528e6eb29d2aad358a5d34",
+        "specialization_digest": "1a2170f37d564d86461766f95dbf3f3c79f3c51e34e3cbe9d17b188ff07ae12e",
+        "version": 2,
+        "width": 2048
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "d1fcad9f7a85ee97e76318a08a9df8ee51963b2e4f6196660e9515060ee746eb",
+      "status": "accepted"
+    },
+    "dimensions_32_32": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 32,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "5b2fc87ce015966bb3e8a53085698e74b43ff8f9ece8669a2d8faf3f2c2cbfbb",
+        "specialization_digest": "a4bb0dcf8a701ff3f25f2f1c78f9eaed929ee1e7221c841be6101dd0b9e5210b",
+        "version": 2,
+        "width": 32
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "5bee36da92876757877be6238ff87cdae5449029112e78f18b2ca2bc20326b38",
+      "status": "accepted"
+    },
+    "dimensions_5_7": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "d524b924fe7488d1664ea0f63c1938ab15357faa0681604b66a690389958336d",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "1ba54be4f3723128998f894e6f2e898bacdff2cd0607bfb3f751200b635e88b5",
+      "status": "accepted"
+    },
+    "dimensions_8191_1023": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 8191,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "ba2cc2cde3d8d6e417650a9520e884fe26e33ab94023da6902351b058b7b145f",
+        "specialization_digest": "2550e76ba7a1e634532f2a9b304bb75ab8a4954579e3362e98a5b52e5e3fd72a",
+        "version": 2,
+        "width": 1023
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "e139040be7bd63bdec3210488febbd9dcdd2350de1a7ff2d22f64e99ed2a8a4f",
+      "status": "accepted"
+    },
+    "dimensions_8192_1": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 8192,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "5553d7f504d2329a145cb884d32eb7ea6db42b17f30f0b567400b046bbbc7e09",
+        "specialization_digest": "f8bec46e37230829ed3769dd4f36ad970640f78ab0207f52c77b50e78bd7c32f",
+        "version": 2,
+        "width": 1
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "3ea1f8b2e67420e5b4ad4ce89bc1857401e21d6ad408dabdf28612e9b757866f",
+      "status": "accepted"
+    },
+    "dimensions_8192_1022": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 8192,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "62fbc3e31c34fdcb0bfe3c40859f54a98d8e7e7be3eeaa1db81408c2f83c7776",
+        "specialization_digest": "b6eecbb69e419f412c4a2ea5caf59e1da789b2460d2115e8b44e0e9efdb1b16f",
+        "version": 2,
+        "width": 1022
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "b85cee8827af79cbc89cd396d8e68ec3df9ea5544383a4413a51200e4738297c",
+      "status": "accepted"
+    },
+    "distinct_reversed_axes": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "129374e95f1c428c33e73b4a35b7d37073e32d80e10c4d5959ca7eac2c92a2c7",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "adba89fcfedac949bf3a29018ff7069c1b2060889da711f0cb847e74e1a07e3c",
+      "status": "accepted"
+    },
+    "index_groups": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "26a3a782f4cef5b46385645d13ef341d9d7a8163bba93269f0acc93aaa5f6a9d",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "af17b3644eda7309d5a0785aed337029bae8da777125383247bab1de9e7e8031",
+      "status": "accepted"
+    },
+    "interspersed_constraints": {
+      "exact_source": true,
+      "fields": {
+        "cap": 0,
+        "constraint_digest": "7a8065d454a4f4be7521b7ca737cb529a59bbfe02fc4897dfaabc8d0a1d772a7",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "44183d1b4b069d92609b1a48df23dcd38aecc37c1c8521398c66666738f36ae1",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "0735ff5cdf01a4ba49bea1fa2121647c9d254384bb389dc0c70f3b409db51f83",
+      "status": "accepted"
+    },
+    "long_equal_prefixes": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "559016a2b4d9a18b88c6830bd6690fc1cd8de78d28b19754d39358b03f789c8d",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "b2e2e542a2a7c56ee4dd76d5c2ebc8f6c03908049118e5daadabbded43910413",
+      "status": "accepted"
+    },
+    "long_module_name": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "422b5fc0cfa18f3e6a9e5fb0fd835799ba2a0bd2580d741674740749bf539e9c",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "2c8d9cf1f08fd6703e74be0d7096be44d604062f8306723446b17cbe4b2d8f78",
+      "status": "accepted"
+    },
+    "max_output_name": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "5f93c108118d8829a7351d0ffbfacc39993037d22639c4eefe9d1a6b133bec7a",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "45537e4e88b9dd0b52129fe60d75cd54f6799c2eb4a751323fb0acd5f3eb010d",
+      "status": "accepted"
+    },
+    "max_padding": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "63af9d92f4f2ba9b3501466809ac77d2bb9fc24d4e9e9d36740df86039d30042",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "74c27bfd4687840f95cc63ff45215f1acffb5aa4ba0160ef969e870f582048a3",
+      "status": "accepted"
+    },
+    "nine_names": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "c7d0ebef3dc53ba548b0e68a53a2219c72c806ac30336f3581bb4b0be756c798",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "8892192dac2718f5d6e01e334f15cdfec4ccf219a688156efecf3034adcae0b6",
+      "status": "accepted"
+    },
+    "no_constraint": {
+      "exact_source": true,
+      "fields": {
+        "cap": null,
+        "constraint_digest": "a99b8371445686fc4ea3852f797febfb7f54b184977093667a8482f0aa1b46e1",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "22b0cfb1997d112ea21176647476d41a227661124da8d3b769f496e8ca5d0569",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "d6863f18f2f892f4587279de71ae546518cc2c03725220e0adb251ae64b2e5fd",
+      "status": "accepted"
+    },
+    "padded_literals": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "540b637aced737e0224de8191a1b7b9d3879baa38e7e2cd458218d95039a594a",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "1615dceeadfecfe7331b5051dc935132eaf3e534816ba2a266b073593496ea4c",
+      "status": "accepted"
+    },
+    "repeated_constraints_max_bytes": {
+      "exact_source": true,
+      "fields": {
+        "cap": 0,
+        "constraint_digest": "7a8065d454a4f4be7521b7ca737cb529a59bbfe02fc4897dfaabc8d0a1d772a7",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "1e75bc73da3dd4d00143d9c7e54e2c37f0e6f4b711949c23c2268d88f682fa2d",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "f324b9b7f963e4054b0b58334661834d66ed5ea646f017647ae2315920d1fea7",
+      "status": "accepted"
+    },
+    "shape_groups": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "c5bb484227dca2b7b70cf84ce7e9e8d3de756b546381fd61a1ce1236e92b40a9",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "90af4126a69cb2e1227917fc4e19dba627cf9d5123f43b6ec227fc7c6037c541",
+      "status": "accepted"
+    },
+    "unequal_lengths": {
+      "exact_source": true,
+      "fields": {
+        "cap": 64,
+        "constraint_digest": "8c117e16670a1c19f7829bccbad44fbf43aae31df27faa47588d20fb61e3fe97",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "33370f7c773f2abbc33bb0974119667dd319da8db3cc6c6ca72ed62df2422f3c",
+        "source_digest": "269752b8824516c1888ae57e983ef33688cf62227b96fafcd6c9c591f1bad868",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "multiplication_ops",
+      "original_ast_sha256": "bf7d21323982c95d78d07c58362c0790f6d88a4a573756f6232727a63eb22c48",
+      "status": "accepted"
+    },
+    "workspace_objective": {
+      "exact_source": true,
+      "fields": {
+        "cap": 0,
+        "constraint_digest": "7a8065d454a4f4be7521b7ca737cb529a59bbfe02fc4897dfaabc8d0a1d772a7",
+        "family_digest": "1b37ee7ce9e6bd425f7e5a1350d21257f3a385b77e50f94ea10694f1cd992c03",
+        "height": 5,
+        "input_interval": [
+          0,
+          1023
+        ],
+        "objective_digest": "ac541f2a8e9e00ff6cb5f17bf0f273b80715dc8afef1f505d6d207877ba81fa1",
+        "source_digest": "b6d2d10da469201c192d71d79fdc9007b1ab5b76474d47c0d986aa50c2f9bc70",
+        "specialization_digest": "b98c8e1adbe3979ce95869b6dc6b6f2001af9d0066c6b6a80e6680e8425ddb2f",
+        "version": 2,
+        "width": 7
+      },
+      "objective": "plan_workspace_bytes",
+      "original_ast_sha256": "1fa7c750a0e0cf4afebf2dd36f5a040222a513abdebe88083d69415db3394e5d",
+      "status": "accepted"
+    }
+  },
+  "rejected": {
+    "bad_objective": {
+      "code": "UNSUPPORTED_OBJECTIVE",
+      "message": "unknown objective",
+      "span": [
+        0,
+        274
+      ],
+      "status": "rejected"
+    },
+    "bad_property": {
+      "code": "UNSUPPORTED_CONSTRAINT",
+      "message": "unknown hard property",
+      "span": [
+        224,
+        20
+      ],
+      "status": "rejected"
+    },
+    "changed_association": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "source is outside the exact canonical stencil profile",
+      "span": [
+        0,
+        287
+      ],
+      "status": "rejected"
+    },
+    "changed_literal": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "source is outside the exact canonical stencil profile",
+      "span": [
+        0,
+        287
+      ],
+      "status": "rejected"
+    },
+    "changed_operator": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "source is outside the exact canonical stencil profile",
+      "span": [
+        0,
+        287
+      ],
+      "status": "rejected"
+    },
+    "changed_read": {
+      "code": "INVALID_INDEX",
+      "message": "read may exceed the declared tensor bounds",
+      "span": [
+        120,
+        3
+      ],
+      "status": "rejected"
+    },
+    "changed_shadowing": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "source is outside the exact canonical stencil profile",
+      "span": [
+        0,
+        287
+      ],
+      "status": "rejected"
+    },
+    "duplicate_axis": {
+      "code": "DUPLICATE_NAME",
+      "message": "duplicate bound axis",
+      "span": [
+        96,
+        1
+      ],
+      "status": "rejected"
+    },
+    "duplicate_global": {
+      "code": "DUPLICATE_NAME",
+      "message": "duplicate declaration 'H'",
+      "span": [
+        32,
+        1
+      ],
+      "status": "rejected"
+    },
+    "input_rank": {
+      "code": "INVALID_INDEX",
+      "message": "tensor rank does not match read",
+      "span": [
+        110,
+        10
+      ],
+      "status": "rejected"
+    },
+    "negative_before_nonliteral": {
+      "code": "INVALID_SHAPE",
+      "message": "shape dimensions must be positive",
+      "span": [
+        23,
+        2
+      ],
+      "status": "rejected"
+    },
+    "negative_cap": {
+      "code": "INVALID_CONSTRAINT",
+      "message": "workspace cap must be a nonnegative i32 integer",
+      "span": [
+        224,
+        35
+      ],
+      "status": "rejected"
+    },
+    "output_rank": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined index 'c'",
+      "span": [
+        179,
+        1
+      ],
+      "status": "rejected"
+    },
+    "oversize_cap": {
+      "code": "INVALID_CONSTRAINT",
+      "message": "workspace cap must be a nonnegative i32 integer",
+      "span": [
+        224,
+        43
+      ],
+      "status": "rejected"
+    },
+    "producer_forward_read": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined tensor 'result'",
+      "span": [
+        114,
+        6
+      ],
+      "status": "rejected"
+    },
+    "producer_rank": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined index 'c'",
+      "span": [
+        110,
+        1
+      ],
+      "status": "rejected"
+    },
+    "producer_self_read": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined tensor 'p'",
+      "span": [
+        114,
+        1
+      ],
+      "status": "rejected"
+    },
+    "shape_chain": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "shape parameters must be literal declarations",
+      "span": [
+        0,
+        291
+      ],
+      "status": "rejected"
+    },
+    "shape_extra": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "requires exactly two shapes, one input, one producer and one output",
+      "span": [
+        0,
+        306
+      ],
+      "status": "rejected"
+    },
+    "shape_missing": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined shape 'W'",
+      "span": [
+        47,
+        1
+      ],
+      "status": "rejected"
+    },
+    "shape_nonliteral": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "shape parameters must be literal declarations",
+      "span": [
+        0,
+        289
+      ],
+      "status": "rejected"
+    },
+    "tenth_name": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined index 'unknown'",
+      "span": [
+        187,
+        7
+      ],
+      "status": "rejected"
+    },
+    "undefined_before_extra_shape": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined shape 'missing'",
+      "span": [
+        56,
+        7
+      ],
+      "status": "rejected"
+    },
+    "undefined_index": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined index 'missing_index'",
+      "span": [
+        120,
+        13
+      ],
+      "status": "rejected"
+    },
+    "undefined_shape": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined shape 'missing_shape'",
+      "span": [
+        56,
+        13
+      ],
+      "status": "rejected"
+    },
+    "undefined_tensor": {
+      "code": "UNDEFINED_NAME",
+      "message": "undefined tensor 'missing_tensor'",
+      "span": [
+        114,
+        14
+      ],
+      "status": "rejected"
+    },
+    "wrong_type": {
+      "code": "UNSUPPORTED_PROFILE",
+      "message": "source is outside the exact canonical stencil profile",
+      "span": [
+        0,
+        287
+      ],
+      "status": "rejected"
+    }
+  }
+}
