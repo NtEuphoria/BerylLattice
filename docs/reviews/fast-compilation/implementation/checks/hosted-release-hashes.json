@@ -1,0 +1,273 @@
+{
+  "status": "passed",
+  "verified_utc": "2026-10-18T05:32:45Z",
+  "url": "https://nteuphoria.github.io/beryl-playground/",
+  "public_commit": "7d120b8",
+  "files": [
+    {
+      "file": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "application/octet-stream",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-0\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "LICENSE",
+      "bytes": 1067,
+      "sha256": "673f0bfcb392c499679e681044b81018222fdcfe14ad3adffc8d4735f89e62aa",
+      "headers": {
+        "content-type": "application/octet-stream",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-42b\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "README.md",
+      "bytes": 3680,
+      "sha256": "b97fbd987c73f79abf30ddf1980cb04eb2f78e86a3b4f5b5d934ef1048f8112a",
+      "headers": {
+        "content-type": "text/markdown; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-e60\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "_headers",
+      "bytes": 398,
+      "sha256": "d24694bb6245c89b9dceeab9d93b20434829ba2e12d47a66ffa61fda21eeb07c",
+      "headers": {
+        "content-type": "application/octet-stream",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-18e\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "app.js",
+      "bytes": 18771,
+      "sha256": "caf56c6a0dc07600044e77b20ebac0f1162d275937fc9f48ace2a01fda6272da",
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-4953\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "benchmark-results.json",
+      "bytes": 103181,
+      "sha256": "e233af0bd575b1f26e680829a664bfb36e214627e08c18f14e7ba55163fcea19",
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-1930d\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "benchmark.c",
+      "bytes": 610,
+      "sha256": "6293028824e240ce4151ade5589ec909be3fdb2571057d690a9be230f7c1d621",
+      "headers": {
+        "content-type": "text/x-c",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-262\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "benchmark.rs",
+      "bytes": 832,
+      "sha256": "35fc4ec82e2e6eaae1f04118ea572380aea3ae3a1090a1175af142a3f7a6f435",
+      "headers": {
+        "content-type": "application/rls-services+xml",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-340\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "benchmarks.html",
+      "bytes": 4091,
+      "sha256": "3ddc3806b440d96f1f13d91bd2923a1aadb3b4f39f0f3d6755252c7b0849c6b9",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-ffb\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "benchmarks.js",
+      "bytes": 5281,
+      "sha256": "aac3de7696943b2a33693d30607650156ce02a6b575973d4d63fb767e49a1dc3",
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-14a1\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "beryl-compiler.zip",
+      "bytes": 58254,
+      "sha256": "bdea7e03ec93d3df176ba39a9670ffc6f45f754df7f83dcb68ba2ef788b243c6",
+      "headers": {
+        "content-type": "application/x-zip-compressed",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-e38e\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "index.html",
+      "bytes": 8116,
+      "sha256": "c789777c1112270731463831cffbacb48e2db8143a0a6c62b3245daa3e838ace",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-1fb4\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime-config.json",
+      "bytes": 54,
+      "sha256": "16493fce0bfbfff2a342c308e453e72b8558dd233c2bea80da98cae506ac6596",
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-36\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime/PYODIDE-LICENSE",
+      "bytes": 16725,
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "headers": {
+        "content-type": "application/octet-stream",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-4155\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime/PYTHON-LICENSE",
+      "bytes": 13936,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "headers": {
+        "content-type": "application/octet-stream",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-3670\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime/pyodide-lock.json",
+      "bytes": 112205,
+      "sha256": "9c45b916001a750f4102fc287494f3eab215909c7535c626a20db80fd6333e2c",
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-1b64d\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime/pyodide.asm.js",
+      "bytes": 1255688,
+      "sha256": "6b4c90de5b7172873f04f21884d0e9d2274e305fe32116558fe3e4fbe3618d51",
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-132908\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime/pyodide.asm.wasm",
+      "bytes": 10105545,
+      "sha256": "a50dd1843f805a0b7c45b61037ee0d7b26dfe85efe0e18ef95a34ad24e401f5f",
+      "headers": {
+        "content-type": "application/wasm",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-9a32c9\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime/pyodide.js",
+      "bytes": 14913,
+      "sha256": "b4cb23a53aba19c221659b9fb40a2f18281d685691dc06647fb0afd0681baf98",
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-3a41\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "runtime/python_stdlib.zip",
+      "bytes": 2360737,
+      "sha256": "16611534726e5d8ac2bd8f926410b2dcb8d6f49aa24913463533b457a2115c16",
+      "headers": {
+        "content-type": "application/x-zip-compressed",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-2405a1\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "style.css",
+      "bytes": 14017,
+      "sha256": "635087c6aed0059f747e443de2ef04723431d9b64f1e444ada73ba95755c4728",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-36c1\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "transport.js",
+      "bytes": 6135,
+      "sha256": "81c6596dc319585bda116564df21039d2e2a76a21588b6566f08af333aa95d24",
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-17f7\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "worker.js",
+      "bytes": 6992,
+      "sha256": "bf65c15fc22a36ed522ae2edf46847600fd7bfd26e186f1976a2724e7ab5c122",
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-1b50\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    },
+    {
+      "file": "release-manifest.json",
+      "bytes": 11405,
+      "sha256": "2b6d8896fdd14d64f0831b76fa1b59f6bcb702635e55b17bd9e430a37090dc49",
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "max-age=600",
+        "etag": "\"6ad4597e-2c8d\"",
+        "last-modified": "Sun, 18 Oct 2026 05:30:38 GMT"
+      }
+    }
+  ],
+  "qualified_archive_sha256": "bdea7e03ec93d3df176ba39a9670ffc6f45f754df7f83dcb68ba2ef788b243c6"
+}

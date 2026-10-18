@@ -185,3 +185,22 @@ only standalone absolute host/temporary path strings are reduced to basenames.
 Its added compiler-default configuration records the actual `-lm` default.
 Multiline source strings are not treated as paths. Public reports are descriptive
 client-side evidence, not authoritative attestations.
+
+
+## Published release
+
+The bounded MIT package is live at [the beryl playground](https://nteuphoria.github.io/beryl-playground/),
+public commit [`7d120b80ad7b326f1f13354748d19e902f4b5656`](https://github.com/NtEuphoria/beryl-playground/commit/7d120b80ad7b326f1f13354748d19e902f4b5656).
+The [hosted hash verification](checks/hosted-release-hashes.json), recorded at
+2026-10-18T05:32:45Z, confirms all 24 served files, including the compiler ZIP,
+manifest and runtime assets, match the reviewed release byte for byte.
+The [live HTTPS Chromium check](checks/hosted-browser-final.txt) passed all
+18 recorded checks, including genuine runtime/Wasm execution, report download,
+source/cap/objective changes, the 256th-input rejection, cancellation/recovery,
+reset, responsive/keyboard behavior and saved/browser benchmark tables, with no
+page errors. These are functionality checks, not another timing qualification.
+
+The private implementation and evidence are reviewed in [PR #7](https://github.com/NtEuphoria/BerylLattice/pull/7).
+Rollback remains the previous public commit
+`149e4d6e9932008483cb4ae9b2c8458e19c4fe0e`. Publication changes none of the
+measurement limitations or engineering-target misses above.
