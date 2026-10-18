@@ -204,6 +204,46 @@ class CompactCTest(unittest.TestCase):
         with self.assertRaises(HintError):
             self.backend._emit_native_c_compact(owned, encode_loop_program(program))
 
+    def test_zero_trip_loops_with_unreachable_arena_operations_compile(self):
+        owned, base_hint = self.owned(schedule='inline-v1')
+        self.assertEqual(owned.plan.scratch_capacity_cells, 0)
+        program = make_loop_program(owned.kernel, 'inline-v1')
+        baseline = self.backend._emit_native_c_compact(owned, base_hint)
+        # Syntax is validated even when no iteration reaches an index. These
+        # unreachable operations reserve no scratch and expand to no finite ops.
+        # Their indices would be negative, out of bounds or overflow if reached.
+        unreachable = (
+            Primitive('input_load', 'never_input', index=IndexExpr(2147483647)),
+            Primitive('scratch_load', 'never_scratch', index=IndexExpr(0)),
+            Primitive('scratch_store', operands=('one',), index=IndexExpr(0)),
+            Primitive('output_store', operands=('one',), index=IndexExpr(-1)),
+            Loop('nested', 0, 1, (Primitive('scratch_store', operands=('one',),
+                 index=IndexExpr(2147483647, (IndexTerm(1, 'nested', 1),))),)))
+        data, initial = tuple(range(12)), (-2147483648,)*6
+        for bound in (0, 256):
+            with self.subTest(bound=bound):
+                extra = Loop('never', bound, bound, unreachable)
+                hint = encode_loop_program(replace(program, body=program.body+(extra,)))
+                artifact = self.backend._emit_native_c_compact(owned, hint)
+                # Real strict compilation detects undeclared zero-capacity
+                # arenas even when the C optimizer could eliminate the body.
+                library = self.build(artifact)
+                self.assertEqual(self.invoke(library, data, initial),
+                                 self.observation(owned, data, initial))
+                invalid = (-1,)+data[1:]
+                self.assertEqual(self.invoke(library, invalid, initial),
+                                 self.observation(owned, invalid, initial))
+                self.assertEqual(artifact.c_source, baseline.c_source)
+                self.assertEqual(artifact.source_digest, baseline.source_digest)
+                self.assertEqual(artifact.plan_digest, baseline.plan_digest)
+                self.assertEqual(artifact.hint_digest, sha256(hint).hexdigest())
+                self.assertNotEqual(artifact.hint_digest, baseline.hint_digest)
+        # Skipping emission cannot skip fresh syntax validation of dead bodies.
+        malformed = json.loads(hint)
+        malformed['body'][-1]['body'][2]['operands'] = ['missing']
+        with self.assertRaises(HintError):
+            self.backend._emit_native_c_compact(owned, json.dumps(malformed).encode())
+
     def test_trace_records_fresh_correspondence_and_code_emission(self):
         from axiom.compilation_trace import CompilationTrace
         owned, hint = self.owned()

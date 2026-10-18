@@ -57,6 +57,11 @@ def _emit_native_c_compact(owned, hint_bytes, *, hint_limits=HintLimits()):
             indent = '    '*depth
             for node in body:
                 if type(node) is Loop:
+                    # Fresh correspondence already validated this entire body.
+                    # Zero iterations expand to no finite primitives; emitting
+                    # the body could mention an arena with no reservation.
+                    if node.start == node.stop:
+                        continue
                     variable = f'ax_i_{node.variable}'
                     parts.append(f'{indent}for (int32_t {variable} = {node.start}; {variable} < {node.stop}; ++{variable}) {{\n')
                     block(node.body, depth+1)
