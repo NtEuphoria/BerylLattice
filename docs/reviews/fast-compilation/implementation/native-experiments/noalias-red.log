@@ -1,0 +1,34 @@
+test_compact_disjoint_parameters_have_llvm_noalias_contract (tests.test_bounded_loop_c.CompactCTest.test_compact_disjoint_parameters_have_llvm_noalias_contract) ... 
+  test_compact_disjoint_parameters_have_llvm_noalias_contract (tests.test_bounded_loop_c.CompactCTest.test_compact_disjoint_parameters_have_llvm_noalias_contract) (schedule='inline-v1') ... FAIL
+  test_compact_disjoint_parameters_have_llvm_noalias_contract (tests.test_bounded_loop_c.CompactCTest.test_compact_disjoint_parameters_have_llvm_noalias_contract) (schedule='rows2-v1') ... FAIL
+  test_compact_disjoint_parameters_have_llvm_noalias_contract (tests.test_bounded_loop_c.CompactCTest.test_compact_disjoint_parameters_have_llvm_noalias_contract) (schedule='materialize-v1') ... FAIL
+test_public_finite_bytes_remain_stable_for_all_schedules (tests.test_bounded_loop_c.CompactCTest.test_public_finite_bytes_remain_stable_for_all_schedules) ... ok
+
+======================================================================
+FAIL: test_compact_disjoint_parameters_have_llvm_noalias_contract (tests.test_bounded_loop_c.CompactCTest.test_compact_disjoint_parameters_have_llvm_noalias_contract) (schedule='inline-v1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/BerylLattice-o3-fixes/axiom/tests/test_bounded_loop_c.py", line 115, in test_compact_disjoint_parameters_have_llvm_noalias_contract
+    self.assertEqual(bool(re.search(r'\bnoalias\b', parameter)),
+AssertionError: False != True : ('inline-v1', 0, 'ptr noundef %0')
+
+======================================================================
+FAIL: test_compact_disjoint_parameters_have_llvm_noalias_contract (tests.test_bounded_loop_c.CompactCTest.test_compact_disjoint_parameters_have_llvm_noalias_contract) (schedule='rows2-v1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/BerylLattice-o3-fixes/axiom/tests/test_bounded_loop_c.py", line 115, in test_compact_disjoint_parameters_have_llvm_noalias_contract
+    self.assertEqual(bool(re.search(r'\bnoalias\b', parameter)),
+AssertionError: False != True : ('rows2-v1', 0, 'ptr noundef %0')
+
+======================================================================
+FAIL: test_compact_disjoint_parameters_have_llvm_noalias_contract (tests.test_bounded_loop_c.CompactCTest.test_compact_disjoint_parameters_have_llvm_noalias_contract) (schedule='materialize-v1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/BerylLattice-o3-fixes/axiom/tests/test_bounded_loop_c.py", line 115, in test_compact_disjoint_parameters_have_llvm_noalias_contract
+    self.assertEqual(bool(re.search(r'\bnoalias\b', parameter)),
+AssertionError: False != True : ('materialize-v1', 0, 'ptr noundef %0')
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.306s
+
+FAILED (failures=3)
