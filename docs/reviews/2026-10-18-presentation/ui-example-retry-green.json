@@ -1,0 +1,28 @@
+{
+  "kind": "Mock transport example retry regression",
+  "checks": [
+    {
+      "retryFails": false,
+      "before": "Execution checked. Every output matches.",
+      "during": "Execution checked. Every output matches.",
+      "after": "Execution checked. Every output matches.",
+      "reportActive": true,
+      "outputVisible": true,
+      "passed": true
+    },
+    {
+      "retryFails": true,
+      "before": "Execution checked. Every output matches.",
+      "during": "Execution checked. Every output matches.",
+      "after": "Execution checked. Every output matches.",
+      "reportActive": true,
+      "outputVisible": true,
+      "passed": true
+    },
+    {
+      "case": "Retry while computation is running",
+      "passed": true,
+      "localReleaseLinksHidden": true
+    }
+  ]
+}

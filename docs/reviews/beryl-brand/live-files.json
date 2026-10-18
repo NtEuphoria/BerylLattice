@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "release_commit": "74afafaf611cc2d64d118250d27db874afb82252",
+  "old_archive_status": 404,
+  "checks": [
+    {
+      "file": "index.html",
+      "sha256": "00a1b005f869f4798fd76c075b342b703192b7981114b75303f281604aaf5642",
+      "mime": "text/html; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "app.js",
+      "sha256": "59da7f265b883d707f5f19fd66f385e4a9962c9c4efa44e673c814d59c06c04e",
+      "mime": "application/javascript; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "worker.js",
+      "sha256": "930adb0fd315fcee8c1ece31a6822273b2f6625076608f253b96aacda3c05176",
+      "mime": "application/javascript; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "README.md",
+      "sha256": "d179f6ce5f89c0a2df8f8bcd56d444f329bc23f937a6952668f69a2b157f2e3f",
+      "mime": "text/markdown; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "release-manifest.json",
+      "sha256": "d6097aa66dbcd7fa18d1cd250ba94ad23888118d9b7fa72d211085e9da2e482b",
+      "mime": "application/json; charset=utf-8",
+      "matches": true
+    },
+    {
+      "file": "beryl-compiler.zip",
+      "sha256": "d9b4e3cd86e12fc83b81c482ee3e441ebacf2afd48efc6cb74236ebcc83b6112",
+      "mime": "application/x-zip-compressed",
+      "matches": true
+    }
+  ]
+}

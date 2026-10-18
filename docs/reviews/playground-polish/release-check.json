@@ -1,0 +1,12 @@
+{
+  "files": 19,
+  "changed": [
+    "app.js",
+    "index.html",
+    "release-manifest.json",
+    "style.css"
+  ],
+  "compiler_zip_and_runtime_unchanged": true,
+  "manifest_sha256": "68194f33efdc47c8bc73d32f118ecef4eff55312042e3a3de64ed3d11bd3ed31",
+  "release_commit": "83da6e116324947f7ff6686cfc009396be37fe0d"
+}

@@ -1,0 +1,207 @@
+{
+  "compiler_archive_members": {
+    "LICENSE": {
+      "bytes": 1067,
+      "sha256": "673f0bfcb392c499679e681044b81018222fdcfe14ad3adffc8d4735f89e62aa"
+    },
+    "axiom/__init__.py": {
+      "bytes": 45,
+      "sha256": "344313165d8438d321221596d363facccbec497b7459ae380143c16fef6d69e9"
+    },
+    "axiom/checker.py": {
+      "bytes": 16620,
+      "sha256": "75af14e064d91694126095af12a60898544a73bec562dc2568706fc266393ac5"
+    },
+    "axiom/codec.py": {
+      "bytes": 15793,
+      "sha256": "f2d7aae98e4e0140874a92f52ff166b5e1a74ca046ad5f8c2810901ca0e724e3"
+    },
+    "axiom/frontend.py": {
+      "bytes": 20900,
+      "sha256": "2b6f291ce350fa32c1a09e64a0de425a3d02e9633535b13949fac1a8063afa71"
+    },
+    "axiom/model.py": {
+      "bytes": 3878,
+      "sha256": "dd45837debec9302a19d194d1fe8805176c902164f4432fc5391bcc274b96408"
+    },
+    "axiom/plan_format.py": {
+      "bytes": 603,
+      "sha256": "13cff8c9f80863d6629b81d8ad82e6ad54b7c2be63d8da6623f4a73286b9a829"
+    },
+    "axiom/planner.py": {
+      "bytes": 3734,
+      "sha256": "06ae71ea42e30d706acf3d756c74abf620b1c9e8a9763d330e7cecc76d3df752"
+    },
+    "axiom/playground_service.py": {
+      "bytes": 7701,
+      "sha256": "562dc076bd787641804af4cab8a7b8b691bb7f51d5fbed2d33751118d654eb23"
+    },
+    "axiom/reference.py": {
+      "bytes": 5903,
+      "sha256": "01857a9ddc24f905721cfaf3959a2f2acb8a2388c63fe8d5260389853f341f3d"
+    },
+    "axiom/runtime.py": {
+      "bytes": 5035,
+      "sha256": "54d35cd52e4ad19944ea4f0807ccadac7ef999a0c635e4776cd2ea111308b71b"
+    },
+    "axiom/selection.py": {
+      "bytes": 9808,
+      "sha256": "799b46d47ce54cc6b78ff692045de09d74b5fb47a68465f241ad79b9cf50f975"
+    }
+  },
+  "compiler_modules": {
+    "axiom/__init__.py": {
+      "bytes": 45,
+      "sha256": "344313165d8438d321221596d363facccbec497b7459ae380143c16fef6d69e9"
+    },
+    "axiom/checker.py": {
+      "bytes": 16620,
+      "sha256": "75af14e064d91694126095af12a60898544a73bec562dc2568706fc266393ac5"
+    },
+    "axiom/codec.py": {
+      "bytes": 15793,
+      "sha256": "f2d7aae98e4e0140874a92f52ff166b5e1a74ca046ad5f8c2810901ca0e724e3"
+    },
+    "axiom/frontend.py": {
+      "bytes": 20900,
+      "sha256": "2b6f291ce350fa32c1a09e64a0de425a3d02e9633535b13949fac1a8063afa71"
+    },
+    "axiom/model.py": {
+      "bytes": 3878,
+      "sha256": "dd45837debec9302a19d194d1fe8805176c902164f4432fc5391bcc274b96408"
+    },
+    "axiom/plan_format.py": {
+      "bytes": 603,
+      "sha256": "13cff8c9f80863d6629b81d8ad82e6ad54b7c2be63d8da6623f4a73286b9a829"
+    },
+    "axiom/planner.py": {
+      "bytes": 3734,
+      "sha256": "06ae71ea42e30d706acf3d756c74abf620b1c9e8a9763d330e7cecc76d3df752"
+    },
+    "axiom/playground_service.py": {
+      "bytes": 7701,
+      "sha256": "562dc076bd787641804af4cab8a7b8b691bb7f51d5fbed2d33751118d654eb23"
+    },
+    "axiom/reference.py": {
+      "bytes": 5903,
+      "sha256": "01857a9ddc24f905721cfaf3959a2f2acb8a2388c63fe8d5260389853f341f3d"
+    },
+    "axiom/runtime.py": {
+      "bytes": 5035,
+      "sha256": "54d35cd52e4ad19944ea4f0807ccadac7ef999a0c635e4776cd2ea111308b71b"
+    },
+    "axiom/selection.py": {
+      "bytes": 9808,
+      "sha256": "799b46d47ce54cc6b78ff692045de09d74b5fb47a68465f241ad79b9cf50f975"
+    }
+  },
+  "files": {
+    ".nojekyll": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "LICENSE": {
+      "bytes": 1067,
+      "sha256": "673f0bfcb392c499679e681044b81018222fdcfe14ad3adffc8d4735f89e62aa"
+    },
+    "README.md": {
+      "bytes": 3649,
+      "sha256": "8035f0db19dd9b32ad9753757d32ae92c03a856f157f3a5903abe44f391016e1"
+    },
+    "_headers": {
+      "bytes": 398,
+      "sha256": "d24694bb6245c89b9dceeab9d93b20434829ba2e12d47a66ffa61fda21eeb07c"
+    },
+    "app.js": {
+      "bytes": 16484,
+      "sha256": "fcf8337386ad2f045b8053302b0a85650d3b55af61465c3003975b137f6cfc8a"
+    },
+    "axiom-compiler.zip": {
+      "bytes": 28599,
+      "sha256": "abd6d1a35979e7f3901d5dd2a25c4988540b0e055d4db9e4d7310a296efb1ffe"
+    },
+    "index.html": {
+      "bytes": 9062,
+      "sha256": "5f31774d5281f5fec3852a06c27a35b9586ce379bb8ba4dcadb8800bd0d65734"
+    },
+    "runtime-config.json": {
+      "bytes": 54,
+      "sha256": "16493fce0bfbfff2a342c308e453e72b8558dd233c2bea80da98cae506ac6596"
+    },
+    "runtime/PYODIDE-LICENSE": {
+      "bytes": 16725,
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5"
+    },
+    "runtime/PYTHON-LICENSE": {
+      "bytes": 13936,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+    },
+    "runtime/pyodide-lock.json": {
+      "bytes": 112205,
+      "sha256": "9c45b916001a750f4102fc287494f3eab215909c7535c626a20db80fd6333e2c"
+    },
+    "runtime/pyodide.asm.js": {
+      "bytes": 1255688,
+      "sha256": "6b4c90de5b7172873f04f21884d0e9d2274e305fe32116558fe3e4fbe3618d51"
+    },
+    "runtime/pyodide.asm.wasm": {
+      "bytes": 10105545,
+      "sha256": "a50dd1843f805a0b7c45b61037ee0d7b26dfe85efe0e18ef95a34ad24e401f5f"
+    },
+    "runtime/pyodide.js": {
+      "bytes": 14913,
+      "sha256": "b4cb23a53aba19c221659b9fb40a2f18281d685691dc06647fb0afd0681baf98"
+    },
+    "runtime/python_stdlib.zip": {
+      "bytes": 2360737,
+      "sha256": "16611534726e5d8ac2bd8f926410b2dcb8d6f49aa24913463533b457a2115c16"
+    },
+    "style.css": {
+      "bytes": 17358,
+      "sha256": "af8329ebc631476071ab2761427a9f97d753e23ce96881c45aa8adf03ca37572"
+    },
+    "transport.js": {
+      "bytes": 3355,
+      "sha256": "12c9ff21ac41766ccec06c41dc196bc99055ccd9be4575646b9afae101ae8e4b"
+    },
+    "worker.js": {
+      "bytes": 2663,
+      "sha256": "f01138516637a4ee1d9f5ad3b98b1e536b4d02a4c1420097cd11fabe3cba2211"
+    }
+  },
+  "runtime": {
+    "indexURL": "./runtime/",
+    "version": "0.27.7"
+  },
+  "runtime_sources": {
+    "PYODIDE-LICENSE": {
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "url": "https://raw.githubusercontent.com/pyodide/pyodide/0.27.7/LICENSE"
+    },
+    "PYTHON-LICENSE": {
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.12.7/LICENSE"
+    },
+    "pyodide-lock.json": {
+      "sha256": "9c45b916001a750f4102fc287494f3eab215909c7535c626a20db80fd6333e2c",
+      "url": "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide-lock.json"
+    },
+    "pyodide.asm.js": {
+      "sha256": "6b4c90de5b7172873f04f21884d0e9d2274e305fe32116558fe3e4fbe3618d51",
+      "url": "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.asm.js"
+    },
+    "pyodide.asm.wasm": {
+      "sha256": "a50dd1843f805a0b7c45b61037ee0d7b26dfe85efe0e18ef95a34ad24e401f5f",
+      "url": "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.asm.wasm"
+    },
+    "pyodide.js": {
+      "sha256": "b4cb23a53aba19c221659b9fb40a2f18281d685691dc06647fb0afd0681baf98",
+      "url": "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js"
+    },
+    "python_stdlib.zip": {
+      "sha256": "16611534726e5d8ac2bd8f926410b2dcb8d6f49aa24913463533b457a2115c16",
+      "url": "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/python_stdlib.zip"
+    }
+  },
+  "schema_version": 1
+}
