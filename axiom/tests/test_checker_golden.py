@@ -114,7 +114,7 @@ class CheckerGolden(unittest.TestCase):
 if __name__ == '__main__':
     if '--write' in sys.argv:
         data = {name: snapshot(k, p, l, e) for name, k, p, l, e in cases()}
-        FIXTURE.write_text(json.dumps(data, indent=1, sort_keys=True) + '\n', encoding='utf-8')
+        FIXTURE.write_text(json.dumps(data, indent=1, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
         print(f'wrote {len(data)} cases')
     else:
         unittest.main()
