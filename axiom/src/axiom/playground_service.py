@@ -5,6 +5,7 @@ It accepts neither commands nor filesystem paths. Successful observations are
 demo reports, not native execution or scalable-oracle qualification receipts.
 """
 import base64
+from contextlib import nullcontext
 from dataclasses import dataclass
 import sys
 
@@ -14,11 +15,11 @@ from .model import DiagnosticError, Limits, Span
 from .reference import ExecutionResult, ExecutionStatus, evaluate_source
 from .runtime import _snapshot, execute_plan
 from .selection import select_plan
-from .wasm import compile_wasm
+from .source_compilation import compile_wasm_source
 
 REQUEST_BYTES = 131072
 _BACKEND = 'checked-plan-interpreter-v1'
-_COMPILED_BACKEND = 'checked-plan-wasm-v1'
+_COMPILED_BACKEND = 'checked-plan-wasm-v2'
 _SOURCE = '''module demo;
 shape H = 5;
 shape W = 7;
@@ -43,6 +44,7 @@ class _PreparedDemo:
     module: object
     kernel: object
     search: object
+    compilation: object
 
 
 _active_preparation = None
@@ -136,6 +138,27 @@ def _report(kernel, search, data, backend):
     return result
 
 
+def _compiled_report(compilation, data):
+    """Report exact structural costs separately from semantic proof states."""
+    kernel, search, artifact = compilation.kernel, compilation.search, compilation.artifact
+    result = _report(kernel, search, data, _COMPILED_BACKEND)
+    result['schema_version'] = 2
+    for record, attempt in zip(result['attempts'], search.attempts):
+        record.update(state=attempt.state.value,
+            eligible=None if attempt.check is None else attempt.check.eligible,
+            multiplication_ops=attempt.multiplication_ops,
+            workspace_bytes=attempt.workspace_bytes, operation_count=attempt.operation_count)
+        if attempt.state.value == 'constraint_rejected':
+            record['constraint_status'] = 'violated'
+    result['search'].update(report_version=search.report_version, policy_id=search.policy_id,
+        policy_digest=search.policy_digest, portfolio_optimal=search.portfolio_optimal)
+    result['lowering'] = None if artifact is None else dict(
+        codegen_version=artifact.codegen_version, hint_digest=artifact.hint_digest,
+        loop_version=artifact.loop_version, local_count=artifact.local_count,
+        module_digest=artifact.module_digest, hint_failure=compilation.hint_failure)
+    return result
+
+
 def _compared_report(result, observed, expected):
     if observed != expected:
         return _error('INDEPENDENT_COMPARISON_FAILED',
@@ -194,32 +217,35 @@ def compiled_request_source(request: dict) -> dict:
         return _error('INTERNAL_ERROR', 'The demo could not complete.')
 
 
-def prepare_compiled_demo(source: str) -> dict:
+def prepare_compiled_demo(source: str, *, trace=None) -> dict:
     """Replace the single source preparation after fresh checking and compilation.
 
     Only this module's retained original AST and exact admitted source bytes
     authorize later comparisons. Public metadata never acts as a receipt.
     Every attempt clears the previous preparation, including failed attempts.
     """
+    with (nullcontext() if trace is None else trace.phase('total_fresh_source_preparation')):
+        return _prepare_compiled_demo(source, trace)
+
+
+def _prepare_compiled_demo(source, trace):
     global _active_preparation
     _active_preparation = None
     try:
         limits = Limits()
         source_bytes = _request_source(dict(source=source, input_mode='ramp'), limits)
-        module = parse_source(source_bytes, limits)
-        kernel = admit_source(module)
-        search = select_plan(kernel, limits, 100000, kernel.objective)
-        result = _report(kernel, search, [], _COMPILED_BACKEND)
-        if search.selected_plan is None:
+        compilation = compile_wasm_source(source_bytes, limits, trace=trace)
+        kernel, search, artifact = compilation.kernel, compilation.search, compilation.artifact
+        result = _compiled_report(compilation, [])
+        if artifact is None:
             return result
-        artifact = compile_wasm(source_bytes, search.selected_plan_bytes, limits)
         result.update(status='prepared',
             wasm_base64=base64.b64encode(artifact.module_bytes).decode('ascii'),
             memory_bytes=artifact.memory_bytes, input_offset=artifact.input_offset,
             output_offset=artifact.output_offset, input_count=artifact.input_count,
             output_count=artifact.output_count, module_digest=artifact.module_digest,
             source_digest=artifact.source_digest, plan_digest=artifact.plan_digest)
-        _active_preparation = _PreparedDemo(source_bytes, module, kernel, search)
+        _active_preparation = _PreparedDemo(source_bytes, kernel.source_module, kernel, search, compilation)
         return result
     except DiagnosticError as error:
         return _error(error.code, error.message, error.span.offset)
@@ -278,7 +304,7 @@ def finish_compiled_demo(request: dict, observation: dict) -> dict:
             ExecutionStatus.SUCCESS if status == 0 else ExecutionStatus.INPUT_PRECONDITION_FAILED,
             None if status == 0 else status - 1, output, input_after)
         expected = evaluate_source(module, data, initial)
-        result = _report(prepared.kernel, prepared.search, list(data), _COMPILED_BACKEND)
+        result = _compiled_report(prepared.compilation, list(data))
         return _compared_report(result, observed, expected)
     except DiagnosticError as error:
         return _error(error.code, error.message, error.span.offset)

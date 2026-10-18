@@ -1,0 +1,17 @@
+test_number_stream_includes_every_value_across_chunk_boundary (tests.test_playground_benchmark.BenchmarkTests.test_number_stream_includes_every_value_across_chunk_boundary) ... ok
+test_output_audit_rejects_wrong_values (tests.test_playground_benchmark.BenchmarkTests.test_output_audit_rejects_wrong_values) ... ok
+test_workload_checks_actual_output (tests.test_playground_benchmark.BenchmarkTests.test_workload_checks_actual_output) ... ok
+test_a_wrong_native_output_stops_the_audit (tests.test_playground_benchmark.NativeComparisonTests.test_a_wrong_native_output_stops_the_audit) ... ok
+test_all_runtime_input_patterns_stay_bounded_and_change (tests.test_playground_benchmark.NativeComparisonTests.test_all_runtime_input_patterns_stay_bounded_and_change) ... ok
+test_compiled_selected_artifact_accepts_different_runtime_inputs (tests.test_playground_benchmark.NativeComparisonTests.test_compiled_selected_artifact_accepts_different_runtime_inputs) ... ok
+test_compiler_symlink_keeps_its_invoked_name (tests.test_playground_benchmark.NativeComparisonTests.test_compiler_symlink_keeps_its_invoked_name) ... ok
+test_every_executable_is_prepared_before_any_case_runs (tests.test_playground_benchmark.NativeComparisonTests.test_every_executable_is_prepared_before_any_case_runs) ... ok
+test_legacy_archive_capability_keeps_separate_real_frontend_phases (tests.test_playground_benchmark.NativeComparisonTests.test_legacy_archive_capability_keeps_separate_real_frontend_phases) ... ok
+test_optional_python_command_survives_native_compilation_setup (tests.test_playground_benchmark.NativeComparisonTests.test_optional_python_command_survives_native_compilation_setup) ... ok
+test_python_request_cost_has_a_separate_result_scope (tests.test_playground_benchmark.NativeComparisonTests.test_python_request_cost_has_a_separate_result_scope) ... ok
+test_same_changing_inputs_are_used_and_audits_are_outside_samples (tests.test_playground_benchmark.NativeComparisonTests.test_same_changing_inputs_are_used_and_audits_are_outside_samples) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.284s
+
+OK

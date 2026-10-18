@@ -1,0 +1,21 @@
+test_identical_inputs_produce_identical_public_release_bytes (tests.test_playground_site.PlaygroundSiteTests.test_identical_inputs_produce_identical_public_release_bytes) ... ok
+test_nonempty_output_is_preserved (tests.test_playground_site.PlaygroundSiteTests.test_nonempty_output_is_preserved) ... ok
+test_public_source_preserves_demo_behavior_with_distinct_plan_identity (tests.test_playground_site.PlaygroundSiteTests.test_public_source_preserves_demo_behavior_with_distinct_plan_identity) ... ok
+test_standalone_public_native_source_is_reproducible_and_branded (tests.test_playground_site.PlaygroundSiteTests.test_standalone_public_native_source_is_reproducible_and_branded) ... ok
+test_standalone_public_preparation_exports_checked_wasm_metadata (tests.test_playground_site.PlaygroundSiteTests.test_standalone_public_preparation_exports_checked_wasm_metadata) ... ok
+test_standalone_public_trace_is_optional_diagnostics_not_authority (tests.test_playground_site.PlaygroundSiteTests.test_standalone_public_trace_is_optional_diagnostics_not_authority) ... ok
+test_standalone_public_wasm_reuses_module_and_compares_every_output (tests.test_playground_site.PlaygroundSiteTests.test_standalone_public_wasm_reuses_module_and_compares_every_output) ... ok
+test_static_release_runs_same_compiler_without_private_sources (tests.test_playground_site.PlaygroundSiteTests.test_static_release_runs_same_compiler_without_private_sources) ... ok
+test_unreviewed_native_source_branding_is_rejected (tests.test_playground_site.PlaygroundSiteTests.test_unreviewed_native_source_branding_is_rejected) ... ok
+test_unreviewed_source_branding_is_rejected (tests.test_playground_site.PlaygroundSiteTests.test_unreviewed_source_branding_is_rejected) ... ok
+test_every_call_admits_fresh_and_closes_its_context (tests.test_source_compilation.SourceCompilationTests.test_every_call_admits_fresh_and_closes_its_context) ... ok
+test_fresh_source_compiles_both_backends_with_ranked_identity (tests.test_source_compilation.SourceCompilationTests.test_fresh_source_compiles_both_backends_with_ranked_identity) ... ok
+test_relabelled_valid_finite_plan_keeps_schedule_intent_untrusted (tests.test_source_compilation.SourceCompilationTests.test_relabelled_valid_finite_plan_keeps_schedule_intent_untrusted) ... ok
+test_typed_hint_failure_uses_finite_fallback_but_fault_propagates (tests.test_source_compilation.SourceCompilationTests.test_typed_hint_failure_uses_finite_fallback_but_fault_propagates) ... ok
+test_unknown_search_emits_no_artifact (tests.test_source_compilation.SourceCompilationTests.test_unknown_search_emits_no_artifact) ... ok
+test_unmatched_valid_finite_stream_falls_back_without_discarding_dead_operations (tests.test_source_compilation.SourceCompilationTests.test_unmatched_valid_finite_stream_falls_back_without_discarding_dead_operations) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.350s
+
+OK

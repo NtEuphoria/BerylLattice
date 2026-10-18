@@ -1,6 +1,6 @@
 # Fast compilation implementation plan
 
-Design: [architecture and contracts](../specs/2026-10-17-fast-compilation-design.md). Evidence: [current measurements and reproduction](../../reviews/fast-compilation/README.md). Baseline: `39dc2f6`. This change is the research/design deliverable; tasks below are not already implemented.
+Design: [architecture and contracts](../specs/2026-10-17-fast-compilation-design.md). Evidence: [current measurements and reproduction](../../reviews/fast-compilation/README.md). Baseline: `39dc2f6`. Tasks below are implemented; the [implementation record](../../reviews/fast-compilation/implementation/README.md) contains validation, final measurements, explicit target misses and the dated prototype-rollout exception. Original thresholds remain unchanged.
 
 ## Delivery order and ownership
 

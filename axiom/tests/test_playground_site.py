@@ -19,6 +19,9 @@ BUILD = ROOT / 'tools' / 'build-playground-site.py'
 PUBLIC_MODULES = {
     '__init__', 'runtime', 'playground_service', 'frontend', 'model', 'checker',
     'codec', 'plan_format', 'planner', 'selection', 'reference', 'wasm', 'native_codegen',
+    'compilation', 'compilation_trace', 'compilation_selection', 'source_compilation', 'bounded_loop_model',
+    'bounded_loop_codec', 'bounded_loop_planner', 'bounded_loop_correspondence',
+    'bounded_loop_c', 'bounded_loop_wasm',
 }
 
 _NODE_COMPILED_RUNNER = r'''
@@ -156,16 +159,54 @@ class PlaygroundSiteTests(unittest.TestCase):
             self.assertEqual(report['source']['status'], 'valid')
             self.assertEqual(report['inputs'], dict(status='ready', input=list(range(6)),
                                                    initial_output=[-9, -9]))
-            self.assertEqual(prepared['wasm_base64'], report['direct_module'])
+            self.assertEqual(prepared['schema_version'], 2)
+            self.assertEqual(prepared['search']['policy_id'], 'ranked-proof-v1')
+            self.assertIsNotNone(prepared['lowering']['hint_digest'])
+            self.assertEqual(report['module_digest'], hashlib.sha256(base64.b64decode(report['direct_module'])).hexdigest())
             module_bytes = base64.b64decode(prepared['wasm_base64'], validate=True)
             self.assertTrue(module_bytes.startswith(b'\0asm\x01\0\0\0'))
             self.assertEqual(prepared['module_digest'], hashlib.sha256(module_bytes).hexdigest())
             self.assertEqual((prepared['input_count'], prepared['output_count']), (6, 2))
             self.assertEqual((prepared['input_offset'], prepared['output_offset']), (0, 24))
             self.assertEqual(prepared['memory_bytes'], 65536)
-            for field in ('module_digest', 'plan_digest', 'source_digest'):
+            for field in ('plan_digest', 'source_digest'):
                 self.assertEqual(prepared[field], report[field])
             self.assertNotIn('axiom', json.dumps(report).lower())
+
+    def test_standalone_public_trace_is_optional_diagnostics_not_authority(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            output = Path(scratch) / 'site'
+            self.build_release(output)
+            report = self.run_public_source(output, """
+                import json
+                from beryl.compilation_trace import CompilationTrace
+                from beryl.playground_service import (get_examples, prepare_compiled_demo,
+                    compiled_request_source, compiled_request_inputs)
+                source = get_examples()['examples'][0]['source']
+                plain = prepare_compiled_demo(source)
+                trace = CompilationTrace()
+                traced = prepare_compiled_demo(source, trace=trace)
+                snapshot = trace.report()
+                snapshot['counts']['semantic_checks'] = 999
+                request = dict(source=source, input_mode='ramp')
+                forged = compiled_request_source(dict(request, trace=snapshot))
+                invalid = prepare_compiled_demo('module ;', trace=trace)
+                stale = compiled_request_inputs(request)
+                print(json.dumps(dict(plain=plain, traced=traced, trace=trace.report(),
+                                      forged=forged, invalid=invalid, stale=stale)))
+                """)
+            self.assertEqual(report['plain'], report['traced'])
+            self.assertEqual(report['traced']['schema_version'], 2)
+            self.assertEqual(report['trace']['counts']['source_admissions'], 1)
+            self.assertEqual(report['trace']['counts']['plan_validations'], 3)
+            self.assertEqual(report['trace']['counts']['semantic_checks'], 1)
+            self.assertEqual(report['trace']['phases']['loop_correspondence']['calls'], 1)
+            self.assertEqual(report['trace']['phases']['code_emission']['calls'], 1)
+            self.assertEqual(report['trace']['phases']['total_fresh_source_preparation']['calls'], 2)
+            self.assertEqual(report['trace']['timing_semantics'], 'inclusive')
+            self.assertEqual(report['forged']['diagnostic']['code'], 'INVALID_REQUEST')
+            self.assertEqual(report['invalid']['status'], 'error')
+            self.assertEqual(report['stale']['diagnostic']['code'], 'NOT_PREPARED')
 
     def test_standalone_public_wasm_reuses_module_and_compares_every_output(self):
         node = shutil.which('node')
@@ -183,6 +224,8 @@ class PlaygroundSiteTests(unittest.TestCase):
                 source = source.replace('H = 5;', 'H = 1;').replace('W = 7;', 'W = 2;')
                 requests = [dict(source=source, input_mode=mode)
                             for mode in ('ramp', 'zeros', 'checkerboard')]
+                requests.extend([dict(source=source, input_mode='custom', inputs=values)
+                                 for values in ([1024, 0, 0, 0, 0, -1], [0, 0, 0, 0, 0, 1024])])
                 legacy = [service.run_demo(request) for request in requests]
                 prepared = service.prepare_compiled_demo(source)
                 inputs = [service.compiled_request_inputs(request) for request in requests]
@@ -192,7 +235,7 @@ class PlaygroundSiteTests(unittest.TestCase):
                 observations = json.loads(execution.stdout)
                 with patch.object(service, 'parse_source', side_effect=RuntimeError('reparsed')), \\
                      patch.object(service, 'select_plan', side_effect=RuntimeError('reselected')), \\
-                     patch.object(service, 'compile_wasm', side_effect=RuntimeError('recompiled')), \\
+                     patch.object(service, 'compile_wasm_source', side_effect=RuntimeError('recompiled')), \\
                      patch.object(service, 'execute_plan', side_effect=RuntimeError('interpreted')), \\
                      patch.object(service, 'evaluate_source', wraps=service.evaluate_source) as evaluator:
                     results = [service.finish_compiled_demo(request, observation)
@@ -200,19 +243,33 @@ class PlaygroundSiteTests(unittest.TestCase):
                     observations[0]['output'][0] += 1
                     rejected = service.finish_compiled_demo(requests[0], observations[0])
                     comparisons = evaluator.call_count
+                prepared['selected']['plan_id'] = 'forged'
+                prepared['lowering']['hint_digest'] = 'forged'
+                untampered = service.finish_compiled_demo(requests[1], observations[1])
+                service.prepare_compiled_demo('module ;')
+                invalidated = service.compiled_request_inputs(requests[0])
                 print(json.dumps(dict(results=results, legacy=legacy,
-                                      rejected=rejected, comparisons=comparisons)))
+                                      rejected=rejected, comparisons=comparisons,
+                                      untampered=untampered, invalidated=invalidated)))
                 ''', node, _NODE_COMPILED_RUNNER)
-            self.assertEqual(report['comparisons'], 4)
-            self.assertEqual(len(report['results']), 3)
+            self.assertEqual(report['comparisons'], 6)
+            self.assertEqual(len(report['results']), 5)
             for compiled, legacy in zip(report['results'], report['legacy']):
-                self.assertEqual(compiled['status'], 'success')
-                self.assertEqual(compiled['backend'], 'checked-plan-wasm-v1')
+                self.assertEqual(compiled['status'], legacy['status'])
+                self.assertEqual(compiled['first_bad_index'], legacy['first_bad_index'])
+                self.assertEqual(compiled['schema_version'], 2)
+                self.assertEqual(compiled['backend'], 'checked-plan-wasm-v2')
                 self.assertEqual(compiled['comparison'], dict(matches=True, cells_compared=2))
                 self.assertEqual(compiled['output'], legacy['output'])
                 self.assertEqual(compiled['input'], legacy['input'])
             self.assertEqual(report['results'][0]['output'], [46, 74])
             self.assertEqual(report['results'][1]['output'], [4, 4])
+            self.assertEqual(report['results'][3]['first_bad_index'], 0)
+            self.assertEqual(report['results'][4]['first_bad_index'], 5)
+            self.assertEqual(report['results'][4]['output'], [-9, -9])
+            self.assertNotEqual(report['untampered']['selected']['plan_id'], 'forged')
+            self.assertNotEqual(report['untampered']['lowering']['hint_digest'], 'forged')
+            self.assertEqual(report['invalidated']['diagnostic']['code'], 'NOT_PREPARED')
             self.assertEqual(report['rejected']['diagnostic']['code'], 'INDEPENDENT_COMPARISON_FAILED')
             self.assertNotIn('axiom', json.dumps(report).lower())
 
@@ -259,7 +316,7 @@ class PlaygroundSiteTests(unittest.TestCase):
                       for path in outputs[1].rglob('*') if path.is_file()}
             self.assertEqual(first, second)
             readme = first[Path('README.md')].decode()
-            self.assertIn('thirteen compiler/runtime Python modules', readme)
+            self.assertIn('23 compiler/runtime Python modules', readme)
             self.assertIn('compiled Wasm instance is reused', readme)
             self.assertIn('independent evaluation of the source', readme)
             self.assertIn('finite-plan native C generator', readme)

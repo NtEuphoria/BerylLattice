@@ -33,8 +33,10 @@ Use the [cloud setup guide](docs/cloud-environment.md) for environment preparati
 The [compilation latency research](docs/reviews/fast-compilation/README.md) records
 current bottlenecks and primary sources. Its [architecture](docs/superpowers/specs/2026-10-17-fast-compilation-design.md)
 and [implementation plan](docs/superpowers/plans/2026-10-17-fast-compilation.md)
-propose retaining checked artifacts and emitting compact loops; these changes are
-planned, not implemented performance results.
+describe the implemented fresh source transaction, ranked proof policy, and compact
+bounded C/Wasm lowering. See the [source API and browser integration](axiom/docs/playground.md#bounded-source-compilation).
+Release performance qualification remains a separate gate; the implementation
+does not qualify scalable plan v2.
 
 Run the suites from `axiom/` in this configured cloud workspace:
 

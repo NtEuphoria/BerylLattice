@@ -1,0 +1,21 @@
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/restrict.c:26:9: remark: completely unrolled loop with 16 iterations [-Rpass=loop-unroll]
+   26 |         for (int32_t ax_i_c = 0; ax_i_c < 16; ++ax_i_c) {
+      |         ^
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/restrict.c:25:5: remark: completely unrolled loop with 2 iterations [-Rpass=loop-unroll]
+   25 |     for (int32_t ax_i_s = 0; ax_i_s < 2; ++ax_i_s) {
+      |     ^
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/restrict.c:52:9: remark: completely unrolled loop with 15 iterations [-Rpass=loop-unroll]
+   52 |         for (int32_t ax_i_c = 0; ax_i_c < 15; ++ax_i_c) {
+      |         ^
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/restrict.c:108:9: remark: completely unrolled loop with 16 iterations [-Rpass=loop-unroll]
+  108 |         for (int32_t ax_i_c = 0; ax_i_c < 16; ++ax_i_c) {
+      |         ^
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/restrict.c:133:5: remark: completely unrolled loop with 15 iterations [-Rpass=loop-unroll]
+  133 |     for (int32_t ax_i_c = 0; ax_i_c < 15; ++ax_i_c) {
+      |     ^
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/restrict.c:217:5: remark:  peeled loop by 1 iterations [-Rpass=loop-unroll]
+  217 |     for (int32_t i = 0; i < BERYL_OUTPUT_COUNT; ++i) {
+      |     ^
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/restrict.c:19:5: remark: unrolled loop by a factor of 4 [-Rpass=loop-unroll]
+   19 |     for (int32_t i = 0; i < 256; ++i)
+      |     ^

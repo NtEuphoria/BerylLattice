@@ -116,6 +116,18 @@ def select_plan(kernel: AdmittedKernel, limits: Limits, total_check_steps: int,
                                for f in fields(AdmittedKernel))):
         raise ValueError('kernel does not match its admitted source snapshot')
     kernel = fresh
+    return _select_portfolio(kernel, limits, total_check_steps, objective, optional_check_steps)
+
+
+def _select_portfolio(kernel, limits, total_check_steps, objective, optional_check_steps=None,
+                      *, check_candidate=None, encode_candidate=None, generate_candidate=None):
+    """Shared legacy loop; private callbacks retain owned admission and encoding."""
+    _allowance(total_check_steps, 'total_check_steps')
+    if optional_check_steps is not None:
+        _allowance(optional_check_steps, 'optional_check_steps')
+    generate_candidate = make_plan if generate_candidate is None else generate_candidate
+    check_candidate = check_plan if check_candidate is None else check_candidate
+    encode_candidate = encode_plan if encode_candidate is None else encode_candidate
     policy_digest = ranking_digest(objective)
     # Identify the requested context even when checking returns no receipt.
     constraint_digest = sha256(canonical_json({
@@ -149,11 +161,11 @@ def select_plan(kernel: AdmittedKernel, limits: Limits, total_check_steps: int,
         charged = 0
         phase = 'generation'
         try:
-            plan = make_plan(kernel, candidate_id)
+            plan = generate_candidate(kernel, candidate_id)
             phase = 'checking'
             # If checking aborts without a receipt, retain this reservation.
             charged = available
-            receipt = check_plan(kernel, plan, replace(limits, check_steps=available))
+            receipt = check_candidate(kernel, plan, replace(limits, check_steps=available))
             if (type(receipt) is not CheckResult or type(receipt.work_used) is not int
                     or not 0 <= receipt.work_used <= available):
                 raise ValueError('checker returned an invalid work receipt')
@@ -161,7 +173,7 @@ def select_plan(kernel: AdmittedKernel, limits: Limits, total_check_steps: int,
             charged = checked.work_used
             phase = 'encoding'
             if checked.eligible:
-                data = encode_plan(plan, limits=limits)
+                data = encode_candidate(plan, limits=limits)
                 if (checked.source_digest != kernel.source_digest
                         or checked.plan_digest != sha256(data).hexdigest()
                         or checked.effective_cap != kernel.cap

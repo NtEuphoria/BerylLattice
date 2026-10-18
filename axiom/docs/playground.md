@@ -51,7 +51,7 @@ python3 tools/build-playground-site.py --output /tmp/axiom-playground-site
 
 Choose a new/empty output directory. The builder downloads pinned, SHA-256-checked
 Pyodide0.27.7/Python3.12.7 runtime files over verified HTTPS. It bundles the same
-thirteen Python modules used by the demo, runtime license texts, and an exact
+23 Python modules used by the demo, runtime license texts, and an exact
 release manifest. The output is about14MB and contains no Core, research,
 recovery records, or Git history. It still discloses the bounded Axiom compiler
 source, available through the playground's Demo source link.
@@ -136,9 +136,12 @@ Names, positive H/W shapes, comments, scratch cap, and objective may change.
 The maximum input is256 cells: `(H+1)*(W+1) <= 256`. A15×15 output fits;32×32 does
 not. Input values are exact integers0..1023; arithmetic is checked i32.
 
-All three candidate schedules are checked against source. The chosen plan is
-checked again before interpreter execution or Wasm emission; compiled invocations
-enforce the admitted input precondition. Saved success flags grant no authority.
+The legacy interpreter checks all three candidate schedules and checks its chosen
+plan again before execution. Compiled source requests structurally inspect all
+three schedules, then prove candidates in exact rank order until one is eligible.
+That transaction owns the successful check through fresh loop correspondence and
+emission, and closes before returning bytes. Compiled invocations enforce the
+admitted input precondition. Saved success flags grant no authority.
 Execution and the source evaluator operate independently and their complete
 observations must agree. The browser uses the real Python compiler to produce
 an import-free Wasm module with one fixed memory page. Source changes trigger
@@ -209,3 +212,71 @@ rejections, stale-result clearing, keyboard reset after reports and diagnostics,
 default restoration and rerunning, narrow screens, keyboard navigation, compiled
 reuse, visible compilation costs, and both performance tables. The legacy HTTP
 service remains covered by its Python tests.
+
+## Compilation measurement contract
+
+Research tooling lives outside the public site: `tools/profile-compilation.py`
+and `tools/benchmarks/compilation.cjs`. Existing `tools/compare-playground.py`
+measurements remain **precompiled process execution**; its separately visible
+compilation fields now also retain C/plan/operation and executable sizes. Native
+compiler flags and exact hashes stay alongside those fields.
+
+An optional request-local `CompilationTrace` accepts `phase(name)` contexts and
+`count(name, amount=1)` events. Callers use `trace=None` when disabled; no global
+production functions are wrapped. `report()` returns schema version 1 with
+`timing_unit: "ns"`, `timing_semantics: "inclusive"`, a `phases` mapping from names
+to `{elapsed_ns, calls}`, and a separate integer `counts` mapping. Exceptions
+still close a phase. Nested timings overlap and must not be summed. These
+observational counts/times neither replace nor modify deterministic checker work
+receipts, quotas, eligibility, or selection policy. The `plan_validations` counter
+counts candidate-phase validations only; correspondence performs additional
+validation passes. Total wall time includes all work, including uncounted passes.
+
+Canonical phase names are `source_admission`, `candidate_generation`,
+`structural_validation`, `semantic_checking`, `canonical_encoding`,
+`internal_decode`, `loop_correspondence`, `code_emission`,
+`native_compiler_link`, `wasm_compile`, `wasm_instantiate`, `first_execution`,
+`verification`, `total_fresh_source_preparation`, and `total_app_boot`. Optional
+subphases and counter names may be added without changing schema version 1.
+An absent phase/count means **not observed/instrumented**, rather than zero work.
+Browser phases use the same inclusive interpretation with millisecond fields;
+Python diagnostic traces retain their own nanosecond unit.
+
+Fresh-source/runtime-ready measurements exclude runtime loading and imports,
+which are retained separately. A changing source comment can produce identical
+Wasm bytes; engine code reuse is uncontrolled in the browser harness's
+`source-fresh` mode. Its `engine-cold` mode instead launches a fresh Chromium
+process with a fresh temporary profile and Worker for every source/sample and
+revision. Runtime boot/imports complete before the first user program is timed;
+there is no warmup of that program. First execution is separate because engines
+may compile lazily. Each artifact runs on two changing valid inputs and both
+complete observations are checked against the retained original AST and an
+external stencil formula. Diagnostic cProfile/trace preparations follow the
+measured executions and are labeled separately.
+
+See [research harness instructions](../../tools/benchmarks/compilation.md) for
+paired checkout/site commands, the boundary fixture matrix, retained identities,
+and limitations. These tools report observations; they do not qualify scalable
+plan v2 or assert an implementation speedup by themselves.
+
+## Bounded source compilation
+
+`source_compilation.compile_wasm_source` and `compile_native_source` each create
+a fresh admission transaction and use the `ranked-proof-v1` policy. The browser
+uses report schema 2; legacy interpreter and byte APIs retain their existing
+contracts. Exact structural costs are shown even for candidates whose semantics
+were not checked. Only a complete eligible proof permits emission. Compact
+bounded hints are freshly matched against the checked finite stream; typed hint
+rejection uses the finite backend, while unexpected emitter faults fail closed.
+
+The explicit public allowlist adds only `compilation`, `compilation_selection`,
+`source_compilation`, the optional `compilation_trace` diagnostic collector, and the six `bounded_loop_` modules (model, codec, planner,
+correspondence, C, Wasm). All 23 modules are covered by the release MIT license.
+The collector observes inclusive timing and counts; it grants no proof authority.
+The release excludes research measurement harnesses, scalable plan v2, Core bindings, research,
+recovery records and session material. Standalone ZIP tests audit relative-import
+closure and public branding, then execute the actual compact Wasm module.
+
+Every observed request still uses the retained original AST for an independent
+comparison. Input-only changes reuse the exact prepared source and instance,
+with exact scalar validation and original compilation time visible on every run.

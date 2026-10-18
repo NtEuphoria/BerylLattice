@@ -1,6 +1,6 @@
 # Fast compilation architecture
 
-Status: researched proposal, not an implemented speedup. Baseline: `39dc2f6df136c643cfd030ce4470503e807750fe`. This document concerns the private Axiom compiler and the bounded public demo branded **beryl**. Lattice Core remains a separate language/compiler.
+Status: implemented bounded prototype; see the [implementation, final qualification and explicit target misses](../../reviews/fast-compilation/implementation/README.md). Baseline: `39dc2f6df136c643cfd030ce4470503e807750fe`. This document concerns the private Axiom compiler and the bounded public demo branded **beryl**. Lattice Core remains a separate language/compiler.
 
 ## Decision
 
@@ -22,7 +22,7 @@ Fresh diagnostic probes at the baseline, with CPython imports/runtime already lo
 | 5×7 / 64 B | two rows | 40.5 ms | 5,383 |
 | 15×15 / 64 B | inline | 250.7 ms | 40,536 |
 | 15×15 / 128 B | two rows | 214.7 ms | 32,924 |
-| 1×127 / 1,024 B | inline | 154.1 ms | 25,564 |
+| 1×127 / 1,024 B | materialize | 154.1 ms | 25,564 |
 | 127×1 / 16 B | two rows | 147.0 ms | 25,585 |
 
 Seven unprofiled samples per case follow one preparation; each preparation rebuilds the artifact. These are descriptive probes, not controlled before/after qualification. Separate cProfile runs establish call counts and relative work, with substantial instrumentation overhead. In the 15×15/64 B profile, four checker calls revisit source expressions 900 times. The internal selected-plan decode calls the strict JSON parser over 33,989 values. Repeated serialization and decoding are substantial work, not just arithmetic proof discovery.
@@ -178,6 +178,6 @@ Correctness coverage includes every admitted shape/three schedules for expansion
 
 ## Rollout
 
-Deliver small separately reviewed changes: measurement contract; owned context/handoff; ranked policy; bounded correspondence; compact C; compact Wasm; integration/qualification. Preserve legacy public APIs and straight-stream fallback throughout. Update the public module allowlist only for reviewed bounded dependencies; scalable proof research, Core bindings and recovery evidence stay private. Rebuild/review the MIT demo package before publishing under the existing authorization, preserve visible compilation costs, and verify hosted asset hashes. This planning change itself publishes no public source or runtime change.
+Deliver small separately reviewed changes: measurement contract; owned context/handoff; ranked policy; bounded correspondence; compact C; compact Wasm; integration/qualification. Preserve legacy public APIs and straight-stream fallback throughout. Update the public module allowlist only for reviewed bounded dependencies; scalable proof research, Core bindings and recovery evidence stay private. Rebuild/review the MIT demo package before publishing under the existing authorization, preserve visible compilation costs, and verify hosted asset hashes. The original planning PR published no implementation. The subsequent implementation record documents the prototype rollout ruling and retained target misses.
 
 The [implementation plan](../plans/2026-10-17-fast-compilation.md) defines file-level tasks and release gates.

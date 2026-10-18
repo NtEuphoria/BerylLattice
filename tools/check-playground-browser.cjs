@@ -55,7 +55,12 @@ async function main() {
     const report = JSON.parse(await fs.readFile(await download.path(), 'utf8'));
     const result = report.result || report;
     assert.equal(result.status, 'success');
-    assert.equal(result.backend, 'checked-plan-wasm-v1');
+    assert.equal(result.schema_version, 2);
+    assert.equal(result.search.policy_id, 'ranked-proof-v1');
+    assert.equal(result.attempts[0].state, 'not_checked_worse_rank');
+    assert.equal(result.attempts[0].eligible, null);
+    assert.ok(result.lowering.hint_digest);
+    assert.equal(result.backend, 'checked-plan-wasm-v2');
     assert.equal(result.timings.reused_compilation, false);
     assert.ok(result.timings.compilation_ms > 0);
     assert.ok(result.timings.execution_ms >= 0);
@@ -82,6 +87,10 @@ async function main() {
     assert.equal(repeated.timings.reused_compilation, true);
     assert.equal(repeated.timings.compilation_ms, 0);
     assert.ok(repeated.timings.initial_compilation_ms > 0);
+    await page.locator('#source').fill(original.replace('prefer multiplication_ops;', 'prefer plan_workspace_bytes;'));
+    await run();
+    assert.match(await page.locator('#selected-name').innerText(), /inline/i);
+    assert.equal(await page.locator('#selected-workspace').innerText(), '0 B');
     await page.locator('#source').fill(original.replace('shape H = 5', 'shape H = 32').replace('shape W = 7', 'shape W = 32'));
     await run();
     assert.equal(await page.locator('#diagnostic').isVisible(), true);
@@ -111,19 +120,40 @@ async function main() {
     await page.locator('#source').focus();
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'input-mode');
+    const lifecycle = await page.evaluate(async source => {
+      const transport = await import('./transport.js');
+      const large = source.replace('H = 5;', 'H = 15;').replace('W = 7;', 'W = 15;');
+      const controller = new AbortController();
+      const pending = transport.prepareDemo({source: large, input_mode: 'ramp'}, {signal: controller.signal});
+      setTimeout(() => controller.abort(), 0);
+      let cancelled = false;
+      try { await pending; } catch (error) { cancelled = error.name === 'AbortError'; }
+      const recovered = await transport.runDemo({source, input_mode: 'zeros'});
+      const boundary = await transport.runDemo({source: large, input_mode: 'custom',
+        inputs: [...Array(255).fill(0), 1024]});
+      return {cancelled, recovered, boundary};
+    }, original);
+    assert.equal(lifecycle.cancelled, true);
+    assert.equal(lifecycle.recovered.status, 'success');
+    assert.equal(lifecycle.recovered.timings.reused_compilation, false);
+    assert.deepEqual(lifecycle.recovered.output, Array(35).fill(4));
+    assert.equal(lifecycle.boundary.status, 'input_precondition_failed');
+    assert.equal(lifecycle.boundary.first_bad_index, 255);
+    assert.deepEqual(lifecycle.boundary.output, Array(225).fill(-9));
     if (process.env.AXIOM_SCREENSHOT) await page.screenshot({ path: process.env.AXIOM_SCREENSHOT, fullPage: true });
     await page.goto(new URL('benchmarks.html', address).href);
     await page.waitForFunction(() => document.querySelectorAll('#native-rows tr').length === 6, null, {timeout: 30000});
     assert.match(await page.locator('#comparison-compilation').innerText(), /excluded from execution/);
     await page.locator('#benchmark-run').click();
-    await page.waitForFunction(() => document.querySelector('#benchmark-status').textContent.startsWith('Complete.'), null, {timeout: 120000});
+    await page.waitForFunction(() => !document.querySelector('#benchmark-run').disabled, null, {timeout: 120000});
+    assert.match(await page.locator('#benchmark-status').innerText(), /^Complete\./);
     assert.equal(await page.locator('#browser-rows tr').count(), 3);
     assert.equal(await page.locator('#browser-rows td').count(), 12);
     assert.match(await page.locator('#browser-rows').innerText(), /All values verified/);
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ status: 'passed', browser: 'chromium', address,
       checks: ['real rows2 execution', 'report download', 'cap changes selection', 'stale result cleared',
-        'zero input', 'unsupported shape', 'precondition rejection', 'keyboard reset after report and diagnostic',
+        'zero input', 'objective changes selection', '256-input final invalid boundary', 'real worker cancellation and recovery', 'unsupported shape', 'precondition rejection', 'keyboard reset after report and diagnostic',
         'reset restores defaults and reruns', 'responsive widths', 'keyboard navigation',
         'compiled reuse with visible cold cost', 'saved native comparison', 'compiled browser benchmark', 'no page errors'] }));
   } finally {

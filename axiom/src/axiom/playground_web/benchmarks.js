@@ -64,7 +64,7 @@ run.addEventListener('click', async () => {
         const result = await runDemo({source, input_mode: 'custom', inputs}, {signal: controller.signal});
         const elapsed = performance.now() - start;
         if (controller.signal.aborted) throw new DOMException('Cancelled', 'AbortError');
-        if (result.status !== 'success' || result.backend !== 'checked-plan-wasm-v1' || result.timings?.reused_compilation !== true || result.comparison?.matches !== true || result.output?.length !== h * w) throw new Error('Correctness check failed');
+        if (result.status !== 'success' || result.schema_version !== 2 || result.backend !== 'checked-plan-wasm-v2' || result.timings?.reused_compilation !== true || result.comparison?.matches !== true || result.output?.length !== h * w) throw new Error('Correctness check failed');
         for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
           const i = r * (w + 1) + c;
           const expected = [i, i + 1, i + w + 1, i + w + 2].reduce((sum, j) => sum + (inputs[j] + 1) ** 2, 0);

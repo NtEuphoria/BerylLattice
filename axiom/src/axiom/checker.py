@@ -76,13 +76,20 @@ class _Node:
 class _Expressions:
     def __init__(self, limit, input_interval):
         self.nodes = []
+        # Accounting v1 bounds conceptual allocations, including source terms
+        # whose already interpreted physical nodes can be reused.
+        self.allocations = 0
         self.limit = limit
         self.input_interval = input_interval
         self.inconclusive = False
+        self.source_kernel = None
+        self.source_free_names = ()
+        self.source_facts = {}
 
     def allocate(self, node):
-        if len(self.nodes) >= self.limit:
+        if self.allocations >= self.limit:
             raise _Stop('EXPRESSION_NODES_EXHAUSTED')
+        self.allocations += 1
         self.nodes.append(node)
         return len(self.nodes) - 1
 
@@ -118,16 +125,41 @@ class _Expressions:
         return self.allocate(_Node(kind, None, left, right, lower, upper, samples))
 
 
+def _source_free_names(producer):
+    """Find actual retained-AST dependencies, without hashing expression trees."""
+    names = set()
+    pending = [producer.expression]
+    while pending:
+        node = pending.pop()
+        if isinstance(node, NameReference):
+            names.add(node.name)
+        elif isinstance(node, GroupExpression):
+            pending.append(node.expression)
+        elif isinstance(node, BinaryExpression):
+            pending.extend((node.left, node.right))
+        elif isinstance(node, ReadExpression):
+            pending.extend(node.indices)
+    return tuple(sorted(names - {axis.name for axis in producer.axes}))
+
+
 def _source_expression(expression, environment, kernel, dag, work):
     """Interpret scalar and index ASTs with an explicit continuation stack.
 
-    Read expansion visits the original producer AST anew each time, including
-    each index expression and grouping node. There is no producer-token shortcut.
-    Index computations are integers; scalar computations create expression nodes.
+    The first producer binding interprets every original index/group/scalar node.
+    Later identical bindings can reuse that successful fact in this arena while
+    charging its full conceptual cost. Near either quota, interpret the AST again
+    to preserve the exact interleaving of charges, allocations and failures.
     """
     module = kernel.source_module
     producer = module.producers[0]
     input_name = module.inputs[0].name
+    if dag.source_kernel is not kernel:
+        # Ownership fixes the actual retained AST, dimensions, tensor names and
+        # interval. Keep the object alive; neither labels nor caller digests key
+        # a fact, and no facts survive this check's arena.
+        dag.source_kernel = kernel
+        dag.source_free_names = _source_free_names(producer)
+        dag.source_facts = {}
     stack = [('visit', expression, environment, 'scalar')]
     values = []
     while stack:
@@ -153,6 +185,13 @@ def _source_expression(expression, environment, kernel, dag, work):
                     stack.append(('visit', index, env, 'index'))
             else:
                 raise _Stop('UNSUPPORTED_SOURCE_EXPRESSION')
+        elif action == 'remember':
+            _, key, first_work, first_allocation = frame
+            if not dag.inconclusive:
+                # Successful observed deltas cannot exceed this call's quotas;
+                # no recursively accumulated or unbounded symbolic weights.
+                dag.source_facts[key] = (values[-1], work.used - first_work,
+                                         dag.allocations - first_allocation)
         elif action == 'binary':
             _, operator, mode = frame
             right, left = values.pop(), values.pop()
@@ -176,6 +215,22 @@ def _source_expression(expression, environment, kernel, dag, work):
                 producer_env = dict(env)
                 producer_env[producer.axes[0].name] = row
                 producer_env[producer.axes[1].name] = column
+                key = (row, column, tuple(producer_env[name] for name in dag.source_free_names))
+                fact = dag.source_facts.get(key)
+                if fact is not None:
+                    value, visits, allocations = fact
+                    next_work = work.used + visits
+                    next_allocations = dag.allocations + allocations
+                    if next_work <= work.limit and next_allocations <= dag.limit:
+                        work.used = next_work
+                        dag.allocations = next_allocations
+                        values.append(value)
+                        continue
+                    # At least one quota cuts through this term. The original
+                    # interpreter reproduces the precise first failure, even
+                    # when both quotas would be exhausted inside the term.
+                else:
+                    stack.append(('remember', key, work.used, dag.allocations))
                 stack.append(('visit', producer.expression, producer_env, 'scalar'))
             else:
                 raise _Stop('UNSUPPORTED_SOURCE_READ')
@@ -211,6 +266,18 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
     computation have separate byte/operation bounds and are outside that counter.
     Counters become available only after all physical operations are processed.
     """
+    return _check_plan(kernel, plan, limits, additional_cap=additional_cap)
+
+
+def _check_admitted_plan(kernel, plan, limits, identity, *, additional_cap=None,
+                         validation_error=None):
+    """Private handoff: the compilation owner supplies fresh immutable records."""
+    return _check_plan(kernel, plan, limits, additional_cap=additional_cap,
+                       _admitted=True, _identity=identity, _validation_error=validation_error)
+
+
+def _check_plan(kernel, plan, limits, *, additional_cap=None,
+                _admitted=False, _identity=None, _validation_error=None):
     if type(kernel) is not AdmittedKernel or type(limits) is not Limits:
         raise ValueError('expected an AdmittedKernel and Limits')
     _cap(kernel.cap, 'source cap')
@@ -237,7 +304,9 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
     try:
         # Digest encoding validates the complete untrusted record under these
         # same limits before serializing it; do not walk its structure twice.
-        identity = plan_digest(plan, limits=limits)
+        if _validation_error is not None:
+            raise _validation_error
+        identity = _identity if _identity is not None else plan_digest(plan, limits=limits)
     except DecodeError as error:
         unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')
         return result(SemanticStatus.UNKNOWN if unknown else SemanticStatus.INVALID,
@@ -254,34 +323,35 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
     if type(kernel.source_module) is not SourceModule:
         return result(SemanticStatus.INVALID, False, 'INVALID_SOURCE_RECORD',
                       (('field', 'source_module'),))
-    try:
-        # A frozen record is not an admission certificate. Rebuild from the
-        # bytes so replaced metadata/ASTs cannot weaken the source contract.
-        fresh = admit_source(parse_source(kernel.source_module.source_bytes, limits))
-    except DiagnosticError as error:
-        unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')
-        return result(SemanticStatus.UNKNOWN if unknown else SemanticStatus.INVALID,
-                      False, error.code,
-                      None if unknown else (('offset', error.span.offset), ('detail', str(error))))
-    caps = [value for value in (fresh.cap, additional_cap) if value is not None]
-    effective_cap = min(caps) if caps else None
-    constraint_digest = sha256(canonical_json({
-        'version': 1, 'property': 'plan_workspace_bytes', 'source_cap': fresh.cap,
-        'additional_cap': additional_cap, 'effective_cap': effective_cap,
-    })).hexdigest()
-    constraint = (ConstraintStatus.SATISFIED if effective_cap is None or workspace <= effective_cap
-                  else ConstraintStatus.VIOLATED)
-    for field in ('height', 'width', 'cap', 'input_interval', 'objective',
-                  'source_digest', 'semantic_digest', 'semantics_version'):
-        supplied, actual = getattr(kernel, field), getattr(fresh, field)
-        if type(supplied) is not type(actual) or supplied != actual:
+    if not _admitted:
+        try:
+            # A frozen record is not an admission certificate. Rebuild from the
+            # bytes so replaced metadata/ASTs cannot weaken the source contract.
+            fresh = admit_source(parse_source(kernel.source_module.source_bytes, limits))
+        except DiagnosticError as error:
+            unknown = error.code.endswith('_LIMIT') or error.code.startswith('UNSUPPORTED_')
+            return result(SemanticStatus.UNKNOWN if unknown else SemanticStatus.INVALID,
+                          False, error.code,
+                          None if unknown else (('offset', error.span.offset), ('detail', str(error))))
+        caps = [value for value in (fresh.cap, additional_cap) if value is not None]
+        effective_cap = min(caps) if caps else None
+        constraint_digest = sha256(canonical_json({
+            'version': 1, 'property': 'plan_workspace_bytes', 'source_cap': fresh.cap,
+            'additional_cap': additional_cap, 'effective_cap': effective_cap,
+        })).hexdigest()
+        constraint = (ConstraintStatus.SATISFIED if effective_cap is None or workspace <= effective_cap
+                      else ConstraintStatus.VIOLATED)
+        for field in ('height', 'width', 'cap', 'input_interval', 'objective',
+                      'source_digest', 'semantic_digest', 'semantics_version'):
+            supplied, actual = getattr(kernel, field), getattr(fresh, field)
+            if type(supplied) is not type(actual) or supplied != actual:
+                return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',
+                              (('field', field),))
+        if (any(type(value) is not int for value in kernel.input_interval)
+                or kernel.source_module.source_digest != fresh.source_digest):
             return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',
-                          (('field', field),))
-    if (any(type(value) is not int for value in kernel.input_interval)
-            or kernel.source_module.source_digest != fresh.source_digest):
-        return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',
-                      (('field', 'source_module'),))
-    kernel = fresh  # Only the freshly parsed AST supplies symbolic semantics.
+                          (('field', 'source_module'),))
+        kernel = fresh  # Only the freshly parsed AST supplies symbolic semantics.
     dag = _Expressions(limits.expression_nodes, kernel.input_interval)
     try:
         output = kernel.source_module.outputs[0]

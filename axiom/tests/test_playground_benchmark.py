@@ -161,6 +161,24 @@ class NativeComparisonTests(unittest.TestCase):
                         self.assertIn('from beryl.playground_service import main', command[3])
                         self.assertEqual(command[4], str(archive))
 
+    def test_legacy_archive_capability_keeps_separate_real_frontend_phases(self):
+        clang = os.environ.get('AXIOM_TEST_NATIVE_CLANG') or shutil.which('clang')
+        if not clang:
+            self.skipTest('Clang is required to exercise the legacy executable')
+        implementation = self.compare.compiler()
+        legacy = SimpleNamespace(**vars(implementation))
+        legacy.compile_native_source = None
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(self.compare, 'compiler', return_value=legacy):
+            prepared = self.compare.prepare_beryl(1, 1, Path(directory), clang)
+        record = prepared['record']
+        self.assertIsNone(record['source_compilation_seconds'])
+        self.assertGreater(record['selection_and_check_seconds'], 0)
+        self.assertGreater(record['fresh_check_and_emit_seconds'], 0)
+        self.assertEqual(record['search_policy'], 'legacy')
+        self.assertEqual(record['total_seconds'], record['selection_and_check_seconds'] +
+                         record['fresh_check_and_emit_seconds'] + record['native_compile']['seconds'])
+
     @unittest.skipIf(os.name == 'nt', 'temporary POSIX multicall compiler driver')
     def test_compiler_symlink_keeps_its_invoked_name(self):
         with tempfile.TemporaryDirectory(prefix='beryl-compiler-alias-test-') as directory:
@@ -185,6 +203,14 @@ class NativeComparisonTests(unittest.TestCase):
                 prepared = self.compare.prepare_beryl(1, 1, Path(directory), clang)
             self.assertEqual(compile_program.call_count, 1)
             self.assertEqual(prepared['record']['plan_id'], 'inline-v1')
+            self.assertEqual(prepared['record']['search_policy'], 'ranked-proof-v1')
+            self.assertIsNotNone(prepared['record']['hint_digest'])
+            self.assertGreater(prepared['record']['source_compilation_seconds'], 0)
+            self.assertIsNone(prepared['record']['selection_and_check_seconds'])
+            self.assertIsNone(prepared['record']['fresh_check_and_emit_seconds'])
+            self.assertEqual(prepared['record']['total_seconds'],
+                             prepared['record']['source_compilation_seconds'] +
+                             prepared['record']['native_compile']['seconds'])
             self.assertEqual(prepared['record']['scratch_cap'], 0)
             self.assertEqual(prepared['record']['source_sha256'], self.compare.digest(prepared['source'].encode()))
             self.assertEqual(prepared['record']['generated_c_sha256'],

@@ -34,6 +34,10 @@ class WasmArtifact:
     source_digest: str
     plan_digest: str
     module_digest: str
+    codegen_version: str = 'beryl-finite-wasm-v1'
+    hint_digest: str | None = None
+    local_count: int = 0
+    loop_version: str | None = None
 
 
 def _uleb(value):
@@ -122,6 +126,19 @@ def compile_wasm(source_bytes: bytes, plan_bytes: bytes,
     arbitrary arenas or silently weakening that metric.
     """
     kernel, plan, checked = _checked_plan(source_bytes, plan_bytes, limits)
+    return _emit_finite(kernel, plan, sha256(source_bytes).hexdigest(), sha256(plan_bytes).hexdigest())
+
+
+def _compile_wasm_checked(owned):
+    """Lower only a live successful result retained by its compilation owner."""
+    from .compilation import _require_owned
+    _require_owned(owned)
+    with owned.owner.phase('code_emission'):
+        return _emit_finite(owned.kernel, owned.plan, owned.checked.source_digest,
+                            owned.checked.plan_digest)
+
+
+def _layout(kernel, plan):
     input_count = (kernel.height + 1) * (kernel.width + 1)
     output_count = kernel.height * kernel.width
     output_offset = 4 * input_count
@@ -131,9 +148,12 @@ def compile_wasm(source_bytes: bytes, plan_bytes: bytes,
         raise DiagnosticError('BACKEND_STORAGE_LIMIT', kernel.source_module.span,
                               'bounded Wasm storage requires at most 256 scratch cells in one page')
 
-    body = _body(kernel, plan, input_count, output_offset, scratch_offset)
+    return input_count, output_count, output_offset, scratch_offset
+
+
+def _module(body):
     # Single function () -> i32, no imports, single fixed memory, two exports.
-    module = b''.join((
+    return b''.join((
         b'\x00asm\x01\x00\x00\x00',
         _section(1, b'\x01\x60\x00\x01\x7f'),
         _section(3, b'\x01\x00'),
@@ -141,7 +161,14 @@ def compile_wasm(source_bytes: bytes, plan_bytes: bytes,
         _section(7, b'\x02\x06memory\x02\x00\x03run\x00\x00'),
         _section(10, b'\x01' + _uleb(len(body)) + body),
     ))
+
+
+def _emit_finite(kernel, plan, source_digest, plan_digest):
+    input_count, output_count, output_offset, scratch_offset = _layout(kernel, plan)
+    body = _body(kernel, plan, input_count, output_offset, scratch_offset)
+    module = _module(body)
     return WasmArtifact(module, kernel.height, kernel.width, 0, output_offset,
                         _MEMORY_BYTES, input_count, output_count, kernel.input_interval,
-                        sha256(source_bytes).hexdigest(), sha256(plan_bytes).hexdigest(),
-                        sha256(module).hexdigest())
+                        source_digest, plan_digest,
+                        sha256(module).hexdigest(),
+                        local_count=sum(op.dst is not None for op in plan.operations))

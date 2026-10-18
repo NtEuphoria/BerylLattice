@@ -1,0 +1,512 @@
+{
+  "revision": "775930bc88530b5babb41c71274c492bd550d2cd",
+  "compiler_commit": "b5f7d2ecfb4f89fe3ece34bfb4cca9d7d543f989",
+  "public_archive_sha256": "bdea7e03ec93d3df176ba39a9670ffc6f45f754df7f83dcb68ba2ef788b243c6",
+  "baseline_private": "39dc2f6df136c643cfd030ce4470503e807750fe",
+  "baseline_public_archive_sha256": "cb7304afabbfee94c4184f1c34574732f0f241c2a674222d6c3a8ee014bb6634",
+  "samples": 21,
+  "native": [
+    {
+      "fixture_id": "1x1-cap64-multiplication_ops",
+      "baseline": {
+        "median_ms": 105.668854,
+        "p95_ms": 117.426339,
+        "source_ms": 4.804785,
+        "clang_ms": 100.345461,
+        "generated_c_bytes": 4105
+      },
+      "candidate": {
+        "median_ms": 106.689556,
+        "p95_ms": 131.471767,
+        "source_ms": 1.786747,
+        "clang_ms": 104.846393,
+        "generated_c_bytes": 7310
+      },
+      "speedup": 0.9904329717146821,
+      "ratio_to_C": 1.2031688186062255,
+      "ratio_to_Rust": 0.7022942757308193
+    },
+    {
+      "fixture_id": "5x7-cap64-multiplication_ops",
+      "baseline": {
+        "median_ms": 177.509388,
+        "p95_ms": 194.789903,
+        "source_ms": 37.177467,
+        "clang_ms": 139.274524,
+        "generated_c_bytes": 34857
+      },
+      "candidate": {
+        "median_ms": 158.651923,
+        "p95_ms": 171.197718,
+        "source_ms": 9.234042,
+        "clang_ms": 149.495122,
+        "generated_c_bytes": 11744
+      },
+      "speedup": 1.1188606141256794,
+      "ratio_to_C": 1.7891633813296202,
+      "ratio_to_Rust": 1.0443415600734782
+    },
+    {
+      "fixture_id": "15x15-cap64-multiplication_ops",
+      "baseline": {
+        "median_ms": 604.908269,
+        "p95_ms": 671.176391,
+        "source_ms": 230.547386,
+        "clang_ms": 371.859659,
+        "generated_c_bytes": 302336
+      },
+      "candidate": {
+        "median_ms": 187.759514,
+        "p95_ms": 196.019527,
+        "source_ms": 53.061162,
+        "clang_ms": 131.663102,
+        "generated_c_bytes": 7327
+      },
+      "speedup": 3.221718335934764,
+      "ratio_to_C": 2.1174180595658214,
+      "ratio_to_Rust": 1.2359450806618844
+    },
+    {
+      "fixture_id": "15x15-cap128-multiplication_ops",
+      "baseline": {
+        "median_ms": 521.21857,
+        "p95_ms": 566.791539,
+        "source_ms": 226.210282,
+        "clang_ms": 290.115388,
+        "generated_c_bytes": 200517
+      },
+      "candidate": {
+        "median_ms": 184.346553,
+        "p95_ms": 199.618744,
+        "source_ms": 48.835702,
+        "clang_ms": 134.599686,
+        "generated_c_bytes": 11767
+      },
+      "speedup": 2.8273844100572902,
+      "ratio_to_C": 2.0789291164276653,
+      "ratio_to_Rust": 1.2134789362382208
+    }
+  ],
+  "browser": [
+    {
+      "fixture_id": "15x15-cap128-multiplication_ops",
+      "baseline": {
+        "median_ms": 602.1999999992549,
+        "p95_ms": 714.8000000007451,
+        "module_bytes": 32924,
+        "module_locals": 2344
+      },
+      "candidate": {
+        "median_ms": 146.59999999776483,
+        "p95_ms": 160.89999999850988,
+        "module_bytes": 765,
+        "module_locals": 10
+      },
+      "speedup": 4.107776261994792,
+      "within_150_ms": true,
+      "at_least_4x": true
+    },
+    {
+      "fixture_id": "15x15-cap64-multiplication_ops",
+      "baseline": {
+        "median_ms": 617.5999999977648,
+        "p95_ms": 713.2000000029802,
+        "module_bytes": 40536,
+        "module_locals": 3376
+      },
+      "candidate": {
+        "median_ms": 150.70000000298023,
+        "p95_ms": 165,
+        "module_bytes": 404,
+        "module_locals": 18
+      },
+      "speedup": 4.098208360886206,
+      "within_150_ms": false,
+      "at_least_4x": true
+    }
+  ],
+  "kernels": [
+    {
+      "case": "kernel-15x15-cap0",
+      "baseline_ns": 320.359532,
+      "candidate_ns": 306.574132,
+      "ratio": 0.9569689719736512,
+      "guard_pass": true,
+      "p95_paired_ratio": 1.0854527032448966
+    },
+    {
+      "case": "kernel-15x15-cap128",
+      "baseline_ns": 164.475004,
+      "candidate_ns": 160.132456,
+      "ratio": 0.973597520021948,
+      "guard_pass": true,
+      "p95_paired_ratio": 1.1070371890029078
+    },
+    {
+      "case": "kernel-1x1-cap0",
+      "baseline_ns": 7.293738,
+      "candidate_ns": 6.479868,
+      "ratio": 0.8884152405803444,
+      "guard_pass": true,
+      "p95_paired_ratio": 0.984275393924061
+    },
+    {
+      "case": "kernel-5x7-cap0",
+      "baseline_ns": 58.318722,
+      "candidate_ns": 34.461307,
+      "ratio": 0.5909132748142183,
+      "guard_pass": true,
+      "p95_paired_ratio": 0.6254482617617863
+    }
+  ],
+  "direct_builds": {
+    "C": {
+      "median_ms": 88.673804,
+      "p95_ms": 103.016136
+    },
+    "Rust": {
+      "median_ms": 151.915742,
+      "p95_ms": 181.771294
+    }
+  },
+  "scope": "Bounded stencil, <=256 input values. Baseline/candidate serial paired. Runtime/imports excluded from fresh source compilation; native includes real compiler/link. Program first execution and runtime boot are separate. Shared host, no outlier removal/retries. All table medians are descriptive, not statistical confidence intervals.",
+  "prepared_browser": [
+    {
+      "height": 1,
+      "width": 1,
+      "mode": "ramp",
+      "summary": {
+        "baseline": {
+          "median_ms": 2.899999998509884,
+          "p95_ms": 4.900000002235174,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate": {
+          "median_ms": 3.300000000745058,
+          "p95_ms": 4.799999997019768,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate_over_baseline": {
+          "median": 1.137931035324382,
+          "p95": 0.9795918356796346
+        },
+        "performance_guard_passed": false
+      }
+    },
+    {
+      "height": 5,
+      "width": 7,
+      "mode": "ramp",
+      "summary": {
+        "baseline": {
+          "median_ms": 5,
+          "p95_ms": 6.5,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate": {
+          "median_ms": 5.300000000745058,
+          "p95_ms": 7.599999997764826,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate_over_baseline": {
+          "median": 1.0600000001490115,
+          "p95": 1.1692307688868964
+        },
+        "performance_guard_passed": true
+      }
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "mode": "ramp",
+      "summary": {
+        "baseline": {
+          "median_ms": 13.900000002235174,
+          "p95_ms": 15.800000000745058,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate": {
+          "median_ms": 14.599999997764826,
+          "p95_ms": 20.299999997019768,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate_over_baseline": {
+          "median": 1.05035971190051,
+          "p95": 1.2848101263330702
+        },
+        "performance_guard_passed": true
+      }
+    },
+    {
+      "height": 1,
+      "width": 1,
+      "mode": "checkerboard",
+      "summary": {
+        "baseline": {
+          "median_ms": 3.100000001490116,
+          "p95_ms": 3.5,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate": {
+          "median_ms": 3.199999999254942,
+          "p95_ms": 4,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate_over_baseline": {
+          "median": 1.0322580637795993,
+          "p95": 1.1428571428571428
+        },
+        "performance_guard_passed": true
+      }
+    },
+    {
+      "height": 5,
+      "width": 7,
+      "mode": "checkerboard",
+      "summary": {
+        "baseline": {
+          "median_ms": 4.700000002980232,
+          "p95_ms": 5.899999998509884,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate": {
+          "median_ms": 5.100000001490116,
+          "p95_ms": 6.800000000745058,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate_over_baseline": {
+          "median": 1.085106382607712,
+          "p95": 1.1525423732987254
+        },
+        "performance_guard_passed": true
+      }
+    },
+    {
+      "height": 15,
+      "width": 15,
+      "mode": "checkerboard",
+      "summary": {
+        "baseline": {
+          "median_ms": 13.199999999254942,
+          "p95_ms": 14.800000000745058,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate": {
+          "median_ms": 14,
+          "p95_ms": 15.899999998509884,
+          "p95_method": "nearest rank ceil(0.95*n)",
+          "count": 21
+        },
+        "candidate_over_baseline": {
+          "median": 1.0606060606659253,
+          "p95": 1.0743243241695575
+        },
+        "performance_guard_passed": true
+      }
+    }
+  ],
+  "paired_process": [
+    {
+      "id": "1x1-cap0-ramp",
+      "summary": {
+        "median_paired_ratio": 1.051591180306536,
+        "median_ratio": 1.064845609313916,
+        "p95_paired_ratio": 1.169617483920662,
+        "p95_ratio": 1.0072152716913918,
+        "passes_median_threshold": true,
+        "programs": {
+          "new": {
+            "maximum_ns": 2194668,
+            "median_ns": 770025,
+            "minimum_ns": 670864,
+            "p95_ns": 1033142,
+            "sample_count": 21
+          },
+          "old": {
+            "maximum_ns": 1830528,
+            "median_ns": 723133,
+            "minimum_ns": 651835,
+            "p95_ns": 1025741,
+            "sample_count": 21
+          }
+        },
+        "threshold": 1.1
+      }
+    },
+    {
+      "id": "1x1-cap0-checkerboard",
+      "summary": {
+        "median_paired_ratio": 1.1056790184055771,
+        "median_ratio": 1.1075282817887029,
+        "p95_paired_ratio": 1.3780850575987316,
+        "p95_ratio": 1.2526945834450727,
+        "passes_median_threshold": false,
+        "programs": {
+          "new": {
+            "maximum_ns": 1145692,
+            "median_ns": 799559,
+            "minimum_ns": 639097,
+            "p95_ns": 1097730,
+            "sample_count": 21
+          },
+          "old": {
+            "maximum_ns": 908724,
+            "median_ns": 721931,
+            "minimum_ns": 638445,
+            "p95_ns": 876295,
+            "sample_count": 21
+          }
+        },
+        "threshold": 1.1
+      }
+    },
+    {
+      "id": "5x7-cap0-ramp",
+      "summary": {
+        "median_paired_ratio": 1.0339100632494909,
+        "median_ratio": 1.01558774475267,
+        "p95_paired_ratio": 1.2132513684159068,
+        "p95_ratio": 1.0594151063816342,
+        "passes_median_threshold": true,
+        "programs": {
+          "new": {
+            "maximum_ns": 1955927,
+            "median_ns": 765417,
+            "minimum_ns": 658085,
+            "p95_ns": 1005921,
+            "sample_count": 21
+          },
+          "old": {
+            "maximum_ns": 1046171,
+            "median_ns": 753669,
+            "minimum_ns": 646367,
+            "p95_ns": 949506,
+            "sample_count": 21
+          }
+        },
+        "threshold": 1.1
+      }
+    },
+    {
+      "id": "5x7-cap0-checkerboard",
+      "summary": {
+        "median_paired_ratio": 0.9868406364636007,
+        "median_ratio": 1.012676484932866,
+        "p95_paired_ratio": 1.237419326286907,
+        "p95_ratio": 0.951769749010879,
+        "passes_median_threshold": true,
+        "programs": {
+          "new": {
+            "maximum_ns": 911268,
+            "median_ns": 728802,
+            "minimum_ns": 662402,
+            "p95_ns": 847491,
+            "sample_count": 21
+          },
+          "old": {
+            "maximum_ns": 954052,
+            "median_ns": 719679,
+            "minimum_ns": 641120,
+            "p95_ns": 890437,
+            "sample_count": 21
+          }
+        },
+        "threshold": 1.1
+      }
+    },
+    {
+      "id": "15x15-cap0-ramp",
+      "summary": {
+        "median_paired_ratio": 1.0028521916712076,
+        "median_ratio": 0.9968469180569209,
+        "p95_paired_ratio": 2.143468562412724,
+        "p95_ratio": 2.1720061343341985,
+        "passes_median_threshold": true,
+        "programs": {
+          "new": {
+            "maximum_ns": 2482053,
+            "median_ns": 807131,
+            "minimum_ns": 693539,
+            "p95_ns": 2475683,
+            "sample_count": 21
+          },
+          "old": {
+            "maximum_ns": 1157961,
+            "median_ns": 809684,
+            "minimum_ns": 675371,
+            "p95_ns": 1139814,
+            "sample_count": 21
+          }
+        },
+        "threshold": 1.1
+      }
+    },
+    {
+      "id": "15x15-cap0-checkerboard",
+      "summary": {
+        "median_paired_ratio": 1.0840708965902814,
+        "median_ratio": 1.0385623098273338,
+        "p95_paired_ratio": 1.2732439294131694,
+        "p95_ratio": 0.3707542051750917,
+        "passes_median_threshold": true,
+        "programs": {
+          "new": {
+            "maximum_ns": 1723065,
+            "median_ns": 855012,
+            "minimum_ns": 708772,
+            "p95_ns": 1077038,
+            "sample_count": 21
+          },
+          "old": {
+            "maximum_ns": 3096752,
+            "median_ns": 823265,
+            "minimum_ns": 703474,
+            "p95_ns": 2904992,
+            "sample_count": 21
+          }
+        },
+        "threshold": 1.1
+      }
+    }
+  ],
+  "misses": [
+    {
+      "target": "Native <=2x same-run C build",
+      "fixture": "15x15-cap64-multiplication_ops",
+      "actual_ratio": 2.1174180595658214
+    },
+    {
+      "target": "Native <=2x same-run C build",
+      "fixture": "15x15-cap128-multiplication_ops",
+      "actual_ratio": 2.0789291164276653
+    },
+    {
+      "target": "Browser <=150ms",
+      "fixture": "15x15-cap64-multiplication_ops",
+      "actual_ms": 150.70000000298023
+    },
+    {
+      "target": "Prepared verified browser <=1.10 median ratio",
+      "height": 1,
+      "width": 1,
+      "mode": "ramp",
+      "actual_ratio": 1.137931035324382
+    },
+    {
+      "target": "Paired whole process <=1.10 median ratio",
+      "fixture": "1x1-cap0-checkerboard",
+      "actual_ratio": 1.1075282817887029
+    }
+  ]
+}

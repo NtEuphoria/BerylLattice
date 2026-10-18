@@ -1,0 +1,25 @@
+✔ Reset is a labelled native button, unavailable until examples load or retry succeeds (4.727238ms)
+✔ Reset clears a completed report, restores defaults, preserves focus, and can run again (14.163188ms)
+✔ Repeated execution keeps the original compilation cost visible (1.391972ms)
+✔ Reset clears an invalid custom-input diagnostic (0.921112ms)
+✔ Reset aborts a run, ignores its late result, and keeps an immediate new run current (1.131124ms)
+✔ Compiled preparation uses a cancellable worker request before execution (2.011305ms)
+✔ Worker cancellation terminates computation, ignores old messages, and permits immediate rerun (1.351843ms)
+✔ Cancelling while runtime boots stops that request before any computation is sent (1.421597ms)
+✔ Local API cancellation reaches fetch and removes timers/listeners (0.98759ms)
+✔ Successful local API request cleans its parent abort listener and timeout (0.789656ms)
+✔ Local Reset and immediate rerun wait for the old server worker, keeping the UI running (1.930564ms)
+✔ Cancelling a local busy retry stops retries and removes every listener and timer (0.867342ms)
+✔ Local busy retries share the original request deadline (0.856305ms)
+✔ Other HTTP 429 errors are not retried (0.661485ms)
+✔ Version 2 candidates retain costs and distinguish skipped proof from eligibility (0.867862ms)
+✔ Unknown result schema never displays a successful run (1.709435ms)
+✔ An unfinished ranked search does not claim that every plan fails constraints (0.814162ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.564504

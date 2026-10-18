@@ -1,0 +1,6 @@
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/old.c:5239:5: remark:  peeled loop by 1 iterations [-Rpass=loop-unroll]
+ 5239 |     for (int32_t i = 0; i < BERYL_OUTPUT_COUNT; ++i) {
+      |     ^
+/workspace/scratch/beryl-fast-compilation/native-throughput-experiment/15x15-cap128/old.c:19:5: remark: unrolled loop by a factor of 4 [-Rpass=loop-unroll]
+   19 |     for (int32_t i = 0; i < 256; ++i)
+      |     ^
