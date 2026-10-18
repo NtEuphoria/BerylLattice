@@ -4,6 +4,7 @@ Source expressions are interpreted from the retained AST. Expression edges use
 integer arena indices: neither hashing nor equality traverses an expression DAG.
 Only explicitly reserved scratch counts toward the workspace constraint.
 """
+from contextvars import ContextVar
 from dataclasses import dataclass
 from hashlib import sha256
 
@@ -223,8 +224,83 @@ def _cap(value, name):
         raise ValueError(f'{name} must be None or a nonnegative exact i32 integer')
 
 
+def _derive_source(kernel, dag, work):
+    """Expected output nodes, interpreted from the freshly admitted source AST."""
+    output = kernel.source_module.outputs[0]
+    expected = []
+    shapes = {'H': kernel.height, 'W': kernel.width}
+    for row in range(kernel.height):
+        for column in range(kernel.width):
+            env = dict(shapes)
+            env[output.axes[0].name] = row
+            env[output.axes[1].name] = column
+            expected.append(_source_expression(output.expression, env, kernel, dag, work))
+    return expected
+
+
+class _SourceCache:
+    """Private per-select_plan memo of source derivations; never caller supplied.
+
+    `step_cap` bounds the probe derivation; every check in that selection runs
+    with check_steps <= step_cap. A call with a larger limit derives directly.
+    """
+    __slots__ = ('step_cap', 'entries')
+
+    def __init__(self, step_cap):
+        self.step_cap = step_cap
+        self.entries = {}
+
+
+# Set only by select_plan for the duration of one selection (reset in finally).
+_ACTIVE_SOURCE_CACHE = ContextVar('source_cache', default=None)
+
+
+class _Derivation:
+    __slots__ = ('nodes', 'expected', 'charges', 'failure', 'inconclusive')
+
+
+def _replay_source(kernel, limits, dag, work, cache):
+    """Exactly reproduce _derive_source's effect on work, dag and outcome.
+
+    The derivation depends only on the source bytes and the node quota, so it is
+    computed once per cache with a step counter capped at cache.step_cap. Each
+    charge precedes the allocation or failure that follows it, so replaying the
+    recorded charge count against a smaller limit exhausts at exactly the point
+    the direct derivation would; otherwise the recorded nodes, flags and failure
+    are reinstated with the same work count. A probe that itself exhausted
+    recorded charges == step_cap and that exhaustion as its failure, which is
+    also exact for every limit <= step_cap.
+    """
+    if work.limit > cache.step_cap:
+        return _derive_source(kernel, dag, work)
+    key = (kernel.source_module.source_bytes, kernel.semantic_digest, limits.expression_nodes)
+    derivation = cache.entries.get(key)
+    if derivation is None:
+        derivation = _Derivation()
+        probe_dag = _Expressions(limits.expression_nodes, kernel.input_interval)
+        probe_work = _Work(cache.step_cap)
+        derivation.failure = derivation.expected = None
+        try:
+            derivation.expected = tuple(_derive_source(kernel, probe_dag, probe_work))
+        except Exception as error:  # replayed below, including non-_Stop faults
+            derivation.failure = error
+        derivation.nodes = tuple(probe_dag.nodes)
+        derivation.charges = probe_work.used
+        derivation.inconclusive = probe_dag.inconclusive
+        cache.entries[key] = derivation
+    if work.used + derivation.charges > work.limit:
+        work.used = work.limit
+        raise _Stop('CHECK_STEPS_EXHAUSTED')
+    work.used += derivation.charges
+    dag.nodes = list(derivation.nodes)
+    dag.inconclusive = derivation.inconclusive
+    if derivation.failure is not None:
+        raise derivation.failure
+    return list(derivation.expected)
+
+
 def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
-               additional_cap: int | None = None) -> CheckResult:
+               additional_cap: int | None = None, _source_cache: '_SourceCache | None' = None) -> CheckResult:
     """Check under the minimum source/additional arena cap; never trust a label.
 
     The work counter covers source AST construction visits, physical execution
@@ -304,15 +380,11 @@ def check_plan(kernel: AdmittedKernel, plan: Plan, limits: Limits, *,
     kernel = fresh  # Only the freshly parsed AST supplies symbolic semantics.
     dag = _Expressions(limits.expression_nodes, kernel.input_interval)
     try:
-        output = kernel.source_module.outputs[0]
-        expected = []
-        shapes = {'H': kernel.height, 'W': kernel.width}
-        for row in range(kernel.height):
-            for column in range(kernel.width):
-                env = dict(shapes)
-                env[output.axes[0].name] = row
-                env[output.axes[1].name] = column
-                expected.append(_source_expression(output.expression, env, kernel, dag, work))
+        cache = _source_cache if _source_cache is not None else _ACTIVE_SOURCE_CACHE.get()
+        if cache is None:
+            expected = _derive_source(kernel, dag, work)
+        else:
+            expected = _replay_source(kernel, limits, dag, work, cache)
         registers = []
         scratch = {}  # Capacity is a bound, never an allocation request.
         outputs = {}

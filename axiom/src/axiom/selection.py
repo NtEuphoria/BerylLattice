@@ -8,7 +8,8 @@ from dataclasses import dataclass, fields, replace
 from enum import StrEnum
 from hashlib import sha256
 
-from .checker import CHECK_ACCOUNTING_VERSION, CheckResult, check_plan
+from .checker import (_ACTIVE_SOURCE_CACHE, CHECK_ACCOUNTING_VERSION, CheckResult,
+                      _SourceCache, check_plan)
 from .codec import canonical_json, encode_plan
 from .frontend import admit_source, parse_source
 from .model import AdmittedKernel, ConstraintStatus, Limits, Objective, SemanticStatus
@@ -125,6 +126,9 @@ def select_plan(kernel: AdmittedKernel, limits: Limits, total_check_steps: int,
     attempts = []
     total_used = optional_used = 0
     incumbent = None
+    # Candidates share one source derivation, replayed per check with exact
+    # work accounting. It is local to this call; execute_plan never sees it.
+    source_cache = _SourceCache(limits.check_steps)
 
     def finish(stop, reason):
         plan, data, checked, key = incumbent if incumbent is not None else (None, None, None, None)
@@ -134,72 +138,76 @@ def select_plan(kernel: AdmittedKernel, limits: Limits, total_check_steps: int,
                             optional_used, ArtifactState.AVAILABLE if incumbent else ArtifactState.NONE,
                             limits)
 
-    for candidate_id in PLAN_IDS:
-        is_optional = incumbent is not None
-        total_remaining = total_check_steps - total_used
-        if total_remaining == 0:
-            return finish(SearchStop.TOTAL_BUDGET_EXHAUSTED, 'TOTAL_CHECK_STEPS_EXHAUSTED')
-        available = min(total_remaining, limits.check_steps)
-        if is_optional and optional_check_steps is not None:
-            optional_remaining = optional_check_steps - optional_used
-            if optional_remaining == 0:
-                return finish(SearchStop.OPTIONAL_BUDGET_EXHAUSTED, 'OPTIONAL_CHECK_STEPS_EXHAUSTED')
-            available = min(available, optional_remaining)
-        checked = None
-        charged = 0
-        phase = 'generation'
-        try:
-            plan = make_plan(kernel, candidate_id)
-            phase = 'checking'
-            # If checking aborts without a receipt, retain this reservation.
-            charged = available
-            receipt = check_plan(kernel, plan, replace(limits, check_steps=available))
-            if (type(receipt) is not CheckResult or type(receipt.work_used) is not int
-                    or not 0 <= receipt.work_used <= available):
-                raise ValueError('checker returned an invalid work receipt')
-            checked = receipt
-            charged = checked.work_used
-            phase = 'encoding'
-            if checked.eligible:
-                data = encode_plan(plan, limits=limits)
-                if (checked.source_digest != kernel.source_digest
-                        or checked.plan_digest != sha256(data).hexdigest()
-                        or checked.effective_cap != kernel.cap
-                        or checked.constraint_digest != constraint_digest):
-                    raise ValueError('checker receipt does not identify the selected artifact')
-                key = _key(checked, plan, objective)
-                candidate = (plan, data, checked, key)
-            else:
-                candidate = None
-        except (Exception, KeyboardInterrupt) as error:
+    scope = _ACTIVE_SOURCE_CACHE.set(source_cache)
+    try:
+        for candidate_id in PLAN_IDS:
+            is_optional = incumbent is not None
+            total_remaining = total_check_steps - total_used
+            if total_remaining == 0:
+                return finish(SearchStop.TOTAL_BUDGET_EXHAUSTED, 'TOTAL_CHECK_STEPS_EXHAUSTED')
+            available = min(total_remaining, limits.check_steps)
+            if is_optional and optional_check_steps is not None:
+                optional_remaining = optional_check_steps - optional_used
+                if optional_remaining == 0:
+                    return finish(SearchStop.OPTIONAL_BUDGET_EXHAUSTED, 'OPTIONAL_CHECK_STEPS_EXHAUSTED')
+                available = min(available, optional_remaining)
+            checked = None
+            charged = 0
+            phase = 'generation'
+            try:
+                plan = make_plan(kernel, candidate_id)
+                phase = 'checking'
+                # If checking aborts without a receipt, retain this reservation.
+                charged = available
+                receipt = check_plan(kernel, plan, replace(limits, check_steps=available))
+                if (type(receipt) is not CheckResult or type(receipt.work_used) is not int
+                        or not 0 <= receipt.work_used <= available):
+                    raise ValueError('checker returned an invalid work receipt')
+                checked = receipt
+                charged = checked.work_used
+                phase = 'encoding'
+                if checked.eligible:
+                    data = encode_plan(plan, limits=limits)
+                    if (checked.source_digest != kernel.source_digest
+                            or checked.plan_digest != sha256(data).hexdigest()
+                            or checked.effective_cap != kernel.cap
+                            or checked.constraint_digest != constraint_digest):
+                        raise ValueError('checker receipt does not identify the selected artifact')
+                    key = _key(checked, plan, objective)
+                    candidate = (plan, data, checked, key)
+                else:
+                    candidate = None
+            except (Exception, KeyboardInterrupt) as error:
+                total_used += charged
+                if is_optional:
+                    optional_used += charged
+                reason = 'CANCELLED' if isinstance(error, KeyboardInterrupt) else type(error).__name__ + ': ' + str(error)
+                attempts.append(AttemptRecord(candidate_id, checked.plan_digest if checked else None,
+                                              checked, available, charged, kernel.source_digest,
+                                              kernel.semantic_digest, constraint_digest,
+                                              policy_digest, reason))
+                stop = (SearchStop.CANCELLED if isinstance(error, KeyboardInterrupt) else
+                        SearchStop.CHECKER_ERROR if phase == 'checking' else SearchStop.CANDIDATE_ERROR)
+                return finish(stop, reason)
             total_used += charged
             if is_optional:
                 optional_used += charged
-            reason = 'CANCELLED' if isinstance(error, KeyboardInterrupt) else type(error).__name__ + ': ' + str(error)
-            attempts.append(AttemptRecord(candidate_id, checked.plan_digest if checked else None,
-                                          checked, available, charged, kernel.source_digest,
-                                          kernel.semantic_digest, constraint_digest,
-                                          policy_digest, reason))
-            stop = (SearchStop.CANCELLED if isinstance(error, KeyboardInterrupt) else
-                    SearchStop.CHECKER_ERROR if phase == 'checking' else SearchStop.CANDIDATE_ERROR)
-            return finish(stop, reason)
-        total_used += charged
-        if is_optional:
-            optional_used += charged
-        attempts.append(AttemptRecord(candidate_id, checked.plan_digest, checked, available,
-                                      charged, kernel.source_digest, kernel.semantic_digest,
-                                      constraint_digest, policy_digest, checked.reason))
-        if candidate is not None and (incumbent is None or key < incumbent[3]):
-            # Commit the matching artifact as one tuple; later work cannot edit it.
-            incumbent = candidate
-        if not is_optional and incumbent is None:
-            reason = ('CONSTRAINT_VIOLATED' if checked.constraint_status == ConstraintStatus.VIOLATED
-                      and checked.semantic_status == SemanticStatus.VALID else checked.reason)
-            return finish(SearchStop.INITIAL_INELIGIBLE, reason)
-        if checked.reason == 'CHECK_STEPS_EXHAUSTED':
-            if total_used == total_check_steps:
-                return finish(SearchStop.TOTAL_BUDGET_EXHAUSTED, checked.reason)
-            if optional_check_steps is not None and optional_used == optional_check_steps:
-                return finish(SearchStop.OPTIONAL_BUDGET_EXHAUSTED, checked.reason)
-            return finish(SearchStop.CHECK_LIMIT_EXHAUSTED, checked.reason)
-    return finish(SearchStop.COMPLETED, 'PORTFOLIO_EXAMINED')
+            attempts.append(AttemptRecord(candidate_id, checked.plan_digest, checked, available,
+                                          charged, kernel.source_digest, kernel.semantic_digest,
+                                          constraint_digest, policy_digest, checked.reason))
+            if candidate is not None and (incumbent is None or key < incumbent[3]):
+                # Commit the matching artifact as one tuple; later work cannot edit it.
+                incumbent = candidate
+            if not is_optional and incumbent is None:
+                reason = ('CONSTRAINT_VIOLATED' if checked.constraint_status == ConstraintStatus.VIOLATED
+                          and checked.semantic_status == SemanticStatus.VALID else checked.reason)
+                return finish(SearchStop.INITIAL_INELIGIBLE, reason)
+            if checked.reason == 'CHECK_STEPS_EXHAUSTED':
+                if total_used == total_check_steps:
+                    return finish(SearchStop.TOTAL_BUDGET_EXHAUSTED, checked.reason)
+                if optional_check_steps is not None and optional_used == optional_check_steps:
+                    return finish(SearchStop.OPTIONAL_BUDGET_EXHAUSTED, checked.reason)
+                return finish(SearchStop.CHECK_LIMIT_EXHAUSTED, checked.reason)
+        return finish(SearchStop.COMPLETED, 'PORTFOLIO_EXAMINED')
+    finally:
+        _ACTIVE_SOURCE_CACHE.reset(scope)
