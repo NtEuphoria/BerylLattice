@@ -372,6 +372,7 @@ class ExhaustiveRankedSelectionTests(unittest.TestCase):
         # Real independent semantic checks for all three streams of each shape.
         # Across cap/objective contexts only, reuse those receipts after exact
         # immutable stream equality and rebuild the complete context binding.
+        # Structural metrics additionally require identical complete Limits.
         # This adapter is exclusively test infrastructure, never a proof cache.
         shapes = contexts = 0
         for h in range(1, 128):
@@ -382,16 +383,32 @@ class ExhaustiveRankedSelectionTests(unittest.TestCase):
                 base_context = compilation._CompilationContext(stencil_source(h, w, None))
                 kernel = base_context.kernel
                 encoded = {}
+                validated = {}
+                real_validate = codec._validate_plan
+                def capture_validation(plan, limits):
+                    metrics = real_validate(plan, limits)
+                    validated[plan.plan_id] = (plan, limits, metrics)
+                    return metrics
                 def capture(plan, *, limits):
                     data = codec.encode_plan(plan, limits=limits)
                     encoded[plan.plan_id] = data
                     return data
-                with patch.object(selection, 'encode_plan', side_effect=capture):
+                with patch.object(selection, 'encode_plan', side_effect=capture), \
+                     patch.object(codec, '_validate_plan', side_effect=capture_validation):
                     base = selection.select_plan(kernel, Limits(), 100000, kernel.objective)
                 self.assertEqual(len(base.attempts), 3, (h, w, base.reason))
                 records = {a.candidate_id: a.check for a in base.attempts}
                 streams = {label: make_plan(kernel, label) for label in records}
                 self.assertTrue(all(record.eligible for record in records.values()))
+                self.assertEqual(set(validated), set(streams))
+
+                def context_validation(plan, limits):
+                    real_plan, real_limits, real_metrics = validated[plan.plan_id]
+                    self.assertIs(type(plan), type(real_plan))
+                    self.assertEqual(plan, real_plan)
+                    self.assertIs(type(limits), type(real_limits))
+                    self.assertEqual(limits, real_limits)
+                    return real_metrics
 
                 def context_check(k, plan, limits):
                     self.assertEqual(plan, streams[plan.plan_id])
@@ -411,7 +428,7 @@ class ExhaustiveRankedSelectionTests(unittest.TestCase):
                     return context_check(k, plan, limits)
 
                 def context_encoding(plan, limits):
-                    self.assertEqual(plan, streams[plan.plan_id])
+                    context_validation(plan, limits)
                     self.assertLessEqual(len(encoded[plan.plan_id]), limits.plan_bytes)
                     return encoded[plan.plan_id]
 
@@ -421,6 +438,7 @@ class ExhaustiveRankedSelectionTests(unittest.TestCase):
                 with patch.object(selection, 'check_plan', side_effect=context_check), \
                      patch.object(selection, 'encode_plan', side_effect=context_encoding), \
                      patch.object(compilation, '_check_admitted_plan', side_effect=owned_context_check), \
+                     patch.object(compilation, '_validate_plan', side_effect=context_validation), \
                      patch.object(compilation, '_encode_validated_plan', side_effect=context_encoding):
                     for objective in Objective:
                         for cap in caps:
