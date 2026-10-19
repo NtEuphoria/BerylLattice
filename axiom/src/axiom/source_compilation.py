@@ -15,6 +15,7 @@ from .compilation import _CompilationContext
 from .compilation_selection import FastSearchResult, _select_ranked
 from .model import CANONICAL_PROFILE, AdmittedKernel, Limits
 from .native_codegen import NativeArtifact, _emit_native_c_checked
+from .window_loop_planner import make_window_loop_program
 from .wasm import WasmArtifact, _compile_wasm_checked
 
 
@@ -33,17 +34,20 @@ def _compile_source(source, limits, trace, compact, finite):
         if owned is None:
             return SourceCompilation(context.kernel, search, None, None)
         failure = None
-        if context.kernel.profile != CANONICAL_PROFILE:
-            # Compact loop programs describe only the canonical stencil; other
-            # admitted kernels lower their checked finite plan directly.
-            return SourceCompilation(context.kernel, search, finite(owned), 'NON_CANONICAL_PROFILE')
         try:
             with context.phase('hint_generation'):
                 # Portfolio identity chooses intent, never proof authority. A plan
                 # may carry an arbitrary label; exact correspondence still decides.
                 schedule = next(attempt.candidate_id for attempt in search.attempts
                                 if attempt.check is owned.checked)
-                hint = encode_loop_program(make_loop_program(context.kernel, schedule))
+                if context.kernel.profile == CANONICAL_PROFILE:
+                    program = make_loop_program(context.kernel, schedule)
+                else:
+                    try:
+                        program = make_window_loop_program(context.kernel, schedule)
+                    except ValueError as error:
+                        raise HintError('HINT_UNAVAILABLE', str(error)) from None
+                hint = encode_loop_program(program)
             artifact = compact(owned, hint)
         except (HintError, DecodeError) as error:
             failure = error.code

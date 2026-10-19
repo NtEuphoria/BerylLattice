@@ -210,10 +210,11 @@ def main():
         except OSError as error:  # e.g. Windows Application Control; logged, never bypassed
             return emit(dict(base, status='blocked', diagnostic=dict(code='OS_LAUNCH_REFUSED', message=str(error))))
         hand = None
-        if kernel == 'sq2x2':
+        hand_src = HERE / 'impl' / 'hand' / f'{kernel}.c'
+        if hand_src.exists():
             # Like-for-like control: hand-written C, same ABI, shape, types, harness and flags.
-            built = subprocess.run([cc, *flags, '-std=c11', '-fno-lto', f'-DBERYL_H={a}', f'-DBERYL_W={b}',
-                                    '-c', str(HERE / 'impl' / 'sq2x2_specialized.c'), '-o', str(tmp / 'hand.o')],
+            built = subprocess.run([cc, *flags, '-std=c11', '-fno-lto', f'-DBERYL_H={artifact.height}',
+                                    f'-DBERYL_W={artifact.width}', '-c', str(hand_src), '-o', str(tmp / 'hand.o')],
                                    capture_output=True, text=True, timeout=600)
             if built.returncode == 0:
                 built = subprocess.run([cc, str(harness), str(tmp / 'hand.o'), '-o', str(tmp / f'hand{exe}')],

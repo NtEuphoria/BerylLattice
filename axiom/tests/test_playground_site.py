@@ -21,7 +21,7 @@ PUBLIC_MODULES = {
     'codec', 'plan_format', 'planner', 'selection', 'reference', 'wasm', 'native_codegen',
     'compilation', 'compilation_trace', 'compilation_selection', 'source_compilation', 'bounded_loop_model',
     'bounded_loop_codec', 'bounded_loop_planner', 'bounded_loop_correspondence',
-    'bounded_loop_c', 'bounded_loop_wasm', 'window_family', 'window_planner',
+    'bounded_loop_c', 'bounded_loop_wasm', 'window_family', 'window_planner', 'window_loop_planner',
 }
 
 _NODE_COMPILED_RUNNER = r'''
@@ -316,7 +316,7 @@ class PlaygroundSiteTests(unittest.TestCase):
                       for path in outputs[1].rglob('*') if path.is_file()}
             self.assertEqual(first, second)
             readme = first[Path('README.md')].decode()
-            self.assertIn('25 compiler/runtime Python modules', readme)
+            self.assertIn('26 compiler/runtime Python modules', readme)
             self.assertIn('compiled Wasm instance is reused', readme)
             self.assertIn('independent evaluation of the source', readme)
             self.assertIn('finite-plan native C generator', readme)

@@ -74,6 +74,19 @@ def make_window_plan(kernel: AdmittedKernel, plan_id: str) -> Plan:
         operations.append(Operation(opcode, dst, operands, index, value, (origin.span.offset,)))
         return dst
 
+    # Prologue: every distinct literal once, in first-appearance order of a
+    # left-to-right walk of the producer then the output AST. Evaluations then
+    # contain no constants, so the stream is expressible as a loop program.
+    for expression in (producer_expr, output_expr):
+        pending = [expression]
+        while pending:
+            node = _ungroup(pending.pop())
+            if isinstance(node, IntegerLiteral):
+                if node.value not in constants:
+                    constants[node.value] = emit('const', node, value=node.value)
+            elif isinstance(node, BinaryExpression):
+                pending.extend((node.right, node.left))
+
     def lower(expression, env, read):
         """Post-order lowering; structurally identical subterms share one value."""
         memo = {}

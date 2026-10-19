@@ -130,7 +130,7 @@ def _expand_operations(kernel, program, limits, hint_limits):
                 index = evaluate_index(node.index, variables, charge)
                 bound = (program.scratch_capacity_cells if node.opcode.startswith('scratch_')
                          else kernel.height*kernel.width if node.opcode == 'output_store'
-                         else (kernel.height+1)*(kernel.width+1))
+                         else kernel.input_count)
                 if index >= bound:
                     raise HintError('HINT_INDEX_BOUNDS', 'index outside specialized arena')
             dst = None

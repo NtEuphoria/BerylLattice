@@ -27,6 +27,8 @@ from oracle import expected_checksum  # noqa: E402
 IMPLS = ('c', 'rust', 'node', 'numpy', 'python', 'axiom', 'axiom-native')
 SOURCES = ('impl/kernels.c', 'impl/kernels.rs', 'impl/kernels.mjs', 'impl/kernels.py',
            'impl/kernels_numpy.py', 'impl/pyharness.py', 'impl/axiom_native_harness.c',
+           'impl/hand/sq2x2.c', 'impl/hand/conv3x3.c', 'impl/hand/box3x3.c', 'impl/hand/laplace5.c',
+           'impl/hand/stencil1d3.c', 'impl/hand/polymap.c',
            'axiom_adapter.py', 'axiom_native.py', 'catalog.py', 'oracle.py')
 REJECT_CASES = ('reject_range', 'reject_shape', 'reject_profile')
 

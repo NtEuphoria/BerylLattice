@@ -138,9 +138,11 @@ class WindowFamilyTests(unittest.TestCase):
             emit_core_kernel(src, plan_bytes, Limits())
         self.assertEqual(caught.exception.code, 'UNSUPPORTED_PROFILE')
         for compile_source in (compile_native_source, compile_wasm_source):
+            # Compilation itself is not canonical-only: family kernels get compact
+            # loop hints that must match the checked plan exactly (see test_window_compact).
             compiled = compile_source(src)
-            self.assertEqual(compiled.hint_failure, 'NON_CANONICAL_PROFILE')
-            self.assertTrue(compiled.artifact.codegen_version.startswith('beryl-finite-'))
+            self.assertIsNone(compiled.hint_failure)
+            self.assertIn('bounded-loop', compiled.artifact.codegen_version)
             self.assertEqual(compiled.artifact.input_count, kernel.input_count)
 
     def test_service_reports_family_shapes_and_prescans(self):

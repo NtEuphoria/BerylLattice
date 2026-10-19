@@ -91,10 +91,13 @@ same compiler and flags as the C baseline, then times calls to the generated
 `beryl_kernel` through `impl/axiom_native_harness.c`, using the same input
 generator, calibration and checksum as every other implementation.
 `compile_ns` records everything before the first run. Generated kernels are
-shape-specialized and use int32 outputs, so for `sq2x2` the adapter also
-builds `impl/sq2x2_specialized.c`: hand-written C with the same ABI, shape,
-types, harness and flags. Its time is logged as `hand_c` and shown as
-"vs hand C", the like-for-like comparison.
+shape-specialized and use int32 outputs, so for every admitted kernel the
+adapter also builds `impl/hand/<kernel>.c`: the obvious hand-written C with
+the same ABI, shape, types, harness and flags (it keeps the simple early-exit
+input check). Its time is logged as `hand_c` and shown as "vs hand C", the
+like-for-like comparison. Window-stencil kernels compile through compact loop
+hints that must expand to exactly the checked plan; any mismatch falls back
+to finite code.
 
 ## Implementation protocol
 

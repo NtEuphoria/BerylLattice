@@ -38,10 +38,13 @@ def validate_loop_program(program, hint_limits=HintLimits()):
     for digest in (program.source_digest, program.semantic_digest):
         if type(digest) is not str or re.fullmatch('[0-9a-f]{64}', digest) is None:
             _fail('invalid source digest')
-    _integer(program.height, 1, 127)
-    _integer(program.width, 1, 127)
-    if (program.height+1)*(program.width+1) > 256:
-        _fail('bounded hints retain the 256-input boundary')
+    # Bound the output grid; each kernel's own input/scratch arenas are enforced
+    # per index during expansion, and specialization binds the exact kernel
+    # shape. Every admitted kernel (canonical or window) has at most 256 inputs.
+    _integer(program.height, 1, 256)
+    _integer(program.width, 1, 256)
+    if program.height*program.width > 256:
+        _fail('bounded hints retain the 256-cell boundary')
     _integer(program.scratch_capacity_cells, 0, I32_MAX)
     if type(program.label) is not str or len(program.label) > 256:
         _fail('invalid label')

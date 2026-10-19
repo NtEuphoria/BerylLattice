@@ -88,7 +88,9 @@ def request(kernel, pattern, a, b, cap, objective):
     if kernel == 'reject_shape':
         return draft_source('sq2x2.ax', (16, 16), cap, objective), gen_input(pattern, 289), 256, '17x17 input'
     if kernel == 'reject_profile':
-        return draft_source('box3x3.ax', (a, b)), gen_input(pattern, (a + 2) * (b + 2)), a * b, 'box3x3 draft'
+        # Outside every admitted family: the output reads the input directly.
+        text = draft_source('sq2x2.ax', (a, b)).replace(b'+p[r+1,c+1]', b'+image[r,c]')
+        return text, gen_input(pattern, (a + 1) * (b + 1)), a * b, 'output reads input directly'
     spec = KERNELS[kernel]
     n_in, n_out = spec['io'](a, b)
     if spec['axiom_draft'] is None:
