@@ -190,7 +190,7 @@ def main():
     sys.stdout.reconfigure(encoding='utf-8')
     print(text)
     if args.write:
-        args.write.write_text(text, encoding='utf-8')
+        args.write.write_text(text, encoding='utf-8', newline='\n')
     return 1 if regressions else 0
 
 
