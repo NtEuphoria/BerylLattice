@@ -147,7 +147,77 @@ def strict_json_loads(data: bytes, *, max_bytes=2097152, max_items=300000,
         text = data.decode('utf-8')
     except UnicodeError:
         _fail('INVALID_JSON', '$', 'artifact must be valid UTF-8')
-    parser = _JSONParser(text, max_items, max_depth, max_integer_digits, _operation_limit)
+    accepted = _fast_loads(text, max_items, max_depth, max_integer_digits, _operation_limit)
+    if accepted is not _REJECTED:
+        return accepted
+    return _strict_parse(text, max_items, max_depth, max_integer_digits, _operation_limit)
+
+
+class _Fallback(Exception):
+    pass
+
+
+_REJECTED = object()
+
+
+def _fast_loads(text, max_items, max_depth, max_integer_digits, operation_limit):
+    """C-decoder fast path accepting only what _strict_parse accepts. Hooks refuse
+    floats, NaN, long integers and duplicate keys; a post-pass applies depth, item,
+    operation and Unicode rules. Otherwise _REJECTED: the strict parser re-reads
+    the text, so every rejection keeps its exact code and path."""
+    def parse_int(token):
+        if len(token) - (token[0] == '-') > max_integer_digits:
+            raise _Fallback
+        return int(token)
+
+    def refuse(_token):
+        raise _Fallback
+
+    def pairs(items):
+        result = dict(items)
+        if len(result) != len(items):
+            raise _Fallback
+        return result
+
+    try:
+        value = json.loads(text, parse_int=parse_int, parse_float=refuse,
+                           parse_constant=refuse, object_pairs_hook=pairs)
+    except (ValueError, RecursionError, _Fallback):
+        return _REJECTED
+    if operation_limit is not None and type(value) is dict:
+        operations = value.get('operations')
+        if type(operations) is list and len(operations) > operation_limit:
+            return _REJECTED
+    items = 0
+    pending = [(value, 0)]
+    while pending:
+        item, depth = pending.pop()
+        if depth > max_depth:
+            return _REJECTED
+        kind = type(item)
+        if kind is str:
+            try:
+                item.encode('utf-8')
+            except UnicodeError:
+                return _REJECTED
+        elif kind is list:
+            items += len(item)
+            pending.extend((child, depth + 1) for child in item)
+        elif kind is dict:
+            items += len(item)
+            for key, child in item.items():
+                try:
+                    key.encode('utf-8')
+                except UnicodeError:
+                    return _REJECTED
+                pending.append((child, depth + 1))
+        if items > max_items:
+            return _REJECTED
+    return value
+
+
+def _strict_parse(text, max_items, max_depth, max_integer_digits, operation_limit):
+    parser = _JSONParser(text, max_items, max_depth, max_integer_digits, operation_limit)
     value = parser.value()
     parser.whitespace()
     if parser.pos != len(text):
