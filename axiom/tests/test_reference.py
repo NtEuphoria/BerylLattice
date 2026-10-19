@@ -125,7 +125,8 @@ class ReferenceTests(unittest.TestCase):
         self.assertEqual(output, [-777])
 
     def test_admission_precedes_runtime_boundary(self):
-        unsupported = parse_source(stencil_source(1, 1).replace(b'image[r,c]+1', b'image[r,c]+2'))
+        # Outside every admitted family: the output reads the input directly.
+        unsupported = parse_source(stencil_source(1, 1).replace(b'+p[r+1,c+1]', b'+image[r,c]'))
         with self.assertRaises(DiagnosticError) as caught:
             evaluate_source(unsupported, (), ())
         self.assertEqual(caught.exception.code, 'UNSUPPORTED_PROFILE')

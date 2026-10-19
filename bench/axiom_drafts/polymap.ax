@@ -1,6 +1,8 @@
-// Draft: elementwise polynomial x^3 + 3x + 7.
+// Elementwise x^3 + 3x + 7 on a 1 x W grid; the output stage is a copy.
 module polymap;
-shape N = 256;
-input x: i32[N] in 0..=1023;
-output y[i in 0..N] = x[i]*x[i]*x[i] + 3*x[i] + 7;
+shape H = 1;
+shape W = 256;
+input x: i32[H,W] in 0..=1023;
+let t[r in 0..H,c in 0..W] = x[r,c]*x[r,c]*x[r,c] + 3*x[r,c] + 7;
+output y[r in 0..H,c in 0..W] = t[r,c];
 prefer multiplication_ops;

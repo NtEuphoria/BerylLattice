@@ -21,7 +21,7 @@ from .codec import canonical_json, decode_plan, plan_digest
 from .core_observe import decode_observation
 from .core_emit import CoreBundle, EMITTER_DIGEST, EMITTER_VERSION
 from .model import Limits
-from .frontend import admit_source, parse_source
+from .frontend import admit_source, parse_source, require_canonical
 
 if TYPE_CHECKING:
     from .core_toolchain import Toolchain
@@ -107,7 +107,7 @@ def _validate_bundle(bundle: CoreBundle) -> None:
     _require(isinstance(bundle, CoreBundle) and bundle.artifact_kind == 'core_witness_source',
              'Expected immutable Core witness bundle')
     limits = Limits()
-    kernel = admit_source(parse_source(bundle.axiom_source_bytes, limits))
+    kernel = require_canonical(admit_source(parse_source(bundle.axiom_source_bytes, limits)), 'the Core runner')
     plan = decode_plan(bundle.plan_bytes, limits=limits)
     checked = check_plan(kernel, plan, limits)
     _require(checked.eligible, 'Bound Axiom plan did not freshly pass checking: ' + checked.reason)
@@ -191,7 +191,7 @@ def _admit_report(run: NativeRun, bundle: CoreBundle) -> NativeRun:
         run = replace(run, reference_stdout_path=reference, reference_stdout_sha256=_hash(raw))
         _require(_hash(raw) == report.get('reference_output_sha256'), 'Reference stdout hash differs')
         _require(event_bytes and _hash(event_bytes) == report.get('reference_events_sha256'), 'Reference events missing or hash differs')
-        kernel = admit_source(parse_source(bundle.axiom_source_bytes))
+        kernel = require_canonical(admit_source(parse_source(bundle.axiom_source_bytes)), 'the Core runner')
         decode_observation(raw, kernel)
         if run.lane == 'reference':
             _require(report.get('compared') is False and report.get('native_status') is None

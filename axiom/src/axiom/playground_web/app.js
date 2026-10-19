@@ -16,6 +16,7 @@ import { getExamples, runDemo } from "./transport.js";
   const schedules = {
     "inline-v1": { title: "Recompute inline", description: "Recalculates values when needed, using no temporary plan storage." },
     "rows2-v1": { title: "Retain two rows", description: "Keeps two rows of calculated values to reuse in the next step." },
+    "rows-v1": { title: "Retain a row window", description: "Keeps just the rows of calculated values the next output row reads, reusing each one." },
     "materialize-v1": { title: "Store all intermediates", description: "Calculates each intermediate value once and stores the whole grid." },
   };
   const exampleCopy = {

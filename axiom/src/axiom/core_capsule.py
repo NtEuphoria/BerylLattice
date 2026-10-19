@@ -19,7 +19,7 @@ from .core_observe import Observation, decode_observation
 from .core_runner import run_core
 from .core_toolchain import ToolchainError, build_core, inspect_toolchain, prepare_snapshot
 from .evidence import _directory, _directory_unchanged, _publish_content, _read_exact_at
-from .frontend import admit_source, parse_source
+from .frontend import admit_source, parse_source, require_canonical
 from .model import Limits
 from .planner import make_plan
 from .reference import evaluate_source
@@ -109,7 +109,7 @@ def decode_conformance(raw):
         if case['source_sha256'] != sha256(source).hexdigest():
             raise ValueError('conformance case: source SHA-256 differs from exact embedded bytes')
         module = parse_source(source)
-        kernel = admit_source(module)
+        kernel = require_canonical(admit_source(module), 'Core conformance')
         if type(case['shape']) is not list or any(type(n) is not int for n in case['shape']) or case['shape'] != [kernel.height, kernel.width]:
             raise ValueError('conformance case: shape differs from admitted source')
         _, data, initial = decode_case(canonical_json(dict(schema_version=1, input=case['input'], initial_output=case['initial_output'])), kernel)
@@ -287,7 +287,7 @@ def witness_command(args):
     source = _read(args.source, limits.source_bytes)
     plan_raw = _read(args.plan, limits.plan_bytes)
     module = parse_source(source, limits)
-    kernel = admit_source(module)
+    kernel = require_canonical(admit_source(module), 'Core conformance')
     case_raw = _read(args.case, 65536)
     case, data, initial = decode_case(case_raw, kernel)
     plan = decode_plan(plan_raw, limits)

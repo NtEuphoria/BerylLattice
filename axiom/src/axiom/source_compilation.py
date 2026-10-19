@@ -13,7 +13,7 @@ from .bounded_loop_wasm import _compile_wasm_compact
 from .codec import DecodeError
 from .compilation import _CompilationContext
 from .compilation_selection import FastSearchResult, _select_ranked
-from .model import AdmittedKernel, Limits
+from .model import CANONICAL_PROFILE, AdmittedKernel, Limits
 from .native_codegen import NativeArtifact, _emit_native_c_checked
 from .wasm import WasmArtifact, _compile_wasm_checked
 
@@ -33,6 +33,10 @@ def _compile_source(source, limits, trace, compact, finite):
         if owned is None:
             return SourceCompilation(context.kernel, search, None, None)
         failure = None
+        if context.kernel.profile != CANONICAL_PROFILE:
+            # Compact loop programs describe only the canonical stencil; other
+            # admitted kernels lower their checked finite plan directly.
+            return SourceCompilation(context.kernel, search, finite(owned), 'NON_CANONICAL_PROFILE')
         try:
             with context.phase('hint_generation'):
                 # Portfolio identity chooses intent, never proof authority. A plan

@@ -1,10 +1,10 @@
-// Draft: 3x3 box sum with no intermediate producer.
+// 3x3 box sum written separably: row sums, then a column sum of row sums.
+// Same integers as the direct nine-term sum; the planner can reuse row sums.
 module box3x3;
 shape H = 14;
 shape W = 14;
 input g: i32[H+2,W+2] in 0..=1023;
-output o[r in 0..H,c in 0..W] =
-  g[r,c]+g[r,c+1]+g[r,c+2]
-  +g[r+1,c]+g[r+1,c+1]+g[r+1,c+2]
-  +g[r+2,c]+g[r+2,c+1]+g[r+2,c+2];
+let t[r in 0..H+2,c in 0..W] = (g[r,c]+g[r,c+1])+g[r,c+2];
+output o[r in 0..H,c in 0..W] = (t[r,c]+t[r+1,c])+t[r+2,c];
+require plan_workspace_bytes <= 1024;
 prefer multiplication_ops;

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .checker import check_plan
 from .codec import canonical_json, decode_plan, plan_digest
-from .frontend import admit_source, parse_source
+from .frontend import admit_source, parse_source, require_canonical
 from .model import (BinaryExpression, GroupExpression, IntegerLiteral, Limits,
                     NameReference, ReadExpression, Span)
 
@@ -114,7 +114,7 @@ def _origin_table(module):
 def _checked(source, plan_bytes, limits):
     if type(source) is not bytes or type(plan_bytes) is not bytes or type(limits) is not Limits:
         raise CoreEmissionError('INVALID_EMISSION_ARGUMENT', 'expected exact bytes and Limits')
-    kernel = admit_source(parse_source(source, limits))
+    kernel = require_canonical(admit_source(parse_source(source, limits)), 'the Core bridge')
     plan = decode_plan(plan_bytes, limits)
     result = check_plan(kernel, plan, limits)
     if not result.eligible:

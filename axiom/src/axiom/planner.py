@@ -3,10 +3,18 @@
 These constructors supply candidates, never eligibility or a correctness proof.
 Origins identify UTF-8 byte offsets in the admitted, retained scalar ASTs.
 """
-from .model import AdmittedKernel, GroupExpression
+from .model import AdmittedKernel, GroupExpression, WINDOW_PROFILE
 from .plan_format import Operation, Plan
 
 PLAN_IDS = ('inline-v1', 'rows2-v1', 'materialize-v1')
+
+
+def plan_ids(kernel: AdmittedKernel) -> tuple[str, ...]:
+    """The candidate portfolio for an admitted kernel, in ranking tie-break order."""
+    if isinstance(kernel, AdmittedKernel) and kernel.profile == WINDOW_PROFILE:
+        from .window_planner import WINDOW_PLAN_IDS
+        return WINDOW_PLAN_IDS
+    return PLAN_IDS
 
 
 def _ungroup(expression):
@@ -19,6 +27,9 @@ def make_plan(kernel: AdmittedKernel, plan_id: str) -> Plan:
     """Specialize an admitted stencil, retaining its exact addition grouping."""
     if not isinstance(kernel, AdmittedKernel):
         raise TypeError('kernel must be an AdmittedKernel')
+    if kernel.profile == WINDOW_PROFILE:
+        from .window_planner import make_window_plan
+        return make_window_plan(kernel, plan_id)
     if type(plan_id) is not str or plan_id not in PLAN_IDS:
         raise ValueError('unsupported plan generator ID')
     h, w = kernel.height, kernel.width

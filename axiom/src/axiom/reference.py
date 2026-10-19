@@ -102,7 +102,7 @@ def evaluate_source(module: SourceModule, data: tuple[int, ...] | list[int],
     kernel = admit_source(module)
     if data is initial_output:
         raise DiagnosticError('BOUNDARY_ALIAS', module.span, 'input and output must be disjoint')
-    input_values = _boundary_values(data, (kernel.height + 1) * (kernel.width + 1),
+    input_values = _boundary_values(data, kernel.input_count,
                                     'input', module.inputs[0].span)
     output_values = _boundary_values(initial_output, kernel.height * kernel.width,
                                      'output', module.outputs[0].span)

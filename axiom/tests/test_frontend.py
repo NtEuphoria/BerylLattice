@@ -97,9 +97,30 @@ class FrontendTests(unittest.TestCase):
         source = stencil_source(5, 7)
         extra = (Path(__file__).parent / 'fixtures/source/extra_producer.ax').read_bytes()
         self.diagnostic(extra, 'UNSUPPORTED_PROFILE')
-        self.diagnostic(source.replace(b'image[r,c]+1', b'image[r,c]+2'), 'UNSUPPORTED_PROFILE')
-        self.diagnostic(source.replace(b'((p[r,c]+p[r,c+1])+p[r+1,c])', b'(p[r,c]+(p[r,c+1]+p[r+1,c]))'), 'UNSUPPORTED_PROFILE')
         self.diagnostic(source.replace(b'i32[H+1,W+1]', b'i32[6,8]'), 'UNSUPPORTED_PROFILE')
+        # Outside the two-stage window family as well as the canonical profile:
+        # the output reads the input directly, a transposed read, a shape-offset
+        # read, and a non-default input interval.
+        self.diagnostic(source.replace(b'+p[r+1,c+1]', b'+image[r,c]'), 'UNSUPPORTED_PROFILE')
+        # Square, so the transposed read stays in bounds and reaches recognition.
+        self.diagnostic(stencil_source(5, 5).replace(b'p[r,c+1]', b'p[c,r]'), 'UNSUPPORTED_PROFILE')
+        self.diagnostic(source.replace(b'(image[r,c]+1)*(image[r,c]+1)', b'image[r,c]*image[H,c]'), 'UNSUPPORTED_PROFILE')
+        self.diagnostic(source.replace(b'in 0..=1023', b'in 0..=1022'), 'UNSUPPORTED_PROFILE')
+
+    def test_window_family_variants_have_distinct_identities(self):
+        from axiom.model import CANONICAL_PROFILE, WINDOW_PROFILE, WINDOW_SEMANTICS_VERSION
+        source = stencil_source(5, 7)
+        canonical = admit_source(parse_source(source))
+        self.assertEqual(canonical.profile, CANONICAL_PROFILE)
+        variants = [source.replace(b'image[r,c]+1', b'image[r,c]+2'),
+                    source.replace(b'((p[r,c]+p[r,c+1])+p[r+1,c])', b'(p[r,c]+(p[r,c+1]+p[r+1,c]))')]
+        digests = {canonical.semantic_digest}
+        for variant in variants:
+            kernel = admit_source(parse_source(variant))
+            self.assertEqual((kernel.profile, kernel.semantics_version), (WINDOW_PROFILE, WINDOW_SEMANTICS_VERSION))
+            self.assertEqual((kernel.input_shape, kernel.producer_shape), ((6, 8), (6, 8)))
+            digests.add(kernel.semantic_digest)
+        self.assertEqual(len(digests), 3)  # association is retained, never normalized away
 
     def test_constraints_and_objectives(self):
         self.diagnostic(stencil_source(5, 7, -1), 'INVALID_CONSTRAINT')

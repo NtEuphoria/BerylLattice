@@ -10,11 +10,12 @@ import hashlib
 import json
 
 from .model import (
-    AdmittedKernel, AxisBinding, BinaryExpression, ConstraintDeclaration,
+    CANONICAL_PROFILE, AdmittedKernel, AxisBinding, BinaryExpression, ConstraintDeclaration,
     DiagnosticError, EquationDeclaration, Expression, GroupExpression,
     InputDeclaration, IntegerLiteral, Limits, NameReference, Objective,
     ReadExpression, SEMANTICS_VERSION, ShapeDeclaration, SourceModule, Span,
 )
+from .window_family import admit_window, window_shape
 
 
 def _fail(code: str, span: Span, message: str):
@@ -255,6 +256,14 @@ class _Parser:
                             cap, objective, Span(0, len(self.data)), tuple(declarations), tuple(constraints))
 
 
+def require_canonical(kernel: AdmittedKernel, consumer: str) -> AdmittedKernel:
+    """Refuse non-canonical kernels in paths built only for the canonical stencil."""
+    if kernel.profile != CANONICAL_PROFILE:
+        _fail('UNSUPPORTED_PROFILE', kernel.source_module.span,
+              f'{consumer} supports only the canonical stencil')
+    return kernel
+
+
 def parse_source(data: bytes, limits: Limits = Limits()) -> SourceModule:
     """Parse a bounded immutable source snapshot without executing any source."""
     return _Parser(data, limits).parse()
@@ -434,9 +443,14 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     if any(not isinstance(_ungroup(decl.value), IntegerLiteral) for decl in module.shapes):
         _fail('UNSUPPORTED_PROFILE', module.span, 'shape parameters must be literal declarations')
     height, width = (shapes[decl.name] for decl in module.shapes)
+    profile = _profile(module)
+    window = None if profile == _canonical_profile() else window_shape(profile)
+    if window is not None:
+        return admit_window(module, height, width, objective, profile, window)
+    # The canonical stencil and every non-family source keep their historical
+    # checks, order and diagnostics unchanged.
     if (height+1)*(width+1) > 256:
         _fail('UNSUPPORTED_PROFILE', module.span, 'input exceeds 256 cells')
-    profile = _profile(module)
     if profile != _canonical_profile():
         _fail('UNSUPPORTED_PROFILE', module.span, 'source is outside the exact canonical stencil profile')
     semantics = {

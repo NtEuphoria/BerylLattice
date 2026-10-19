@@ -11,7 +11,7 @@ from .codec import DecodeError, canonical_json, plan_digest
 from .frontend import admit_source, parse_source
 from .model import (AdmittedKernel, BinaryExpression, ConstraintStatus, DiagnosticError,
                     GroupExpression, IntegerLiteral, Limits, NameReference,
-                    ReadExpression, SemanticStatus, SourceModule, SEMANTICS_VERSION)
+                    ReadExpression, SemanticStatus, SourceModule, SEMANTICS_VERSIONS)
 from .plan_format import Plan
 
 CHECKER_VERSION = 'axiom-checker-v1'
@@ -207,10 +207,13 @@ def _source_expression(expression, environment, kernel, dag, work):
             if arity != 2:
                 raise _Stop('UNSUPPORTED_SOURCE_READ')
             column, row = values.pop(), values.pop()
-            if not (0 <= row <= kernel.height and 0 <= column <= kernel.width):
+            # Each tensor has its own extent (both are (H+1)x(W+1) canonically).
+            rows, cols = ((kernel.input_rows, kernel.input_cols) if name == input_name
+                          else (kernel.producer_rows, kernel.producer_cols))
+            if not (0 <= row < rows and 0 <= column < cols):
                 raise _Stop('INVALID_SOURCE_INDEX', (('row', row), ('column', column)))
             if name == input_name:
-                values.append(dag.input(row * (kernel.width + 1) + column))
+                values.append(dag.input(row * kernel.input_cols + column))
             elif name == producer.name:
                 producer_env = dict(env)
                 producer_env[producer.axes[0].name] = row
@@ -315,7 +318,7 @@ def _check_plan(kernel, plan, limits, *, additional_cap=None,
     workspace = 4 * plan.scratch_capacity_cells
     constraint = (ConstraintStatus.SATISFIED if effective_cap is None or workspace <= effective_cap
                   else ConstraintStatus.VIOLATED)
-    if kernel.semantics_version != SEMANTICS_VERSION:
+    if kernel.semantics_version not in SEMANTICS_VERSIONS:
         return result(SemanticStatus.UNKNOWN, False, 'UNSUPPORTED_SEMANTICS_VERSION')
     if plan.semantic_digest != kernel.semantic_digest:
         return result(SemanticStatus.INVALID, False, 'SEMANTIC_DIGEST_MISMATCH',
@@ -342,7 +345,8 @@ def _check_plan(kernel, plan, limits, *, additional_cap=None,
         constraint = (ConstraintStatus.SATISFIED if effective_cap is None or workspace <= effective_cap
                       else ConstraintStatus.VIOLATED)
         for field in ('height', 'width', 'cap', 'input_interval', 'objective',
-                      'source_digest', 'semantic_digest', 'semantics_version'):
+                      'source_digest', 'semantic_digest', 'semantics_version',
+                      'profile', 'input_shape', 'producer_shape'):
             supplied, actual = getattr(kernel, field), getattr(fresh, field)
             if type(supplied) is not type(actual) or supplied != actual:
                 return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',
@@ -374,7 +378,7 @@ def _check_plan(kernel, plan, limits, *, additional_cap=None,
             if opcode == 'const':
                 registers.append(dag.literal(operation.value))
             elif opcode == 'input_load':
-                if operation.index >= (kernel.height + 1) * (kernel.width + 1):
+                if operation.index >= kernel.input_count:
                     raise _Stop('INPUT_INDEX_OUT_OF_BOUNDS',
                                 (('operation', position), ('index', operation.index)))
                 registers.append(dag.input(operation.index))

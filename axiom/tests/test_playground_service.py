@@ -147,7 +147,7 @@ class PlaygroundServiceTests(unittest.TestCase):
     def test_malformed_unsupported_and_overlong_sources_return_stable_diagnostics(self):
         service = self.service()
         for source, code in (('module ;', 'SYNTAX_ERROR'),
-                             (self.request()['source'].replace('+1)', '+2)'), 'UNSUPPORTED_PROFILE'),
+                             (self.request()['source'].replace('+p[r+1,c+1]', '+image[r,c]'), 'UNSUPPORTED_PROFILE'),
                              ('x' * 65537, 'SOURCE_BYTES_LIMIT'),
                              ('\ud800', 'INVALID_SOURCE_ENCODING')):
             with self.subTest(code=code):

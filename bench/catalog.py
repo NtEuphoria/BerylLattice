@@ -39,6 +39,8 @@ def checksum(values):
 
 
 # Each kernel: input/output counts as functions of (a, b), size tiers, and
+# (since window-stencil-v1) drafts for every kernel the two-stage window
+# family can express. Separable drafts compute exactly the same integers.
 # what Axiom would need to express it. `axiom_draft` names a file in
 # axiom_drafts/ written in today's grammar, so it is either admitted or
 # rejected with a real diagnostic; None means today's grammar cannot state
@@ -53,22 +55,22 @@ KERNELS = {
         title='1-D 3-point weighted stencil', family='stencil-1d',
         io=lambda a, b: (a + 2, a),
         sizes=dict(s=(254, 0), m=(65534, 0), l=(4194302, 0)),
-        axiom_draft='stencil1d3.ax', missing=['rank-1 tensors', 'second stencil profile']),
+        axiom_draft='stencil1d3.ax', missing=['inputs above 256 cells (m/l tiers)']),
     'box3x3': dict(
         title='3x3 box sum', family='stencil-2d',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
         sizes=dict(s=(14, 14), m=(254, 254), l=(2046, 2046)),
-        axiom_draft='box3x3.ax', missing=['producer-free profile', 'second stencil profile']),
+        axiom_draft='box3x3.ax', missing=['inputs above 256 cells (m/l tiers)']),
     'laplace5': dict(
         title='5-point Laplacian (signed)', family='stencil-2d',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
         sizes=dict(s=(14, 14), m=(254, 254), l=(2046, 2046)),
-        axiom_draft='laplace5.ax', missing=['binary subtraction', 'second stencil profile']),
+        axiom_draft='laplace5.ax', missing=['inputs above 256 cells (m/l tiers)']),
     'conv3x3': dict(
         title='3x3 weighted convolution [1 2 1; 2 4 2; 1 2 1]', family='stencil-2d',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
         sizes=dict(s=(14, 14), m=(254, 254), l=(2046, 2046)),
-        axiom_draft='conv3x3.ax', missing=['second stencil profile', 'separable-plan generator']),
+        axiom_draft='conv3x3.ax', missing=['inputs above 256 cells (m/l tiers)']),
     'life': dict(
         title='Game of Life step (bit 0 = alive)', family='stencil-2d-cond',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
@@ -78,7 +80,7 @@ KERNELS = {
         title='Elementwise x^3 + 3x + 7', family='elementwise',
         io=lambda a, b: (a, a),
         sizes=dict(s=(256, 0), m=(65536, 0), l=(4194304, 0)),
-        axiom_draft='polymap.ax', missing=['rank-1 tensors', 'elementwise profile']),
+        axiom_draft='polymap.ax', missing=['inputs above 256 cells (m/l tiers)']),
     'transpose': dict(
         title='Matrix transpose', family='layout',
         io=lambda a, b: (a * b, a * b),

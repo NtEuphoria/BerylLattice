@@ -1,6 +1,9 @@
-// Draft: 1-D weighted 3-point stencil, written in today's grammar.
+// 1-D weighted 3-point stencil as a two-stage window stencil on a 1 x W grid.
+// The output stage is a plain copy, so inline recomputation is optimal.
 module stencil1d3;
-shape N = 254;
-input x: i32[N+2] in 0..=1023;
-output y[i in 0..N] = (x[i]+2*x[i+1])+x[i+2];
+shape H = 1;
+shape W = 254;
+input x: i32[H,W+2] in 0..=1023;
+let t[r in 0..H,c in 0..W] = (x[r,c]+2*x[r,c+1])+x[r,c+2];
+output y[r in 0..H,c in 0..W] = t[r,c];
 prefer multiplication_ops;

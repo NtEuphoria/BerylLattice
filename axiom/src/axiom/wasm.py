@@ -139,7 +139,7 @@ def _compile_wasm_checked(owned):
 
 
 def _layout(kernel, plan):
-    input_count = (kernel.height + 1) * (kernel.width + 1)
+    input_count = kernel.input_count
     output_count = kernel.height * kernel.width
     output_offset = 4 * input_count
     scratch_offset = output_offset + 4 * output_count

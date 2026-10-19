@@ -138,7 +138,7 @@ def _emit_finite(kernel, plan, source_digest, plan_digest):
 def _native_kernel_parts(kernel, plan, *, comment=None, disjoint_parameters=False,
                          reduction_preflight=False):
     """Shared preflight and storage contract; keep legacy emitted bytes stable."""
-    input_count = (kernel.height + 1) * (kernel.width + 1)
+    input_count = kernel.input_count
     output_count = kernel.height * kernel.width
     if max(input_count, output_count, plan.scratch_capacity_cells) > 256:
         raise DiagnosticError('BACKEND_STORAGE_LIMIT', kernel.source_module.span,
@@ -198,6 +198,6 @@ def _finish_native(parts, kernel, source_digest, plan_digest, *,
     parts.append(_DRIVER)
     generated = ''.join(parts).encode('ascii')
     return NativeArtifact(generated, kernel.height, kernel.width,
-                          (kernel.height+1)*(kernel.width+1), kernel.height*kernel.width,
+                          kernel.input_count, kernel.height*kernel.width,
                           source_digest, plan_digest, sha256(generated).hexdigest(),
                           codegen_version, hint_digest, loop_version)

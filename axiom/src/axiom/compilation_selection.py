@@ -13,7 +13,7 @@ from .codec import DecodeError, canonical_json
 from .compilation import _CompilationContext
 from .model import ConstraintStatus, Limits, Objective, SemanticStatus
 from .plan_format import Plan
-from .planner import PLAN_IDS, make_plan
+from .planner import PLAN_IDS, make_plan, plan_ids
 from .selection import ArtifactState, BUDGET_ACCOUNTING_VERSION, _allowance, ranking_digest
 
 POLICY_ID = 'ranked-proof-v1'
@@ -82,11 +82,11 @@ class FastSearchResult:
     portfolio_optimal: bool
 
 
-def ranked_policy_digest(objective: Objective) -> str:
+def ranked_policy_digest(objective: Objective, portfolio: tuple[str, ...] = PLAN_IDS) -> str:
     """Bind the ranked policy separately from unchanged tuple-ranking identity."""
     return sha256(canonical_json({
         'policy': POLICY_ID, 'report_version': REPORT_VERSION,
-        'ranking_digest': ranking_digest(objective), 'portfolio': list(PLAN_IDS),
+        'ranking_digest': ranking_digest(objective), 'portfolio': list(portfolio),
         'identical_key_tie_break': 'portfolio_order',
         'structural_metrics': ['multiplication_ops', 'workspace_bytes', 'operation_count'],
         'unknown': 'stop_without_artifact', 'generation': 'complete_before_proof',
@@ -142,7 +142,7 @@ def _select_ranked(context, total_check_steps):
     context._live()
     kernel = context.kernel
     objective = kernel.objective
-    policy = ranked_policy_digest(objective)
+    policy = ranked_policy_digest(objective, plan_ids(kernel))
     ranking = ranking_digest(objective)
     constraint = sha256(canonical_json({
         'version': 1, 'property': 'plan_workspace_bytes', 'source_cap': kernel.cap,
@@ -183,7 +183,7 @@ def _select_ranked(context, total_check_steps):
 
     # No proof can establish the fixed portfolio's optimum until every generator
     # has completed and every actual stream has been structurally examined.
-    for candidate_id in PLAN_IDS:
+    for candidate_id in plan_ids(kernel):
         index = len(attempts)
         attempts.append(FastAttemptRecord(
             candidate_id, AttemptState.NOT_CHECKED, None, None, None, None, None,

@@ -69,7 +69,7 @@ def _execute_finite(kernel, plan, data, initial_output):
 
     if data is initial_output:
         raise DiagnosticError('BOUNDARY_ALIAS', module.span, 'input and output must be disjoint')
-    inputs = _snapshot(data, (kernel.height + 1) * (kernel.width + 1),
+    inputs = _snapshot(data, kernel.input_count,
                        'input', module.inputs[0].span)
     initial = _snapshot(initial_output, kernel.height * kernel.width,
                         'output', module.outputs[0].span)

@@ -1,12 +1,11 @@
-// Draft: 3x3 weighted convolution [1 2 1; 2 4 2; 1 2 1]. A planner could
-// choose between direct and separable (row then column) schedules.
+// 3x3 convolution [1 2 1; 2 4 2; 1 2 1] written separably: weighted row
+// pass [1 2 1], then weighted column pass [1 2 1]. Same integers as the
+// direct nine-tap form. With >= 3 rows of scratch the planner reuses rows.
 module conv3x3;
 shape H = 14;
 shape W = 14;
 input g: i32[H+2,W+2] in 0..=1023;
-output o[r in 0..H,c in 0..W] =
-  g[r,c]+2*g[r,c+1]+g[r,c+2]
-  +2*g[r+1,c]+4*g[r+1,c+1]+2*g[r+1,c+2]
-  +g[r+2,c]+2*g[r+2,c+1]+g[r+2,c+2];
-require plan_workspace_bytes <= 64;
+let t[r in 0..H+2,c in 0..W] = (g[r,c]+2*g[r,c+1])+g[r,c+2];
+output o[r in 0..H,c in 0..W] = (t[r,c]+2*t[r+1,c])+t[r+2,c];
+require plan_workspace_bytes <= 1024;
 prefer multiplication_ops;

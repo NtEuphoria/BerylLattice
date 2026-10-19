@@ -15,7 +15,7 @@ import stat
 
 from .checker import CHECKER_VERSION, CHECK_ACCOUNTING_VERSION, CheckResult, check_plan
 from .codec import DecodeError, canonical_json, decode_plan, encode_plan, strict_json_loads
-from .frontend import admit_source, parse_source
+from .frontend import admit_source, parse_source, require_canonical
 from .model import ConstraintStatus, Limits, Objective, SemanticStatus, SourceModule, SEMANTICS_VERSION
 from .selection import (ArtifactState, AttemptRecord, BUDGET_ACCOUNTING_VERSION,
                         SearchResult, SearchStop, ranking_digest)
@@ -305,7 +305,7 @@ def replay(source: bytes, plan_bytes: bytes, manifest_bytes: bytes,
         _fail('$.plan_digest','manifest has no eligible artifact','NO_REPLAY_ARTIFACT')
     if sha256(plan_bytes).hexdigest()!=manifest.plan_digest:
         _fail('$.plan_digest','exact plan bytes mismatch','REPLAY_IDENTITY_MISMATCH')
-    kernel=admit_source(parse_source(source,limits))
+    kernel=require_canonical(admit_source(parse_source(source,limits)),'evidence replay')
     if (kernel.semantic_digest!=manifest.semantic_digest or kernel.cap!=manifest.original_effective_cap
             or kernel.objective!=manifest.objective):
         _fail('$','source admission does not match manifest','REPLAY_IDENTITY_MISMATCH')
@@ -366,7 +366,7 @@ def _manifest(module, result):
     fresh_module=parse_source(module.source_bytes,result.limits)
     if not _same_typed(module,fresh_module):
         raise ValueError('module does not match its immutable source snapshot')
-    kernel=admit_source(fresh_module)
+    kernel=require_canonical(admit_source(fresh_module),'evidence')
     if type(result.objective) is not Objective or result.objective!=kernel.objective:
         raise ValueError('objective must match source')
     if (type(result.attempts) is not tuple or len(result.attempts)>MAX_ATTEMPTS

@@ -95,7 +95,7 @@ def _request_source(request, limits):
 
 
 def _inputs(request, kernel):
-    count = (kernel.height + 1) * (kernel.width + 1)
+    count = kernel.input_count
     mode = request['input_mode']
     if mode == 'custom':
         if len(request['inputs']) != count:
@@ -106,7 +106,7 @@ def _inputs(request, kernel):
         return list(range(count))
     if mode == 'checkerboard':
         return [1023 * ((row + column) % 2)
-                for row in range(kernel.height + 1) for column in range(kernel.width + 1)]
+                for row in range(kernel.input_rows) for column in range(kernel.input_cols)]
     return [0] * count
 
 
@@ -125,7 +125,7 @@ def _report(kernel, search, data, backend):
     result = dict(schema_version=1, status='no_eligible_plan', backend=backend,
         source_digest=kernel.source_digest,
         shape=dict(height=kernel.height, width=kernel.width,
-                   input_height=kernel.height + 1, input_width=kernel.width + 1),
+                   input_height=kernel.input_rows, input_width=kernel.input_cols),
         objective=kernel.objective.value, workspace_cap=kernel.cap, selected=None,
         attempts=attempts,
         search=dict(termination_reason=search.termination_reason.value, work_used=search.total_work_used),
@@ -177,7 +177,7 @@ def _first_out_of_range(kernel, data):
     value leaves the request on the normal path, so malformed-boundary errors
     keep their precedence over the source precondition.
     """
-    if (len(data) != (kernel.height + 1) * (kernel.width + 1)
+    if (len(data) != kernel.input_count
             or any(type(v) is not int or not -2147483648 <= v <= 2147483647 for v in data)):
         return None
     lower, upper = kernel.input_interval
@@ -203,7 +203,7 @@ def _run(request):
             result = dict(schema_version=1, status='no_eligible_plan', backend=_BACKEND,
                 source_digest=kernel.source_digest,
                 shape=dict(height=kernel.height, width=kernel.width,
-                           input_height=kernel.height + 1, input_width=kernel.width + 1),
+                           input_height=kernel.input_rows, input_width=kernel.input_cols),
                 objective=kernel.objective.value, workspace_cap=kernel.cap, selected=None,
                 attempts=[], search=None, input=data, output=None, comparison=None,
                 first_bad_index=None, diagnostic=None)
@@ -299,7 +299,7 @@ def _compiled_boundaries(request):
         raise DiagnosticError('PREPARED_SOURCE_MISMATCH', Span(0, 0),
                               'The request source does not match the active preparation.')
     kernel, module = prepared.kernel, prepared.module
-    data = _snapshot(_inputs(request, kernel), (kernel.height + 1) * (kernel.width + 1),
+    data = _snapshot(_inputs(request, kernel), kernel.input_count,
                      'input', module.inputs[0].span)
     initial = _snapshot([-9] * (kernel.height * kernel.width), kernel.height * kernel.width,
                         'output', module.outputs[0].span)

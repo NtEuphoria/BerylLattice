@@ -4,6 +4,10 @@ from enum import StrEnum
 from typing import TypeAlias
 
 SEMANTICS_VERSION = 'axiom-stencil-i32-v1'
+CANONICAL_PROFILE = 'canonical-stencil-v1'
+WINDOW_PROFILE = 'window-stencil-v1'
+WINDOW_SEMANTICS_VERSION = 'window-stencil-i32-v1'
+SEMANTICS_VERSIONS = (SEMANTICS_VERSION, WINDOW_SEMANTICS_VERSION)
 
 
 class Objective(StrEnum):
@@ -166,3 +170,32 @@ class AdmittedKernel:
     source_expressions: tuple[Expression, Expression]
     semantics_version: str
     source_module: SourceModule
+    # The canonical stencil keeps its historical implicit shapes (input
+    # (H+1)x(W+1), producer the same). Two-stage window stencils state them.
+    profile: str = 'canonical-stencil-v1'
+    input_shape: tuple[int, int] | None = None
+    producer_shape: tuple[int, int] | None = None
+
+    @property
+    def input_rows(self) -> int:
+        return self.height + 1 if self.input_shape is None else self.input_shape[0]
+
+    @property
+    def input_cols(self) -> int:
+        return self.width + 1 if self.input_shape is None else self.input_shape[1]
+
+    @property
+    def input_count(self) -> int:
+        return self.input_rows * self.input_cols
+
+    @property
+    def producer_rows(self) -> int:
+        return self.height + 1 if self.producer_shape is None else self.producer_shape[0]
+
+    @property
+    def producer_cols(self) -> int:
+        return self.width + 1 if self.producer_shape is None else self.producer_shape[1]
+
+    @property
+    def output_count(self) -> int:
+        return self.height * self.width

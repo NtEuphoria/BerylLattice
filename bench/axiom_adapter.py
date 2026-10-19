@@ -93,7 +93,8 @@ def request(kernel, pattern, a, b, cap, objective):
     n_in, n_out = spec['io'](a, b)
     if spec['axiom_draft'] is None:
         return None, None, n_out, None
-    shapes = (a,) if spec['family'] in ('stencil-1d', 'elementwise') else (a, b)
+    # 1-D and elementwise kernels are written as 1 x W window stencils.
+    shapes = (1, a) if spec['family'] in ('stencil-1d', 'elementwise') else (a, b)
     return draft_source(spec['axiom_draft'], shapes, cap, objective), gen_input(pattern, n_in), n_out, None
 
 

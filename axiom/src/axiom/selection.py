@@ -13,7 +13,7 @@ from .codec import canonical_json, encode_plan
 from .frontend import admit_source, parse_source
 from .model import AdmittedKernel, ConstraintStatus, Limits, Objective, SemanticStatus
 from .plan_format import Plan
-from .planner import PLAN_IDS, make_plan
+from .planner import make_plan, plan_ids
 
 BUDGET_ACCOUNTING_VERSION = CHECK_ACCOUNTING_VERSION
 RANKING_VERSION = 1
@@ -146,7 +146,7 @@ def _select_portfolio(kernel, limits, total_check_steps, objective, optional_che
                             optional_used, ArtifactState.AVAILABLE if incumbent else ArtifactState.NONE,
                             limits)
 
-    for candidate_id in PLAN_IDS:
+    for candidate_id in plan_ids(kernel):
         is_optional = incumbent is not None
         total_remaining = total_check_steps - total_used
         if total_remaining == 0:

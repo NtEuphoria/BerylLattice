@@ -1,9 +1,10 @@
-// Draft: 5-point Laplacian. Today's grammar has no binary minus, so
-// subtraction is written as + -1*x (unary minus is literal-only).
+// 5-point Laplacian. The producer is the input itself; subtraction is
+// written + -1*x because unary minus is literal-only in today's grammar.
 module laplace5;
 shape H = 14;
 shape W = 14;
 input g: i32[H+2,W+2] in 0..=1023;
+let p[r in 0..H+2,c in 0..W+2] = g[r,c];
 output o[r in 0..H,c in 0..W] =
-  4*g[r+1,c+1] + -1*g[r,c+1] + -1*g[r+2,c+1] + -1*g[r+1,c] + -1*g[r+1,c+2];
+  4*p[r+1,c+1] + -1*p[r,c+1] + -1*p[r+2,c+1] + -1*p[r+1,c] + -1*p[r+1,c+2];
 prefer multiplication_ops;

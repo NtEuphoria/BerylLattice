@@ -18,20 +18,26 @@ Requires Python 3.12+, and optionally `clang`, `rustc`, `node` and `numpy`
 
 ## What Axiom can and cannot run today
 
-Axiom's frontend currently admits exactly one program shape, the canonical
-squared 2x2 stencil (`axiom_drafts/sq2x2.ax`), with at most 256 input cells.
-The suite is built around that fact rather than hiding it:
+Axiom admits the canonical squared 2x2 stencil (`axiom_drafts/sq2x2.ax`) and,
+since `window-stencil-v1`, any two-stage window stencil: a producer that
+reads the input at literal offsets and an output that reads the producer at
+literal offsets, using integer literals, `+` and `*`, with at most 256 input
+cells. Separable kernels are written in their separable form, which computes
+exactly the same integers as the direct form.
 
-- **Runs on Axiom:** `sq2x2` at the small size, plus a sweep over workspace
-  caps (0 to 1024 bytes) and both objectives. The sweep shows the planner
-  switching from `inline-v1` (no scratch) to `rows2-v1` (row reuse) when
-  storage allows it, with every result still independently checked.
-- **Target workloads:** the other 13 kernels and the larger sizes. When today's
-  grammar can write the kernel, `axiom_drafts/` holds a real draft and the
-  log records Axiom's actual rejection message. When it cannot, the catalog
-  lists the missing language features. `summarize.py` ranks those features by
-  how many cases they block, which gives a data-driven roadmap. When a kernel
-  starts passing, `--compare` reports it as a **COVERAGE GAIN**.
+- **Runs on Axiom (small size):** `sq2x2`, `conv3x3`, `box3x3`, `laplace5`,
+  `stencil1d3` (as a 1 x W grid) and `polymap`. The `sq2x2` sweep over caps
+  (0 to 1024 bytes) and objectives shows the planner switching from
+  `inline-v1` (no scratch) to row reuse when storage allows it. For family
+  kernels the portfolio is `inline-v1`, `rows-v1` (a rolling window of the K
+  producer rows one output row reads) and `materialize-v1`, every candidate
+  independently checked.
+- **Target workloads:** the remaining kernels and the larger sizes. When
+  today's grammar can write the kernel, `axiom_drafts/` holds a real draft and
+  the log records Axiom's actual rejection message. When it cannot, the
+  catalog lists the missing language features. `summarize.py` ranks those
+  features by how many cases they block, which gives a data-driven roadmap.
+  When a kernel starts passing, `--compare` reports it as a **COVERAGE GAIN**.
 - **Rejection latency:** `reject_range`, `reject_shape` and `reject_profile`
   time how long Axiom takes to refuse a bad request.
 
@@ -40,10 +46,10 @@ The suite is built around that fact rather than hiding it:
 | kernel | family | sizes s / m / l (params) | Axiom today |
 |---|---|---|---|
 | sq2x2 | 2-D stencil | 15x15 / 255x255 / 2047x2047 | s runs; m/l exceed 256 cells |
-| stencil1d3 | 1-D stencil | 254 / 65534 / 4194302 | draft rejected |
-| box3x3, laplace5, conv3x3 | 2-D stencil | 14x14 / 254x254 / 2046x2046 | drafts rejected |
+| stencil1d3 | 1-D stencil | 254 / 65534 / 4194302 | s runs (1 x W); m/l exceed 256 cells |
+| box3x3, laplace5, conv3x3 | 2-D stencil | 14x14 / 254x254 / 2046x2046 | s runs (separable two-stage form); m/l exceed 256 cells |
 | life | conditional stencil | same | not expressible |
-| polymap | elementwise | 256 / 65536 / 4194304 | draft rejected |
+| polymap | elementwise | 256 / 65536 / 4194304 | s runs (1 x W); m/l exceed 256 cells |
 | transpose | layout | 16x16 / 256x256 / 2048x2048 | draft rejected |
 | maxpool2 | conditional stencil | 8x8 / 128x128 / 1024x1024 output | not expressible |
 | sum, dot, scan, hist | reduction / scan / scatter | about 256 / 65K / 4M inputs | not expressible |
