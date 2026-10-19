@@ -23,6 +23,8 @@ import { getExamples, runDemo } from "./transport.js";
     "balanced": { title: "Fewer calculations", description: "Allow 64 bytes of temporary storage and prefer fewer multiplications." },
     "no-scratch": { title: "No temporary storage", description: "Allow no temporary storage. beryl must recalculate values instead of saving them." },
     "small-memory": { title: "Least storage", description: "Allow up to 64 bytes, but prefer the plan that uses the least temporary storage." },
+    "separable-blur": { title: "Separable blur", description: "Row sums, then a column sum of row sums. With 128 bytes, beryl keeps a 3-row window and computes each row sum once." },
+    "laplacian": { title: "Edge detector", description: "A 5-point Laplacian written with subtraction. The first stage is a plain copy, so recomputing is already optimal." },
   };
   let examples = [];
   let requestId = 0;

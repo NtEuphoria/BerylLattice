@@ -93,7 +93,8 @@ def measure(args):
         for name, data in source_bytes.items():
             source = root / (name + '.c')
             source.write_bytes(data)
-            obj, executable = root / (name + '.o'), root / name
+            # clang appends .exe on Windows whatever -o says.
+            obj, executable = root / (name + '.o'), root / (name + ('.exe' if os.name == 'nt' else ''))
             compile_command = [clang, *FLAGS, '-Dmain=beryl_generated_main',
                                '-c', str(source), '-o', str(obj)]
             link_command = [clang, '-fno-lto', str(obj), str(driver_object), '-o', str(executable)]

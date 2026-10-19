@@ -294,7 +294,7 @@ class PlaygroundIntegrationTests(HTTPFixture):
         status, _, body = self.request(path="/api/examples")
         self.assertEqual(status, 200)
         examples = {example["id"]: example for example in json.loads(body)["examples"]}
-        self.assertEqual(set(examples), {"balanced", "no-scratch", "small-memory"})
+        self.assertEqual(set(examples), {"balanced", "no-scratch", "small-memory", "separable-blur", "laplacian"})
         status, _, body = self.post(json.dumps({"source": examples["balanced"]["source"], "input_mode": "ramp"}))
         self.assertEqual(status, 200)
         result = json.loads(body)

@@ -31,8 +31,8 @@ class PlaygroundServiceTests(unittest.TestCase):
         service = self.service()
         examples = service.get_examples()
         self.assertEqual(set(examples), {'examples'})
-        self.assertEqual([e['id'] for e in examples['examples']], ['balanced', 'no-scratch', 'small-memory'])
-        expected = ['rows2-v1', 'inline-v1', 'inline-v1']
+        self.assertEqual([e['id'] for e in examples['examples']], ['balanced', 'no-scratch', 'small-memory', 'separable-blur', 'laplacian'])
+        expected = ['rows2-v1', 'inline-v1', 'inline-v1', 'rows-v1', 'inline-v1']
         for example, selected in zip(examples['examples'], expected):
             with self.subTest(example=example['id']):
                 self.assertEqual(set(example), {'id', 'title', 'description', 'source'})

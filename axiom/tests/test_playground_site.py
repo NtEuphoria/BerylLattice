@@ -21,7 +21,7 @@ PUBLIC_MODULES = {
     'codec', 'plan_format', 'planner', 'selection', 'reference', 'wasm', 'native_codegen',
     'compilation', 'compilation_trace', 'compilation_selection', 'source_compilation', 'bounded_loop_model',
     'bounded_loop_codec', 'bounded_loop_planner', 'bounded_loop_correspondence',
-    'bounded_loop_c', 'bounded_loop_wasm', 'window_family', 'window_planner', 'window_loop_planner',
+    'bounded_loop_c', 'bounded_loop_wasm', 'window_family', 'window_planner', 'window_loop_planner', 'window_explain',
 }
 
 _NODE_COMPILED_RUNNER = r'''
@@ -316,7 +316,7 @@ class PlaygroundSiteTests(unittest.TestCase):
                       for path in outputs[1].rglob('*') if path.is_file()}
             self.assertEqual(first, second)
             readme = first[Path('README.md')].decode()
-            self.assertIn('26 compiler/runtime Python modules', readme)
+            self.assertIn('27 compiler/runtime Python modules', readme)
             self.assertIn('compiled Wasm instance is reused', readme)
             self.assertIn('independent evaluation of the source', readme)
             self.assertIn('finite-plan native C generator', readme)
@@ -342,7 +342,7 @@ class PlaygroundSiteTests(unittest.TestCase):
                     for mode in ('ramp', 'zeros', 'checkerboard', 'custom'):
                         request = dict(source=example['source'], input_mode=mode)
                         if mode == 'custom':
-                            request['inputs'] = [3] * 48
+                            request['inputs'] = [3] * len(cases[-3]['public']['input'])
                         cases.append(dict(name=example['id'] + '/' + mode,
                                           public=run_demo(request), private=private_run(request)))
                 source = get_examples()['examples'][0]['source']
@@ -365,14 +365,19 @@ class PlaygroundSiteTests(unittest.TestCase):
             self.assertEqual(report['catalog'], report['private_catalog'])
             self.assertEqual(report['semantics_version'], 'beryl-stencil-i32-v1')
             self.assertEqual(report['checker_version'], 'beryl-checker-v1')
-            self.assertEqual(len(report['cases']), 16)
+            demos = 4 * len(report['catalog']['examples'])
+            self.assertEqual(len(report['catalog']['examples']), 5)
+            self.assertEqual(len(report['cases']), demos + 4)
             for index, case in enumerate(report['cases']):
                 with self.subTest(case=case['name']):
                     public, private = case['public'], case['private']
-                    if index < 12:
+                    if index < demos:
                         self.assertEqual(public['status'], 'success')
-                        self.assertNotEqual(public['selected']['plan_digest'],
-                                            private['selected']['plan_digest'])
+                        # Only the canonical identity carries the renamed semantics
+                        # version; window-family identities are the same in both builds.
+                        family = case['name'].split('/')[0] in ('separable-blur', 'laplacian')
+                        (self.assertEqual if family else self.assertNotEqual)(
+                            public['selected']['plan_digest'], private['selected']['plan_digest'])
                         del public['selected']['plan_digest']
                         del private['selected']['plan_digest']
                     else:

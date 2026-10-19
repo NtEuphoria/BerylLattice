@@ -15,6 +15,7 @@ from .model import (
     InputDeclaration, IntegerLiteral, Limits, NameReference, Objective,
     ReadExpression, SEMANTICS_VERSION, ShapeDeclaration, SourceModule, Span,
 )
+from .window_explain import explain, explain_counts
 from .window_family import admit_window, window_shape
 
 
@@ -135,9 +136,19 @@ class _Parser:
         if nesting > 32:
             _fail('EXPRESSION_DEPTH_LIMIT', self.token.span, 'expression nesting exceeds 32')
         left = self.product(scalar, nesting)
-        while self.token.text == '+':
-            self.take('+')
+        while self.token.text in ('+', '-'):
+            operator = self.take()
+            if operator.text == '-' and not scalar:
+                _fail('SYNTAX_ERROR', operator.span,
+                      'subtraction is only allowed in scalar expressions; write indices as r + k with k >= 0')
             right = self.product(scalar, nesting)
+            if operator.text == '-':
+                # `a - b` is defined as exactly `a + (-1)*b`: every node stays an
+                # i32-checked + or *, so checking and every backend are unchanged.
+                minus_one = self.node(IntegerLiteral(-1, operator.span))
+                right = self.node(BinaryExpression('*', minus_one, right,
+                    Span(operator.span.offset, right.span.offset+right.span.length-operator.span.offset)),
+                    (minus_one, right))
             left = self.node(BinaryExpression('+', left, right,
                 Span(left.span.offset, right.span.offset+right.span.length-left.span.offset)), (left, right))
         return left
@@ -438,7 +449,8 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     except ValueError:
         _fail('UNSUPPORTED_OBJECTIVE', module.span, 'unknown objective')
     if (len(module.shapes), len(module.inputs), len(module.producers), len(module.outputs)) != (2, 1, 1, 1):
-        _fail('UNSUPPORTED_PROFILE', module.span, 'requires exactly two shapes, one input, one producer and one output')
+        span, message = explain_counts(module)
+        _fail('UNSUPPORTED_PROFILE', module.span if span.length == 0 else span, message)
     # Shape declarations must be literal parameters, rather than arbitrary constant propagation.
     if any(not isinstance(_ungroup(decl.value), IntegerLiteral) for decl in module.shapes):
         _fail('UNSUPPORTED_PROFILE', module.span, 'shape parameters must be literal declarations')
@@ -452,7 +464,9 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     if (height+1)*(width+1) > 256:
         _fail('UNSUPPORTED_PROFILE', module.span, 'input exceeds 256 cells')
     if profile != _canonical_profile():
-        _fail('UNSUPPORTED_PROFILE', module.span, 'source is outside the exact canonical stencil profile')
+        # Admission was decided above; the explainer only words the rejection.
+        span, message = explain(module)
+        _fail('UNSUPPORTED_PROFILE', span, message)
     semantics = {
         'semantics_version': SEMANTICS_VERSION,
         'height': height, 'width': width, 'profile': profile,

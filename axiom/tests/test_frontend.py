@@ -139,11 +139,37 @@ class FrontendTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 Limits(check_steps=value)
 
-    def test_syntax_rejects_subtraction_and_invalid_tokens(self):
+    def test_subtraction_scope_and_invalid_tokens(self):
         source = stencil_source(5, 7)
-        self.diagnostic(source.replace(b'image[r,c]+1', b'image[r,c]-1'), 'SYNTAX_ERROR')
+        # Scalar subtraction is defined as exactly a + (-1)*b ...
+        minus = admit_source(parse_source(source.replace(b'image[r,c]+1', b'image[r,c]-1')))
+        spelled = admit_source(parse_source(source.replace(b'image[r,c]+1', b'image[r,c]+-1*1')))
+        self.assertEqual(minus.semantic_digest, spelled.semantic_digest)
+        self.assertNotEqual(minus.semantic_digest, admit_source(parse_source(source)).semantic_digest)
+        # ... while indices and shapes still reject it, at the operator.
+        caught = self.diagnostic(source.replace(b'p[r+1,c+1]', b'p[r+1,c-1]'), 'SYNTAX_ERROR')
+        self.assertEqual(source.replace(b'p[r+1,c+1]', b'p[r+1,c-1]')[caught.span.offset:caught.span.offset + 1], b'-')
+        self.diagnostic(source.replace(b'shape W = 7;', b'shape W = 8 - 1;'), 'SYNTAX_ERROR')
         self.diagnostic(source + b'@', 'INVALID_TOKEN')
         self.diagnostic(source.replace(b'module demo;', b'module demo'), 'SYNTAX_ERROR')
+
+    def test_rejections_name_the_rule_and_location(self):
+        source = stencil_source(5, 7)
+        cases = [
+            (source.replace(b'+p[r+1,c+1]', b'+image[r,c]'), b'image', 'may only read `p`'),
+            (stencil_source(5, 5).replace(b'p[r,c+1]', b'p[c,r]'), b'c', 'first index must be `r`'),
+            (source.replace(b'in 0..=1023', b'in 0..=1022'), b'input', 'in 0..=1023'),
+            (source.replace(b'i32[H+1,W+1]', b'i32[6,8]'), b'6', 'input dimensions must be `H`'),
+            (source.replace(b'result[r in 0..H,', b'result[r in 1..H,'), b'r in 1..H', 'output axes must be exactly'),
+        ]
+        for bad, at, message in cases:
+            with self.subTest(message=message):
+                error = self.diagnostic(bad, 'UNSUPPORTED_PROFILE')
+                self.assertIn(message, error.message)
+                self.assertEqual(bad[error.span.offset:error.span.offset + len(at)], at)
+        counts = self.diagnostic(source.replace(b'let p[r in 0..H+1,c in 0..W+1] =\n  (image[r,c]+1)*(image[r,c]+1);\n', b'')
+                                 .replace(b'p[', b'image['), 'UNSUPPORTED_PROFILE')
+        self.assertIn('found 2 shape(s), 1 input(s), 0 producer(s)', counts.message)
 
 
 if __name__ == '__main__':

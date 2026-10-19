@@ -50,19 +50,43 @@ class _PreparedDemo:
 _active_preparation = None
 
 
+_CONV_SOURCE = '''module blur;
+shape H = 6;
+shape W = 8;
+input image: i32[H+2,W+2] in 0..=1023;
+let rows[r in 0..H+2,c in 0..W] =
+  (image[r,c]+2*image[r,c+1])+image[r,c+2];
+output result[r in 0..H,c in 0..W] =
+  (rows[r,c]+2*rows[r+1,c])+rows[r+2,c];
+require plan_workspace_bytes <= 128;
+prefer multiplication_ops;
+'''
+_LAPLACE_SOURCE = '''module edges;
+shape H = 6;
+shape W = 8;
+input image: i32[H+2,W+2] in 0..=1023;
+let p[r in 0..H+2,c in 0..W+2] = image[r,c];
+output result[r in 0..H,c in 0..W] =
+  4*p[r+1,c+1] - p[r,c+1] - p[r+2,c+1] - p[r+1,c] - p[r+1,c+2];
+prefer multiplication_ops;
+'''
+
+
 def get_examples() -> dict:
     """Return fresh, complete source examples without accessing the filesystem."""
     definitions = (
         ('balanced', 'Reuse two rows', 'Reduce multiplication with a 64-byte plan scratch limit.',
-         64, 'multiplication_ops'),
+         _SOURCE.format(cap=64, objective='multiplication_ops')),
         ('no-scratch', 'No plan scratch', 'Recompute producer values with a zero-byte scratch limit.',
-         0, 'multiplication_ops'),
+         _SOURCE.format(cap=0, objective='multiplication_ops')),
         ('small-memory', 'Prefer less scratch', 'Rank scratch first, even when more scratch is permitted.',
-         64, 'plan_workspace_bytes'),
+         _SOURCE.format(cap=64, objective='plan_workspace_bytes')),
+        ('separable-blur', 'Separable 3x3 blur', 'A two-stage window stencil: row sums, then a column sum of row sums.',
+         _CONV_SOURCE),
+        ('laplacian', 'Edge detector', 'A 5-point Laplacian written with subtraction.', _LAPLACE_SOURCE),
     )
-    return {'examples': [dict(id=identifier, title=title, description=description,
-                              source=_SOURCE.format(cap=cap, objective=objective))
-                         for identifier, title, description, cap, objective in definitions]}
+    return {'examples': [dict(id=identifier, title=title, description=description, source=source)
+                         for identifier, title, description, source in definitions]}
 
 
 def _error(code, message, offset=None):

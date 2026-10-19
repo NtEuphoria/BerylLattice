@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 extern int32_t beryl_kernel(const int32_t *, int32_t *);
 
@@ -29,9 +32,18 @@ static uint64_t number(const char *text) {
 }
 
 static uint64_t now_ns(void) {
+#ifdef _WIN32
+    /* MinGW links no clock_gettime; QueryPerformanceCounter is monotonic. */
+    LARGE_INTEGER count, frequency;
+    if (!QueryPerformanceCounter(&count) || !QueryPerformanceFrequency(&frequency))
+        fail("monotonic clock");
+    uint64_t ticks = (uint64_t)count.QuadPart, hz = (uint64_t)frequency.QuadPart;
+    return ticks / hz * UINT64_C(1000000000) + ticks % hz * UINT64_C(1000000000) / hz;
+#else
     struct timespec time;
     if (clock_gettime(CLOCK_MONOTONIC, &time)) fail("monotonic clock");
     return (uint64_t)time.tv_sec * UINT64_C(1000000000) + (uint64_t)time.tv_nsec;
+#endif
 }
 
 static void initialize(int32_t *input, int32_t *output, size_t n, size_t m,
