@@ -4,3 +4,7 @@ __pycache__/
 .beryl-cache/
 .local/
 axiom/artifacts/
+# Local editor/agent plugin state, never project content.
+.claude-flow/
+/.blender-toolkit/
+/sessions/
