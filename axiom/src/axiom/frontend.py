@@ -15,6 +15,7 @@ from .model import (
     InputDeclaration, IntegerLiteral, Limits, NameReference, Objective,
     ReadExpression, SEMANTICS_VERSION, ShapeDeclaration, SourceModule, Span,
 )
+from .reduce_family import admit_reduce, parse_sum, reduce_shape
 from .window_explain import explain, explain_counts
 from .window_family import admit_window, window_shape
 
@@ -87,6 +88,8 @@ class _Parser:
         self.pos = 0
         self.nodes = 0
         self.depths = {}
+        self.reserved = set()  # shapes, plus the axes of the equation being parsed
+        self.sum_names = []
 
     @property
     def token(self):
@@ -174,6 +177,8 @@ class _Parser:
             self.take(')')
             return self.node(GroupExpression(child, self.span_from(token.span)), (child,))
         name = self.identifier()
+        if scalar and name.text == 'sum' and self.token.text == '(':
+            return parse_sum(self, name, nesting)
         if scalar and self.token.text == '[':
             self.take('[')
             indices = [self.expression(False, nesting+1)]
@@ -201,6 +206,7 @@ class _Parser:
                 self.take(';')
                 decl = ShapeDeclaration(name.text, value, self.span_from(start.span), name.span)
                 shapes.append(decl)
+                self.reserved.add(name.text)
             elif start.text == 'input':
                 name = self.identifier()
                 self.take(':')
@@ -234,7 +240,10 @@ class _Parser:
                     self.take(',')
                 self.take(']')
                 self.take('=')
+                axis_names = {axis.name for axis in axes} - self.reserved
+                self.reserved |= axis_names
                 expression = self.expression(True)
+                self.reserved -= axis_names
                 self.take(';')
                 decl = EquationDeclaration(name.text, tuple(axes), expression, self.span_from(start.span), name.span,
                                            'producer' if start.text == 'let' else 'output')
@@ -448,7 +457,8 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
         objective = Objective(module.objective)
     except ValueError:
         _fail('UNSUPPORTED_OBJECTIVE', module.span, 'unknown objective')
-    if (len(module.shapes), len(module.inputs), len(module.producers), len(module.outputs)) != (2, 1, 1, 1):
+    counts = (len(module.shapes), len(module.inputs), len(module.producers), len(module.outputs))
+    if counts not in ((2, 1, 1, 1), (2, 2, 1, 1)):
         span, message = explain_counts(module)
         _fail('UNSUPPORTED_PROFILE', module.span if span.length == 0 else span, message)
     # Shape declarations must be literal parameters, rather than arbitrary constant propagation.
@@ -456,9 +466,16 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
         _fail('UNSUPPORTED_PROFILE', module.span, 'shape parameters must be literal declarations')
     height, width = (shapes[decl.name] for decl in module.shapes)
     profile = _profile(module)
-    window = None if profile == _canonical_profile() else window_shape(profile)
+    canonical = profile == _canonical_profile()
+    window = None if canonical else window_shape(profile)
     if window is not None:
         return admit_window(module, height, width, objective, profile, window)
+    reduce = None if canonical else reduce_shape(profile, height, width)
+    if reduce is not None:
+        return admit_reduce(module, height, width, objective, profile, reduce)
+    if counts[1] != 1:
+        span, message = explain(module)
+        _fail('UNSUPPORTED_PROFILE', span, message)
     # The canonical stencil and every non-family source keep their historical
     # checks, order and diagnostics unchanged.
     if (height+1)*(width+1) > 256:

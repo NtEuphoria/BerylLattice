@@ -117,10 +117,16 @@ def evaluate_source(module: SourceModule, data: tuple[int, ...] | list[int],
     shapes = {}
     for declaration in module.shapes:
         shapes[declaration.name] = _evaluate_expression(declaration.value, shapes, tensors)
-    input_declaration = module.inputs[0]
-    dimensions = tuple(_evaluate_expression(dimension, shapes, tensors)
-                       for dimension in input_declaration.dimensions)
-    tensors[input_declaration.name] = dict(zip(product(*(range(size) for size in dimensions)), input_values))
+    # Inputs occupy the buffer in declaration order, each row-major.
+    offset = 0
+    for input_declaration in module.inputs:
+        dimensions = tuple(_evaluate_expression(dimension, shapes, tensors)
+                           for dimension in input_declaration.dimensions)
+        cells = list(product(*(range(size) for size in dimensions)))
+        tensors[input_declaration.name] = dict(zip(cells, input_values[offset:offset + len(cells)]))
+        offset += len(cells)
+    if offset != len(input_values):
+        raise DiagnosticError('BOUNDARY_LENGTH', module.span, 'input layout does not cover the buffer')
     for equation in module.producers:
         _evaluate_equation(equation, shapes, tensors)
     output = _evaluate_equation(module.outputs[0], shapes, tensors)

@@ -7,7 +7,7 @@ stack usage is not the plan's reserved logical scratch metric.
 from dataclasses import dataclass
 from hashlib import sha256
 
-from .model import DiagnosticError, Limits, WINDOW_PROFILE
+from .model import DiagnosticError, Limits, REDUCE_PROFILE, WINDOW_PROFILE
 from .runtime import _checked_plan
 
 
@@ -110,9 +110,9 @@ def _emit_native_c_checked(owned):
 
 
 def _emit_finite(kernel, plan, source_digest, plan_digest):
-    # Window-stencil kernels have no legacy published bytes: give them the
+    # Window-stencil and reduce-v1 kernels have no legacy published bytes: give them the
     # compact path's reduction preflight and restrict-qualified contract.
-    window = kernel.profile == WINDOW_PROFILE
+    window = kernel.profile in (WINDOW_PROFILE, REDUCE_PROFILE)
     parts = _native_kernel_parts(kernel, plan, disjoint_parameters=window, reduction_preflight=window)
     for operation in plan.operations:
         opcode = operation.opcode

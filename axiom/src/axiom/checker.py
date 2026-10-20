@@ -152,7 +152,12 @@ def _source_expression(expression, environment, kernel, dag, work):
     """
     module = kernel.source_module
     producer = module.producers[0]
-    input_name = module.inputs[0].name
+    # Inputs share one buffer, concatenated in declaration order (one input
+    # canonically): name -> (base offset, rows, columns).
+    inputs, base = {}, 0
+    for declaration, (rows, cols) in zip(module.inputs, kernel.all_input_shapes, strict=True):
+        inputs[declaration.name] = (base, rows, cols)
+        base += rows * cols
     if dag.source_kernel is not kernel:
         # Ownership fixes the actual retained AST, dimensions, tensor names and
         # interval. Keep the object alive; neither labels nor caller digests key
@@ -208,12 +213,12 @@ def _source_expression(expression, environment, kernel, dag, work):
                 raise _Stop('UNSUPPORTED_SOURCE_READ')
             column, row = values.pop(), values.pop()
             # Each tensor has its own extent (both are (H+1)x(W+1) canonically).
-            rows, cols = ((kernel.input_rows, kernel.input_cols) if name == input_name
-                          else (kernel.producer_rows, kernel.producer_cols))
+            base, rows, cols = (inputs[name] if name in inputs
+                                else (None, kernel.producer_rows, kernel.producer_cols))
             if not (0 <= row < rows and 0 <= column < cols):
                 raise _Stop('INVALID_SOURCE_INDEX', (('row', row), ('column', column)))
-            if name == input_name:
-                values.append(dag.input(row * kernel.input_cols + column))
+            if base is not None:
+                values.append(dag.input(base + row * cols + column))
             elif name == producer.name:
                 producer_env = dict(env)
                 producer_env[producer.axes[0].name] = row
@@ -346,7 +351,7 @@ def _check_plan(kernel, plan, limits, *, additional_cap=None,
                       else ConstraintStatus.VIOLATED)
         for field in ('height', 'width', 'cap', 'input_interval', 'objective',
                       'source_digest', 'semantic_digest', 'semantics_version',
-                      'profile', 'input_shape', 'producer_shape'):
+                      'profile', 'input_shape', 'producer_shape', 'input_shapes'):
             supplied, actual = getattr(kernel, field), getattr(fresh, field)
             if type(supplied) is not type(actual) or supplied != actual:
                 return result(SemanticStatus.INVALID, False, 'SOURCE_IDENTITY_MISMATCH',

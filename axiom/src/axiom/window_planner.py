@@ -14,7 +14,8 @@ crosses evaluations, and it does not change any source value. These
 generators supply candidates only; eligibility always comes from checking.
 """
 from .model import (AdmittedKernel, BinaryExpression, GroupExpression, IntegerLiteral,
-                    NameReference, ReadExpression, WINDOW_PROFILE)
+                    NameReference, ReadExpression, WINDOW_PLANNED_PROFILES)
+from .codec import DecodeError
 from .plan_format import Operation, Plan
 
 WINDOW_PLAN_IDS = ('inline-v1', 'rows-v1', 'materialize-v1')
@@ -51,15 +52,21 @@ def consumer_rows(kernel):
     return max(rows) + 1
 
 
-def make_window_plan(kernel: AdmittedKernel, plan_id: str) -> Plan:
-    if type(kernel) is not AdmittedKernel or kernel.profile != WINDOW_PROFILE:
-        raise TypeError('expected an admitted window-stencil kernel')
+def make_window_plan(kernel: AdmittedKernel, plan_id: str, *, max_operations: int | None = None) -> Plan:
+    """With `max_operations`, stop as soon as the stream exceeds it (the same
+    OPERATION_LIMIT validation would report), never building an oversized plan."""
+    if type(kernel) is not AdmittedKernel or kernel.profile not in WINDOW_PLANNED_PROFILES:
+        raise TypeError('expected an admitted window-stencil or reduce-v1 kernel')
     if type(plan_id) is not str or plan_id not in WINDOW_PLAN_IDS:
         raise ValueError('unsupported plan generator ID')
     module = kernel.source_module
     producer_decl, output_decl = module.producers[0], module.outputs[0]
     producer_expr, output_expr = kernel.source_expressions
-    input_name = module.inputs[0].name
+    # Input base offsets in the shared buffer, in declaration order.
+    bases, offset = {}, 0
+    for declaration, (rows, cols) in zip(module.inputs, kernel.all_input_shapes):
+        bases[declaration.name] = (offset, cols)
+        offset += rows * cols
     pcols, prows = kernel.producer_cols, kernel.producer_rows
     operations = []
     next_dst = 0
@@ -71,6 +78,8 @@ def make_window_plan(kernel: AdmittedKernel, plan_id: str) -> Plan:
         if opcode not in ('scratch_store', 'output_store'):
             dst = next_dst
             next_dst += 1
+        if max_operations is not None and len(operations) >= max_operations:
+            raise DecodeError('OPERATION_LIMIT', '$.operations', 'physical operation quota exceeded')
         operations.append(Operation(opcode, dst, operands, index, value, (origin.span.offset,)))
         return dst
 
@@ -120,9 +129,10 @@ def make_window_plan(kernel: AdmittedKernel, plan_id: str) -> Plan:
         env = {producer_decl.axes[0].name: row, producer_decl.axes[1].name: col}
 
         def read_input(node, r, c):
-            if node.name != input_name:
-                raise ValueError('producer may only read the input')
-            return emit('input_load', node, index=r * kernel.input_cols + c)
+            if node.name not in bases:
+                raise ValueError('producer may only read the inputs')
+            base, cols = bases[node.name]
+            return emit('input_load', node, index=base + r * cols + c)
         return lower(producer_expr, env, read_input)
 
     def consume(row, col, read_producer):

@@ -44,7 +44,8 @@ programs with different identities, even though they compute the same values.
 ## Subtraction
 
 `a - b` means exactly `a + (-1)*b`. That is the whole definition: the `-1*b`
-step is itself a checked operation. Subtraction works anywhere in a scalar
+step is itself a checked operation, so `a - b` is rejected as an overflow when `b` can be
+-2147483648, even where `a - b` itself would fit. Subtraction works anywhere in a scalar
 expression, but not in indices or shapes, where offsets only go forward
 (`r + 1`, never `r - 1`).
 
@@ -92,6 +93,53 @@ output y[r in 0..H,c in 0..W] = t[r,c];
 prefer multiplication_ops;
 ```
 
+## Reductions, a second input and gathers
+
+`sum(k in L..U: e)` adds the terms `e` with `k` = `L`, `L+1`, ... `U-1` (1 to 256 terms, literal
+bounds). It means exactly a balanced tree of `+`: `sum(k in 0..3: t)` is `t0 + (t1 + t2)`, splitting
+each range at its midpoint. Like every `+`, each addition is a checked 32-bit operation. `k` becomes a
+literal in each term, so it can index (`x[0,k]`, `b[k,c]`) or scale (`k*x[0,k]`). Its name must not
+repeat a shape, an axis or an enclosing `sum`.
+
+A program may declare two inputs. The input buffer holds the first input then the second, each row by
+row, so a bad value's reported index counts from the start of the first input. Inputs together hold at
+most 256 cells. These programs belong to the `reduce-v1` family, which also allows:
+
+- literal input dimensions (`i32[1,128]`);
+- producer reads indexed by a literal, by either axis in either position (`x[c,r]`), or by an axis
+  plus offsets (`x[r+1+2, c]`).
+
+The output stage still reads the producer with window indices.
+
+```ax
+module dot;
+shape H = 1;
+shape W = 1;
+input x: i32[1,128] in 0..=1023;
+input y: i32[1,128] in 0..=1023;
+let t[r in 0..H,c in 0..W] = sum(k in 0..128: x[0,k]*y[0,k]);
+output d[r in 0..H,c in 0..W] = t[r,c];
+```
+
+```ax
+module matmul;
+shape H = 8;
+shape W = 8;
+input a: i32[H,8] in 0..=1023;
+input b: i32[8,W] in 0..=1023;
+let t[r in 0..H,c in 0..W] = sum(k in 0..8: a[r,k]*b[k,c]);
+output m[r in 0..H,c in 0..W] = t[r,c];
+```
+
+```ax
+module transpose;
+shape H = 4;
+shape W = 6;
+input x: i32[W,H] in 0..=1023;
+let t[r in 0..H,c in 0..W] = x[c,r];
+output y[r in 0..H,c in 0..W] = t[r,c];
+```
+
 ## Plans beryl chooses between
 
 | Plan | What it does | Storage |
@@ -113,12 +161,14 @@ Rejections name the rule and point at the offending part of the source:
 | `the first index must be r or r + k ...` | use the row axis first, the column axis second, with forward literal offsets |
 | `inputs must be declared ... in 0..=1023` | declare the input range exactly `0..=1023` |
 | `input dimensions must be H or H + k ...` | write input sizes in terms of the shapes, not as literals |
-| `requires exactly two shapes, one input, one producer and one output` | add a `let` stage; the message says what it found |
+| `requires exactly two shapes, one or two inputs, one producer and one output` | add a `let` stage; the message says what it found |
+| `producer indices must be an axis, ...` | index inputs with `r`, `c`, `r + k` or a literal; not a shape name |
+| `a sum needs between 1 and 256 terms` | use literal bounds `L..U` with `U - L` from 1 to 256 |
 | `subtraction is only allowed in scalar expressions` | indices only go forward: `r + k` with `k >= 0` |
 | `input exceeds 256 cells` | shrink the shapes; larger sizes are not admitted yet |
 
 ## Not supported yet
 
-Reductions (`sum` over a range), a second input (`dot`, `matmul`), conditionals,
-comparisons and `max`, transposed or strided reads, and inputs above 256 cells.
+Conditionals, comparisons and `max`, strided reads (`x[2*r, c]`), 64-bit accumulators,
+more than two inputs, and inputs above 256 cells.
 See `docs/reviews/2026-10-19-gaps-and-improvement-plan.md` for the plan.

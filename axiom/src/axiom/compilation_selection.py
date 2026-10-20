@@ -13,7 +13,7 @@ from .codec import DecodeError, canonical_json
 from .compilation import _CompilationContext
 from .model import ConstraintStatus, Limits, Objective, SemanticStatus
 from .plan_format import Plan
-from .planner import PLAN_IDS, make_plan, plan_ids
+from .planner import PLAN_IDS, bounded, make_plan, plan_ids
 from .selection import ArtifactState, BUDGET_ACCOUNTING_VERSION, _allowance, ranking_digest
 
 POLICY_ID = 'ranked-proof-v1'
@@ -192,7 +192,7 @@ def _select_ranked(context, total_check_steps):
         stage = 'generation'
         try:
             with context.phase('candidate_generation'):
-                plan = make_plan(kernel, candidate_id)
+                plan = make_plan(kernel, candidate_id, **bounded(kernel, context.limits))
                 context.count('candidates_generated')
             stage = 'validation'
             candidate = context.candidate(plan)

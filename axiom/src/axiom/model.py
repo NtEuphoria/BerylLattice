@@ -7,7 +7,11 @@ SEMANTICS_VERSION = 'axiom-stencil-i32-v1'
 CANONICAL_PROFILE = 'canonical-stencil-v1'
 WINDOW_PROFILE = 'window-stencil-v1'
 WINDOW_SEMANTICS_VERSION = 'window-stencil-i32-v1'
-SEMANTICS_VERSIONS = (SEMANTICS_VERSION, WINDOW_SEMANTICS_VERSION)
+REDUCE_PROFILE = 'reduce-v1'
+REDUCE_SEMANTICS_VERSION = 'reduce-i32-v1'
+SEMANTICS_VERSIONS = (SEMANTICS_VERSION, WINDOW_SEMANTICS_VERSION, REDUCE_SEMANTICS_VERSION)
+# Families whose candidate plans come from window_planner.
+WINDOW_PLANNED_PROFILES = (WINDOW_PROFILE, REDUCE_PROFILE)
 
 
 class Objective(StrEnum):
@@ -175,6 +179,13 @@ class AdmittedKernel:
     profile: str = 'canonical-stencil-v1'
     input_shape: tuple[int, int] | None = None
     producer_shape: tuple[int, int] | None = None
+    # reduce-v1 may declare two inputs; the runtime buffer is their row-major
+    # contents concatenated in declaration order. input_shape is the first.
+    input_shapes: tuple[tuple[int, int], ...] | None = None
+
+    @property
+    def all_input_shapes(self) -> tuple[tuple[int, int], ...]:
+        return self.input_shapes or ((self.input_rows, self.input_cols),)
 
     @property
     def input_rows(self) -> int:
@@ -186,7 +197,7 @@ class AdmittedKernel:
 
     @property
     def input_count(self) -> int:
-        return self.input_rows * self.input_cols
+        return sum(rows * cols for rows, cols in self.all_input_shapes)
 
     @property
     def producer_rows(self) -> int:

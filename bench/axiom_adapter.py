@@ -97,6 +97,14 @@ def request(kernel, pattern, a, b, cap, objective):
         return None, None, n_out, None
     # 1-D and elementwise kernels are written as 1 x W window stencils.
     shapes = (1, a) if spec['family'] in ('stencil-1d', 'elementwise') else (a, b)
+    literal = spec.get('draft_literal')
+    if literal is not None:
+        # reduce-v1 drafts state their size as a literal: reductions have a
+        # 1 x 1 output, matmul an a x a one.
+        shapes = (1, 1) if spec['family'] == 'reduction' else (a, a)
+        text = draft_source(spec['axiom_draft'], shapes, cap, objective)
+        text = re.sub(rb'\b%d\b' % literal, str(a).encode(), text)
+        return text, gen_input(pattern, n_in), n_out, None
     return draft_source(spec['axiom_draft'], shapes, cap, objective), gen_input(pattern, n_in), n_out, None
 
 

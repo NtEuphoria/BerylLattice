@@ -178,9 +178,9 @@ def _select_legacy(context, total_check_steps, optional_check_steps=None):
         return context.candidate(plan).plan_bytes
 
     def generate_candidate(kernel, candidate_id):
-        from .planner import make_plan
+        from .planner import bounded, make_plan
         with context.phase('candidate_generation'):
-            plan = make_plan(kernel, candidate_id)
+            plan = make_plan(kernel, candidate_id, **bounded(kernel, context.limits))
             context.count('candidates_generated')
             return plan
 

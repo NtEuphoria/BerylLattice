@@ -3,7 +3,7 @@
 These constructors supply candidates, never eligibility or a correctness proof.
 Origins identify UTF-8 byte offsets in the admitted, retained scalar ASTs.
 """
-from .model import AdmittedKernel, GroupExpression, WINDOW_PROFILE
+from .model import AdmittedKernel, GroupExpression, WINDOW_PLANNED_PROFILES
 from .plan_format import Operation, Plan
 
 PLAN_IDS = ('inline-v1', 'rows2-v1', 'materialize-v1')
@@ -11,7 +11,7 @@ PLAN_IDS = ('inline-v1', 'rows2-v1', 'materialize-v1')
 
 def plan_ids(kernel: AdmittedKernel) -> tuple[str, ...]:
     """The candidate portfolio for an admitted kernel, in ranking tie-break order."""
-    if isinstance(kernel, AdmittedKernel) and kernel.profile == WINDOW_PROFILE:
+    if isinstance(kernel, AdmittedKernel) and kernel.profile in WINDOW_PLANNED_PROFILES:
         from .window_planner import WINDOW_PLAN_IDS
         return WINDOW_PLAN_IDS
     return PLAN_IDS
@@ -23,13 +23,24 @@ def _ungroup(expression):
     return expression
 
 
-def make_plan(kernel: AdmittedKernel, plan_id: str) -> Plan:
-    """Specialize an admitted stencil, retaining its exact addition grouping."""
+def bounded(kernel, limits) -> dict:
+    """Generator keywords for `limits`: window-planned families stop at the
+    operation quota; canonical plans are small and keep the plain call."""
+    if isinstance(kernel, AdmittedKernel) and kernel.profile in WINDOW_PLANNED_PROFILES:
+        return {'max_operations': limits.plan_operations}
+    return {}
+
+
+def make_plan(kernel: AdmittedKernel, plan_id: str, *, max_operations: int | None = None) -> Plan:
+    """Specialize an admitted stencil, retaining its exact addition grouping.
+
+    `max_operations` bounds generation for families whose plans grow with the
+    source (the canonical stencil is at most a few thousand operations)."""
     if not isinstance(kernel, AdmittedKernel):
         raise TypeError('kernel must be an AdmittedKernel')
-    if kernel.profile == WINDOW_PROFILE:
+    if kernel.profile in WINDOW_PLANNED_PROFILES:
         from .window_planner import make_window_plan
-        return make_window_plan(kernel, plan_id)
+        return make_window_plan(kernel, plan_id, max_operations=max_operations)
     if type(plan_id) is not str or plan_id not in PLAN_IDS:
         raise ValueError('unsupported plan generator ID')
     h, w = kernel.height, kernel.width

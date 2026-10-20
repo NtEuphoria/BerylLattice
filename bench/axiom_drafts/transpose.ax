@@ -1,7 +1,9 @@
-// Draft: transpose via permuted reads; layout plans would be the planner's job.
+// Transpose through a permuted gather (reduce-v1). The output is H x W, so the
+// input is W x H; benchmark sizes are square.
 module transpose;
 shape H = 16;
 shape W = 16;
-input m: i32[H,W] in 0..=1023;
-output t[c in 0..W,r in 0..H] = m[r,c];
+input m: i32[W,H] in 0..=1023;
+let t[r in 0..H,c in 0..W] = m[c,r];
+output o[r in 0..H,c in 0..W] = t[r,c];
 prefer plan_workspace_bytes;

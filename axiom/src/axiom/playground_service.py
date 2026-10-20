@@ -129,8 +129,8 @@ def _inputs(request, kernel):
     if mode == 'ramp':
         return list(range(count))
     if mode == 'checkerboard':
-        return [1023 * ((row + column) % 2)
-                for row in range(kernel.input_rows) for column in range(kernel.input_cols)]
+        return [1023 * ((row + column) % 2) for rows, cols in kernel.all_input_shapes
+                for row in range(rows) for column in range(cols)]
     return [0] * count
 
 

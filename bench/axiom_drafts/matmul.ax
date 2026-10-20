@@ -1,0 +1,9 @@
+// Square matrix multiply; the buffer holds A then B (reduce-v1).
+module matmul;
+shape H = 8;
+shape W = 8;
+input a: i32[H,8] in 0..=1023;
+input b: i32[8,W] in 0..=1023;
+let t[r in 0..H,c in 0..W] = sum(k in 0..8: a[r,k]*b[k,c]);
+output m[r in 0..H,c in 0..W] = t[r,c];
+prefer multiplication_ops;

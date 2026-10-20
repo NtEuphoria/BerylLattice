@@ -97,7 +97,11 @@ class FrontendTests(unittest.TestCase):
         source = stencil_source(5, 7)
         extra = (Path(__file__).parent / 'fixtures/source/extra_producer.ax').read_bytes()
         self.diagnostic(extra, 'UNSUPPORTED_PROFILE')
-        self.diagnostic(source.replace(b'i32[H+1,W+1]', b'i32[6,8]'), 'UNSUPPORTED_PROFILE')
+        # Literal input dimensions are reduce-v1 (no longer a rejection); the
+        # identity differs from the canonical spelling.
+        literal = admit_source(parse_source(source.replace(b'i32[H+1,W+1]', b'i32[6,8]')))
+        self.assertEqual((literal.profile, literal.input_shapes), ('reduce-v1', ((6, 8),)))
+        self.diagnostic(source.replace(b'i32[H+1,W+1]', b'i32[H+9,W+1]'), 'UNSUPPORTED_PROFILE')
         # Outside the two-stage window family as well as the canonical profile:
         # the output reads the input directly, a transposed read, a shape-offset
         # read, and a non-default input interval.
@@ -159,7 +163,9 @@ class FrontendTests(unittest.TestCase):
             (source.replace(b'+p[r+1,c+1]', b'+image[r,c]'), b'image', 'may only read `p`'),
             (stencil_source(5, 5).replace(b'p[r,c+1]', b'p[c,r]'), b'c', 'first index must be `r`'),
             (source.replace(b'in 0..=1023', b'in 0..=1022'), b'input', 'in 0..=1023'),
-            (source.replace(b'i32[H+1,W+1]', b'i32[6,8]'), b'6', 'input dimensions must be `H`'),
+            (source.replace(b'i32[H+1,W+1]', b'i32[H+9,W+1]'), b'H+9', 'input dimensions must be a literal'),
+            (source.replace(b'(image[r,c]+1)*(image[r,c]+1)', b'image[r,c]*image[H,c]'), b'H',
+             'producer indices must be an axis'),
             (source.replace(b'result[r in 0..H,', b'result[r in 1..H,'), b'r in 1..H', 'output axes must be exactly'),
         ]
         for bad, at, message in cases:

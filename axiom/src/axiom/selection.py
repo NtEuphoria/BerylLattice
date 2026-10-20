@@ -13,7 +13,7 @@ from .codec import canonical_json, encode_plan
 from .frontend import admit_source, parse_source
 from .model import AdmittedKernel, ConstraintStatus, Limits, Objective, SemanticStatus
 from .plan_format import Plan
-from .planner import make_plan, plan_ids
+from .planner import bounded, make_plan, plan_ids
 
 BUDGET_ACCOUNTING_VERSION = CHECK_ACCOUNTING_VERSION
 RANKING_VERSION = 1
@@ -125,7 +125,9 @@ def _select_portfolio(kernel, limits, total_check_steps, objective, optional_che
     _allowance(total_check_steps, 'total_check_steps')
     if optional_check_steps is not None:
         _allowance(optional_check_steps, 'optional_check_steps')
-    generate_candidate = make_plan if generate_candidate is None else generate_candidate
+    if generate_candidate is None:
+        def generate_candidate(kernel, candidate_id):
+            return make_plan(kernel, candidate_id, **bounded(kernel, limits))
     check_candidate = check_plan if check_candidate is None else check_candidate
     encode_candidate = encode_plan if encode_candidate is None else encode_candidate
     policy_digest = ranking_digest(objective)

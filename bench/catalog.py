@@ -45,6 +45,8 @@ def checksum(values):
 # axiom_drafts/ written in today's grammar, so it is either admitted or
 # rejected with a real diagnostic; None means today's grammar cannot state
 # the computation at all, and `missing` lists the language features needed.
+# `draft_literal` is the s-tier size written as a literal in a reduce-v1 draft;
+# the adapter replaces it with the requested size.
 KERNELS = {
     'sq2x2': dict(
         title='Squared 2x2 window sum (Axiom canonical stencil)', family='stencil-2d',
@@ -85,7 +87,7 @@ KERNELS = {
         title='Matrix transpose', family='layout',
         io=lambda a, b: (a * b, a * b),
         sizes=dict(s=(16, 16), m=(256, 256), l=(2048, 2048)),
-        axiom_draft='transpose.ax', missing=['permuted index reads', 'layout plans']),
+        axiom_draft='transpose.ax', missing=['inputs above 256 cells (m/l tiers)', 'layout plans']),
     'maxpool2': dict(
         title='2x2 max pooling', family='stencil-2d-cond',
         io=lambda a, b: (4 * a * b, a * b),
@@ -95,12 +97,14 @@ KERNELS = {
         title='Sum reduction', family='reduction',
         io=lambda a, b: (a, 1),
         sizes=dict(s=(256, 0), m=(65536, 0), l=(4194304, 0)),
-        axiom_draft=None, missing=['reduction syntax', 'i64 accumulators']),
+        axiom_draft='sum.ax', draft_literal=256,
+        missing=['inputs above 256 cells (m/l tiers)', 'i64 accumulators']),
     'dot': dict(
         title='Dot product', family='reduction',
         io=lambda a, b: (2 * a, 1),
         sizes=dict(s=(128, 0), m=(32768, 0), l=(2097152, 0)),
-        axiom_draft=None, missing=['reduction syntax', 'multiple inputs', 'i64 accumulators']),
+        axiom_draft='dot.ax', draft_literal=128,
+        missing=['inputs above 256 cells (m/l tiers)', 'i64 accumulators']),
     'scan': dict(
         title='Inclusive prefix sum', family='scan',
         io=lambda a, b: (a, a),
@@ -115,7 +119,8 @@ KERNELS = {
         title='Square integer matrix multiply', family='dense-linear-algebra',
         io=lambda a, b: (2 * a * a, a * a),
         sizes=dict(s=(8, 0), m=(64, 0), l=(256, 0)),
-        axiom_draft=None, missing=['reduction syntax', 'multiple inputs', 'tiling plans']),
+        axiom_draft='matmul.ax', draft_literal=8,
+        missing=['inputs above 256 cells (m/l tiers)', 'tiling plans']),
 }
 
 # Axiom-only plan-selection sweep on the canonical stencil (size s).
