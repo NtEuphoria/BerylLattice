@@ -11,7 +11,7 @@ import sys
 
 from .codec import DecodeError, canonical_json, strict_json_loads
 from .frontend import admit_source, parse_source
-from .model import DiagnosticError, Limits, Span
+from .model import SCALE_PROFILE, DiagnosticError, Limits, Span
 from .reference import ExecutionResult, ExecutionStatus, evaluate_source
 from .runtime import _snapshot, execute_plan
 from .selection import select_plan
@@ -213,6 +213,10 @@ def _run(request):
     source = _request_source(request, limits)
     module = parse_source(source, limits)
     kernel = admit_source(module)
+    if kernel.profile == SCALE_PROFILE:
+        raise DiagnosticError('UNSUPPORTED_PROFILE', module.span,
+                              'the playground runs programs of up to 256 input cells; '
+                              'larger programs compile to native code')
     data = _inputs(request, kernel)
     initial = [-9] * (kernel.height * kernel.width)
     bad = _first_out_of_range(kernel, data)

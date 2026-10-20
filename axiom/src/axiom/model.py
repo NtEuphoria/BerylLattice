@@ -9,6 +9,10 @@ WINDOW_PROFILE = 'window-stencil-v1'
 WINDOW_SEMANTICS_VERSION = 'window-stencil-i32-v1'
 REDUCE_PROFILE = 'reduce-v1'
 REDUCE_SEMANTICS_VERSION = 'reduce-i32-v1'
+# scale-v1 kernels are proved by template (scale_checker) over loop plans,
+# never by the finite checker, so their version is not in SEMANTICS_VERSIONS.
+SCALE_PROFILE = 'scale-v1'
+SCALE_SEMANTICS_VERSION = 'scale-i32-v1'
 SEMANTICS_VERSIONS = (SEMANTICS_VERSION, WINDOW_SEMANTICS_VERSION, REDUCE_SEMANTICS_VERSION)
 # Families whose candidate plans come from window_planner.
 WINDOW_PLANNED_PROFILES = (WINDOW_PROFILE, REDUCE_PROFILE)
@@ -96,7 +100,21 @@ class GroupExpression:
     span: Span
 
 
-Expression: TypeAlias = IntegerLiteral | NameReference | BinaryExpression | ReadExpression | GroupExpression
+@dataclass(frozen=True, slots=True)
+class SumExpression:
+    """A symbolic sum (more than 256 terms): the exact integer sum of `body`
+    for `variable` in lower..upper-1. Admitted only when no partial sum, in
+    any order, can leave i32 (see docs/superpowers/specs/2026-10-19-scale-design.md)."""
+    variable: str
+    lower: int
+    upper: int
+    body: 'Expression'
+    span: Span
+    variable_span: Span
+
+
+Expression: TypeAlias = (IntegerLiteral | NameReference | BinaryExpression | ReadExpression
+                         | GroupExpression | SumExpression)
 
 
 @dataclass(frozen=True, slots=True)

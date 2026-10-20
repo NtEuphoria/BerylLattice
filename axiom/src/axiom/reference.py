@@ -11,7 +11,7 @@ from .frontend import admit_source
 from .model import (
     BinaryExpression, DiagnosticError, EquationDeclaration, Expression,
     GroupExpression, IntegerLiteral, NameReference, ReadExpression,
-    SourceModule, Span,
+    SourceModule, Span, SumExpression,
 )
 
 _I32_MIN = -(2 ** 31)
@@ -72,6 +72,14 @@ def _evaluate_expression(expression: Expression, scalars: dict[str, int],
     elif isinstance(expression, ReadExpression):
         indices = tuple(_evaluate_expression(index, scalars, tensors) for index in expression.indices)
         value = tensors[expression.name][indices]
+    elif isinstance(expression, SumExpression):
+        # The exact integer sum; only the total is an i32 node (admission's
+        # checker proves every partial sum fits, in any order).
+        inner = dict(scalars)
+        value = 0
+        for term in range(expression.lower, expression.upper):
+            inner[expression.variable] = term
+            value += _evaluate_expression(expression.body, inner, tensors)
     else:
         raise DiagnosticError('INVALID_EXPRESSION', Span(0, 0), 'unknown source expression')
     return _checked_i32(value, expression.span)

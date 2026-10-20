@@ -16,11 +16,12 @@ import hashlib
 import json
 
 from .model import (AdmittedKernel, BinaryExpression, DiagnosticError, GroupExpression,
-                    IntegerLiteral, NameReference, ReadExpression, REDUCE_PROFILE,
+                    IntegerLiteral, NameReference, ReadExpression, REDUCE_PROFILE, SumExpression,
                     REDUCE_SEMANTICS_VERSION, Span)
 
 MAX_INPUT_CELLS = 256
-MAX_TERMS = 256
+MAX_TERMS = 256          # expanded into a balanced tree
+MAX_SYMBOLIC_TERMS = 1 << 24  # above MAX_TERMS: a symbolic SumExpression
 MAX_OFFSET = 8
 
 
@@ -35,16 +36,18 @@ def parse_sum(parser, keyword, nesting):
     lower = parser.integer()
     parser.take('..')
     upper = parser.integer()
-    if not 1 <= upper.value - lower.value <= MAX_TERMS:
+    if not 1 <= upper.value - lower.value <= MAX_SYMBOLIC_TERMS:
         raise DiagnosticError('INVALID_RANGE', Span(lower.span.offset, upper.span.offset
                               + upper.span.length - lower.span.offset),
-                              f'a sum needs between 1 and {MAX_TERMS} terms')
+                              f'a sum needs between 1 and {MAX_SYMBOLIC_TERMS} terms')
     parser.take(':')
     parser.sum_names.append(name.text)
     body = parser.expression(True, nesting + 1)
     parser.sum_names.pop()
     parser.take(')')
     span = parser.span_from(keyword.span)
+    if upper.value - lower.value > MAX_TERMS:
+        return parser.node(SumExpression(name.text, lower.value, upper.value, body, span, name.span), (body,))
 
     def substitute(node, value):
         if isinstance(node, NameReference):

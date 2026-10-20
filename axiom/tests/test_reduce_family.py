@@ -116,17 +116,16 @@ class ReduceFamilyTests(unittest.TestCase):
     def test_names_ranges_and_size(self):
         cases = [(b'sum(H in 0..2: x[0,H])', 'DUPLICATE_NAME'), (b'sum(r in 0..2: x[0,r])', 'DUPLICATE_NAME'),
                  (b'sum(k in 0..2: sum(k in 0..2: x[0,k]))', 'DUPLICATE_NAME'),
-                 (b'sum(k in 2..2: x[0,k])', 'INVALID_RANGE'), (b'sum(k in 0..257: x[0,0])', 'INVALID_RANGE'),
+                 (b'sum(k in 2..2: x[0,k])', 'INVALID_RANGE'), (b'sum(k in 0..20000000: x[0,0])', 'INVALID_RANGE'),
                  (b'sum(k in 0..9: x[0,k])', 'INVALID_INDEX'), (b'x[0,sum(k in 0..2: k)]', 'SYNTAX_ERROR')]
         for expression, code in cases:
             with self.subTest(expression=expression):
                 with self.assertRaises(DiagnosticError) as caught:
                     admit_source(parse_source(small(None, expression)))
                 self.assertEqual(caught.exception.code, code)
+        # One cell over 256 leaves reduce-v1 for scale-v1 (template-proved loop plans).
         big = DOT.replace(b'x: i32[1,128]', b'x: i32[1,129]')
-        with self.assertRaises(DiagnosticError) as caught:
-            admit_source(parse_source(big))
-        self.assertIn('256 cells', caught.exception.message)
+        self.assertEqual(admit_source(parse_source(big)).profile, 'scale-v1')
 
     def test_oversized_plans_stop_at_the_operation_limit(self):
         # Review finding: inline-v1 of a 9x9 box over a 100-term producer has

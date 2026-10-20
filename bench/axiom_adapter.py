@@ -10,8 +10,8 @@ kernel time); `phases` holds every phase so pipeline cost stays visible.
 
 Kernels Axiom cannot accept are still attempted from their draft source when
 one exists, so the log records the real diagnostic, not an assumption.
-Special kernels: reject_range (out-of-range input), reject_shape (257+ input
-cells) and reject_profile (well-formed source outside the admitted profile)
+Special kernels: reject_range (out-of-range input), reject_shape (more than
+2^24 input cells) and reject_profile (well-formed source outside the admitted profile)
 measure how quickly Axiom refuses bad requests.
 """
 import json
@@ -57,6 +57,8 @@ def pipeline(source, data, n_out):
     start = time.perf_counter_ns()
     kernel = admit_source(module)
     t['admit'] = time.perf_counter_ns() - start
+    if kernel.profile == 'scale-v1':
+        return _scale_pipeline(source, module, kernel, data, n_out, limits, t)
     start = time.perf_counter_ns()
     search = select_plan(kernel, limits, CHECK_STEPS, kernel.objective)
     t['select'] = time.perf_counter_ns() - start
@@ -79,6 +81,30 @@ def pipeline(source, data, n_out):
                              eligible=sum(1 for x in search.attempts if x.check is not None and x.check.eligible)))
 
 
+def _scale_pipeline(source, module, kernel, data, n_out, limits, t):
+    """scale-v1: one template-checked loop plan, run by the checked Python runtime."""
+    from axiom.scale_checker import check_loop_plan
+    from axiom.scale_plan import make_scale_plan
+    from axiom.scale_runtime import execute_loop_plan
+    start = time.perf_counter_ns()
+    plan = make_scale_plan(kernel)
+    check = check_loop_plan(source, plan, limits)
+    t['select'] = time.perf_counter_ns() - start
+    if not check.valid:
+        return t, dict(status='no_eligible_plan', attempts=1, termination=check.reason)
+    initial = [-9] * n_out
+    start = time.perf_counter_ns()
+    observed = execute_loop_plan(source, plan, data, initial, limits)
+    t['execute'] = time.perf_counter_ns() - start
+    start = time.perf_counter_ns()
+    expected = evaluate_source(module, data, initial)
+    t['reference'] = time.perf_counter_ns() - start
+    return t, dict(status=observed.status.value, matches=observed == expected,
+                   output=list(observed.output), first_bad_index=observed.first_bad_index,
+                   plan=dict(id=plan.plan_id, workspace_bytes=0, multiplication_ops=check.multiplication_nodes,
+                             candidates=1, eligible=1))
+
+
 def request(kernel, pattern, a, b, cap, objective):
     """Return (source bytes, input data, output count, note) for a benchmark case."""
     if kernel == 'reject_range':
@@ -86,7 +112,8 @@ def request(kernel, pattern, a, b, cap, objective):
         data[len(data) // 2] = 1024
         return draft_source('sq2x2.ax', (a, b), cap, objective), data, a * b, 'one input is 1024'
     if kernel == 'reject_shape':
-        return draft_source('sq2x2.ax', (16, 16), cap, objective), gen_input(pattern, 289), 256, '17x17 input'
+        # scale-v1 admits up to 2^24 cells; 4097 x 4097 is the first refused square.
+        return draft_source('sq2x2.ax', (4096, 4096), cap, objective), gen_input(pattern, 4097 * 4097), 4096 * 4096, '4097x4097 input'
     if kernel == 'reject_profile':
         # Outside every admitted family: the output reads the input directly.
         text = draft_source('sq2x2.ax', (a, b)).replace(b'+p[r+1,c+1]', b'+image[r,c]')

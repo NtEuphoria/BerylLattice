@@ -3,7 +3,7 @@
 These constructors supply candidates, never eligibility or a correctness proof.
 Origins identify UTF-8 byte offsets in the admitted, retained scalar ASTs.
 """
-from .model import AdmittedKernel, GroupExpression, WINDOW_PLANNED_PROFILES
+from .model import AdmittedKernel, GroupExpression, SCALE_PROFILE, WINDOW_PLANNED_PROFILES
 from .plan_format import Operation, Plan
 
 PLAN_IDS = ('inline-v1', 'rows2-v1', 'materialize-v1')
@@ -14,6 +14,8 @@ def plan_ids(kernel: AdmittedKernel) -> tuple[str, ...]:
     if isinstance(kernel, AdmittedKernel) and kernel.profile in WINDOW_PLANNED_PROFILES:
         from .window_planner import WINDOW_PLAN_IDS
         return WINDOW_PLAN_IDS
+    if isinstance(kernel, AdmittedKernel) and kernel.profile == SCALE_PROFILE:
+        return ()  # loop plans only: see scale_plan and scale_checker
     return PLAN_IDS
 
 
@@ -38,6 +40,8 @@ def make_plan(kernel: AdmittedKernel, plan_id: str, *, max_operations: int | Non
     source (the canonical stencil is at most a few thousand operations)."""
     if not isinstance(kernel, AdmittedKernel):
         raise TypeError('kernel must be an AdmittedKernel')
+    if kernel.profile == SCALE_PROFILE:
+        raise ValueError('scale-v1 kernels have loop plans, not finite plans')
     if kernel.profile in WINDOW_PLANNED_PROFILES:
         from .window_planner import make_window_plan
         return make_window_plan(kernel, plan_id, max_operations=max_operations)

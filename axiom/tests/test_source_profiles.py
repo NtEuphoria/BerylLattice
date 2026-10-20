@@ -16,10 +16,11 @@ class SourceProfileTests(unittest.TestCase):
     def admit(self, source):
         return admit_source_v2(source, profile=SourceProfileV2(), limits=SourceLimitsV2())
 
-    def test_v1_still_rejects_large_shape(self):
-        with self.assertRaises(DiagnosticError) as caught:
-            admit_source(parse_source(stencil_source(32, 32)))
-        self.assertEqual(caught.exception.code, 'UNSUPPORTED_PROFILE')
+    def test_v1_admits_large_shape_only_as_scale_v1(self):
+        # Large shapes are scale-v1 (template-proved loop plans), never finite plans.
+        from axiom.planner import plan_ids
+        kernel = admit_source(parse_source(stencil_source(32, 32)))
+        self.assertEqual((kernel.profile, plan_ids(kernel)), ('scale-v1', ()))
 
     def test_explicit_v2_accepts_training_shape(self):
         source = stencil_source(32, 32)

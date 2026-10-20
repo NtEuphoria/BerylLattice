@@ -70,7 +70,9 @@ class NativeEmissionTests(unittest.TestCase):
             native_codegen.emit_native_c(source, encode_plan(plan), Limits(check_steps=1))
         with self.assertRaisesRegex(DiagnosticError, 'INVALID_EXECUTION_ARGUMENT'):
             native_codegen.emit_native_c(bytearray(source), encode_plan(plan))
-        with self.assertRaisesRegex(DiagnosticError, 'UNSUPPORTED_PROFILE'):
+        # Above 256 cells the source is scale-v1, which has loop plans only: the
+        # finite checker refuses its semantics version.
+        with self.assertRaisesRegex(DiagnosticError, 'UNSUPPORTED_SEMANTICS_VERSION'):
             larger, larger_plan = proposal(1, 127)
             native_codegen.emit_native_c(larger.replace(b'W = 127', b'W = 128'),
                                          encode_plan(larger_plan))

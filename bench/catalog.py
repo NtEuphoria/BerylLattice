@@ -52,27 +52,27 @@ KERNELS = {
         title='Squared 2x2 window sum (Axiom canonical stencil)', family='stencil-2d',
         io=lambda a, b: ((a + 1) * (b + 1), a * b),
         sizes=dict(s=(15, 15), m=(255, 255), l=(2047, 2047)),
-        axiom_draft='sq2x2.ax', missing=['inputs above 256 cells (m/l tiers)']),
+        axiom_draft='sq2x2.ax', missing=['inputs above 2^24 cells']),
     'stencil1d3': dict(
         title='1-D 3-point weighted stencil', family='stencil-1d',
         io=lambda a, b: (a + 2, a),
         sizes=dict(s=(254, 0), m=(65534, 0), l=(4194302, 0)),
-        axiom_draft='stencil1d3.ax', missing=['inputs above 256 cells (m/l tiers)']),
+        axiom_draft='stencil1d3.ax', missing=['inputs above 2^24 cells']),
     'box3x3': dict(
         title='3x3 box sum', family='stencil-2d',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
         sizes=dict(s=(14, 14), m=(254, 254), l=(2046, 2046)),
-        axiom_draft='box3x3.ax', missing=['inputs above 256 cells (m/l tiers)']),
+        axiom_draft='box3x3.ax', missing=['inputs above 2^24 cells']),
     'laplace5': dict(
         title='5-point Laplacian (signed)', family='stencil-2d',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
         sizes=dict(s=(14, 14), m=(254, 254), l=(2046, 2046)),
-        axiom_draft='laplace5.ax', missing=['inputs above 256 cells (m/l tiers)']),
+        axiom_draft='laplace5.ax', missing=['inputs above 2^24 cells']),
     'conv3x3': dict(
         title='3x3 weighted convolution [1 2 1; 2 4 2; 1 2 1]', family='stencil-2d',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
         sizes=dict(s=(14, 14), m=(254, 254), l=(2046, 2046)),
-        axiom_draft='conv3x3.ax', missing=['inputs above 256 cells (m/l tiers)']),
+        axiom_draft='conv3x3.ax', missing=['inputs above 2^24 cells']),
     'life': dict(
         title='Game of Life step (bit 0 = alive)', family='stencil-2d-cond',
         io=lambda a, b: ((a + 2) * (b + 2), a * b),
@@ -82,12 +82,12 @@ KERNELS = {
         title='Elementwise x^3 + 3x + 7', family='elementwise',
         io=lambda a, b: (a, a),
         sizes=dict(s=(256, 0), m=(65536, 0), l=(4194304, 0)),
-        axiom_draft='polymap.ax', missing=['inputs above 256 cells (m/l tiers)']),
+        axiom_draft='polymap.ax', missing=['inputs above 2^24 cells']),
     'transpose': dict(
         title='Matrix transpose', family='layout',
         io=lambda a, b: (a * b, a * b),
         sizes=dict(s=(16, 16), m=(256, 256), l=(2048, 2048)),
-        axiom_draft='transpose.ax', missing=['inputs above 256 cells (m/l tiers)', 'layout plans']),
+        axiom_draft='transpose.ax', missing=['layout plans (vectorized transposes)']),
     'maxpool2': dict(
         title='2x2 max pooling', family='stencil-2d-cond',
         io=lambda a, b: (4 * a * b, a * b),
@@ -98,13 +98,13 @@ KERNELS = {
         io=lambda a, b: (a, 1),
         sizes=dict(s=(256, 0), m=(65536, 0), l=(4194304, 0)),
         axiom_draft='sum.ax', draft_literal=256,
-        missing=['inputs above 256 cells (m/l tiers)', 'i64 accumulators']),
+        missing=['i64 accumulators (l tier, dot m/l)']),
     'dot': dict(
         title='Dot product', family='reduction',
         io=lambda a, b: (2 * a, 1),
         sizes=dict(s=(128, 0), m=(32768, 0), l=(2097152, 0)),
         axiom_draft='dot.ax', draft_literal=128,
-        missing=['inputs above 256 cells (m/l tiers)', 'i64 accumulators']),
+        missing=['i64 accumulators (l tier, dot m/l)']),
     'scan': dict(
         title='Inclusive prefix sum', family='scan',
         io=lambda a, b: (a, a),
@@ -120,7 +120,7 @@ KERNELS = {
         io=lambda a, b: (2 * a * a, a * a),
         sizes=dict(s=(8, 0), m=(64, 0), l=(256, 0)),
         axiom_draft='matmul.ax', draft_literal=8,
-        missing=['inputs above 256 cells (m/l tiers)', 'tiling plans']),
+        missing=['tiling plans']),
 }
 
 # Axiom-only plan-selection sweep on the canonical stencil (size s).
