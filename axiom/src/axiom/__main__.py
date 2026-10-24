@@ -95,6 +95,41 @@ def _eval(args):
                                                               'execution':json_record(result)}
 
 
+def _native(args):
+    """Compile source to checked native C, and optionally to an executable."""
+    import os
+    import subprocess
+    from .source_compilation import compile_native_source
+    limits=Limits()
+    source=_read(args.source,limits.source_bytes)
+    compiled=compile_native_source(source,limits)
+    artifact=compiled.artifact
+    if artifact is None:
+        return 4,{'status':'no_eligible_plan','termination_reason':compiled.search.termination_reason.value,
+                  'reason':compiled.search.reason}
+    out=Path(args.out)
+    if out.exists() and not args.force:
+        raise _UsageError('output exists (use --force to replace): '+str(out))
+    out.write_bytes(artifact.c_source)
+    kernel=compiled.kernel
+    result={'status':'compiled','c':str(out),'family':kernel.profile,'codegen_version':artifact.codegen_version,
+            'parallel':artifact.codegen_version.endswith('parallel-v1'),
+            'height':kernel.height,'width':kernel.width,
+            'input_count':artifact.input_count,'output_count':artifact.output_count,
+            'c_sha256':artifact.c_digest}
+    if args.exe:
+        command=[args.cc,'-O3','-std=c11',str(out),'-o',args.exe]
+        if os.name!='nt' and result['parallel']:
+            command.insert(1,'-pthread')
+        built=subprocess.run(command,capture_output=True,text=True)
+        if built.returncode!=0:
+            return 5,{**result,'status':'cc_failed','cc':command,'stderr':built.stderr[-2000:]}
+        result.update(exe=args.exe,
+                      usage=f'{args.exe} < input.txt  (stdin: "{kernel.height} {kernel.width}" then '
+                            f'{artifact.input_count} integers; prints the {artifact.output_count} outputs as JSON)')
+    return 0,result
+
+
 def _parser():
     parser=_Parser(prog='axiom',description='Bounded Axiom correctness prototype')
     commands=parser.add_subparsers(dest='command',required=True,parser_class=_Parser)
@@ -111,6 +146,10 @@ def _parser():
     p=commands.add_parser('eval',help='evaluate original source through its checked boundary')
     p.add_argument('source'); p.add_argument('--input',required=True); p.add_argument('--output-initial',required=True)
     p.set_defaults(handler=_eval)
+    p=commands.add_parser('native',help='compile to checked native C (and an executable with --exe)')
+    p.add_argument('source'); p.add_argument('--out',required=True); p.add_argument('--exe')
+    p.add_argument('--cc',default='clang'); p.add_argument('--force',action='store_true')
+    p.set_defaults(handler=_native)
     p=commands.add_parser('witness',help='build and observe one exact checked fixed-plan Core witness')
     p.add_argument('source'); p.add_argument('--plan',required=True); p.add_argument('--case',required=True)
     p.add_argument('--clang',required=True); p.add_argument('--core',required=True); p.add_argument('--out',required=True)

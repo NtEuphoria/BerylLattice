@@ -155,12 +155,20 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
                     ends = (a * c, a * d, b * c, b * d)
                     result = (min(ends), max(ends))
                 if result[0] < _I32_MIN or result[1] > _I32_MAX:
-                    raise _Stop('ARITHMETIC_OVERFLOW', f'node at byte {node.span.offset}')
+                    raise _Stop('ARITHMETIC_OVERFLOW',
+                                f"the '{node.operator}' at byte {node.span.offset} can reach "
+                                f'{result[0]}..{result[1]}, outside 32-bit integers '
+                                f'({_I32_MIN}..{_I32_MAX}) for inputs in {lower}..{upper}')
             elif isinstance(node, SumExpression):
                 a, b = interval(node.body)
                 terms = node.upper - node.lower
-                if terms * max(abs(a), abs(b)) > _I32_MAX:
-                    raise _Stop('ARITHMETIC_OVERFLOW', f'partial sums at byte {node.span.offset}')
+                biggest = max(abs(a), abs(b))
+                if terms * biggest > _I32_MAX:
+                    raise _Stop('ARITHMETIC_OVERFLOW',
+                                f'the sum at byte {node.span.offset} adds {terms} terms of up to {biggest} each, '
+                                f'so it can reach {terms * biggest} > {_I32_MAX}; at most '
+                                f'{_I32_MAX // max(biggest, 1)} terms fit in 32-bit integers '
+                                f'(64-bit accumulators are planned)')
                 result = (terms * a, terms * b)
             else:
                 raise _Stop('UNSUPPORTED_SOURCE_EXPRESSION')

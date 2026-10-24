@@ -28,6 +28,8 @@ SCALE_PARALLEL_CODEGEN_VERSION = 'beryl-loop-c-parallel-v1'
 # a pool dispatch costs about a microsecond, so tiny kernels would lose.
 PARALLEL_MIN_WORK = 1 << 16
 PARALLEL_MIN_INPUT = 1 << 16
+# Outputs at least this large bypass the cache with non-temporal stores.
+STREAM_MIN_BYTES = 8 << 20
 
 _HEADER = '''/* Generated from a template-checked scale-v1 loop plan (PLAN_ID). */
 #include <ctype.h>
@@ -284,6 +286,52 @@ def _row_accumulation(stage, v0, v1, w):
             '}\n')
 
 
+def _streaming_cells(stage, v0, v1, w, body, value):
+    """Cells loop for outputs too large for cache.
+
+    Each block of up to 64 cells of a row is computed into an aligned stack
+    buffer by a loop that still vectorizes, then copied to the output with
+    SSE2 non-temporal stores, which skip reading the output lines first. The
+    proved store index v0*W + v1 makes a block contiguous in the output. An
+    sfence at the end of every chunk orders those stores before the chunk is
+    reported done, so whoever reads the output next sees every value.
+    Without SSE2 the copy uses ordinary stores.
+    """
+    inner = '\n'.join('    ' + line for line in body.splitlines())
+    return ('\n#if defined(__SSE2__)\n#include <emmintrin.h>\n#endif\n'
+            '/* Copy n cells to dst, streaming every aligned group of four. */\n'
+            'static void beryl_stream(int32_t *restrict dst, const int32_t *restrict src, int32_t n) {\n'
+            '    int32_t k = 0;\n'
+            '#if defined(__SSE2__)\n'
+            '    for (; k < n && ((uintptr_t)(dst + k) & 15u); ++k) dst[k] = src[k];\n'
+            '    for (; k + 4 <= n; k += 4)\n'
+            '        _mm_stream_si128((__m128i *)(void *)(dst + k), _mm_loadu_si128((const __m128i *)(const void *)(src + k)));\n'
+            '#endif\n'
+            '    for (; k < n; ++k) dst[k] = src[k];\n'
+            '}\n'
+            '\n/* Compute cells [from, to) in row-major order, 64-cell blocks streamed out. */\n'
+            'static void beryl_cells(const int32_t *restrict input, int32_t *restrict output,\n'
+            '                        int64_t from, int64_t to) {\n'
+            '    int32_t block[64] __attribute__((aligned(16)));\n'
+            f'    int32_t {v0} = (int32_t)(from / {w}), first = (int32_t)(from % {w});\n'
+            f'    for (int64_t at = from; at < to; ++{v0}, first = 0) {{\n'
+            f'        int32_t last = (to - at < (int64_t)({w} - first)) ? first + (int32_t)(to - at) : {w};\n'
+            '        for (int32_t start = first; start < last; start += 64) {\n'
+            '            int32_t end = last - start < 64 ? last : start + 64;\n'
+            f'            for (int32_t {v1} = start; {v1} < end; ++{v1}) {{\n'
+            f'{inner}\n'
+            f'                block[{v1} - start] = {value};\n'
+            '            }\n'
+            f'            beryl_stream(output + (int64_t){w} * {v0} + start, block, end - start);\n'
+            '        }\n'
+            '        at += last - first;\n'
+            '    }\n'
+            '#if defined(__SSE2__)\n'
+            '    _mm_sfence();\n'
+            '#endif\n'
+            '}\n')
+
+
 def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     """Emit C for a plan that check_loop_plan has just proved for `kernel`."""
     (stage,) = plan.stages
@@ -303,7 +351,16 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     invalid = f'(uint32_t)(input[i] < {lower} || input[i] > {upper})'
     rows = (stage.value[0] == 'sum' and not _has_sum(stage.value[4])
             and _reads_var(stage.value[4], v1) and w >= 8)
-    cells = _row_accumulation(stage, v0, v1, w) if rows else (
+    # Single-row outputs larger than the last-level cache: write through
+    # non-temporal stores, which skip reading each output line before
+    # overwriting it. Measured 1.5x on 4M-cell maps and 1-D stencils; 2-D
+    # stencils read several input rows per output row and gained nothing
+    # (sq2x2 lost), so they keep ordinary stores.
+    stream = not rows and h == 1 and n_out * 4 >= STREAM_MIN_BYTES
+    if stream:
+        cells = _streaming_cells(stage, v0, v1, w, body, value)
+    else:
+        cells = _row_accumulation(stage, v0, v1, w) if rows else (
         '\n/* Compute cells [from, to) in row-major order. */\n'
         'static void beryl_cells(const int32_t *restrict input, int32_t *restrict output,\n'
         '                        int64_t from, int64_t to) {\n'

@@ -8,12 +8,16 @@ from dataclasses import dataclass, fields, replace
 from enum import StrEnum
 from hashlib import sha256
 
-from .checker import CHECK_ACCOUNTING_VERSION, CheckResult, check_plan
-from .codec import canonical_json, encode_plan
+from .checker import CHECK_ACCOUNTING_VERSION, CheckResult, _check_plan, check_plan
+from .codec import DecodeError, canonical_json, encode_plan
 from .frontend import admit_source, parse_source
 from .model import AdmittedKernel, ConstraintStatus, Limits, Objective, SemanticStatus
 from .plan_format import Plan
 from .planner import bounded, make_plan, plan_ids
+
+# The stock checker and encoder, kept so a substituted one (tests replace the
+# module names) turns off the single-encode path.
+_STOCK_CHECK, _STOCK_ENCODE = check_plan, encode_plan
 
 BUDGET_ACCOUNTING_VERSION = CHECK_ACCOUNTING_VERSION
 RANKING_VERSION = 1
@@ -128,6 +132,10 @@ def _select_portfolio(kernel, limits, total_check_steps, objective, optional_che
     if generate_candidate is None:
         def generate_candidate(kernel, candidate_id):
             return make_plan(kernel, candidate_id, **bounded(kernel, limits))
+    # The single-encode path only when nothing replaced the stock checker or
+    # encoder (tests substitute either through these names).
+    fast = (check_candidate is None and encode_candidate is None
+            and check_plan is _STOCK_CHECK and encode_plan is _STOCK_ENCODE)
     check_candidate = check_plan if check_candidate is None else check_candidate
     encode_candidate = encode_plan if encode_candidate is None else encode_candidate
     policy_digest = ranking_digest(objective)
@@ -167,7 +175,20 @@ def _select_portfolio(kernel, limits, total_check_steps, objective, optional_che
             phase = 'checking'
             # If checking aborts without a receipt, retain this reservation.
             charged = available
-            receipt = check_candidate(kernel, plan, replace(limits, check_steps=available))
+            data = None
+            if fast:
+                # plan_digest is sha256 of these exact bytes: validate and
+                # encode once, then check with that identity. The checker still
+                # admits the source afresh; a plan record is immutable.
+                try:
+                    data = encode_plan(plan, limits=limits)
+                except DecodeError:
+                    data = None  # the ordinary path reports this failure
+            if data is not None:
+                receipt = _check_plan(kernel, plan, replace(limits, check_steps=available),
+                                               _identity=sha256(data).hexdigest())
+            else:
+                receipt = check_candidate(kernel, plan, replace(limits, check_steps=available))
             if (type(receipt) is not CheckResult or type(receipt.work_used) is not int
                     or not 0 <= receipt.work_used <= available):
                 raise ValueError('checker returned an invalid work receipt')
@@ -175,7 +196,8 @@ def _select_portfolio(kernel, limits, total_check_steps, objective, optional_che
             charged = checked.work_used
             phase = 'encoding'
             if checked.eligible:
-                data = encode_candidate(plan, limits=limits)
+                if data is None:
+                    data = encode_candidate(plan, limits=limits)
                 if (checked.source_digest != kernel.source_digest
                         or checked.plan_digest != sha256(data).hexdigest()
                         or checked.effective_cap != kernel.cap

@@ -13,5 +13,7 @@ int main(int argc, char **argv) {
     printf("%d", beryl_kernel(in, out));
     for (long i = 0; i < n_out; i++) printf(" %d", out[i]);
     printf("\n");
+    free(in);
+    free(out);
     return 0;
 }

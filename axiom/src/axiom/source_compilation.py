@@ -88,7 +88,9 @@ def compile_native_source(source: bytes, limits: Limits = Limits(), *, trace=Non
     if _scale_kernel(source, limits) is not None:
         result = compile_scale_native(source, limits)
         stop = FastSearchStop.COMPLETED if result.artifact is not None else FastSearchStop.UNKNOWN
-        return SourceCompilation(result.kernel, ScaleSearch(stop, result.reason, result.check,
+        detail = getattr(result.check, 'detail', None) if result.artifact is None else None
+        reason = f'{result.reason}: {detail}' if detail else result.reason
+        return SourceCompilation(result.kernel, ScaleSearch(stop, reason, result.check,
                                                  result.plan if result.artifact is not None else None),
                                  result.artifact, None)
     return _compile_source(source, limits, trace, _emit_native_c_compact, _emit_native_c_checked)
