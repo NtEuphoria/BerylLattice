@@ -6,12 +6,13 @@
                                                  axis + k or a literal
     output o[r in 0..H, c in 0..W] = g(p[r+i, c+j]);
 
-`sum(k in L..U: e)` is parser syntax: exactly a balanced `+` tree of the terms
-e[k := L] .. e[k := U-1] (see docs/superpowers/specs/2026-10-19-reductions-design.md).
+`sum(k in L..U: e)` means exactly a balanced `+` tree of the terms
+e[k := L] .. e[k := U-1] in these families (see docs/superpowers/specs/2026-10-19-reductions-design.md).
 Recognition works on the normalized profile, after the canonical stencil and
 the window family, which keep their own admission and identities. Bounds of
 every read were already proved by frontend validation.
 """
+import dataclasses
 import hashlib
 import json
 
@@ -20,13 +21,18 @@ from .model import (AdmittedKernel, BinaryExpression, DiagnosticError, GroupExpr
                     REDUCE_SEMANTICS_VERSION, Span)
 
 MAX_INPUT_CELLS = 256
-MAX_TERMS = 256          # expanded into a balanced tree
-MAX_SYMBOLIC_TERMS = 1 << 24  # above MAX_TERMS: a symbolic SumExpression
+MAX_TERMS = 256          # small families: expanded into a balanced tree
+MAX_SYMBOLIC_TERMS = 1 << 24  # scale-v1: an exact sum, kept as a loop
 MAX_OFFSET = 8
 
 
 def parse_sum(parser, keyword, nesting):
-    """Parse `sum(k in L..U: e)` after `keyword` and expand it in place."""
+    """Parse `sum(k in L..U: e)` after `keyword` into a SumExpression.
+
+    Admission expands sums of at most MAX_TERMS terms into their balanced `+`
+    trees for the small families (expand_small_sums); scale-v1 keeps every
+    sum as a loop.
+    """
     parser.take('(')
     name = parser.identifier()
     if name.text in parser.reserved or name.text in parser.sum_names:
@@ -46,33 +52,85 @@ def parse_sum(parser, keyword, nesting):
     parser.sum_names.pop()
     parser.take(')')
     span = parser.span_from(keyword.span)
-    if upper.value - lower.value > MAX_TERMS:
-        return parser.node(SumExpression(name.text, lower.value, upper.value, body, span, name.span), (body,))
+    return parser.node(SumExpression(name.text, lower.value, upper.value, body, span, name.span), (body,))
 
-    def substitute(node, value):
-        if isinstance(node, NameReference):
-            if node.name == name.text:
-                return parser.node(IntegerLiteral(value, node.span))
-            return parser.node(NameReference(node.name, node.span))
-        if isinstance(node, IntegerLiteral):
-            return parser.node(IntegerLiteral(node.value, node.span))
+
+class _TooLarge(Exception):
+    pass
+
+
+def _has_sum(node):
+    pending = [node]
+    while pending:
+        node = pending.pop()
+        if isinstance(node, SumExpression):
+            return True
         if isinstance(node, GroupExpression):
-            child = substitute(node.expression, value)
-            return parser.node(GroupExpression(child, node.span), (child,))
+            pending.append(node.expression)
+        elif isinstance(node, BinaryExpression):
+            pending.extend((node.left, node.right))
+        elif isinstance(node, ReadExpression):
+            pending.extend(node.indices)
+    return False
+
+
+def expand_small_sums(module, max_nodes=100000, max_depth=32):
+    """The module with every sum expanded to its balanced `+` tree, or None.
+
+    None when a sum has more than MAX_TERMS terms or the expansion exceeds the
+    parser's node or depth quota; such programs can only be scale-v1.
+    """
+    nodes = 0
+
+    def made(value, depth):
+        nonlocal nodes
+        nodes += 1
+        if nodes > max_nodes or depth > max_depth:
+            raise _TooLarge
+        return value, depth
+
+    def expand(node, env):
+        """(expanded node, depth), with sum variables in `env` as literals."""
+        if isinstance(node, IntegerLiteral):
+            return made(IntegerLiteral(node.value, node.span), 1)
+        if isinstance(node, NameReference):
+            if node.name in env:
+                return made(IntegerLiteral(env[node.name], node.span), 1)
+            return made(NameReference(node.name, node.span), 1)
+        if isinstance(node, GroupExpression):
+            child, depth = expand(node.expression, env)
+            return made(GroupExpression(child, node.span), depth + 1)
         if isinstance(node, BinaryExpression):
-            left, right = substitute(node.left, value), substitute(node.right, value)
-            return parser.node(BinaryExpression(node.operator, left, right, node.span), (left, right))
-        indices = tuple(substitute(index, value) for index in node.indices)
-        return parser.node(ReadExpression(node.name, indices, node.span, node.name_span), indices)
+            (left, a), (right, b) = expand(node.left, env), expand(node.right, env)
+            return made(BinaryExpression(node.operator, left, right, node.span), max(a, b) + 1)
+        if isinstance(node, ReadExpression):
+            pairs = [expand(index, env) for index in node.indices]
+            return made(ReadExpression(node.name, tuple(i for i, _ in pairs), node.span, node.name_span),
+                        max(d for _, d in pairs) + 1)
+        if node.upper - node.lower > MAX_TERMS:
+            raise _TooLarge
 
-    def tree(lo, hi):
-        if hi - lo == 1:
-            return substitute(body, lo)
-        mid = (lo + hi) // 2
-        left, right = tree(lo, mid), tree(mid, hi)
-        return parser.node(BinaryExpression('+', left, right, span), (left, right))
+        def tree(lo, hi):
+            if hi - lo == 1:
+                return expand(node.body, {**env, node.variable: lo})
+            mid = (lo + hi) // 2
+            (left, a), (right, b) = tree(lo, mid), tree(mid, hi)
+            return made(BinaryExpression('+', left, right, node.span), max(a, b) + 1)
+        return tree(node.lower, node.upper)
 
-    return tree(lower.value, upper.value)
+    replaced = {}
+    try:
+        for decl in (*module.producers, *module.outputs):
+            if _has_sum(decl.expression):
+                replaced[id(decl)] = dataclasses.replace(decl, expression=expand(decl.expression, {})[0])
+    except _TooLarge:
+        return None
+    if not replaced:
+        return module
+    swap = lambda decl: replaced.get(id(decl), decl)
+    return dataclasses.replace(module, producers=tuple(map(swap, module.producers)),
+                               outputs=tuple(map(swap, module.outputs)),
+                               declarations=tuple(map(swap, module.declarations)))
 
 
 def _dimension(node, shapes):

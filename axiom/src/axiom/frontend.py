@@ -15,8 +15,8 @@ from .model import (
     InputDeclaration, IntegerLiteral, Limits, NameReference, Objective,
     ReadExpression, SEMANTICS_VERSION, ShapeDeclaration, SourceModule, Span, SumExpression,
 )
-from .canonical_profile import _canonical_profile
-from .reduce_family import admit_reduce, parse_sum, reduce_shape
+from .canonical_profile import _canonical_profile, _normalized, _profile
+from .reduce_family import MAX_TERMS, admit_reduce, expand_small_sums, parse_sum, reduce_shape
 from .scale_family import admit_scale, scale_shape
 from .window_explain import explain, explain_counts
 from .window_family import admit_window, window_shape
@@ -329,18 +329,22 @@ def _interval(expression, shapes, axes):
 
 
 def _validate_scalar(expression, shapes, axes, tensors):
-    pending = [(expression, axes)]
+    # literal: variables of sums small enough to expand; each becomes an
+    # integer literal in every term, so it may also be used as a scalar.
+    pending = [(expression, axes, frozenset())]
     while pending:
-        node, axes = pending.pop()
+        node, axes, literal = pending.pop()
         node = _ungroup(node)
         if isinstance(node, IntegerLiteral):
             if not -2147483648 <= node.value <= 2147483647:
                 _fail('INVALID_INTEGER', node.span, 'scalar literal does not fit i32')
         elif isinstance(node, BinaryExpression):
-            pending.extend(((node.right, axes), (node.left, axes)))
+            pending.extend(((node.right, axes, literal), (node.left, axes, literal)))
         elif isinstance(node, SumExpression):
             # A symbolic sum variable ranges over lower..upper-1 in its body's indices.
-            pending.append((node.body, {**axes, node.variable: (node.lower, node.upper - 1)}))
+            small = node.upper - node.lower <= MAX_TERMS
+            pending.append((node.body, {**axes, node.variable: (node.lower, node.upper - 1)},
+                            literal | {node.variable} if small else literal))
         elif isinstance(node, ReadExpression):
             if node.name not in tensors:
                 _fail('UNDEFINED_NAME', node.name_span, f'undefined tensor {node.name!r}')
@@ -352,7 +356,8 @@ def _validate_scalar(expression, shapes, axes, tensors):
                 if lo < lower or hi >= upper:
                     _fail('INVALID_INDEX', index.span, 'read may exceed the declared tensor bounds')
         elif isinstance(node, NameReference):
-            _fail('UNDEFINED_NAME', node.span, 'scalar values must be tensor reads or integer literals')
+            if node.name not in literal:
+                _fail('UNDEFINED_NAME', node.span, 'scalar values must be tensor reads or integer literals')
         else:
             _fail('INVALID_EXPRESSION', node.span, 'unknown scalar expression')
 
@@ -392,49 +397,6 @@ def _validate(module):
     return shapes
 
 
-def _normalized(expression: Expression, index_names: dict[str, str],
-                tensor_names: dict[str, str]):
-    node = _ungroup(expression)
-    if isinstance(node, IntegerLiteral):
-        return ['integer', node.value]
-    if isinstance(node, NameReference):
-        return ['name', index_names.get(node.name, node.name)]
-    if isinstance(node, BinaryExpression):
-        return [node.operator, _normalized(node.left, index_names, tensor_names),
-                _normalized(node.right, index_names, tensor_names)]
-    if isinstance(node, ReadExpression):
-        return ['read', tensor_names.get(node.name, node.name),
-                [_normalized(i, index_names, tensor_names) for i in node.indices]]
-    if isinstance(node, SumExpression):
-        # Sum variables are named by nesting depth, like axes by position.
-        depth = sum(1 for value in index_names.values() if value.startswith('sumvar'))
-        inner = {**index_names, node.variable: f'sumvar{depth}'}
-        return ['sum', f'sumvar{depth}', node.lower, node.upper, _normalized(node.body, inner, tensor_names)]
-    _fail('INVALID_EXPRESSION', node.span, 'unknown expression record')
-
-
-def _profile(module):
-    """Normalize tensor bases independently from locally scoped axis names."""
-    shapes = {decl.name: f'shape{index}' for index, decl in enumerate(module.shapes)}
-    tensors = {decl.name: f'input{index}' for index, decl in enumerate(module.inputs)}
-    tensors.update({decl.name: f'producer{index}' for index, decl in enumerate(module.producers)})
-    tensors.update({decl.name: f'output{index}' for index, decl in enumerate(module.outputs)})
-    equations = []
-    for decl in (*module.producers, *module.outputs):
-        local = dict(shapes)
-        local.update({axis.name: f'axis{index}' for index, axis in enumerate(decl.axes)})
-        equations.append([
-            [[_normalized(axis.lower, shapes, tensors), _normalized(axis.upper, shapes, tensors)]
-             for axis in decl.axes],
-            _normalized(decl.expression, local, tensors),
-        ])
-    return {
-        'inputs': [[decl.element_type, [_normalized(d, shapes, tensors) for d in decl.dimensions],
-                    list(decl.input_interval)] for decl in module.inputs],
-        'equations': equations,
-    }
-
-
 def admit_source(module: SourceModule) -> AdmittedKernel:
     """Validate all source structure before recognizing the exact stencil profile."""
     if not isinstance(module, SourceModule):
@@ -457,20 +419,26 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     if any(not isinstance(_ungroup(decl.value), IntegerLiteral) for decl in module.shapes):
         _fail('UNSUPPORTED_PROFILE', module.span, 'shape parameters must be literal declarations')
     height, width = (shapes[decl.name] for decl in module.shapes)
-    profile = _profile(module)
+    # Small families first (256 input cells) on the program with small sums
+    # expanded into balanced trees, keeping their identities. Any larger
+    # member, or a sum of more than 256 terms, is scale-v1 with sums as loops.
+    small = expand_small_sums(module)
+    profile = _profile(small) if small is not None else None
     canonical = profile == _canonical_profile()
-    # Small families first (256 input cells), keeping their identities; any
-    # larger member of them, or a symbolic sum, is scale-v1.
-    window = None if canonical else window_shape(profile)
+    window = None if canonical or small is None else window_shape(profile)
     if window is not None and (height + window['input_offsets'][0]) * (width + window['input_offsets'][1]) <= 256:
-        return admit_window(module, height, width, objective, profile, window)
-    reduce = None if canonical else reduce_shape(profile, height, width)
+        return admit_window(small, height, width, objective, profile, window)
+    reduce = None if canonical or small is None else reduce_shape(profile, height, width)
     if reduce is not None and sum(r * c for r, c in reduce['input_shapes']) <= 256:
-        return admit_reduce(module, height, width, objective, profile, reduce)
+        return admit_reduce(small, height, width, objective, profile, reduce)
     if not canonical or (height + 1) * (width + 1) > 256:
-        scale = scale_shape(profile, height, width)
+        loops = _profile(module)
+        scale = scale_shape(loops, height, width)
         if scale is not None:
-            return admit_scale(module, height, width, objective, profile, scale)
+            return admit_scale(module, height, width, objective, loops, scale)
+    if small is None:
+        span, message = explain(module)
+        _fail('UNSUPPORTED_PROFILE', span, message)
     if counts[1] != 1:
         span, message = explain(module)
         _fail('UNSUPPORTED_PROFILE', span, message)
