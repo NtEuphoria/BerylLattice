@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 
 from .model import Limits
-from .native_codegen import _DRIVER, NativeArtifact
+from .native_codegen import _FAST_DRIVER, NativeArtifact
 from .scale_checker import check_loop_plan
 from .scale_plan import make_scale_plan
 from .frontend import admit_source, parse_source
@@ -94,8 +94,8 @@ int32_t beryl_kernel(const int32_t *restrict input, int32_t *restrict output) {{
 }}
 '''
     # Large buffers live in static storage, not on the driver's stack.
-    assert '= {0};' in _DRIVER
-    driver = (_DRIVER.replace('    int32_t input[BERYL_INPUT_COUNT] = {0};', '    static int32_t input[BERYL_INPUT_COUNT];')
+    assert '= {0};' in _FAST_DRIVER
+    driver = (_FAST_DRIVER.replace('    int32_t input[BERYL_INPUT_COUNT] = {0};', '    static int32_t input[BERYL_INPUT_COUNT];')
               .replace('    int32_t output[BERYL_OUTPUT_COUNT] = {0};', '    static int32_t output[BERYL_OUTPUT_COUNT];'))
     generated = (kernel_c + driver).encode('ascii')
     return NativeArtifact(generated, kernel.height, kernel.width, n_in, n_out, source_digest,

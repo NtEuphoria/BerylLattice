@@ -80,6 +80,114 @@ int main(void) {
 }
 '''
 
+# Non-canonical and compact artifacts: one bulk read, strict hand parsing and
+# buffered output, with the same token rules and exit codes as _DRIVER, whose
+# canonical finite bytes are published and stay unchanged.
+_FAST_DRIVER = r'''
+/* Standalone driver. Standard input is read in one bulk pass, then parsed with
+ * the same strict token rules as before: whitespace-separated tokens of at most
+ * 63 bytes, an optional sign then decimal digits only, values within i32, the
+ * exact count, and nothing but whitespace after the last value. NUL and every
+ * other byte that is not whitespace belong to a token, so they reject it. */
+static unsigned char *beryl_in;
+static size_t beryl_len, beryl_pos;
+
+static int beryl_space(unsigned char c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r';
+}
+
+static int beryl_load(void) {
+    size_t cap = 4096;
+    beryl_in = malloc(cap);
+    if (!beryl_in) return 0;
+    for (;;) {
+        if (beryl_len == cap) {
+            if (cap > SIZE_MAX / 2) return 0;
+            unsigned char *grown = realloc(beryl_in, cap * 2);
+            if (!grown) return 0;
+            beryl_in = grown;
+            cap *= 2;
+        }
+        size_t got = fread(beryl_in + beryl_len, 1, cap - beryl_len, stdin);
+        beryl_len += got;
+        if (got == 0) return !ferror(stdin);
+    }
+}
+
+static int beryl_read_i32(int32_t *value) {
+    while (beryl_pos < beryl_len && beryl_space(beryl_in[beryl_pos])) ++beryl_pos;
+    size_t start = beryl_pos;
+    while (beryl_pos < beryl_len && !beryl_space(beryl_in[beryl_pos])) ++beryl_pos;
+    size_t length = beryl_pos - start;
+    if (length == 0 || length > 63) return 0;
+    const unsigned char *token = beryl_in + start;
+    size_t index = (token[0] == '+' || token[0] == '-') ? 1 : 0;
+    if (index == length) return 0;
+    int64_t magnitude = 0;
+    for (; index < length; ++index) {
+        if (token[index] < '0' || token[index] > '9') return 0;
+        magnitude = magnitude * 10 + (token[index] - '0');
+        if (magnitude > (int64_t)INT32_MAX + 1) return 0;
+    }
+    int64_t parsed = token[0] == '-' ? -magnitude : magnitude;
+    if (parsed < INT32_MIN || parsed > INT32_MAX) return 0;
+    *value = (int32_t)parsed;
+    return 1;
+}
+
+static int beryl_end_of_input(void) {
+    while (beryl_pos < beryl_len)
+        if (!beryl_space(beryl_in[beryl_pos++])) return 0;
+    return 1;
+}
+
+static char beryl_out[1 << 16];
+static size_t beryl_used;
+
+static int beryl_flush(void) {
+    if (beryl_used && fwrite(beryl_out, 1, beryl_used, stdout) != beryl_used) return 0;
+    beryl_used = 0;
+    return 1;
+}
+
+static int beryl_put(char c) {
+    if (beryl_used == sizeof beryl_out && !beryl_flush()) return 0;
+    beryl_out[beryl_used++] = c;
+    return 1;
+}
+
+static int beryl_put_i32(int32_t value) {
+    char digits[11];
+    int count = 0;
+    uint32_t magnitude = value < 0 ? 0u - (uint32_t)value : (uint32_t)value;
+    do { digits[count++] = (char)('0' + magnitude % 10); magnitude /= 10; } while (magnitude);
+    if (value < 0 && !beryl_put('-')) return 0;
+    while (count)
+        if (!beryl_put(digits[--count])) return 0;
+    return 1;
+}
+
+int main(void) {
+    int32_t height, width;
+    if (!beryl_load()) return 65;
+    if (!beryl_read_i32(&height) || !beryl_read_i32(&width) ||
+        height != BERYL_HEIGHT || width != BERYL_WIDTH) return 64;
+    int32_t input[BERYL_INPUT_COUNT] = {0};
+    int32_t output[BERYL_OUTPUT_COUNT] = {0};
+    for (int32_t i = 0; i < BERYL_INPUT_COUNT; ++i)
+        if (!beryl_read_i32(&input[i])) return 65;
+    if (!beryl_end_of_input()) return 65;
+    if (beryl_kernel(input, output) != 0) return 66;
+    if (!beryl_put('[')) return 74;
+    for (int32_t i = 0; i < BERYL_OUTPUT_COUNT; ++i) {
+        if (i && !beryl_put(',')) return 74;
+        if (!beryl_put_i32(output[i])) return 74;
+    }
+    if (!beryl_put(']') || !beryl_put('\n') || !beryl_flush() || fflush(stdout) == EOF) return 74;
+    return 0;
+}
+'''
+
 
 def emit_native_c(source: bytes, plan_bytes: bytes,
                   limits: Limits = Limits()) -> NativeArtifact:
@@ -135,7 +243,8 @@ def _emit_finite(kernel, plan, source_digest, plan_digest):
                                   'native backend cannot lower the checked opcode')
         parts.append(f'    const int32_t ax_v{operation.dst} = {expression};\n'
                      f'    (void)ax_v{operation.dst};\n')
-    return _finish_native(parts, kernel, source_digest, plan_digest)
+    return _finish_native(parts, kernel, source_digest, plan_digest,
+                          driver=_FAST_DRIVER if window else _DRIVER)
 
 
 def _native_kernel_parts(kernel, plan, *, comment=None, disjoint_parameters=False,
@@ -195,10 +304,10 @@ int32_t beryl_kernel(const int32_t *{qualifier}input, int32_t *{qualifier}output
 
 def _finish_native(parts, kernel, source_digest, plan_digest, *,
                    codegen_version='beryl-finite-c-v1', hint_digest=None,
-                   loop_version=None):
+                   loop_version=None, driver=None):
     """Share the bounded token driver and exact artifact byte identities."""
     parts.append('    return 0;\n}\n')
-    parts.append(_DRIVER)
+    parts.append(_FAST_DRIVER if driver is None else driver)
     generated = ''.join(parts).encode('ascii')
     return NativeArtifact(generated, kernel.height, kernel.width,
                           kernel.input_count, kernel.height*kernel.width,
