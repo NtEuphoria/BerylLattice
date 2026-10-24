@@ -20,7 +20,7 @@ Test machine: AMD Ryzen 3 3100 (4 cores, 8 threads, 2 MB L2, 16 MB L3), Windows 
 | 2 | Toolchain levers (encode once; one-pass byte count; lazy imports) | **Lever 1 done** | `select_plan` now validates and encodes each candidate once and checks with that digest. Plan digests are unchanged, and the checker still re-admits the source. At 15x15 it went from 190 ms to 143 ms. Earlier interpreter work had already cut the handoff's 639 ms to 190 ms. Levers 2 and 3 are not done. |
 | 3 | Range proof plus guarded unchecked emission | **Done for scale-v1, without the fused guard** | The template checker proves every `+`, `*` and partial sum fits i32 for inputs in range, and the emitter uses plain `int32_t` arithmetic (see "The fused guard" below). |
 | 4 | Loop-plan checker with symbolic H, W | **Done** (`scale_checker.py`) | It takes 49 checker steps at both 20x20 and 2000x2000, which beats the proposed "within 2x" bar. It also rejects all 400 randomly mutated plans in the new fuzz test. |
-| 5 | carry1 as a fourth schedule | Not yet | scale-v1 has one schedule, the producer inlined. At the m tier, sq2x2 already runs at 3.1x hand C on this machine. carry1 is the natural next schedule; it needs a checker rule for a carried row. |
+| 5 | carry1 as a fourth schedule | **Done as `carry-v1`, generalized to K rows** | See "carry-v1" below. |
 | 6 | u16 input storage | **Declined for now** | The native interface takes `int32_t` buffers, and converting costs a full pass. It could return later as an internal staging buffer. |
 | 7 | Rerun on Mo's x86 PC | **Done**, with different conclusions | See "x86 versus the ARM VM". |
 | 8 | Parallel bands plus a checker split lemma | **Emitter-side parallelism done; split lemma not done** | See "Parallelism and the checker". |
@@ -93,11 +93,69 @@ Every number above is an Axiom result: emitted by Axiom from a checked plan, ver
 independent reference, and timed by the benchmark harness. The single-thread versus multi-thread
 caveat must accompany every comparison. Nothing here supports "faster than C" in general.
 
+## carry-v1 (proposal 5)
+
+The handoff suggested a scalar plan with a per-column induction invariant in the checker. That
+approach needs a new proof rule for every variant. This branch proves one level up instead.
+
+**The plan.** A `carry-v1` plan has two stages:
+
+1. a producer stage, storing the producer expression over the producer's own loop variables;
+2. an output stage, whose producer reads are `('prod', i, j)`, meaning "the producer at
+   (r + i, c + j)".
+
+**What the checker proves** (`scale_checker.py`):
+
+- the producer stage equals the producer template;
+- every `prod` leaf matches a source read at exactly the output position plus (i, j);
+- the window stays inside the producer grid over the whole loop box;
+- overflow, by the same interval analysis as direct-v1.
+
+The meaning of a carry plan is therefore the direct plan's meaning.
+
+**The emitter** (`scale_carry.py`) keeps the last K producer rows in a ring on the stack
+(K = 1 + largest i; the report's carry1 is K = 2). It computes each producer cell once. That is
+sound because a producer value is a pure function of its position. This is an emitter argument, like
+the parallel split.
+
+**Testing:**
+
+- Python-runtime and native differential tests, at 1 and 8 threads.
+- TSan, ASan and UBSan runs are clean.
+- Eight targeted forgeries are rejected: shifted window, window past the edge, changed producer,
+  short producer loops, wrong producer index, `prod` in a one-stage plan, reused loop variable,
+  swapped stages.
+- A 200-mutant fuzz where any accepted mutant must equal the reference.
+
+**Ranking** follows the program's objective, as the small families do:
+
+- `prefer multiplication_ops` ranks by multiplications, then operations, then workspace.
+- `prefer plan_workspace_bytes` ranks by workspace first.
+- A declared `require plan_workspace_bytes` cap below the ring rules carry out.
+
+**Measured** (Axiom-emitted, same program, direct versus carry):
+
+| Kernel | Size | direct | carry | carry speedup |
+|---|---|---|---|---|
+| sq2x2 (K=2, the report's stencil) | 255^2 | 18.7 us | 12.8 us | **1.46x** |
+| box3x3 (K=3) | 254^2 | 13.7 us | 10.9 us | 1.25x |
+| conv3x3 (K=3) | 254^2 | 13.8 us | 11.3 us | 1.22x |
+| laplace5 (K=3) | 254^2 | 12.3 us | 10.9 us | 1.13x |
+| sq2x2 | 2047^2 | 2.42 ms | 2.39 ms | 1.02x (bandwidth floor) |
+| box3x3 | 2046^2 | 2.41 ms | 2.50 ms | 0.96x (noise) |
+
+The handoff measured +23% for carry1 over rows2 on ARM. Here carry beats the inlined schedule by
+13-46% at the in-cache size and is neutral when memory-bound.
+
+**Benchmark drafts.** The drafts declare caps written for the small sizes: sq2x2 has 64 bytes, and
+box3x3 and conv3x3 have 1024. Those caps are binding, so the official benchmark runs keep direct-v1
+for these programs. laplace5 has no cap, but its producer is a plain copy, so the operation count
+ranks direct first even though carry measured faster. The cost model could take the number of
+streams into account, as the handoff suggested.
+
 ## Suggested next steps
 
-1. **carry1 as a checked schedule** for producer-heavy stencils (proposal 5), with a carried-row
-   proof rule.
-2. **A checker split lemma for parallel bands** (proposal 8), so parallelism is proved, not only
+1. **A checker split lemma for parallel bands** (proposal 8), so parallelism is proved, not only
    tested.
 3. **i64 accumulators,** which unlock sum l and dot m/l, currently refused by the overflow proof.
 4. **A multi-threaded C baseline,** to keep the comparison honest.

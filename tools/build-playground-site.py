@@ -22,7 +22,8 @@ MODULES = ('__init__', 'runtime', 'playground_service', 'frontend', 'model',
            'source_compilation', 'bounded_loop_model', 'bounded_loop_codec',
            'bounded_loop_planner', 'bounded_loop_correspondence',
            'bounded_loop_c', 'bounded_loop_wasm', 'window_family', 'window_planner', 'window_loop_planner', 'window_explain', 'reduce_family',
-           'canonical_profile', 'scale_family', 'scale_plan', 'scale_checker', 'scale_c')
+           'canonical_profile', 'scale_family', 'scale_plan', 'scale_checker', 'scale_c',
+           'scale_carry', 'scale_pool')
 ASSETS = ('index.html', 'app.js', 'style.css', 'transport.js', 'worker.js',
           'benchmarks.html', 'benchmarks.js', 'benchmark-results.json')
 # Export only these reviewed branding changes; private compiler sources stay intact.

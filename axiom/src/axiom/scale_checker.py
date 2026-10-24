@@ -110,9 +110,13 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
             raise _Stop('UNSUPPORTED_PROFILE', 'template checking covers scale-v1 kernels')
         if plan.semantic_digest != kernel.semantic_digest:
             raise _Stop('SEMANTIC_DIGEST_MISMATCH')
-        if type(plan.stages) is not tuple or len(plan.stages) != 1 or type(plan.stages[0]) is not Stage:
-            raise _Stop('INVALID_PLAN', 'phase 1 plans have exactly one output stage')
-        stage = plan.stages[0]
+        # One stage: direct (producer inlined). Two: carry, a producer stage then
+        # an output stage reading it through ('prod', i, j). Labels are not trusted.
+        if (type(plan.stages) is not tuple or len(plan.stages) not in (1, 2)
+                or any(type(s) is not Stage for s in plan.stages)):
+            raise _Stop('INVALID_PLAN', 'a plan has an output stage, optionally after a producer stage')
+        carry = len(plan.stages) == 2
+        stage = plan.stages[-1]
         module = kernel.source_module
         producer, output = module.producers[0], module.outputs[0]
         lower, upper = kernel.input_interval
@@ -179,6 +183,18 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
 
         # Equivalence and bounds, one walk; ranges holds each plan variable's box.
         ranges = {v0: (0, kernel.height - 1), v1: (0, kernel.width - 1)}
+        prows, pcols = kernel.producer_shape
+        if carry:
+            produce = plan.stages[0]
+            p_loops = produce.loops
+            if (type(p_loops) is not tuple or len(p_loops) != 2
+                    or any(type(l) is not tuple or len(l) != 2 or type(l[0]) is not str for l in p_loops)):
+                raise _Stop('INVALID_PLAN', 'malformed producer loops')
+            (u0, ph), (u1, pw) = p_loops
+            if len({u0, u1, v0, v1}) != 4 or (ph, pw) != (prows, pcols):
+                raise _Stop('COVERAGE_MISMATCH', 'producer loops must be the producer shape over fresh variables')
+            if not _affine_ok(produce.index) or produce.index != (0, tuple(sorted(((u0, pcols), (u1, 1))))):
+                raise _Stop('COVERAGE_MISMATCH', 'producer store index must be u0*PW + u1')
 
         def index_affine(node, env):
             node = _ungroup(node)
@@ -230,11 +246,27 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
                     if low < 0 or high >= input_count:
                         raise _Stop('LOAD_OUT_OF_BOUNDS', f'load range {low}..{high}')
                     return True
+                if s.name == producer.name and carry_reads and p[0] == 'prod':
+                    # The producer cell at (v0 + i, v1 + j): exactly the source read's offsets.
+                    if (len(p) != 3 or type(p[1]) is not int or type(p[2]) is not int
+                            or row != (p[1], ((v0, 1),)) or col != (p[2], ((v1, 1),))
+                            or not 0 <= p[1] <= 8 or not 0 <= p[2] <= 8):
+                        return False
+                    if kernel.height - 1 + p[1] >= prows or kernel.width - 1 + p[2] >= pcols:
+                        raise _Stop('PRODUCER_OUT_OF_BOUNDS', f'window read ({p[1]}, {p[2]})')
+                    return True
                 if s.name == producer.name:
                     return same(p, producer.expression,
                                 {producer.axes[0].name: row, producer.axes[1].name: col}, depth + 1)
             return False
 
+        carry_reads = False
+        if carry:
+            ranges.update({u0: (0, prows - 1), u1: (0, pcols - 1)})
+            if not same(produce.value, producer.expression,
+                        {producer.axes[0].name: (0, ((u0, 1),)), producer.axes[1].name: (0, ((u1, 1),))}, 0):
+                raise _Stop('STRUCTURAL_MISMATCH', 'producer stage differs from the producer template')
+            carry_reads = True
         env = {output.axes[0].name: (0, ((v0, 1),)), output.axes[1].name: (0, ((v1, 1),))}
         if not same(stage.value, output.expression, env, 0):
             raise _Stop('STRUCTURAL_MISMATCH', 'stored expression differs from the source template')

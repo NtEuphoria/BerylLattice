@@ -18,6 +18,9 @@ from hashlib import sha256
 
 from .model import Limits
 from .native_codegen import _FAST_DRIVER, NativeArtifact
+from .scale_carry import carry_eligible, carry_rows_c, plan_costs, rank_key
+from .scale_plan import SCALE_PLAN_IDS
+from .scale_pool import _POOL
 from .scale_checker import check_loop_plan
 from .scale_plan import make_scale_plan
 from .frontend import admit_source, parse_source
@@ -44,151 +47,7 @@ _Static_assert(sizeof(int32_t) == 4, "four-byte i32 required");
 _Static_assert(sizeof(int64_t) == 8, "eight-byte i64 required");
 '''
 
-_POOL = r'''
-/* Persistent worker pool. Workers start on the first parallel call, then wait
- * for work. A dispatch cuts its range into about four chunks per thread; every
- * thread, the caller included, claims chunks from one atomic counter until
- * none are left, and the dispatch returns once every chunk has finished. A
- * preempted worker therefore delays a dispatch only while holding a chunk.
- * Chunks are disjoint ranges of output cells (or inputs, for the preflight).
- * The claim counter holds (chunk count << 32 | next index), so a worker always
- * reads the count of the dispatch whose job it then runs. BERYL_THREADS=n caps
- * the pool; 1 disables it. */
-#include <stdatomic.h>
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <pthread.h>
-#include <sched.h>
-#include <unistd.h>
-#endif
-#define BERYL_MAX_THREADS 16
-#define BERYL_MAX_CHUNKS 64
-static const int32_t *beryl_job_input;
-static int32_t *beryl_job_output;
-static int beryl_job_phase;
-static int beryl_job_chunks;
-static int64_t beryl_job_begin[BERYL_MAX_CHUNKS + 1];
-static uint32_t beryl_job_invalid[BERYL_MAX_CHUNKS];
-static int32_t beryl_job_partial[BERYL_MAX_CHUNKS] __attribute__((unused));
-static atomic_ullong beryl_claim;
-static atomic_uint beryl_generation;
-static atomic_uint beryl_done;
-static int beryl_threads = 1;
-static int beryl_pool_ready;
 
-static void beryl_pause(void) {
-#if defined(__x86_64__) || defined(__i386__)
-    __builtin_ia32_pause();
-#endif
-}
-
-static void beryl_yield(void) {
-#ifdef _WIN32
-    SwitchToThread();
-#else
-    sched_yield();
-#endif
-}
-
-static void beryl_run_chunk(int c);
-
-/* Claim and run chunks of the current dispatch until none are left. */
-static void beryl_claim_chunks(void) {
-    for (;;) {
-        unsigned long long v = atomic_fetch_add_explicit(&beryl_claim, 1ull, memory_order_acq_rel);
-        unsigned index = (unsigned)(v & 0xffffffffull), count = (unsigned)(v >> 32);
-        if (index >= count) return;
-        beryl_run_chunk((int)index);
-        atomic_fetch_add_explicit(&beryl_done, 1u, memory_order_release);
-    }
-}
-
-#ifdef _WIN32
-static DWORD WINAPI beryl_worker(LPVOID arg)
-#else
-static void *beryl_worker(void *arg)
-#endif
-{
-    unsigned seen = (unsigned)(uintptr_t)arg;
-    for (;;) {
-        unsigned spins = 0, now;
-        while ((now = atomic_load_explicit(&beryl_generation, memory_order_acquire)) == seen) {
-            if (++spins < (1u << 14)) beryl_pause(); else beryl_yield();
-        }
-        seen = now;
-        beryl_claim_chunks();
-    }
-#ifndef _WIN32
-    return NULL;
-#endif
-}
-
-static int beryl_pool(void) {
-    if (beryl_pool_ready) return beryl_threads;
-    beryl_pool_ready = 1;
-    long logical;
-#ifdef _WIN32
-    SYSTEM_INFO info;
-    GetSystemInfo(&info);
-    logical = (long)info.dwNumberOfProcessors;
-#else
-    logical = sysconf(_SC_NPROCESSORS_ONLN);
-#endif
-    /* Leave one logical processor for the rest of the system. */
-    long want = logical > 2 ? logical - 1 : logical;
-    const char *cap = getenv("BERYL_THREADS");
-    if (cap && *cap) {
-        long c = strtol(cap, NULL, 10);
-        if (c >= 1 && c <= logical) want = c;
-    }
-    if (want < 1) want = 1;
-    if (want > BERYL_MAX_THREADS) want = BERYL_MAX_THREADS;
-    /* Workers start from the generation before any dispatch, so a worker that
-     * starts late still runs the first dispatch. */
-    unsigned start = atomic_load_explicit(&beryl_generation, memory_order_relaxed);
-    for (long t = 1; t < want; ++t) {
-#ifdef _WIN32
-        HANDLE h = CreateThread(NULL, 0, beryl_worker, (LPVOID)(uintptr_t)start, 0, NULL);
-        if (!h) break;
-        CloseHandle(h);
-#else
-        pthread_t h;
-        if (pthread_create(&h, NULL, beryl_worker, (void *)(uintptr_t)start) != 0) break;
-        pthread_detach(h);
-#endif
-        beryl_threads = (int)t + 1;
-    }
-    return beryl_threads;
-}
-
-/* Cut [0, total) into 16-aligned chunks, run them on the pool, wait for all. */
-static void beryl_dispatch(int phase, int64_t total, const int32_t *input, int32_t *output) {
-    int chunks = beryl_threads * 4;
-    if (chunks > BERYL_MAX_CHUNKS) chunks = BERYL_MAX_CHUNKS;
-    int64_t step = (total + chunks - 1) / chunks;
-    step = (step + 15) & ~(int64_t)15;
-    if (step < 16) step = 16;
-    chunks = (int)((total + step - 1) / step);
-    if (chunks < 1) chunks = 1;
-    for (int c = 0; c <= chunks; ++c) {
-        int64_t at = (int64_t)c * step;
-        beryl_job_begin[c] = at < total ? at : total;
-    }
-    beryl_job_input = input;
-    beryl_job_output = output;
-    beryl_job_phase = phase;
-    beryl_job_chunks = chunks;
-    atomic_store_explicit(&beryl_done, 0u, memory_order_relaxed);
-    atomic_store_explicit(&beryl_claim, (unsigned long long)chunks << 32, memory_order_release);
-    atomic_fetch_add_explicit(&beryl_generation, 1u, memory_order_release);
-    beryl_claim_chunks();
-    unsigned spins = 0;
-    while (atomic_load_explicit(&beryl_done, memory_order_acquire) < (unsigned)chunks) {
-        if (++spins < (1u << 14)) beryl_pause(); else beryl_yield();
-    }
-}
-'''
 
 
 def _affine(value):
@@ -201,20 +60,22 @@ def _literal(value):
     return '(-2147483647 - 1)' if value == -2147483648 else f'{value}'
 
 
-def _lower(expr, statements, counter):
+def _lower(expr, statements, counter, prod=None):
     kind = expr[0]
+    if kind == 'prod':
+        return prod(expr[1], expr[2])
     if kind == 'const':
         return _literal(expr[1])
     if kind == 'load':
         return f'input[{_affine(expr[1])}]'
     if kind in ('add', 'mul'):
         operator = '+' if kind == 'add' else '*'
-        left, right = _lower(expr[1], statements, counter), _lower(expr[2], statements, counter)
+        left, right = _lower(expr[1], statements, counter, prod), _lower(expr[2], statements, counter, prod)
         return f'({left} {operator} {right})'
     _, var, lower, upper, body = expr
     name = f'ax_s{next(counter)}'
     inner = []
-    value = _lower(body, inner, counter)
+    value = _lower(body, inner, counter, prod)
     statements.append(f'int32_t {name} = 0;')
     statements.append(f'for (int32_t {var} = {lower}; {var} < {upper}; ++{var}) {{')
     statements.extend('    ' + line for line in inner)
@@ -334,30 +195,35 @@ def _streaming_cells(stage, v0, v1, w, body, value):
 
 def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     """Emit C for a plan that check_loop_plan has just proved for `kernel`."""
-    (stage,) = plan.stages
+    stage = plan.stages[-1]
+    carry = len(plan.stages) == 2
     (v0, h), (v1, w) = stage.loops
     statements = []
     counter = iter(range(1 << 30))
-    value = _lower(stage.value, statements, counter)
+    value = None if carry else _lower(stage.value, statements, counter)
     n_in, n_out = kernel.input_count, kernel.height * kernel.width
     lower, upper = kernel.input_interval
     body = '\n'.join('            ' + line for line in statements)
     # A single cell whose value is one large sum: split the sum range instead.
     # Any subset of its terms is bounded by the same proof as the whole sum.
-    split = (n_out == 1 and stage.value[0] == 'sum' and not _has_sum(stage.value[4])
+    split = (not carry and n_out == 1 and stage.value[0] == 'sum' and not _has_sum(stage.value[4])
              and _work_estimate(stage.value) >= PARALLEL_MIN_WORK)
-    parallel = split or (n_out >= 32 and n_out * _work_estimate(stage.value) >= PARALLEL_MIN_WORK)
+    per_cell = plan_costs(plan, kernel)[1] if carry else _work_estimate(stage.value)
+    parallel = split or (n_out >= 32 and h >= 2 and n_out * per_cell >= PARALLEL_MIN_WORK) or (
+        not carry and n_out >= 32 and n_out * per_cell >= PARALLEL_MIN_WORK)
     parallel_preflight = parallel and n_in >= PARALLEL_MIN_INPUT
     invalid = f'(uint32_t)(input[i] < {lower} || input[i] > {upper})'
-    rows = (stage.value[0] == 'sum' and not _has_sum(stage.value[4])
+    rows = (not carry and stage.value[0] == 'sum' and not _has_sum(stage.value[4])
             and _reads_var(stage.value[4], v1) and w >= 8)
     # Single-row outputs larger than the last-level cache: write through
     # non-temporal stores, which skip reading each output line before
     # overwriting it. Measured 1.5x on 4M-cell maps and 1-D stencils; 2-D
     # stencils read several input rows per output row and gained nothing
     # (sq2x2 lost), so they keep ordinary stores.
-    stream = not rows and h == 1 and n_out * 4 >= STREAM_MIN_BYTES
-    if stream:
+    stream = not carry and not rows and h == 1 and n_out * 4 >= STREAM_MIN_BYTES
+    if carry:
+        cells = carry_rows_c(plan, kernel, _lower)
+    elif stream:
         cells = _streaming_cells(stage, v0, v1, w, body, value)
     else:
         cells = _row_accumulation(stage, v0, v1, w) if rows else (
@@ -403,7 +269,8 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
                      '        beryl_job_invalid[c] = invalid;\n'
                      + split_chunk +
                      '    } else if (from < to) {\n'
-                     '        beryl_cells(input, beryl_job_output, from, to);\n'
+                     + ('        beryl_rows(input, beryl_job_output, from, to);\n' if carry else
+                        '        beryl_cells(input, beryl_job_output, from, to);\n') +
                      '    }\n'
                      '}\n')
     parts.append('\n/* Caller owns disjoint initialized arrays of the exact compiled counts. */\n'
@@ -413,7 +280,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     parts.append('    uint32_t ax_invalid = 0;\n')
     if parallel_preflight:
         parts.append('    if (threads > 1) {\n'
-                     f'        beryl_dispatch(0, {n_in}, input, output);\n'
+                     f'        beryl_dispatch(0, {n_in}, 16, 4, input, output);\n'
                      '        for (int c = 0; c < beryl_job_chunks; ++c) ax_invalid |= beryl_job_invalid[c];\n'
                      '    } else {\n'
                      f'        for (int64_t i = 0; i < {n_in}; ++i) ax_invalid |= {invalid};\n'
@@ -426,14 +293,19 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
                  '    }\n')
     if split:
         parts.append('    if (threads > 1) {\n'
-                     f'        beryl_dispatch(2, {s_hi - s_lo}, input, output);\n'
+                     f'        beryl_dispatch(2, {s_hi - s_lo}, 16, 4, input, output);\n'
                      '        int32_t total = 0;\n'
                      '        for (int c = 0; c < beryl_job_chunks; ++c) total += beryl_job_partial[c];\n'
                      f'        output[{stage.index[0]}] = total;\n'
                      f'    }} else beryl_cells(input, output, 0, {n_out});\n')
+    elif parallel and carry:
+        parts.append(f'    if (threads > 1) beryl_dispatch(1, {h}, 1, 1, input, output);\n'
+                     f'    else beryl_rows(input, output, 0, {h});\n')
     elif parallel:
-        parts.append(f'    if (threads > 1) beryl_dispatch(1, {n_out}, input, output);\n'
+        parts.append(f'    if (threads > 1) beryl_dispatch(1, {n_out}, 16, 4, input, output);\n'
                      f'    else beryl_cells(input, output, 0, {n_out});\n')
+    elif carry:
+        parts.append(f'    beryl_rows(input, output, 0, {h});\n')
     else:
         parts.append(f'    beryl_cells(input, output, 0, {n_out});\n')
     parts.append('    return 0;\n}\n')
@@ -459,14 +331,25 @@ class ScaleCompilation:
 
 
 def compile_scale_native(source: bytes, limits: Limits = Limits()) -> ScaleCompilation:
-    """Fresh admission, plan generation, template proof, then C emission."""
+    """Fresh admission; every portfolio plan generated and template-checked; the
+    best proved plan by the program's objective emitted (see scale_carry.rank_key)."""
     kernel = admit_source(parse_source(source, limits))
-    try:
-        plan = make_scale_plan(kernel, max_nodes=limits.plan_operations)
-    except Exception as error:  # an untrusted generator may fail in any way
-        return ScaleCompilation(kernel, None, None, getattr(error, 'code', type(error).__name__))
-    check = check_loop_plan(source, plan, limits)
-    if not check.valid:
-        return ScaleCompilation(kernel, check, None, check.reason, plan)
+    proved, first_failure = [], None
+    for order, plan_id in enumerate(SCALE_PLAN_IDS):
+        try:
+            plan = make_scale_plan(kernel, plan_id, max_nodes=limits.plan_operations)
+        except Exception as error:  # an untrusted generator may fail in any way
+            failure = ScaleCompilation(kernel, None, None, getattr(error, 'code', type(error).__name__))
+            first_failure = first_failure or failure
+            continue
+        check = check_loop_plan(source, plan, limits)
+        if not check.valid:
+            first_failure = first_failure or ScaleCompilation(kernel, check, None, check.reason, plan)
+            continue
+        if carry_eligible(plan, kernel):
+            proved.append((rank_key(plan, kernel, order), plan, check))
+    if not proved:
+        return first_failure
+    _, plan, check = min(proved, key=lambda item: item[0])
     return ScaleCompilation(kernel, check, emit_scale_c(kernel, plan, sha256(source).hexdigest(),
                                                         check.plan_digest), 'VALID', plan)

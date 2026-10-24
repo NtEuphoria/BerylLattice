@@ -9,6 +9,7 @@ scale_checker proves a plan against the source before anything emits it.
     Stage(loops=((var, extent), ...), index=Affine, value=Expr)
     Expr   = ('const', v) | ('load', Affine) | ('add', a, b) | ('mul', a, b)
            | ('sum', var, lower, upper, body)
+           | ('prod', i, j)   carry-v1 output only: the producer at (r+i, c+j)
     Affine = (constant, ((var, coefficient), ...))  canonical: sorted vars,
              no zero coefficients
 """
@@ -21,7 +22,12 @@ from .model import (AdmittedKernel, BinaryExpression, GroupExpression, IntegerLi
                     NameReference, ReadExpression, SCALE_PROFILE, SumExpression)
 
 LOOP_PLAN_FORMAT = 'beryl-loop-plan-v1'
-SCALE_PLAN_IDS = ('direct-v1',)
+# direct-v1: one output stage, producer inlined at every read.
+# carry-v1:  a producer stage plus an output stage reading it through
+#            ('prod', i, j); the emitter keeps the last K producer rows
+#            (K = 1 + largest i), so each producer cell is computed once.
+#            This generalizes the performance report's carry1 (K = 2).
+SCALE_PLAN_IDS = ('direct-v1', 'carry-v1')
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,7 +89,7 @@ def _ungroup(node):
 
 def make_scale_plan(kernel: AdmittedKernel, plan_id: str = 'direct-v1', *,
                     max_nodes: int = 20000) -> LoopPlan:
-    """direct-v1: one loop nest over the output with the producer inlined."""
+    """direct-v1 or carry-v1 for an admitted scale-v1 kernel (see SCALE_PLAN_IDS)."""
     if type(kernel) is not AdmittedKernel or kernel.profile != SCALE_PROFILE:
         raise TypeError('expected an admitted scale-v1 kernel')
     if plan_id not in SCALE_PLAN_IDS:
@@ -135,6 +141,29 @@ def make_scale_plan(kernel: AdmittedKernel, plan_id: str = 'direct-v1', *,
         raise ValueError('expression outside scale-v1')
 
     env = {output.axes[0].name: affine(r=1), output.axes[1].name: affine(c=1)}
+    if plan_id == 'direct-v1':
+        stage = Stage((('r', kernel.height), ('c', kernel.width)),
+                      affine(r=kernel.width, c=1), lower(output.expression, env))
+        return LoopPlan(kernel.semantic_digest, plan_id, (stage,))
+    prows, pcols = kernel.producer_shape
+    produce = Stage((('p', prows), ('q', pcols)), affine(p=pcols, q=1),
+                    lower(producer.expression, {producer.axes[0].name: affine(p=1),
+                                                producer.axes[1].name: affine(q=1)}))
+
+    def windowed(node):
+        """The output tree with producer reads as ('prod', i, j)."""
+        count()
+        node = _ungroup(node)
+        if isinstance(node, IntegerLiteral):
+            return ('const', node.value)
+        if isinstance(node, BinaryExpression):
+            return ('add' if node.operator == '+' else 'mul', windowed(node.left), windowed(node.right))
+        if isinstance(node, ReadExpression) and node.name == producer.name:
+            row, col = (index(i, env) for i in node.indices)
+            if row[1] != (('r', 1),) or col[1] != (('c', 1),):
+                raise ValueError('carry-v1 needs window reads of the producer')
+            return ('prod', row[0], col[0])
+        raise ValueError('carry-v1 output may read only the producer')
     stage = Stage((('r', kernel.height), ('c', kernel.width)),
-                  affine(r=kernel.width, c=1), lower(output.expression, env))
-    return LoopPlan(kernel.semantic_digest, plan_id, (stage,))
+                  affine(r=kernel.width, c=1), windowed(output.expression))
+    return LoopPlan(kernel.semantic_digest, plan_id, (produce, stage))

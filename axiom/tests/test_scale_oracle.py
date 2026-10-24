@@ -61,6 +61,10 @@ def _mutate(expr, rng):
     choice = rng.random()
     if kind == 'const':
         return ('const', expr[1] + rng.choice((-1, 1, 7)))
+    if kind == 'prod':
+        if choice < 0.5:
+            return ('prod', expr[1] + rng.choice((-1, 1)), expr[2])
+        return ('prod', expr[1], expr[2] + rng.choice((-1, 1)))
     if kind == 'load':
         constant, terms = expr[1]
         if terms and choice < 0.5:

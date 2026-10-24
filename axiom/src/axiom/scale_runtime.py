@@ -10,22 +10,26 @@ from .scale_checker import check_loop_plan
 from .frontend import admit_source, parse_source
 
 
-def _value(expr, env, data):
+def _value(expr, env, data, produce=None):
     kind = expr[0]
+    if kind == 'prod':
+        # carry-v1: the producer stage evaluated at (r + i, c + j).
+        stage, (row_var, col_var), (u0, u1) = produce
+        return _value(stage.value, {u0: env[row_var] + expr[1], u1: env[col_var] + expr[2]}, data)
     if kind == 'const':
         return expr[1]
     if kind == 'load':
         constant, terms = expr[1]
         return data[constant + sum(k * env[var] for var, k in terms)]
     if kind == 'add':
-        return _value(expr[1], env, data) + _value(expr[2], env, data)
+        return _value(expr[1], env, data, produce) + _value(expr[2], env, data, produce)
     if kind == 'mul':
-        return _value(expr[1], env, data) * _value(expr[2], env, data)
+        return _value(expr[1], env, data, produce) * _value(expr[2], env, data, produce)
     _, var, lower, upper, body = expr
     total = 0
     for term in range(lower, upper):
         env[var] = term
-        total += _value(body, env, data)
+        total += _value(body, env, data, produce)
     del env[var]
     return total
 
@@ -42,13 +46,17 @@ def execute_loop_plan(source: bytes, plan, data, initial_output, limits: Limits 
     for index, value in enumerate(inputs):
         if not lower <= value <= upper:
             return ExecutionResult(ExecutionStatus.INPUT_PRECONDITION_FAILED, index, tuple(output), inputs)
-    (stage,) = plan.stages
+    stage = plan.stages[-1]
     (v0, h), (v1, w) = stage.loops
+    produce = None
+    if len(plan.stages) == 2:
+        first = plan.stages[0]
+        produce = (first, (v0, v1), (first.loops[0][0], first.loops[1][0]))
     env = {}
     for row in range(h):
         env[v0] = row
         for col in range(w):
             env[v1] = col
             constant, terms = stage.index
-            output[constant + sum(k * env[var] for var, k in terms)] = _value(stage.value, env, inputs)
+            output[constant + sum(k * env[var] for var, k in terms)] = _value(stage.value, env, inputs, produce)
     return ExecutionResult(ExecutionStatus.SUCCESS, None, tuple(output), inputs)
