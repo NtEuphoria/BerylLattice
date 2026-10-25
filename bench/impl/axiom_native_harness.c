@@ -3,7 +3,8 @@
    with its driver renamed (-Dmain=beryl_generated_main) and without LTO, so
    beryl_kernel stays an opaque external call that cannot be folded away.
    argv: pattern a b min_ms max_reps input_count output_count
-   -> one JSON line on stdout, same fields as impl/kernels.c. */
+   -> one JSON line on stdout, same fields as impl/kernels.c.
+   Compiled with -DBERYL_OUT=int64_t for programs with an i64 output. */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +25,11 @@ static int64_t now_ns(void) {
 }
 #endif
 
-extern int32_t beryl_kernel(const int32_t *input, int32_t *output);
+#ifndef BERYL_OUT
+#define BERYL_OUT int32_t
+#endif
+
+extern int32_t beryl_kernel(const int32_t *input, BERYL_OUT *output);
 
 static int32_t value(const char *p, int64_t i) {
     if (!strcmp(p, "hash")) return (int32_t)(((uint32_t)i * 2654435761u) >> 22);
@@ -44,7 +49,8 @@ int main(int argc, char **argv) {
     const char *pat = argv[1];
     int64_t min_ns = atoll(argv[4]) * 1000000, max_reps = atoll(argv[5]);
     int64_t n_in = atoll(argv[6]), n_out = atoll(argv[7]);
-    int32_t *x = malloc((size_t)n_in * sizeof *x), *o = malloc((size_t)n_out * sizeof *o);
+    int32_t *x = malloc((size_t)n_in * sizeof *x);
+    BERYL_OUT *o = malloc((size_t)n_out * sizeof *o);
     if (!x || !o) return 3;
     for (int64_t i = 0; i < n_in; i++) x[i] = value(pat, i);
     for (int64_t i = 0; i < n_out; i++) o[i] = -12345;

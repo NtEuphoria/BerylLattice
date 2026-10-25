@@ -12,8 +12,9 @@ its bytes and proves, in time linear in the template (never in the data):
   bounds       every load's affine minimum and maximum over its variable box
                lies within the input buffer
   arithmetic   interval analysis over the template from the input interval:
-               every + and * fits i32, and every symbolic sum satisfies
-               terms * max|term| <= 2^31 - 1, so any accumulation order is exact
+               every + and * fits its equation's declared type (i32 or i64),
+               and every symbolic sum satisfies terms * max|term| <= that
+               type's maximum, so any accumulation order is exact
 
 Every cell evaluates the same template, every input shares one interval, and
 indices are affine, so these facts hold for every cell at once.
@@ -22,11 +23,10 @@ from dataclasses import dataclass
 
 from .frontend import admit_source, parse_source
 from .model import (BinaryExpression, DiagnosticError, GroupExpression, IntegerLiteral, Limits,
-                    NameReference, ReadExpression, SCALE_PROFILE, SumExpression)
+                    NameReference, ReadExpression, SCALE_PROFILE, SumExpression, VALUE_BOUNDS)
 from .scale_plan import LOOP_PLAN_FORMAT, LoopPlan, Stage, loop_plan_digest
 
 SCALE_CHECKER_VERSION = 'beryl-template-checker-v1'
-_I32_MIN, _I32_MAX = -2147483648, 2147483647
 
 
 @dataclass(frozen=True, slots=True)
@@ -141,8 +141,11 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
         # Arithmetic: interval of each source node, position-independent.
         intervals = {}
 
-        def interval(node):
+        def interval(node, element_type):
             node = _ungroup(node)
+            low, high = VALUE_BOUNDS[element_type]
+            hint = ('; declare the equation i64 (`let t: i64[...]`) for 64-bit values'
+                    if element_type == 'i32' else '')
             key = id(node)
             if key in intervals:
                 return intervals[key]
@@ -150,36 +153,44 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
             if isinstance(node, IntegerLiteral):
                 result = (node.value, node.value)
             elif isinstance(node, ReadExpression):
-                result = (lower, upper) if node.name in inputs else interval(producer.expression)
+                result = ((lower, upper) if node.name in inputs
+                          else interval(producer.expression, producer.element_type))
+                if result[0] < low or result[1] > high:
+                    # An i64 producer read where an i32 value is required.
+                    raise _Stop('ARITHMETIC_OVERFLOW',
+                                f'the read of {node.name!r} at byte {node.span.offset} can reach '
+                                f'{result[0]}..{result[1]}, outside {element_type} ({low}..{high}){hint}')
             elif isinstance(node, BinaryExpression):
-                (a, b), (c, d) = interval(node.left), interval(node.right)
+                (a, b), (c, d) = interval(node.left, element_type), interval(node.right, element_type)
                 if node.operator == '+':
                     result = (a + c, b + d)
                 else:
                     ends = (a * c, a * d, b * c, b * d)
                     result = (min(ends), max(ends))
-                if result[0] < _I32_MIN or result[1] > _I32_MAX:
+                if result[0] < low or result[1] > high:
                     raise _Stop('ARITHMETIC_OVERFLOW',
                                 f"the '{node.operator}' at byte {node.span.offset} can reach "
-                                f'{result[0]}..{result[1]}, outside 32-bit integers '
-                                f'({_I32_MIN}..{_I32_MAX}) for inputs in {lower}..{upper}')
+                                f'{result[0]}..{result[1]}, outside {element_type} '
+                                f'({low}..{high}) for inputs in {lower}..{upper}{hint}')
             elif isinstance(node, SumExpression):
-                a, b = interval(node.body)
+                a, b = interval(node.body, element_type)
                 terms = node.upper - node.lower
                 biggest = max(abs(a), abs(b))
-                if terms * biggest > _I32_MAX:
+                if terms * biggest > high:
                     raise _Stop('ARITHMETIC_OVERFLOW',
                                 f'the sum at byte {node.span.offset} adds {terms} terms of up to {biggest} each, '
-                                f'so it can reach {terms * biggest} > {_I32_MAX}; at most '
-                                f'{_I32_MAX // max(biggest, 1)} terms fit in 32-bit integers '
-                                f'(64-bit accumulators are planned)')
+                                f'so it can reach {terms * biggest} > {high}; at most '
+                                f'{high // max(biggest, 1)} terms fit in {element_type}{hint}')
                 result = (terms * a, terms * b)
             else:
                 raise _Stop('UNSUPPORTED_SOURCE_EXPRESSION')
             intervals[key] = result
             return result
 
-        interval(output.expression)
+        # Every producer node is bounded by the producer's type, every output
+        # node by the output's; a producer read takes the producer's interval.
+        interval(producer.expression, producer.element_type)
+        interval(output.expression, output.element_type)
 
         # Equivalence and bounds, one walk; ranges holds each plan variable's box.
         ranges = {v0: (0, kernel.height - 1), v1: (0, kernel.width - 1)}

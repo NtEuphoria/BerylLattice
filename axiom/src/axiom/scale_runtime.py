@@ -41,7 +41,8 @@ def execute_loop_plan(source: bytes, plan, data, initial_output, limits: Limits 
     kernel = admit_source(parse_source(source, limits))
     module = kernel.source_module
     inputs = _boundary_values(data, kernel.input_count, 'input', module.inputs[0].span)
-    output = list(_boundary_values(initial_output, kernel.output_count, 'output', module.outputs[0].span))
+    output = list(_boundary_values(initial_output, kernel.output_count, 'output', module.outputs[0].span,
+                                   kernel.output_type))
     lower, upper = kernel.input_interval
     for index, value in enumerate(inputs):
         if not lower <= value <= upper:

@@ -157,5 +157,8 @@ streams into account, as the handoff suggested.
 
 1. **A checker split lemma for parallel bands** (proposal 8), so parallelism is proved, not only
    tested.
-3. **i64 accumulators,** which unlock sum l and dot m/l, currently refused by the overflow proof.
-4. **A multi-threaded C baseline,** to keep the comparison honest.
+2. **A multi-threaded C baseline,** to keep the comparison honest.
+
+i64 equations, which were step 3 here, landed after this response. They unlock sum l and dot m/l,
+and beryl now leads the C baseline on every sum and dot size. See "Phase 2: i64 equations" in
+`docs/superpowers/specs/2026-10-19-scale-design.md`.

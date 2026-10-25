@@ -139,7 +139,7 @@ same i32 interface, harness and flags. The plain C baselines write i64 outputs.
 
 Not yet:
 - **Refused by the overflow proof.** sum l (4M x 1023 > 2^31) and dot m/l need i64 accumulators
-  (phase 2).
+  (phase 2). *Done 2026-10-24: see "Phase 2: i64 equations" below.*
 - **matmul l is slower than C.** Its 256-term sum is expanded into one 256-product expression per
   output, while C runs a cache-friendly i-k-j loop. Loop-order and tiling schedules (phase 3) are
   the fix.
@@ -156,3 +156,64 @@ Not yet:
 
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
+
+## Phase 2: i64 equations (2026-10-24)
+
+Phase 2 adds element types for equations. Per-input intervals are not done yet.
+
+**Syntax.** `let t: i64[...]` and `output o: i64[...]`. An equation without a type is i32, so
+existing programs keep their bytes, profiles and semantic digests. Writing `: i32` explicitly gives
+the same digest. Inputs stay i32. i64 is admitted only in scale-v1: the 256-cell families emit
+i32 code, so an i64 program of any size is scale-v1.
+
+**Semantics.**
+- Each scalar node must be exact in its own equation's type.
+- An i32 equation reading an i64 producer must still fit i32.
+- The reference evaluator checks this per node (`EVALUATION_I64` / `EVALUATION_I32`). Output
+  boundary values must fit the output's type.
+- A program with an i64 equation has its own semantic version, `scale-i64-v1`. Its semantic
+  record names the element types, so the same text with i32 gets a different identity.
+
+**Proof.** The template checker's interval analysis bounds every node by its equation's type, and
+bounds every sum by that type's maximum (`terms * max|term|`). Producer reads are checked against
+the reading equation's type, which catches narrowing. When an i32 sum would overflow, the refusal
+says how many terms fit and suggests declaring the equation i64.
+
+**Emission.** A program with any i64 equation computes in `int64_t`. Loads and literals are
+widened; accumulators, the carry ring and the pool's partials are `int64_t`. Every node is proved
+to fit its own type, so i32 nodes keep their exact values. i64 outputs are `int64_t` arrays, and
+the driver prints them with a 64-bit formatter. Streaming stores remain i32-only.
+
+**Exact int32 blocks.** Widening every term made the i64 sum 2x slower than the i32 one, and
+slower than C. Instead, when every node of a sum's body fits i32, the emitter adds runs of
+`I32_MAX // max|term|` terms in `int32_t` and widens once per run:
+
+- about 2.1 million terms for `sum`;
+- 2,052 for `dot`.
+
+Any run that short sums exactly, by the same interval argument as the proof. The emitter
+recomputes these intervals over the plan, which the checker has proved equal to the source
+template. This is an emitter argument, like the parallel split.
+
+**Results** (Ryzen 3 3100, against single-threaded C with i64 outputs; beryl uses all cores):
+
+| kernel | s | m | l |
+|---|---|---|---|
+| sum | 0.59x | 0.46x | 0.72x |
+| dot | 0.95x | 0.45x | 0.77x |
+
+These are beryl's time divided by C's; lower is faster.
+
+**Verification.**
+- `tests/test_scale_i64.py` (13 tests) covers:
+  - parsing and identity;
+  - refusals: narrowing, an i32 node inside an i64 program, past i64;
+  - reference agreement;
+  - the carry ring cost;
+  - a mutation fuzz;
+  - native agreement for 9 programs.
+- The bench drafts for sum and dot now declare i64, matching the C baselines' 64-bit outputs.
+- Sanitizers in WSL are clean: TSan and ASan+UBSan on 7 i64 kernels × 3 inputs × 1 and 8
+  threads, 84 runs.
+- Executables in the temp folder are blocked by Application Control on this host, so the native
+  test skips there. The same comparison was run from `.local` with 0 mismatches.

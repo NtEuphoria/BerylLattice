@@ -3,8 +3,10 @@
 Emission happens only after scale_checker proves the plan against fresh
 source. Arithmetic is plain int32_t: the checker's interval proof shows no +,
 * or partial sum (in any order) leaves i32, so nothing overflows and the C
-compiler may vectorize and reassociate accumulations. Index arithmetic is
-int64_t. The branch-free input preflight runs before any output is written;
+compiler may vectorize and reassociate accumulations. A program with an i64
+equation computes every value in int64_t instead (each node is proved to fit
+its own equation's type, so i32 nodes keep their exact values), and an i64
+output is an int64_t array. Index arithmetic is int64_t. The branch-free input preflight runs before any output is written;
 on rejection the first invalid index plus one is returned.
 
 Large kernels split their cells across a persistent worker pool. The proved
@@ -18,7 +20,7 @@ from hashlib import sha256
 
 from .model import Limits
 from .native_codegen import _FAST_DRIVER, NativeArtifact
-from .scale_carry import carry_eligible, carry_rows_c, plan_costs, rank_key
+from .scale_carry import c_types, carry_eligible, carry_rows_c, plan_costs, rank_key
 from .scale_plan import SCALE_PLAN_IDS
 from .scale_pool import _POOL
 from .scale_checker import check_loop_plan
@@ -50,6 +52,19 @@ _Static_assert(sizeof(int64_t) == 8, "eight-byte i64 required");
 
 
 
+_PUT_I64 = '''static int beryl_put_i64(int64_t value) {
+    char digits[20];
+    int count = 0;
+    uint64_t magnitude = value < 0 ? 0u - (uint64_t)value : (uint64_t)value;
+    do { digits[count++] = (char)('0' + magnitude % 10); magnitude /= 10; } while (magnitude);
+    if (value < 0 && !beryl_put('-')) return 0;
+    while (count)
+        if (!beryl_put(digits[--count])) return 0;
+    return 1;
+}
+'''
+
+
 def _affine(value):
     constant, terms = value
     parts = [f'(int64_t){constant}'] + [f'(int64_t){k} * {var}' for var, k in terms]
@@ -60,23 +75,90 @@ def _literal(value):
     return '(-2147483647 - 1)' if value == -2147483648 else f'{value}'
 
 
-def _lower(expr, statements, counter, prod=None):
+_I32_MIN, _I32_MAX = -2 ** 31, 2 ** 31 - 1
+
+
+def _narrow_block(expr, lower, upper, prod_interval=None):
+    """Terms per exact int32_t block of the sum `expr` in a wide program, or None.
+
+    The plan expression equals the checked source template, so these are the
+    checker's intervals. When every node of the body fits i32, the body
+    evaluates exactly in int32_t, and any run of I32_MAX // max|term|
+    consecutive terms sums exactly in int32_t too. Each block is widened
+    before it is added, so the sum vectorizes like an i32 sum. For an
+    expression that is not a sum, returns its interval when every node fits
+    i32 (the producer interval for ('prod', i, j) leaves), else None.
+    """
+    def interval(e):
+        kind = e[0]
+        if kind == 'const':
+            result = (e[1], e[1])
+        elif kind == 'load':
+            result = (lower, upper)
+        elif kind == 'prod':
+            result = prod_interval
+        elif kind in ('add', 'mul'):
+            a, b = interval(e[1]), interval(e[2])
+            if a is None or b is None:
+                return None
+            ends = (a[0] * b[0], a[0] * b[1], a[1] * b[0], a[1] * b[1])
+            result = (a[0] + b[0], a[1] + b[1]) if kind == 'add' else (min(ends), max(ends))
+        else:
+            body = interval(e[4])
+            if body is None or (e[3] - e[2]) * max(abs(body[0]), abs(body[1])) > _I32_MAX:
+                return None
+            result = ((e[3] - e[2]) * body[0], (e[3] - e[2]) * body[1])
+        if result is None or result[0] < _I32_MIN or result[1] > _I32_MAX:
+            return None
+        return result
+    if expr[0] != 'sum':
+        return interval(expr)
+    body = interval(expr[4])
+    return None if body is None else max(1, _I32_MAX // max(1, abs(body[0]), abs(body[1])))
+
+
+def _lower(expr, statements, counter, prod=None, wide=False, narrow=None):
+    """C for a plan expression; `wide` computes in int64_t (loads and literals widened).
+
+    `narrow(sum_expr)`, when given, returns the exact int32_t block length of a
+    wide sum (see _narrow_block) or None. A narrow sum's body is lowered as
+    plain int32_t, which _narrow_block showed exact for every node.
+    """
     kind = expr[0]
     if kind == 'prod':
         return prod(expr[1], expr[2])
     if kind == 'const':
-        return _literal(expr[1])
+        return f'((int64_t){_literal(expr[1])})' if wide else _literal(expr[1])
     if kind == 'load':
-        return f'input[{_affine(expr[1])}]'
+        return f'(int64_t)input[{_affine(expr[1])}]' if wide else f'input[{_affine(expr[1])}]'
     if kind in ('add', 'mul'):
         operator = '+' if kind == 'add' else '*'
-        left, right = _lower(expr[1], statements, counter, prod), _lower(expr[2], statements, counter, prod)
+        left = _lower(expr[1], statements, counter, prod, wide, narrow)
+        right = _lower(expr[2], statements, counter, prod, wide, narrow)
         return f'({left} {operator} {right})'
     _, var, lower, upper, body = expr
     name = f'ax_s{next(counter)}'
+    block = narrow(expr) if wide and narrow else None
     inner = []
-    value = _lower(body, inner, counter, prod)
-    statements.append(f'int32_t {name} = 0;')
+    if block is not None:
+        # Exact int32_t blocks of `block` terms, each widened once (_narrow_block).
+        value = _lower(body, inner, counter, prod)
+        loop = [f'int32_t {name}_b = 0;',
+                f'for (int32_t {var} = {name}_k; {var} < {name}_e; ++{var}) {{',
+                *('    ' + line for line in inner), f'    {name}_b += {value};', '}']
+        if upper - lower <= block:
+            statements.extend(line.replace(f'{name}_k', str(lower)).replace(f'{name}_e', str(upper))
+                              for line in loop)
+            return f'((int64_t){name}_b)'
+        statements.append(f'int64_t {name} = 0;')
+        statements.append(f'for (int32_t {name}_k = {lower}; {name}_k < {upper}; {name}_k += {block}) {{')
+        statements.append(f'    int32_t {name}_e = {upper} - {name}_k < {block} ? {upper} : {name}_k + {block};')
+        statements.extend('    ' + line for line in loop)
+        statements.append(f'    {name} += {name}_b;')
+        statements.append('}')
+        return name
+    value = _lower(body, inner, counter, prod, wide, narrow)
+    statements.append(f'{"int64_t" if wide else "int32_t"} {name} = 0;')
     statements.append(f'for (int32_t {var} = {lower}; {var} < {upper}; ++{var}) {{')
     statements.extend('    ' + line for line in inner)
     statements.append(f'    {name} += {value};')
@@ -108,7 +190,7 @@ def _reads_var(expr, var):
     return expr[0] == 'sum' and _reads_var(expr[4], var)
 
 
-def _row_accumulation(stage, v0, v1, w):
+def _row_accumulation(stage, v0, v1, w, wide=False, value='int32_t', out='int32_t'):
     """Cells loop for a value that is one sum with a sum-free body reading v1.
 
     Each row segment keeps one accumulator per cell; the sum variable runs in
@@ -118,15 +200,15 @@ def _row_accumulation(stage, v0, v1, w):
     the stack buffer use a heap buffer, or the direct loop if that fails.
     """
     _, var, lower, upper, body = stage.value
-    term = _lower(body, [], iter(range(1 << 30)))
-    direct = _lower(stage.value, statements := [], iter(range(1 << 30)))
+    term = _lower(body, [], iter(range(1 << 30)), None, wide)
+    direct = _lower(stage.value, statements := [], iter(range(1 << 30)), None, wide)
     direct_body = '\n'.join('                ' + line for line in statements)
     index = _affine(stage.index)
     return ('\n/* Compute cells [from, to): one sum per cell, accumulated a row segment at a time. */\n'
-            'static void beryl_cells(const int32_t *restrict input, int32_t *restrict output,\n'
+            f'static void beryl_cells(const int32_t *restrict input, {out} *restrict output,\n'
             '                        int64_t from, int64_t to) {\n'
-            '    int32_t stack[1024];\n'
-            f'    int32_t *acc = {w} <= 1024 ? stack : malloc(sizeof(int32_t) * (size_t){w});\n'
+            f'    {value} stack[1024];\n'
+            f'    {value} *acc = {w} <= 1024 ? stack : malloc(sizeof({value}) * (size_t){w});\n'
             f'    int32_t {v0} = (int32_t)(from / {w}), first = (int32_t)(from % {w});\n'
             f'    for (int64_t at = from; at < to; ++{v0}, first = 0) {{\n'
             f'        int32_t last = (to - at < (int64_t)({w} - first)) ? first + (int32_t)(to - at) : {w};\n'
@@ -197,12 +279,16 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     """Emit C for a plan that check_loop_plan has just proved for `kernel`."""
     stage = plan.stages[-1]
     carry = len(plan.stages) == 2
+    wide = kernel.wide
+    val, out = c_types(kernel)
     (v0, h), (v1, w) = stage.loops
     statements = []
     counter = iter(range(1 << 30))
-    value = None if carry else _lower(stage.value, statements, counter)
-    n_in, n_out = kernel.input_count, kernel.height * kernel.width
     lower, upper = kernel.input_interval
+    prod_interval = _narrow_block(plan.stages[0].value, lower, upper) if carry else None
+    narrow = (lambda e: _narrow_block(e, lower, upper, prod_interval)) if wide else None
+    value = None if carry else _lower(stage.value, statements, counter, None, wide, narrow)
+    n_in, n_out = kernel.input_count, kernel.height * kernel.width
     body = '\n'.join('            ' + line for line in statements)
     # A single cell whose value is one large sum: split the sum range instead.
     # Any subset of its terms is bounded by the same proof as the whole sum.
@@ -220,15 +306,16 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     # overwriting it. Measured 1.5x on 4M-cell maps and 1-D stencils; 2-D
     # stencils read several input rows per output row and gained nothing
     # (sq2x2 lost), so they keep ordinary stores.
-    stream = not carry and not rows and h == 1 and n_out * 4 >= STREAM_MIN_BYTES
+    # The streaming copy moves int32_t cells, so i64 programs keep ordinary stores.
+    stream = not carry and not rows and not wide and h == 1 and n_out * 4 >= STREAM_MIN_BYTES
     if carry:
-        cells = carry_rows_c(plan, kernel, _lower)
+        cells = carry_rows_c(plan, kernel, lambda e, s, c, p: _lower(e, s, c, p, wide, narrow))
     elif stream:
         cells = _streaming_cells(stage, v0, v1, w, body, value)
     else:
-        cells = _row_accumulation(stage, v0, v1, w) if rows else (
+        cells = _row_accumulation(stage, v0, v1, w, wide, val, out) if rows else (
         '\n/* Compute cells [from, to) in row-major order. */\n'
-        'static void beryl_cells(const int32_t *restrict input, int32_t *restrict output,\n'
+        f'static void beryl_cells(const int32_t *restrict input, {out} *restrict output,\n'
         '                        int64_t from, int64_t to) {\n'
         f'    int32_t {v0} = (int32_t)(from / {w}), first = (int32_t)(from % {w});\n'
         f'    for (int64_t at = from; at < to; ++{v0}, first = 0) {{\n'
@@ -247,19 +334,33 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     split_chunk = ''
     if split:
         _, var, s_lo, s_hi, s_body = stage.value
-        term = _lower(s_body, [], iter(range(1 << 30)))
+        block = narrow(stage.value) if narrow else None
+        if block is None:
+            term = _lower(s_body, [], iter(range(1 << 30)), None, wide)
+            loop = f'    for (int32_t {var} = (int32_t)from; {var} < (int32_t)to; ++{var}) acc += {term};\n'
+        else:
+            # Exact int32_t blocks, each widened once (_narrow_block).
+            term = _lower(s_body, [], iter(range(1 << 30)))
+            loop = (f'    for (int64_t ax_k = from; ax_k < to; ax_k += {block}) {{\n'
+                    f'        int64_t ax_e = to - ax_k < {block} ? to : ax_k + {block};\n'
+                    '        int32_t ax_b = 0;\n'
+                    f'        for (int32_t {var} = (int32_t)ax_k; {var} < (int32_t)ax_e; ++{var}) ax_b += {term};\n'
+                    '        acc += ax_b;\n'
+                    '    }\n')
         parts.append('\n/* Partial sum of the single cell over [from, to) of its sum range. */\n'
-                     'static int32_t beryl_partial(const int32_t *restrict input, int64_t from, int64_t to) {\n'
+                     f'static {val} beryl_partial(const int32_t *restrict input, int64_t from, int64_t to) {{\n'
                      f'    const int32_t {v0} = 0, {v1} = 0;\n'
                      f'    (void){v0}; (void){v1};\n'
-                     '    int32_t acc = 0;\n'
-                     f'    for (int32_t {var} = (int32_t)from; {var} < (int32_t)to; ++{var}) acc += {term};\n'
+                     f'    {val} acc = 0;\n'
+                     + loop +
                      '    return acc;\n'
                      '}\n')
         split_chunk = ('    } else if (beryl_job_phase == 2) {\n'
                        f'        beryl_job_partial[c] = from < to ? beryl_partial(input, {s_lo} + from, {s_lo} + to) : 0;\n')
     if parallel:
-        parts.append(_POOL)
+        parts.append(_POOL.replace('static int32_t *beryl_job_output;', f'static {out} *beryl_job_output;')
+                     .replace('static int32_t beryl_job_partial', f'static {val} beryl_job_partial')
+                     .replace('const int32_t *input, int32_t *output)', f'const int32_t *input, {out} *output)'))
         parts.append('\nstatic void beryl_run_chunk(int c) {\n'
                      '    int64_t from = beryl_job_begin[c], to = beryl_job_begin[c + 1];\n'
                      '    const int32_t *input = beryl_job_input;\n'
@@ -274,7 +375,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
                      '    }\n'
                      '}\n')
     parts.append('\n/* Caller owns disjoint initialized arrays of the exact compiled counts. */\n'
-                 'int32_t beryl_kernel(const int32_t *restrict input, int32_t *restrict output) {\n')
+                 f'int32_t beryl_kernel(const int32_t *restrict input, {out} *restrict output) {{\n')
     if parallel:
         parts.append('    int threads = beryl_pool();\n')
     parts.append('    uint32_t ax_invalid = 0;\n')
@@ -294,7 +395,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     if split:
         parts.append('    if (threads > 1) {\n'
                      f'        beryl_dispatch(2, {s_hi - s_lo}, 16, 4, input, output);\n'
-                     '        int32_t total = 0;\n'
+                     f'        {val} total = 0;\n'
                      '        for (int c = 0; c < beryl_job_chunks; ++c) total += beryl_job_partial[c];\n'
                      f'        output[{stage.index[0]}] = total;\n'
                      f'    }} else beryl_cells(input, output, 0, {n_out});\n')
@@ -314,7 +415,13 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     driver = (_FAST_DRIVER.replace('    int32_t input[BERYL_INPUT_COUNT] = {0};',
                                    '    static int32_t input[BERYL_INPUT_COUNT];')
               .replace('    int32_t output[BERYL_OUTPUT_COUNT] = {0};',
-                       '    static int32_t output[BERYL_OUTPUT_COUNT];'))
+                       f'    static {out} output[BERYL_OUTPUT_COUNT];'))
+    if out == 'int64_t':
+        # i64 outputs print through a 64-bit formatter in place of the i32 one.
+        start = driver.index('static int beryl_put_i32(int32_t value) {')
+        end = driver.index('\n}\n', start) + 3
+        driver = (driver[:start] + _PUT_I64 + driver[end:]).replace(
+            'beryl_put_i32(output[i])', 'beryl_put_i64(output[i])')
     generated = (''.join(parts) + driver).encode('ascii')
     version = SCALE_PARALLEL_CODEGEN_VERSION if parallel else SCALE_CODEGEN_VERSION
     return NativeArtifact(generated, kernel.height, kernel.width, n_in, n_out, source_digest,

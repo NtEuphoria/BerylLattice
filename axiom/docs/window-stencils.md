@@ -140,6 +140,35 @@ let t[r in 0..H,c in 0..W] = x[c,r];
 output y[r in 0..H,c in 0..W] = t[r,c];
 ```
 
+## Larger programs and 64-bit values
+
+A program with more than 256 input cells, or with a sum of more than 256 terms, belongs to the
+`scale-v1` family: up to 2^24 cells, with sums kept as loops instead of expanded into trees. It is
+still checked. Before any code is emitted, beryl proves from the input range that no `+`, `*` or
+partial sum, added in any order, can leave its type.
+
+A `let` or `output` holds i32 values unless it declares `i64` after its name:
+
+```ax
+module dot;
+shape H = 1;
+shape W = 1;
+input x: i32[1,4096] in 0..=1023;
+input y: i32[1,4096] in 0..=1023;
+let t: i64[r in 0..H,c in 0..W] = sum(k in 0..4096: x[0,k]*y[0,k]);
+output d: i64[r in 0..H,c in 0..W] = t[r,c];
+```
+
+How the types work:
+
+- Each value is checked against its own equation's type. Here each product fits i32, but their
+  total (up to 4096 x 1023²) needs i64.
+- An i32 equation that reads an i64 one must still fit i32, or the program is refused.
+- Inputs are always i32.
+- i64 equations are `scale-v1` only; the 256-cell families above stay i32.
+- When a sum could overflow i32, the refusal says how many terms fit and suggests declaring the
+  equation i64.
+
 ## Plans beryl chooses between
 
 | Plan | What it does | Storage |
@@ -165,10 +194,11 @@ Rejections name the rule and point at the offending part of the source:
 | `producer indices must be an axis, ...` | index inputs with `r`, `c`, `r + k` or a literal; not a shape name |
 | `a sum needs between 1 and 256 terms` | use literal bounds `L..U` with `U - L` from 1 to 256 |
 | `subtraction is only allowed in scalar expressions` | indices only go forward: `r + k` with `k >= 0` |
-| `input exceeds 256 cells` | shrink the shapes; larger sizes are not admitted yet |
+| `input exceeds 256 cells` | shrink the shapes, or write a `scale-v1` program (see "Larger programs and 64-bit values") |
+| `... at most N terms fit in i32; declare the equation i64 ...` | add `: i64` to the `let` and `output` (see "Larger programs and 64-bit values") |
 
 ## Not supported yet
 
-Conditionals, comparisons and `max`, strided reads (`x[2*r, c]`), 64-bit accumulators,
-more than two inputs, and inputs above 256 cells.
+Conditionals, comparisons and `max`, strided reads (`x[2*r, c]`), more than two inputs,
+i64 inputs, and i64 equations in the 256-cell families.
 See `docs/reviews/2026-10-19-gaps-and-improvement-plan.md` for the plan.

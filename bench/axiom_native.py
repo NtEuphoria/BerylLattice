@@ -166,7 +166,7 @@ def main():
         return emit(dict(base, status='unsupported', diagnostic=dict(
             stage='grammar', code='NOT_EXPRESSIBLE', missing=KERNELS[kernel]['missing'])))
     try:
-        admit_source(parse_source(source))
+        admitted = admit_source(parse_source(source))
     except DiagnosticError as error:
         return emit(dict(base, status='unsupported', diagnostic=dict(
             stage='admit', code=error.code, message=error.message,
@@ -182,7 +182,9 @@ def main():
             stage='compile', code=compiled.search.termination_reason.value, message=compiled.search.reason)))
     cc = os.environ.get('BENCH_CC', 'clang')
     flags = shlex.split(os.environ.get('BENCH_CFLAGS', '-O3'))
-    exe = '.exe' if os.name == 'nt' else ''
+    if admitted.output_type == 'i64':
+        flags.append('-DBERYL_OUT=int64_t')  # the harness's output array type (its own cached object)
+    exe ='.exe' if os.name == 'nt' else ''
     try:
         harness, harness_cc_ns = harness_object(cc, flags)
     except RuntimeError as error:

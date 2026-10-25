@@ -104,7 +104,8 @@ def report(header, results):
         out += ['', '## Axiom native: check once, run many', '',
                 'Run = one call of the generated `beryl_kernel`, same protocol as the C/Rust kernels. '
                 'Compile = Axiom admission, checked selection and C emission, plus the C compiler. '
-                'Generated kernels are shape-specialized with 32-bit outputs; the C/Rust baselines '
+                'Generated kernels are shape-specialized with 32-bit outputs (64-bit where the program '
+                'declares i64, as sum and dot do); the C/Rust baselines '
                 'take sizes at runtime and store 64-bit outputs. "Hand C" removes that difference: hand-written '
                 'C with the same ABI, compile-time shape, int32 types, harness and flags.', '',
                 '| case | cap | objective | plan | mults | run | hand C | vs hand C | vs C | vs Rust | Axiom check+emit | C compiler |',

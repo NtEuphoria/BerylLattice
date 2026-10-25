@@ -1,9 +1,11 @@
-// Dot product of two inputs; the buffer holds x then y (reduce-v1).
+// Dot product of two inputs with a 64-bit result, like the C baseline's; the
+// buffer holds x then y. Declared i64 (scale-v1): 32768 products of up to
+// 1023^2 already pass i32.
 module dot;
 shape H = 1;
 shape W = 1;
 input x: i32[1,128] in 0..=1023;
 input y: i32[1,128] in 0..=1023;
-let t[r in 0..H,c in 0..W] = sum(k in 0..128: x[0,k]*y[0,k]);
-output d[r in 0..H,c in 0..W] = t[r,c];
+let t: i64[r in 0..H,c in 0..W] = sum(k in 0..128: x[0,k]*y[0,k]);
+output d: i64[r in 0..H,c in 0..W] = t[r,c];
 prefer multiplication_ops;

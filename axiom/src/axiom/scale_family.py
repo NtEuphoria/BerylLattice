@@ -10,7 +10,8 @@ frontend validation. See docs/superpowers/specs/2026-10-19-scale-design.md.
 import hashlib
 import json
 
-from .model import AdmittedKernel, DiagnosticError, SCALE_PROFILE, SCALE_SEMANTICS_VERSION
+from .model import (AdmittedKernel, DiagnosticError, SCALE_PROFILE, SCALE_SEMANTICS_VERSION,
+                    SCALE_WIDE_SEMANTICS_VERSION)
 from .reduce_family import _dimension
 
 MAX_CELLS = 1 << 24
@@ -121,10 +122,18 @@ def admit_scale(module, height, width, objective, profile, shape):
         'symbolic_sum': 'exact-sum-every-partial-sum-in-i32',
         'boundary': 'row-major-preflight-preserve-output-first-invalid',
     }
+    types = [decl.element_type for decl in (*module.producers, *module.outputs)]
+    version = SCALE_SEMANTICS_VERSION
+    if 'i64' in types:
+        # Programs without i64 keep the identity above unchanged.
+        version = SCALE_WIDE_SEMANTICS_VERSION
+        semantics.update(semantics_version=version, value_types=types,
+                         arithmetic='exact-declared-type-per-scalar-node',
+                         symbolic_sum='exact-sum-every-partial-sum-in-declared-type')
     canonical = json.dumps(semantics, sort_keys=True, separators=(',', ':'),
                            ensure_ascii=False, allow_nan=False).encode('utf-8')
     return AdmittedKernel(height, width, module.cap, module.inputs[0].input_interval,
                           objective, module.source_digest, hashlib.sha256(canonical).hexdigest(),
                           (module.producers[0].expression, module.outputs[0].expression),
-                          SCALE_SEMANTICS_VERSION, module, SCALE_PROFILE,
+                          version, module, SCALE_PROFILE,
                           input_shapes[0], producer_shape, input_shapes)

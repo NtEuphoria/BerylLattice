@@ -11,11 +11,8 @@ from .frontend import admit_source
 from .model import (
     BinaryExpression, DiagnosticError, EquationDeclaration, Expression,
     GroupExpression, IntegerLiteral, NameReference, ReadExpression,
-    SourceModule, Span, SumExpression,
+    SourceModule, Span, SumExpression, VALUE_BOUNDS,
 )
-
-_I32_MIN = -(2 ** 31)
-_I32_MAX = 2 ** 31 - 1
 
 
 class ExecutionStatus(StrEnum):
@@ -31,13 +28,16 @@ class ExecutionResult:
     input_after: tuple[int, ...]
 
 
-def _checked_i32(value: int, span: Span) -> int:
-    if type(value) is not int or not _I32_MIN <= value <= _I32_MAX:
-        raise DiagnosticError('EVALUATION_I32', span, 'source scalar node is outside exact i32')
+def _checked(value: int, span: Span, element_type: str) -> int:
+    low, high = VALUE_BOUNDS[element_type]
+    if type(value) is not int or not low <= value <= high:
+        raise DiagnosticError(f'EVALUATION_{element_type.upper()}', span,
+                              f'source scalar node is outside exact {element_type}')
     return value
 
 
-def _boundary_values(values, length: int, label: str, span: Span) -> tuple[int, ...]:
+def _boundary_values(values, length: int, label: str, span: Span,
+                     element_type: str = 'i32') -> tuple[int, ...]:
     if type(values) not in (tuple, list):
         raise DiagnosticError('BOUNDARY_TYPE', span, f'{label} must be an owned tuple or list')
     if len(values) != length:
@@ -46,23 +46,26 @@ def _boundary_values(values, length: int, label: str, span: Span) -> tuple[int, 
     for index, value in enumerate(snapshot):
         if type(value) is not int:
             raise DiagnosticError('BOUNDARY_TYPE', span, f'{label}[{index}] must be an exact integer')
-        if not _I32_MIN <= value <= _I32_MAX:
-            raise DiagnosticError('BOUNDARY_I32', span, f'{label}[{index}] must fit i32')
+        low, high = VALUE_BOUNDS[element_type]
+        if not low <= value <= high:
+            raise DiagnosticError(f'BOUNDARY_{element_type.upper()}', span,
+                                  f'{label}[{index}] must fit {element_type}')
     return snapshot
 
 
 def _evaluate_expression(expression: Expression, scalars: dict[str, int],
-                         tensors: dict[str, dict[tuple[int, ...], int]]) -> int:
-    """Evaluate each original scalar node with unbounded host arithmetic first."""
+                         tensors: dict[str, dict[tuple[int, ...], int]], element_type: str = 'i32') -> int:
+    """Evaluate each original scalar node with unbounded host arithmetic first,
+    then require it to fit its equation's declared type."""
     if isinstance(expression, IntegerLiteral):
         value = expression.value
     elif isinstance(expression, NameReference):
         value = scalars[expression.name]
     elif isinstance(expression, GroupExpression):
-        value = _evaluate_expression(expression.expression, scalars, tensors)
+        value = _evaluate_expression(expression.expression, scalars, tensors, element_type)
     elif isinstance(expression, BinaryExpression):
-        left = _evaluate_expression(expression.left, scalars, tensors)
-        right = _evaluate_expression(expression.right, scalars, tensors)
+        left = _evaluate_expression(expression.left, scalars, tensors, element_type)
+        right = _evaluate_expression(expression.right, scalars, tensors, element_type)
         if expression.operator == '+':
             value = left + right
         elif expression.operator == '*':
@@ -73,16 +76,16 @@ def _evaluate_expression(expression: Expression, scalars: dict[str, int],
         indices = tuple(_evaluate_expression(index, scalars, tensors) for index in expression.indices)
         value = tensors[expression.name][indices]
     elif isinstance(expression, SumExpression):
-        # The exact integer sum; only the total is an i32 node (admission's
+        # The exact integer sum; only the total is a typed node (admission's
         # checker proves every partial sum fits, in any order).
         inner = dict(scalars)
         value = 0
         for term in range(expression.lower, expression.upper):
             inner[expression.variable] = term
-            value += _evaluate_expression(expression.body, inner, tensors)
+            value += _evaluate_expression(expression.body, inner, tensors, element_type)
     else:
         raise DiagnosticError('INVALID_EXPRESSION', Span(0, 0), 'unknown source expression')
-    return _checked_i32(value, expression.span)
+    return _checked(value, expression.span, element_type)
 
 
 def _evaluate_equation(equation: EquationDeclaration, shapes: dict[str, int],
@@ -94,7 +97,7 @@ def _evaluate_equation(equation: EquationDeclaration, shapes: dict[str, int],
     for indices in product(*bounds):
         scalars = dict(shapes)
         scalars.update((axis.name, index) for axis, index in zip(equation.axes, indices))
-        cells[indices] = _evaluate_expression(equation.expression, scalars, tensors)
+        cells[indices] = _evaluate_expression(equation.expression, scalars, tensors, equation.element_type)
     tensors[equation.name] = cells
     return tuple(cells.values())
 
@@ -113,7 +116,7 @@ def evaluate_source(module: SourceModule, data: tuple[int, ...] | list[int],
     input_values = _boundary_values(data, kernel.input_count,
                                     'input', module.inputs[0].span)
     output_values = _boundary_values(initial_output, kernel.height * kernel.width,
-                                     'output', module.outputs[0].span)
+                                     'output', module.outputs[0].span, kernel.output_type)
     lower, upper = kernel.input_interval
     for index, value in enumerate(input_values):
         if value < lower or value > upper:

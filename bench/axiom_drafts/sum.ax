@@ -1,8 +1,9 @@
-// Sum reduction: sum(...) is exactly a balanced + tree of its terms (reduce-v1).
+// Sum reduction with a 64-bit result, like the C baseline's: the total of
+// 4M values up to 1023 passes i32, so the equations are declared i64 (scale-v1).
 module total;
 shape H = 1;
 shape W = 1;
 input x: i32[1,256] in 0..=1023;
-let t[r in 0..H,c in 0..W] = sum(k in 0..256: x[0,k]);
-output s[r in 0..H,c in 0..W] = t[r,c];
+let t: i64[r in 0..H,c in 0..W] = sum(k in 0..256: x[0,k]);
+output s: i64[r in 0..H,c in 0..W] = t[r,c];
 prefer multiplication_ops;

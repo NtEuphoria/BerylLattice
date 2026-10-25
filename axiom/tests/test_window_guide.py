@@ -7,6 +7,8 @@ from axiom.frontend import admit_source, parse_source
 from axiom.model import Limits
 from axiom.reference import evaluate_source
 from axiom.runtime import execute_plan
+from axiom.scale_c import compile_scale_native
+from axiom.scale_runtime import execute_loop_plan
 from axiom.selection import select_plan
 
 GUIDE = Path(__file__).resolve().parents[1] / 'docs' / 'window-stencils.md'
@@ -20,11 +22,16 @@ class WindowGuideTests(unittest.TestCase):
             source = text.encode('utf-8')
             with self.subTest(module=text.split(';')[0]):
                 kernel = admit_source(parse_source(source))
-                search = select_plan(kernel, Limits(), 10 ** 7, kernel.objective)
-                self.assertIsNotNone(search.selected_plan)
                 data = [(i * 2654435761 & 0xFFFFFFFF) >> 22 for i in range(kernel.input_count)]
                 initial = [-9] * kernel.output_count
-                observed = execute_plan(source, search.selected_plan_bytes, data, initial, Limits())
+                if kernel.profile == 'scale-v1':
+                    compiled = compile_scale_native(source)
+                    self.assertIsNotNone(compiled.artifact, compiled.reason)
+                    observed = execute_loop_plan(source, compiled.plan, data, initial)
+                else:
+                    search = select_plan(kernel, Limits(), 10 ** 7, kernel.objective)
+                    self.assertIsNotNone(search.selected_plan)
+                    observed = execute_plan(source, search.selected_plan_bytes, data, initial, Limits())
                 self.assertEqual(observed, evaluate_source(kernel.source_module, data, initial))
                 self.assertEqual(observed.status.value, 'success')
 

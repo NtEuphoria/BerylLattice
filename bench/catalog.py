@@ -97,14 +97,12 @@ KERNELS = {
         title='Sum reduction', family='reduction',
         io=lambda a, b: (a, 1),
         sizes=dict(s=(256, 0), m=(65536, 0), l=(4194304, 0)),
-        axiom_draft='sum.ax', draft_literal=256,
-        missing=['i64 accumulators (l tier, dot m/l)']),
+        axiom_draft='sum.ax', draft_literal=256, missing=[]),
     'dot': dict(
         title='Dot product', family='reduction',
         io=lambda a, b: (2 * a, 1),
         sizes=dict(s=(128, 0), m=(32768, 0), l=(2097152, 0)),
-        axiom_draft='dot.ax', draft_literal=128,
-        missing=['i64 accumulators (l tier, dot m/l)']),
+        axiom_draft='dot.ax', draft_literal=128, missing=[]),
     'scan': dict(
         title='Inclusive prefix sum', family='scan',
         io=lambda a, b: (a, a),

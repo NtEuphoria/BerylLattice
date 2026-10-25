@@ -13,6 +13,11 @@ REDUCE_SEMANTICS_VERSION = 'reduce-i32-v1'
 # never by the finite checker, so their version is not in SEMANTICS_VERSIONS.
 SCALE_PROFILE = 'scale-v1'
 SCALE_SEMANTICS_VERSION = 'scale-i32-v1'
+# scale-v1 programs with an i64 equation: each scalar node is exact in its
+# equation's declared type (the i32 identity above is unchanged).
+SCALE_WIDE_SEMANTICS_VERSION = 'scale-i64-v1'
+# Value types an equation may declare (`let t: i64[...]`); i32 when omitted.
+VALUE_BOUNDS = {'i32': (-2 ** 31, 2 ** 31 - 1), 'i64': (-2 ** 63, 2 ** 63 - 1)}
 SEMANTICS_VERSIONS = (SEMANTICS_VERSION, WINDOW_SEMANTICS_VERSION, REDUCE_SEMANTICS_VERSION)
 # Families whose candidate plans come from window_planner.
 WINDOW_PLANNED_PROFILES = (WINDOW_PROFILE, REDUCE_PROFILE)
@@ -152,6 +157,7 @@ class EquationDeclaration:
     span: Span
     name_span: Span
     kind: str
+    element_type: str = 'i32'
 
 
 @dataclass(frozen=True, slots=True)
@@ -228,3 +234,18 @@ class AdmittedKernel:
     @property
     def output_count(self) -> int:
         return self.height * self.width
+
+    @property
+    def value_types(self) -> tuple[str, ...]:
+        """Declared types of the producer and output equations, in order."""
+        module = self.source_module
+        return tuple(eq.element_type for eq in (*module.producers, *module.outputs))
+
+    @property
+    def output_type(self) -> str:
+        return self.source_module.outputs[0].element_type
+
+    @property
+    def wide(self) -> bool:
+        """Some equation is i64, so the emitted arithmetic is int64_t."""
+        return 'i64' in self.value_types

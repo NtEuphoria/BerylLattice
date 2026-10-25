@@ -18,6 +18,20 @@ proved r + i < producer rows and c + j < producer columns for every read.
 MAX_RING_CELLS = 32768
 
 
+def c_types(kernel):
+    """C types of values and of output cells: int64_t once any equation is i64.
+
+    The checker proves every node fits its own equation's type, so computing
+    an i32 node in int64_t gives the same exact value.
+    """
+    value = 'int64_t' if kernel.wide else 'int32_t'
+    return value, 'int64_t' if kernel.output_type == 'i64' else 'int32_t'
+
+
+def value_bytes(kernel):
+    return 8 if kernel.wide else 4
+
+
 def _muls(expr):
     """Multiplications evaluated per value of `expr` (sum ranges multiplied out)."""
     kind = expr[0]
@@ -58,7 +72,7 @@ def plan_costs(plan, kernel):
     produce = plan.stages[0].value
     prows, pcols = kernel.producer_shape
     share = prows * pcols / cells
-    workspace = 4 * window_rows(output) * pcols
+    workspace = value_bytes(kernel) * window_rows(output) * pcols
     return _muls(produce) * share + _muls(output), _ops(produce) * share + _ops(output), workspace
 
 
@@ -69,7 +83,7 @@ def carry_eligible(plan, kernel):
     k = window_rows(plan.stages[-1].value)
     if k < 1 or k * kernel.producer_shape[1] > MAX_RING_CELLS:
         return False
-    return kernel.cap is None or 4 * k * kernel.producer_shape[1] <= kernel.cap
+    return kernel.cap is None or value_bytes(kernel) * k * kernel.producer_shape[1] <= kernel.cap
 
 
 def rank_key(plan, kernel, order):
@@ -87,6 +101,7 @@ def carry_rows_c(plan, kernel, lower):
     formats a ('prod', i, j) leaf.
     """
     produce, stage = plan.stages
+    value, out = c_types(kernel)
     (u0, prows), (u1, pcols) = produce.loops
     (v0, _), (v1, w) = stage.loops
     k = window_rows(stage.value)
@@ -98,25 +113,25 @@ def carry_rows_c(plan, kernel, lower):
     o_statements = []
     o_value = lower(stage.value, o_statements, counter, lambda i, j: f'ax_row{i}[{v1} + {j}]')
     o_body = '\n'.join('            ' + line for line in o_statements)
-    rows = '\n'.join(f'        const int32_t *ax_row{i} = ring + (({v0} + {i}) % {k}) * {pcols};'
+    rows = '\n'.join(f'        const {value} *ax_row{i} = ring + (({v0} + {i}) % {k}) * {pcols};'
                      for i in offsets)
     return (f'\n/* Producer row {u0} into dst (carry-v1). */\n'
-            f'static void beryl_produce_row(const int32_t *restrict input, int32_t *restrict dst, int32_t {u0}) {{\n'
+            f'static void beryl_produce_row(const int32_t *restrict input, {value} *restrict dst, int32_t {u0}) {{\n'
             f'    for (int32_t {u1} = 0; {u1} < {pcols}; ++{u1}) {{\n'
             f'{p_body}\n'
             f'        dst[{u1}] = {p_value};\n'
             '    }\n'
             '}\n'
             f'\n/* Output rows [r0, r1), keeping the last {k} producer rows in a ring. */\n'
-            'static void beryl_rows(const int32_t *restrict input, int32_t *restrict output,\n'
+            f'static void beryl_rows(const int32_t *restrict input, {out} *restrict output,\n'
             '                       int64_t r0, int64_t r1) {\n'
-            f'    int32_t ring[{k} * {pcols}];\n'
+            f'    {value} ring[{k} * {pcols}];\n'
             f'    for (int32_t ax_p = (int32_t)r0; ax_p < (int32_t)r0 + {k - 1}; ++ax_p)\n'
             f'        beryl_produce_row(input, ring + (ax_p % {k}) * {pcols}, ax_p);\n'
             f'    for (int32_t {v0} = (int32_t)r0; {v0} < (int32_t)r1; ++{v0}) {{\n'
             f'        beryl_produce_row(input, ring + (({v0} + {k - 1}) % {k}) * {pcols}, {v0} + {k - 1});\n'
             f'{rows}\n'
-            f'        int32_t *restrict ax_out = output + (int64_t){w} * {v0};\n'
+            f'        {out} *restrict ax_out = output + (int64_t){w} * {v0};\n'
             f'        for (int32_t {v1} = 0; {v1} < {w}; ++{v1}) {{\n'
             f'{o_body}\n'
             f'            ax_out[{v1}] = {o_value};\n'

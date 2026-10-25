@@ -14,6 +14,7 @@ from .model import (
     DiagnosticError, EquationDeclaration, Expression, GroupExpression,
     InputDeclaration, IntegerLiteral, Limits, NameReference, Objective,
     ReadExpression, SEMANTICS_VERSION, ShapeDeclaration, SourceModule, Span, SumExpression,
+    VALUE_BOUNDS,
 )
 from .canonical_profile import _canonical_profile, _normalized, _profile
 from .reduce_family import MAX_TERMS, admit_reduce, expand_small_sums, parse_sum, reduce_shape
@@ -228,6 +229,10 @@ class _Parser:
                 inputs.append(decl)
             elif start.text in ('let', 'output'):
                 name = self.identifier()
+                element_type = 'i32'
+                if self.token.text == ':':
+                    self.take(':')
+                    element_type = self.identifier().text
                 self.take('[')
                 axes = []
                 while True:
@@ -248,7 +253,7 @@ class _Parser:
                 self.reserved -= axis_names
                 self.take(';')
                 decl = EquationDeclaration(name.text, tuple(axes), expression, self.span_from(start.span), name.span,
-                                           'producer' if start.text == 'let' else 'output')
+                                           'producer' if start.text == 'let' else 'output', element_type)
                 (producers if start.text == 'let' else outputs).append(decl)
             elif start.text == 'require':
                 name = self.identifier()
@@ -383,6 +388,8 @@ def _validate(module):
                 _fail('INVALID_RANGE', decl.span, 'input interval is inverted')
             tensors[decl.name] = dimensions
         else:
+            if decl.element_type not in VALUE_BOUNDS:
+                _fail('UNSUPPORTED_TYPE', decl.name_span, 'equations are i32 or i64')
             axes = {}
             for axis in decl.axes:
                 if axis.name in axes:
@@ -422,7 +429,9 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     # Small families first (256 input cells) on the program with small sums
     # expanded into balanced trees, keeping their identities. Any larger
     # member, or a sum of more than 256 terms, is scale-v1 with sums as loops.
-    small = expand_small_sums(module)
+    # i64 equations are scale-v1 only: the small families emit i32 code.
+    wide = any(decl.element_type != 'i32' for decl in (*module.producers, *module.outputs))
+    small = None if wide else expand_small_sums(module)
     profile = _profile(small) if small is not None else None
     canonical = profile == _canonical_profile()
     window = None if canonical or small is None else window_shape(profile)
@@ -436,6 +445,9 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
         scale = scale_shape(loops, height, width)
         if scale is not None:
             return admit_scale(module, height, width, objective, loops, scale)
+    if wide:
+        _fail('UNSUPPORTED_PROFILE', module.span, 'i64 equations need a scale-v1 program '
+              '(a stencil, map or reduction over the shapes H and W)')
     if small is None:
         span, message = explain(module)
         _fail('UNSUPPORTED_PROFILE', span, message)
