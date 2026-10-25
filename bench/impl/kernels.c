@@ -1,5 +1,8 @@
 /* C11 baseline. Build: clang -O3 -std=c11 kernels.c -o kernels
    argv: kernel pattern a b min_ms max_reps -> one JSON line on stdout. */
+#if !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+#define _POSIX_C_SOURCE 199309L  /* clock_gettime under strict -std=c11 */
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,0 +1,8 @@
+// Demo: the total energy of a 3,000-sample sensor trace (sum of squares).
+// Each square fits 32 bits; the total can reach 3,000 x 1023^2, which does not.
+module energy;
+shape H = 1;
+shape W = 1;
+input x: i32[1,3000] in 0..=1023;
+let t[r in 0..H,c in 0..W] = sum(k in 0..3000: x[0,k]*x[0,k]);
+output e[r in 0..H,c in 0..W] = t[r,c];

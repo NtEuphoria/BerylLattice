@@ -1,0 +1,4 @@
+# Windows GNU Rust needs its bundled linker libraries (libgcc, libgcc_eh),
+# as bench/run.py passes for the single-threaded rustc build.
+[target.x86_64-pc-windows-gnu]
+rustflags = ["-C", "link-self-contained=yes"]

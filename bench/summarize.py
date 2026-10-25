@@ -15,7 +15,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from catalog import KERNELS  # noqa: E402
 
-ORDER = ('c', 'rust', 'node', 'numpy', 'python', 'axiom', 'axiom-native')
+ORDER = ('c', 'c-mt', 'rust', 'rust-mt', 'node', 'numpy', 'python', 'axiom', 'axiom-native')
+# The first of these present in a row is the base its ratios are taken against.
+BASES = ('c', 'c-mt', 'rust', 'rust-mt')
 
 
 def load(path):
@@ -45,16 +47,36 @@ def fmt_ns(ns):
     return f'{ns:.0f} ns'
 
 
-def cell(rec, base):
+def cell(rec, row):
+    """A time, with its ratio to the row's first base that ran with the same thread count."""
     if rec is None:
         return ''
     status = rec['status']
     if status != 'ok':
         return {'unsupported': 'n/a', 'skipped': 'skip', 'blocked': 'blocked'}.get(status, status.upper())
     text = fmt_ns(rec['ns_median'])
-    if base and rec['impl'] != 'c':
-        text += f' ({rec["ns_median"] / base:.3g}x)'
-    return text
+    bases = [row[i] for i in BASES if i in row and row[i]['status'] == 'ok']
+    base = next((b for b in bases if b.get('threads') == rec.get('threads')), None)
+    if base is rec or (base is None and rec['impl'] in BASES) or not bases:
+        return text
+    if base is None:
+        return text + ' (threads differ)'
+    return text + f' ({rec["ns_median"] / base["ns_median"]:.3g}x)'
+
+
+def losses(groups):
+    """Every case where axiom-native is slower than an implementation with its thread count."""
+    out = []
+    for (kernel, tier, pattern), row in groups.items():
+        mine = row.get('axiom-native')
+        if not mine or mine['status'] != 'ok':
+            continue
+        for impl, other in row.items():
+            if impl != 'axiom-native' and other['status'] == 'ok' and other.get('threads') == mine.get('threads') \
+                    and mine['ns_median'] > other['ns_median']:
+                out.append(f'- {kernel} {tier} {pattern}: {mine["ns_median"] / other["ns_median"]:.3g}x '
+                           f'the time of {impl} ({fmt_ns(mine["ns_median"])} vs {fmt_ns(other["ns_median"])})')
+    return out
 
 
 def key(rec):
@@ -67,20 +89,25 @@ def report(header, results):
            f'{" (dirty)" if header["git_dirty"] else ""}',
            f'- Platform: {header["platform"]}, {header["cpu_count"]} logical CPUs',
            f'- Toolchains: ' + ', '.join(f'{k}: {v}' for k, v in header['versions'].items() if v),
-           f'- Label: {header["label"] or "(none)"}', '']
+           f'- Label: {header["label"] or "(none)"}']
+    if header.get('threads') is not None:
+        out.append(f'- Threads: {header["threads"]} for every parallel implementation; c and rust are single-threaded')
+    out.append('')
     main = [r for r in results if r['tier'] in ('s', 'm', 'l')]
     impls = [i for i in ORDER if any(r['impl'] == i for r in main)]
-    out += ['## Kernel time (median per call; ratio vs C)', '',
-            'Axiom = execute phase of the checked interpreter pipeline. "n/a" = Axiom cannot accept it yet.', '',
+    out += ['## Kernel time (median per call; ratio vs the first of ' + ', '.join(BASES)
+            + ' with the same thread count)', '',
+            'Axiom = execute phase of the checked interpreter pipeline. "n/a" = Axiom cannot accept it yet. '
+            'Ratios are shown only between equal thread counts.', '',
             '| kernel | size | pattern | ' + ' | '.join(impls) + ' |',
             '|---|---|---|' + '---|' * len(impls)]
     groups = defaultdict(dict)
     for r in main:
         groups[(r['kernel'], r['tier'], r['pattern'])][r['impl']] = r
     for (kernel, tier, pattern), row in groups.items():
-        c = row.get('c')
-        base = c['ns_median'] if c and c['status'] == 'ok' else None
-        out.append(f'| {kernel} | {tier} | {pattern} | ' + ' | '.join(cell(row.get(i), base) for i in impls) + ' |')
+        out.append(f'| {kernel} | {tier} | {pattern} | ' + ' | '.join(cell(row.get(i), row) for i in impls) + ' |')
+    lost = losses(groups)
+    out += ['', '## Losses', '', *(lost or ['- none: axiom-native was fastest in every equal-thread comparison'])]
 
     ax = [r for r in main if r['impl'] == 'axiom']
     if ax:

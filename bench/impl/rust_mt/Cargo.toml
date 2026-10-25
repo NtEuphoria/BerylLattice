@@ -1,0 +1,12 @@
+[package]
+name = "kernels_mt"
+version = "0.1.0"
+edition = "2021"
+description = "Multi-threaded Rust baselines (Rayon) for the beryl benchmark suite"
+publish = false
+
+[dependencies]
+rayon = "1.10"
+
+[profile.release]
+opt-level = 3

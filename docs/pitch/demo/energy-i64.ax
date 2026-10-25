@@ -1,0 +1,7 @@
+// Demo, fixed: the same program with 64-bit equations.
+module energy;
+shape H = 1;
+shape W = 1;
+input x: i32[1,3000] in 0..=1023;
+let t: i64[r in 0..H,c in 0..W] = sum(k in 0..3000: x[0,k]*x[0,k]);
+output e: i64[r in 0..H,c in 0..W] = t[r,c];

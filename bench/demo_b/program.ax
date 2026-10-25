@@ -1,0 +1,9 @@
+// Demo B: a 3x3 box sum over a 256x256 image of 10-bit values, as two
+// separable passes (rows of three, then columns of three).
+module box;
+shape H = 254;
+shape W = 254;
+input x: i32[H+2,W+2] in 0..=1023;
+let p[r in 0..H+2,c in 0..W] = (x[r,c]+x[r,c+1])+x[r,c+2];
+output o[r in 0..H,c in 0..W] = (p[r,c]+p[r+1,c])+p[r+2,c];
+prefer multiplication_ops;

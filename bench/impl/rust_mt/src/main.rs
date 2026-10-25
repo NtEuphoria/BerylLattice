@@ -1,0 +1,108 @@
+// Multi-threaded Rust baseline (Rayon). Same protocol, kernels and checksum as
+// ../kernels.rs; outer loops run in parallel on a pool of BENCH_THREADS threads.
+// Build: cargo build --release   argv: kernel pattern a b min_ms max_reps
+use rayon::prelude::*;
+use std::hint::black_box;
+use std::time::Instant;
+
+fn value(p: &str, i: usize) -> i32 {
+    match p {
+        "hash" => ((i as u32).wrapping_mul(2654435761) >> 22) as i32,
+        "ramp" => (i % 1024) as i32,
+        "alt" => 1023 * (i & 1) as i32,
+        "zeros" => 0,
+        "max" => 1023,
+        _ => panic!("unknown pattern"),
+    }
+}
+
+fn window(w: usize, x: &[i32], o: &mut [i64], f: impl Fn(&[i32], &[i32], &[i32], usize) -> i64 + Sync) {
+    let cols = w + 2;
+    o.par_chunks_mut(w).enumerate().for_each(|(r, row)| {
+        let (a, b, c) = (&x[r * cols..], &x[(r + 1) * cols..], &x[(r + 2) * cols..]);
+        for j in 0..w { row[j] = f(a, b, c, j); }
+    });
+}
+
+fn run(k: &str, h: usize, w: usize, x: &[i32], o: &mut [i64]) {
+    match k {
+        "sq2x2" => {
+            let cols = w + 1;
+            let p = |v: i32| { let v = v as i64 + 1; v * v };
+            o.par_chunks_mut(w).enumerate().for_each(|(r, row)| for c in 0..w {
+                let i = r * cols + c;
+                row[c] = p(x[i]) + p(x[i + 1]) + p(x[i + cols]) + p(x[i + cols + 1]);
+            });
+        }
+        "stencil1d3" => o.par_iter_mut().enumerate()
+            .for_each(|(i, v)| *v = x[i] as i64 + 2 * x[i + 1] as i64 + x[i + 2] as i64),
+        "box3x3" => window(w, x, o, |a, b, c, j| (a[j] + a[j+1] + a[j+2] + b[j] + b[j+1] + b[j+2]
+            + c[j] + c[j+1] + c[j+2]) as i64),
+        "laplace5" => window(w, x, o, |a, b, c, j| 4 * b[j+1] as i64 - a[j+1] as i64 - c[j+1] as i64
+            - b[j] as i64 - b[j+2] as i64),
+        "conv3x3" => window(w, x, o, |a, b, c, j| (a[j] + 2*a[j+1] + a[j+2] + 2*b[j] + 4*b[j+1]
+            + 2*b[j+2] + c[j] + 2*c[j+1] + c[j+2]) as i64),
+        "polymap" => o.par_iter_mut().enumerate()
+            .for_each(|(i, v)| { let t = x[i] as i64; *v = t * t * t + 3 * t + 7; }),
+        // Output row c is input column c.
+        "transpose" => o.par_chunks_mut(h).enumerate()
+            .for_each(|(c, row)| for r in 0..h { row[r] = x[r * w + c] as i64; }),
+        "sum" => o[0] = x.par_iter().map(|&v| v as i64).sum(),
+        "dot" => o[0] = x[..h].par_iter().zip(&x[h..]).map(|(&p, &q)| p as i64 * q as i64).sum(),
+        "matmul" => {
+            let n = h; let (p, q) = x.split_at(n * n);
+            o.par_chunks_mut(n).enumerate().for_each(|(i, row)| {
+                row.fill(0);
+                for k in 0..n {
+                    let pv = p[i * n + k] as i64; let qr = &q[k * n..(k + 1) * n];
+                    for j in 0..n { row[j] += pv * qr[j] as i64; }
+                }
+            });
+        }
+        _ => unreachable!(),
+    }
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    assert!(args.len() == 7, "usage: kernel pattern a b min_ms max_reps");
+    let threads: usize = std::env::var("BENCH_THREADS").ok().and_then(|v| v.parse().ok())
+        .unwrap_or_else(|| std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1));
+    rayon::ThreadPoolBuilder::new().num_threads(threads).build_global().unwrap();
+    let (k, pat) = (args[1].as_str(), args[2].as_str());
+    let n: Vec<usize> = args[3..7].iter().map(|s| s.parse().unwrap()).collect();
+    let (a, b, min_ns, max_reps) = (n[0], n[1], n[2] as u128 * 1_000_000, n[3].max(3));
+    let io = match k {
+        "sq2x2" => ((a+1)*(b+1), a*b), "stencil1d3" => (a+2, a),
+        "box3x3" | "laplace5" | "conv3x3" => ((a+2)*(b+2), a*b),
+        "polymap" => (a, a), "transpose" => (a*b, a*b),
+        "sum" => (a, 1), "dot" => (2*a, 1), "matmul" => (2*a*a, a*a),
+        _ => { println!("{{\"impl\":\"rust-mt\",\"kernel\":\"{}\",\"status\":\"unsupported\"}}", k); return; }
+    };
+    let x: Vec<i32> = (0..io.0).map(|i| value(pat, i)).collect();
+    let mut o = vec![0i64; io.1];
+    run(k, a, b, &x, &mut o); // untimed warm-up
+    let mut inner: u128 = 1;
+    loop {
+        let t = Instant::now();
+        for _ in 0..inner { run(k, a, b, black_box(&x), &mut o); black_box(&o); }
+        if t.elapsed().as_nanos() >= 1_000_000 || inner >= 1 << 22 { break; }
+        inner *= 2;
+    }
+    let mut s: Vec<u128> = Vec::new();
+    let mut total: u128 = 0;
+    while s.len() < 3 || (total < min_ns && s.len() < max_reps) {
+        let t = Instant::now();
+        for _ in 0..inner { run(k, a, b, black_box(&x), &mut o); black_box(&o); }
+        let batch = t.elapsed().as_nanos();
+        s.push(batch / inner);
+        total += batch;
+    }
+    const M: i64 = 1_000_000_007;
+    let mut acc = 0i64;
+    for (i, &v) in o.iter().enumerate() { acc = (acc + ((v % M) + M) % M * (i as i64 % 65521 + 1)) % M; }
+    s.sort();
+    let med = if s.len() % 2 == 1 { s[s.len() / 2] } else { (s[s.len() / 2 - 1] + s[s.len() / 2]) / 2 };
+    println!("{{\"impl\":\"rust-mt\",\"kernel\":\"{}\",\"status\":\"ok\",\"threads\":{},\"n_out\":{},\"checksum\":{},\"reps\":{},\"inner\":{},\"ns_min\":{},\"ns_median\":{},\"ns_total\":{}}}",
+             k, threads, io.1, acc, s.len(), inner, s[0], med, total);
+}
