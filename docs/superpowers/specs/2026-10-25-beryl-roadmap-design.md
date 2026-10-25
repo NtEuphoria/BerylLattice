@@ -418,3 +418,47 @@ very small team can execute.
   - The founder is US-based, so US export rules apply. Collaborators who are foreign
     nationals matter only once controlled technical data is involved, which beryl avoids
     by design.
+
+## 13. Funding map (added 2026-10-25)
+
+Target dates are set to be realistic for one founder working substantial but not full-time
+hours alongside the engineering stages. Program terms change. Check each program's own page
+before applying; sources are in the notes column, with secondhand ones marked.
+
+### Order and dependencies
+
+The sequence below is ordered by what each step unlocks:
+- **Medici and Emergent Ventures** need only a person and a project.
+- **Incorporation** unlocks compute credits and SBIR.
+- **Python bindings and floating point** unlock the science track.
+- **A design partner** strengthens everything after Medici.
+
+### Dated plan
+
+| target date | step | track | needs first | what it brings | notes |
+|---|---|---|---|---|---|
+| **2026-11-15** | Send the 1517 Medici application | all | eligibility confirmed (Task 0), Loom recorded | at least $1K, no equity; a relationship with 1517 | [1517fund.com/medici](https://www.1517fund.com/medici); replies within two weeks |
+| **2026-11-29** | Follow up with 1517 if there's no reply | all | — | — | one short message |
+| **2026-12-13** | Apply to Emergent Ventures | AI (all) | the Medici video and story, reused; a written proposal of at most 1,500 words | a grant or fellowship of unpublished size | [Mercatus](https://www.mercatus.org/economic-insights/expert-commentary/application-process-opens-emergent-ventures); form details and reply times are secondhand ([guide](https://hub.causo.ai/guides/how-to-apply-to-emergent-ventures-2026)) |
+| **2027-01-31** | Hold 10 conversations with kernel engineers and collect 3 real kernels (Stage 0b) | all | the matched-benchmark report; demos A–C in progress | design-partner leads; evidence for every later application | Boston: MIT CSAIL compiler groups, Lincoln Laboratory, Draper, robotics and edge-AI firms |
+| **2027-01-31** | Decide on incorporation, with professional advice | AI, defense | — | — | an LLC or C-corp; this document makes no recommendation on structure |
+| **2027-02-28** | Incorporate; get an EIN and a SAM.gov registration (UEI) | AI, defense | the decision above | eligibility for credits programs and SBIR | allow about 4 weeks for SAM.gov; it is free to register |
+| **2027-03-14** | Apply to NVIDIA Inception | AI | a company, a website, one listed developer | partner cloud credits and GPU discounts; no fee, no equity | [requirements](https://www.thundercompute.com/blog/nvidia-inception-program-guide) (secondhand); a missing developer listing is a common rejection reason |
+| **2027-03-14** | Apply to the cloud providers' startup credit programs | AI | a company | compute for Stage 2 (GPU backend) | check current terms per provider |
+| **2027-03-31** | Submit an NSF SBIR Project Pitch | defense, real-time (dual-use) | a company; the Stage 0b evidence | an invitation to send a full Phase I proposal | [NSF 26-510](https://www.casrai.org/news/nsf-sbir-sttr-fy26-relaunch); pitches are reviewed in about 3 weeks |
+| **2027-04-15** | Hold a pre-seed conversation with 1517 Fund, or other early investors | all | the Medici outcome; Stage 0b complete; ideally one design partner | the round that funds Stages 1–2 | builds on the Medici relationship |
+| **Summer 2027** (first NSF deadline after 2027-06-01) | Send the full NSF SBIR Phase I proposal | defense, real-time (dual-use) | the invitation; Research.gov registration | up to $305,000 for 6–18 months | [Phase I size](https://grantedai.com/blog/nsf-sbir-sttr-nsf-26-510-july-27-deadline-305k-phase-i-instrumentation-pilot-startup-strategy-2026). The 2027-03-04 deadline is too close to incorporation to be realistic, so this targets the next one |
+| **2027-09-30** | Apply for NumFOCUS affiliation | science | `pip install beryl`, f32 and f64 support, a few scientific users | access to Small Development Grants (up to $10,000 per project in 2025) | [NumFOCUS projects](https://numfocus.org/projects-overview); grant calls run about 3 times a year |
+| **Late 2027** | Look at military SBIR topics (AFWERX, DIU) | defense | an NSF Phase I outcome or a defense design partner; export counsel | defense-specific funding | only with counsel and a partner |
+| **2028** | Apply to Sloan or Chan Zuckerberg open-source science funding | science | an established scientific user base | larger multi-year grants | for projects scientists already depend on |
+
+### What would change these dates
+
+- **A design partner** found early moves the NSF pitch and the pre-seed conversation up by
+  about a month each.
+- **No reply from Medici or Emergent Ventures** changes nothing downstream; neither blocks
+  another step.
+- **If incorporation slips**, every step from Inception onward slips with it. The NSF full
+  proposal then moves to the deadline after summer 2027.
+- **The science track** depends on Stage 3 work (bindings) and Stage 2 work (floats), not on
+  calendar dates. If those land early, NumFOCUS moves up.
