@@ -169,6 +169,27 @@ How the types work:
 - When a sum could overflow i32, the refusal says how many terms fit and suggests declaring the
   equation i64.
 
+### Input ranges
+
+In `scale-v1`, each input may declare its own range, signed included, anywhere inside i32.
+The checker bounds every read by that input's range, and the check before computing tests
+each input against its own range. That makes quantized arithmetic provable. Here unsigned
+8-bit activations meet signed 8-bit weights, and the proof shows the 32-bit total cannot
+overflow: 40,000 × 255 × 128 < 2³¹.
+
+```ax
+module int8dot;
+shape H = 1;
+shape W = 1;
+input a: i32[1,40000] in 0..=255;
+input w: i32[1,40000] in -128..=127;
+let t[r in 0..H,c in 0..W] = sum(k in 0..40000: a[0,k]*w[0,k]);
+output d[r in 0..H,c in 0..W] = t[r,c];
+```
+
+At 70,000 terms the same program is refused, with the number of terms that fit. The
+256-cell families keep `0..=1023`, so a small program with another range becomes `scale-v1`.
+
 ## Plans beryl chooses between
 
 | Plan | What it does | Storage |
@@ -188,7 +209,7 @@ Rejections name the rule and point at the offending part of the source:
 |---|---|
 | `the output may only read p, not image` | the output stage reads the producer; move input reads into the `let` |
 | `the first index must be r or r + k ...` | use the row axis first, the column axis second, with forward literal offsets |
-| `inputs must be declared ... in 0..=1023` | declare the input range exactly `0..=1023` |
+| `inputs must be declared ... in 0..=1023` | the 256-cell window and reduction families need `0..=1023`; other ranges are `scale-v1` (see "Input ranges") |
 | `input dimensions must be H or H + k ...` | write input sizes in terms of the shapes, not as literals |
 | `requires exactly two shapes, one or two inputs, one producer and one output` | add a `let` stage; the message says what it found |
 | `producer indices must be an axis, ...` | index inputs with `r`, `c`, `r + k` or a literal; not a shape name |

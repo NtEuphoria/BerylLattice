@@ -78,7 +78,38 @@ def _literal(value):
 _I32_MIN, _I32_MAX = -2 ** 31, 2 ** 31 - 1
 
 
-def _narrow_block(expr, lower, upper, prod_interval=None):
+def _segments(kernel):
+    """(start, end, lower, upper) of each input's cells in the buffer, in declaration order."""
+    out, start = [], 0
+    for (rows, cols), (lower, upper) in zip(kernel.all_input_shapes, kernel.input_intervals):
+        out.append((start, start + rows * cols, lower, upper))
+        start += rows * cols
+    return out
+
+
+def _load_range(segments):
+    """Declared range of the input a load reads.
+
+    Admitted reads stay inside their own input, and indices only add
+    nonnegative offsets, so a load's constant term is its lowest index and
+    names its input.
+    """
+    def lookup(affine):
+        return next((lo, hi) for start, end, lo, hi in segments if start <= affine[0] < end)
+    return lookup
+
+
+def _check_c(segments):
+    """C that checks cells [from, to) of the buffer, each against its own input's range."""
+    loops = ''.join(f'    {{\n        int64_t a = from > {s} ? from : {s}, b = to < {e} ? to : {e};\n'
+                    f'        for (int64_t i = a; i < b; ++i) invalid |= (uint32_t)(input[i] < {_literal(lo)} || '
+                    f'input[i] > {_literal(hi)});\n    }}\n' for s, e, lo, hi in segments)
+    return ('\n/* Each input checked against its own declared range. */\n'
+            'static uint32_t beryl_check(const int32_t *restrict input, int64_t from, int64_t to) {\n'
+            '    uint32_t invalid = 0;\n' + loops + '    return invalid;\n}\n')
+
+
+def _narrow_block(expr, load_range, prod_interval=None):
     """Terms per exact int32_t block of the sum `expr` in a wide program, or None.
 
     The plan expression equals the checked source template, so these are the
@@ -94,7 +125,7 @@ def _narrow_block(expr, lower, upper, prod_interval=None):
         if kind == 'const':
             result = (e[1], e[1])
         elif kind == 'load':
-            result = (lower, upper)
+            result = load_range(e[1])
         elif kind == 'prod':
             result = prod_interval
         elif kind in ('add', 'mul'):
@@ -164,6 +195,33 @@ def _lower(expr, statements, counter, prod=None, wide=False, narrow=None):
     statements.append(f'    {name} += {value};')
     statements.append('}')
     return name
+
+
+def _whole_input_loads(body, var, lower, upper, n_in):
+    """The load offsets of a sum body when its loads, over the whole sum range, read every input.
+
+    Each load must be input[c + var]. Their ranges [c + lower, c + upper) must
+    cover [0, n_in): checking exactly the values the sum reads then checks the
+    whole input, so the separate preflight pass can be fused into the sum.
+    """
+    loads, pending = set(), [body]
+    while pending:
+        e = pending.pop()
+        if e[0] == 'load':
+            constant, terms = e[1]
+            if terms != ((var, 1),):
+                return None
+            loads.add(constant)
+        elif e[0] in ('add', 'mul'):
+            pending.extend((e[1], e[2]))
+        elif e[0] != 'const':
+            return None
+    reach = 0
+    for c in sorted(loads):
+        if c + lower > reach:
+            return None
+        reach = max(reach, c + upper)
+    return sorted(loads) if loads and reach >= n_in and min(loads) + lower <= 0 else None
 
 
 def _work_estimate(expr):
@@ -284,9 +342,13 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     (v0, h), (v1, w) = stage.loops
     statements = []
     counter = iter(range(1 << 30))
-    lower, upper = kernel.input_interval
-    prod_interval = _narrow_block(plan.stages[0].value, lower, upper) if carry else None
-    narrow = (lambda e: _narrow_block(e, lower, upper, prod_interval)) if wide else None
+    segments = _segments(kernel)
+    load_range = _load_range(segments)
+    # One shared range keeps the inline checks (and the bytes) of earlier releases.
+    uniform = len({(lo, hi) for _, _, lo, hi in segments}) == 1
+    lower, upper = segments[0][2], segments[0][3]
+    prod_interval = _narrow_block(plan.stages[0].value, load_range) if carry else None
+    narrow = (lambda e: _narrow_block(e, load_range, prod_interval)) if wide else None
     value = None if carry else _lower(stage.value, statements, counter, None, wide, narrow)
     n_in, n_out = kernel.input_count, kernel.height * kernel.width
     body = '\n'.join('            ' + line for line in statements)
@@ -332,31 +394,54 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
              f'       BERYL_INPUT_COUNT = {n_in}, BERYL_OUTPUT_COUNT = {n_out} }};\n',
              cells]
     split_chunk = ''
+    fused = None
     if split:
         _, var, s_lo, s_hi, s_body = stage.value
+        # Fused check: the sum reads every input, so checking the values it adds
+        # checks the whole input in the same pass. Nothing is written until every
+        # partial is in; on any bad value the first-bad-index scan runs as before.
+        fused = _whole_input_loads(s_body, var, s_lo, s_hi, n_in)
+        check = ''.join(f' ax_bad |= (uint32_t)(input[{c} + {var}] < {_literal(load_range((c + s_lo, ()))[0])} || '
+                        f'input[{c} + {var}] > {_literal(load_range((c + s_lo, ()))[1])});'
+                        for c in fused or ())
         block = narrow(stage.value) if narrow else None
         if block is None:
             term = _lower(s_body, [], iter(range(1 << 30)), None, wide)
-            loop = f'    for (int32_t {var} = (int32_t)from; {var} < (int32_t)to; ++{var}) acc += {term};\n'
+            loop = f'    for (int32_t {var} = (int32_t)from; {var} < (int32_t)to; ++{var}) {{ acc += {term};{check} }}\n'
         else:
             # Exact int32_t blocks, each widened once (_narrow_block).
             term = _lower(s_body, [], iter(range(1 << 30)))
             loop = (f'    for (int64_t ax_k = from; ax_k < to; ax_k += {block}) {{\n'
                     f'        int64_t ax_e = to - ax_k < {block} ? to : ax_k + {block};\n'
                     '        int32_t ax_b = 0;\n'
-                    f'        for (int32_t {var} = (int32_t)ax_k; {var} < (int32_t)ax_e; ++{var}) ax_b += {term};\n'
+                    f'        for (int32_t {var} = (int32_t)ax_k; {var} < (int32_t)ax_e; ++{var}) {{ ax_b += {term};{check} }}\n'
                     '        acc += ax_b;\n'
                     '    }\n')
-        parts.append('\n/* Partial sum of the single cell over [from, to) of its sum range. */\n'
-                     f'static {val} beryl_partial(const int32_t *restrict input, int64_t from, int64_t to) {{\n'
+        bad_param, bad_init, bad_out = ((', uint32_t *bad)', '    uint32_t ax_bad = 0;\n', '    *bad = ax_bad;\n')
+                                        if fused else (')', '', ''))
+        parts.append('\n/* Partial sum of the single cell over [from, to) of its sum range'
+                     + (', checking each value it adds' if fused else '') + '. */\n'
+                     f'static {val} beryl_partial(const int32_t *restrict input, int64_t from, int64_t to{bad_param} {{\n'
                      f'    const int32_t {v0} = 0, {v1} = 0;\n'
                      f'    (void){v0}; (void){v1};\n'
                      f'    {val} acc = 0;\n'
-                     + loop +
+                     + bad_init + loop + bad_out +
                      '    return acc;\n'
                      '}\n')
         split_chunk = ('    } else if (beryl_job_phase == 2) {\n'
-                       f'        beryl_job_partial[c] = from < to ? beryl_partial(input, {s_lo} + from, {s_lo} + to) : 0;\n')
+                       + (f'        beryl_job_invalid[c] = 0;\n'
+                          f'        beryl_job_partial[c] = from < to ? beryl_partial(input, {s_lo} + from, {s_lo} + to,'
+                          ' &beryl_job_invalid[c]) : 0;\n' if fused else
+                          f'        beryl_job_partial[c] = from < to ? beryl_partial(input, {s_lo} + from, {s_lo} + to) : 0;\n'))
+    if not uniform:
+        parts.append(_check_c(segments).replace('static uint32_t beryl_check(',
+                                                'static uint32_t __attribute__((unused)) beryl_check('))
+    serial_check = (f'    for (int64_t i = 0; i < {n_in}; ++i) ax_invalid |= {invalid};\n' if uniform else
+                    f'    ax_invalid = beryl_check(input, 0, {n_in});\n')
+    chunk_check = ('        uint32_t invalid = 0;\n'
+                   f'        for (int64_t i = from; i < to; ++i) invalid |= {invalid};\n'
+                   '        beryl_job_invalid[c] = invalid;\n' if uniform else
+                   '        beryl_job_invalid[c] = beryl_check(input, from, to);\n')
     if parallel:
         parts.append(_POOL.replace('static int32_t *beryl_job_output;', f'static {out} *beryl_job_output;')
                      .replace('static int32_t beryl_job_partial', f'static {val} beryl_job_partial')
@@ -365,10 +450,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
                      '    int64_t from = beryl_job_begin[c], to = beryl_job_begin[c + 1];\n'
                      '    const int32_t *input = beryl_job_input;\n'
                      '    if (beryl_job_phase == 0) {\n'
-                     '        uint32_t invalid = 0;\n'
-                     f'        for (int64_t i = from; i < to; ++i) invalid |= {invalid};\n'
-                     '        beryl_job_invalid[c] = invalid;\n'
-                     + split_chunk +
+                     + chunk_check + split_chunk +
                      '    } else if (from < to) {\n'
                      + ('        beryl_rows(input, beryl_job_output, from, to);\n' if carry else
                         '        beryl_cells(input, beryl_job_output, from, to);\n') +
@@ -379,20 +461,38 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     if parallel:
         parts.append('    int threads = beryl_pool();\n')
     parts.append('    uint32_t ax_invalid = 0;\n')
-    if parallel_preflight:
+    scan = ('    if (ax_invalid) {\n'
+            + (f'        for (int64_t i = 0; i < {n_in}; ++i)\n'
+               f'            if (input[i] < {lower} || input[i] > {upper}) return (int32_t)(i + 1);\n' if uniform else
+               ''.join(f'        for (int64_t i = {s}; i < {e}; ++i)\n'
+                       f'            if (input[i] < {_literal(lo)} || input[i] > {_literal(hi)}) return (int32_t)(i + 1);\n'
+                       for s, e, lo, hi in segments))
+            + '    }\n')
+    if fused:
+        parts.append(f'    {val} total = 0;\n'
+                     '    if (threads > 1) {\n'
+                     f'        beryl_dispatch(2, {s_hi - s_lo}, 16, 4, input, output);\n'
+                     '        for (int c = 0; c < beryl_job_chunks; ++c) {\n'
+                     '            ax_invalid |= beryl_job_invalid[c];\n'
+                     '            total += beryl_job_partial[c];\n'
+                     '        }\n'
+                     f'    }} else total = beryl_partial(input, {s_lo}, {s_hi}, &ax_invalid);\n'
+                     + scan +
+                     f'    output[{stage.index[0]}] = total;\n')
+    elif parallel_preflight:
         parts.append('    if (threads > 1) {\n'
                      f'        beryl_dispatch(0, {n_in}, 16, 4, input, output);\n'
                      '        for (int c = 0; c < beryl_job_chunks; ++c) ax_invalid |= beryl_job_invalid[c];\n'
                      '    } else {\n'
-                     f'        for (int64_t i = 0; i < {n_in}; ++i) ax_invalid |= {invalid};\n'
+                     '    ' + serial_check +
                      '    }\n')
     else:
-        parts.append(f'    for (int64_t i = 0; i < {n_in}; ++i) ax_invalid |= {invalid};\n')
-    parts.append('    if (ax_invalid) {\n'
-                 f'        for (int64_t i = 0; i < {n_in}; ++i)\n'
-                 f'            if (input[i] < {lower} || input[i] > {upper}) return (int32_t)(i + 1);\n'
-                 '    }\n')
-    if split:
+        parts.append(serial_check)
+    if not fused:
+        parts.append(scan)
+    if fused:
+        pass  # checked, summed and written above
+    elif split:
         parts.append('    if (threads > 1) {\n'
                      f'        beryl_dispatch(2, {s_hi - s_lo}, 16, 4, input, output);\n'
                      f'        {val} total = 0;\n'

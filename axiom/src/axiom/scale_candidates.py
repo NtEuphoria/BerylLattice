@@ -12,7 +12,7 @@ import json
 import random
 
 from .frontend import admit_source, parse_source
-from .reference import evaluate_source
+from .reference import ExecutionStatus, evaluate_source
 from .scale_checker import check_loop_plan
 from .scale_plan import LoopPlan, Stage
 from .scale_runtime import execute_loop_plan
@@ -31,6 +31,7 @@ class CandidateResult:
     reason: str
     detail: str | None
     plan: LoopPlan | None
+    samples_run: int = 0
 
 
 def _reject(_text):
@@ -65,13 +66,14 @@ def load_plan(data: bytes, max_bytes: int = 1 << 20, max_depth: int = 512) -> Lo
         return None
 
 
-def _samples(count, seed_base, size):
+def _samples(kernel, count, seed_base):
+    """Inputs inside each input's declared range: every value at its top, then its bottom, then random."""
     for seed in range(count):
-        if seed == 0:
-            yield seed, [1023] * size
-        else:
-            rng = random.Random(seed_base + seed)
-            yield seed, [rng.randrange(1024) for _ in range(size)]
+        rng, data = random.Random(seed_base + seed), []
+        for (rows, cols), (low, high) in zip(kernel.all_input_shapes, kernel.input_intervals):
+            pick = (lambda: high) if seed == 0 else (lambda: low) if seed == 1 else (lambda: rng.randint(low, high))
+            data += [pick() for _ in range(rows * cols)]
+        yield seed, data
 
 
 def review_candidates(source: bytes, candidates: list[tuple[str, bytes]], samples: int = 3) -> list[CandidateResult]:
@@ -88,10 +90,12 @@ def review_candidates(source: bytes, candidates: list[tuple[str, bytes]], sample
         if not check.valid:
             results.append(CandidateResult(name, False, check.reason, check.detail, None))
             continue
-        for seed, data_in in _samples(samples, 20261029, kernel.input_count):
+        for seed, data_in in _samples(kernel, samples, 20261029):
             initial = [-9] * kernel.output_count
-            if execute_loop_plan(source, plan, data_in, initial) != \
-                    evaluate_source(kernel.source_module, data_in, initial):
+            expected = evaluate_source(kernel.source_module, data_in, initial)
+            if expected.status is not ExecutionStatus.SUCCESS:  # a sample must exercise the plan
+                raise ValueError(f'sample {seed} lies outside the declared input ranges')
+            if execute_loop_plan(source, plan, data_in, initial) != expected:
                 raise SoundnessAlarm(name, seed)
-        results.append(CandidateResult(name, True, 'VALID', None, plan))
+        results.append(CandidateResult(name, True, 'VALID', None, plan, samples))
     return results

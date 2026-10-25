@@ -36,6 +36,21 @@ def _checked(value: int, span: Span, element_type: str) -> int:
     return value
 
 
+def first_bad_input(kernel, values) -> int | None:
+    """Row-major index of the first value outside its own input's declared range.
+
+    Inputs occupy the buffer in declaration order, each row-major, and each
+    has its own range (scale-v1); the small families declare one shared range.
+    """
+    start = 0
+    for (rows, cols), (lower, upper) in zip(kernel.all_input_shapes, kernel.input_intervals):
+        for index in range(start, start + rows * cols):
+            if not lower <= values[index] <= upper:
+                return index
+        start += rows * cols
+    return None
+
+
 def _boundary_values(values, length: int, label: str, span: Span,
                      element_type: str = 'i32') -> tuple[int, ...]:
     if type(values) not in (tuple, list):
@@ -117,11 +132,10 @@ def evaluate_source(module: SourceModule, data: tuple[int, ...] | list[int],
                                     'input', module.inputs[0].span)
     output_values = _boundary_values(initial_output, kernel.height * kernel.width,
                                      'output', module.outputs[0].span, kernel.output_type)
-    lower, upper = kernel.input_interval
-    for index, value in enumerate(input_values):
-        if value < lower or value > upper:
-            return ExecutionResult(ExecutionStatus.INPUT_PRECONDITION_FAILED, index,
-                                   output_values, input_values)
+    bad = first_bad_input(kernel, input_values)
+    if bad is not None:
+        return ExecutionResult(ExecutionStatus.INPUT_PRECONDITION_FAILED, bad,
+                               output_values, input_values)
 
     # No equation or destination computation occurs above this complete scan.
     tensors = {}

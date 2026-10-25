@@ -22,7 +22,11 @@ class WindowGuideTests(unittest.TestCase):
             source = text.encode('utf-8')
             with self.subTest(module=text.split(';')[0]):
                 kernel = admit_source(parse_source(source))
-                data = [(i * 2654435761 & 0xFFFFFFFF) >> 22 for i in range(kernel.input_count)]
+                data, start = [], 0
+                for (rows, cols), (low, high) in zip(kernel.all_input_shapes, kernel.input_intervals):
+                    data += [low + ((i * 2654435761 & 0xFFFFFFFF) >> 22) % (high - low + 1)
+                             for i in range(start, start + rows * cols)]
+                    start += rows * cols
                 initial = [-9] * kernel.output_count
                 if kernel.profile == 'scale-v1':
                     compiled = compile_scale_native(source)

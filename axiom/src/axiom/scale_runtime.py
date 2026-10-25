@@ -5,7 +5,7 @@ before touching data, preflights the whole input, and preserves the initial
 output on rejection.
 """
 from .model import DiagnosticError, Limits, Span
-from .reference import ExecutionResult, ExecutionStatus, _boundary_values
+from .reference import ExecutionResult, ExecutionStatus, _boundary_values, first_bad_input
 from .scale_checker import check_loop_plan
 from .frontend import admit_source, parse_source
 
@@ -43,10 +43,9 @@ def execute_loop_plan(source: bytes, plan, data, initial_output, limits: Limits 
     inputs = _boundary_values(data, kernel.input_count, 'input', module.inputs[0].span)
     output = list(_boundary_values(initial_output, kernel.output_count, 'output', module.outputs[0].span,
                                    kernel.output_type))
-    lower, upper = kernel.input_interval
-    for index, value in enumerate(inputs):
-        if not lower <= value <= upper:
-            return ExecutionResult(ExecutionStatus.INPUT_PRECONDITION_FAILED, index, tuple(output), inputs)
+    bad = first_bad_input(kernel, inputs)
+    if bad is not None:
+        return ExecutionResult(ExecutionStatus.INPUT_PRECONDITION_FAILED, bad, tuple(output), inputs)
     stage = plan.stages[-1]
     (v0, h), (v1, w) = stage.loops
     produce = None

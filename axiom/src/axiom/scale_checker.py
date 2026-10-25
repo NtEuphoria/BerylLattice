@@ -119,12 +119,15 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
         stage = plan.stages[-1]
         module = kernel.source_module
         producer, output = module.producers[0], module.outputs[0]
-        lower, upper = kernel.input_interval
-        inputs, base = {}, 0
+        inputs, input_ranges, base = {}, {}, 0
         for declaration, (rows, cols) in zip(module.inputs, kernel.all_input_shapes, strict=True):
             inputs[declaration.name] = (base, cols)
+            input_ranges[declaration.name] = tuple(declaration.input_interval)
             base += rows * cols
         input_count = base
+        distinct = set(input_ranges.values())
+        range_text = (f'for inputs in {min(distinct)[0]}..{min(distinct)[1]}' if len(distinct) == 1
+                      else 'for the declared input ranges')
 
         # Coverage.
         loops = stage.loops
@@ -153,7 +156,7 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
             if isinstance(node, IntegerLiteral):
                 result = (node.value, node.value)
             elif isinstance(node, ReadExpression):
-                result = ((lower, upper) if node.name in inputs
+                result = (input_ranges[node.name] if node.name in inputs
                           else interval(producer.expression, producer.element_type))
                 if result[0] < low or result[1] > high:
                     # An i64 producer read where an i32 value is required.
@@ -171,7 +174,7 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
                     raise _Stop('ARITHMETIC_OVERFLOW',
                                 f"the '{node.operator}' at byte {node.span.offset} can reach "
                                 f'{result[0]}..{result[1]}, outside {element_type} '
-                                f'({low}..{high}) for inputs in {lower}..{upper}{hint}')
+                                f'({low}..{high}) {range_text}{hint}')
             elif isinstance(node, SumExpression):
                 a, b = interval(node.body, element_type)
                 terms = node.upper - node.lower

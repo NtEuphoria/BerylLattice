@@ -82,7 +82,9 @@ def scale_shape(profile, height, width):
         return None
     input_shapes = []
     for element, dimensions, interval in inputs:
-        if element != 'i32' or interval != [0, 1023] or len(dimensions) != 2:
+        # Any i32 range per input (the frontend keeps it inside i32); the
+        # checker bounds each read by its own input's range.
+        if element != 'i32' or len(dimensions) != 2:
             return None
         sizes = tuple(_dimension(d, shapes) for d in dimensions)
         if None in sizes:

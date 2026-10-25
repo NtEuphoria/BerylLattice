@@ -386,6 +386,8 @@ def _validate(module):
                 _fail('INVALID_SHAPE', decl.span, 'input dimensions must be positive')
             if decl.input_interval[0] > decl.input_interval[1]:
                 _fail('INVALID_RANGE', decl.span, 'input interval is inverted')
+            if not VALUE_BOUNDS['i32'][0] <= decl.input_interval[0] <= decl.input_interval[1] <= VALUE_BOUNDS['i32'][1]:
+                _fail('INVALID_RANGE', decl.span, 'an i32 input range must lie within -2147483648..=2147483647')
             tensors[decl.name] = dimensions
         else:
             if decl.element_type not in VALUE_BOUNDS:

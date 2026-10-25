@@ -105,13 +105,16 @@ class FrontendTests(unittest.TestCase):
         self.assertEqual((literal.profile, literal.input_shapes), ('reduce-v1', ((6, 8),)))
         self.diagnostic(source.replace(b'i32[H+1,W+1]', b'i32[H+9,W+1]'), 'UNSUPPORTED_PROFILE')
         # Outside the two-stage window family as well as the canonical profile:
-        # the output reads the input directly, a transposed read, a shape-offset
-        # read, and a non-default input interval.
+        # the output reads the input directly, a transposed read and a
+        # shape-offset read.
         self.diagnostic(source.replace(b'+p[r+1,c+1]', b'+image[r,c]'), 'UNSUPPORTED_PROFILE')
         # Square, so the transposed read stays in bounds and reaches recognition.
         self.diagnostic(stencil_source(5, 5).replace(b'p[r,c+1]', b'p[c,r]'), 'UNSUPPORTED_PROFILE')
         self.diagnostic(source.replace(b'(image[r,c]+1)*(image[r,c]+1)', b'image[r,c]*image[H,c]'), 'UNSUPPORTED_PROFILE')
-        self.diagnostic(source.replace(b'in 0..=1023', b'in 0..=1022'), 'UNSUPPORTED_PROFILE')
+        # Another input range is no longer refused: the program is scale-v1,
+        # whose checker bounds reads by each input's declared range.
+        self.assertEqual(admit_source(parse_source(source.replace(b'in 0..=1023', b'in 0..=1022'))).profile,
+                         'scale-v1')
 
     def test_window_family_variants_have_distinct_identities(self):
         from axiom.model import CANONICAL_PROFILE, WINDOW_PROFILE, WINDOW_SEMANTICS_VERSION
@@ -164,7 +167,6 @@ class FrontendTests(unittest.TestCase):
         cases = [
             (source.replace(b'+p[r+1,c+1]', b'+image[r,c]'), b'image', 'may only read `p`'),
             (stencil_source(5, 5).replace(b'p[r,c+1]', b'p[c,r]'), b'c', 'first index must be `r`'),
-            (source.replace(b'in 0..=1023', b'in 0..=1022'), b'input', 'in 0..=1023'),
             (source.replace(b'i32[H+1,W+1]', b'i32[H+9,W+1]'), b'H+9', 'input dimensions must be a literal'),
             (source.replace(b'(image[r,c]+1)*(image[r,c]+1)', b'image[r,c]*image[H,c]'), b'H',
              'producer indices must be an axis'),

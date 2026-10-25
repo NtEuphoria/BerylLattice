@@ -60,6 +60,15 @@ class CandidateTests(unittest.TestCase):
         self.assertLessEqual({r.reason for r in results}, REASONS)
         self.assertGreaterEqual(sum(not r.accepted for r in results), 30)
 
+    def test_samples_lie_inside_each_declared_range(self):
+        # Samples outside a range would make both sides fail the same check and "match" vacuously.
+        from tests.test_scale_ranges import INT8_DOT
+        source = INT8_DOT.format(n=500).encode()
+        plan = make_scale_plan(admit_source(parse_source(source)))
+        (result,) = review_candidates(source, [('planner', plan_json(plan))])
+        self.assertTrue(result.accepted)
+        self.assertEqual(result.samples_run, 3)
+
     def test_accepted_mismatch_raises_alarm(self):
         source = SUM.format(n=2000).encode()
         plan = make_scale_plan(admit_source(parse_source(source)))

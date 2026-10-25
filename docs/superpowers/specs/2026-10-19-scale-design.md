@@ -157,6 +157,58 @@ Not yet:
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
 
+## Phase 2b: per-input ranges and the fused input check (2026-10-25)
+
+**Per-input ranges.** A `scale-v1` input may declare any range inside i32, signed
+included, per input (`input w: i32[1,n] in -128..=127`).
+- The range is part of the profile, so it is part of the semantic identity.
+- The frontend refuses ranges outside i32 (`INVALID_RANGE`).
+- The checker bounds each read by its own input's range. The overflow refusal names the
+  range when every input shares one, and says "the declared input ranges" otherwise.
+- The reference and the loop-plan runtime check each input's buffer segment against its own
+  range, and report the first bad index over the whole buffer.
+
+In the emitter:
+- **Shared range:** programs whose inputs share one range keep the inline checks, and their
+  C is byte-identical to before.
+- **Mixed ranges:** the check is a `beryl_check(input, from, to)` helper that loops over each
+  input's segment with that input's bounds; the first-bad scan does the same.
+- **Exact int32 blocks:** they use each load's input range. A load's constant term is its
+  lowest index, since indices only add nonnegative offsets, so it names the input.
+
+The 256-cell families keep `0..=1023`; a small program with another range is `scale-v1`.
+
+**Fused input check.** In a single-cell sum, consider each load `input[c + k]` over the whole
+sum range. When those ranges together cover every input index, each chunk of the sum ORs a
+range check over exactly the values it adds:
+- this applies to sum, and to dot reading x then y;
+- the output is written only after every chunk is in;
+- on any bad value, the existing scan reports the first bad index.
+
+So the contract is unchanged, and the input is read once instead of twice. Sums that read
+only part of the input keep the separate check. Measured effect (single thread):
+
+| kernel | before | after | C |
+|---|---|---|---|
+| sum, 4M values | 1.90 ms | 1.31 ms | 1.34 ms |
+| dot, 2 × 2.1M values | 1.88 ms | 0.91 ms | 1.09 ms |
+
+Full matched numbers are in `docs/reviews/2026-10-25-matched-benchmarks.md`.
+
+**Verification.**
+- `tests/test_scale_ranges.py`:
+  - admission, identity and i32 bounds;
+  - the overflow proof per range, including signed squares at ±46,340;
+  - a per-input check order;
+  - a 240-mutant fuzz checked at the low and high range ends;
+  - 60 native runs: low, high and random values, and bad values in the first and last input,
+    at 1 and 4 threads.
+- `tests/test_scale_fused.py`: whether the check is fused or kept, and 30 native runs with
+  bad values at the first, middle and last index.
+- ThreadSanitizer and ASan+UBSan clean on 48 fused runs and 60 range runs in WSL.
+- The candidate checker now samples inside each declared range, and refuses to count a
+  sample that fails the input check.
+
 ## Phase 2: i64 equations (2026-10-24)
 
 Phase 2 adds element types for equations. Per-input intervals are not done yet.

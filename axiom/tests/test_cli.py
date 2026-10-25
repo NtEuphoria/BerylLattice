@@ -35,7 +35,7 @@ class CLITests(unittest.TestCase):
         self.assertEqual(code,0); self.assertEqual(obj['selected_plan_id'],'inline-v1')
     def test_exit_classes(self):
         self.source.write_bytes(b'module ?;'); self.assertEqual(self.cli('check',self.source)[0],2)
-        self.source.write_bytes(stencil_source(5,7).replace(b'0..=1023',b'0..=1022'))
+        self.source.write_bytes(stencil_source(5,7).replace(b'+p[r+1,c+1]',b'+image[r,c]'))
         self.assertEqual(self.cli('check',self.source)[0],3)
         self.assertEqual(self.cli('check',self.directory/'missing')[0],5)
         self.assertEqual(self.cli('plan',self.source,'--out',self.directory,'--check-steps',-1)[0],2)

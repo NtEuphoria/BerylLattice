@@ -236,6 +236,11 @@ class AdmittedKernel:
         return self.height * self.width
 
     @property
+    def input_intervals(self) -> tuple[tuple[int, int], ...]:
+        """Each input's declared (lower, upper), in declaration (buffer) order."""
+        return tuple(tuple(decl.input_interval) for decl in self.source_module.inputs)
+
+    @property
     def value_types(self) -> tuple[str, ...]:
         """Declared types of the producer and output equations, in order."""
         module = self.source_module

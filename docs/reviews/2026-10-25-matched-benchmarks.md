@@ -85,7 +85,7 @@ Two figures are left out of these headlines:
   slower than one-thread Rust for sum (28 µs against 12.5), dot (27.9 against 13.8) and
   stencil1d3 (50.4 against 36.9).
 
-## Every loss
+## Every loss, before the fused check
 
 | run | case | beryl | baseline | beryl's time over the baseline's |
 |---|---|---|---|---|
@@ -105,10 +105,58 @@ read 16 MB once and do almost no arithmetic: sum, dot and transpose at the l siz
 contract checks the whole input before writing any output, so it reads the input twice; the
 plain baselines read it once and check nothing.
 
-The next optimization follows from that. For a single-cell reduction the output is written
-only at the end, so the check can be fused into the summing pass without weakening the
-contract. If any value is out of range, the existing scan finds the first bad index and the
-output stays untouched.
+## Update: the fused input check (same day)
+
+The cause above suggested the fix, and it is now in the emitter. For a single-cell sum
+whose loads, over the whole sum range, read every input exactly as the input buffer lays
+them out (sum, and dot reading x then y):
+- each chunk of the sum ORs a range-check flag over the values it adds;
+- nothing is written until every chunk is in;
+- on any bad value, the existing scan finds the first bad index and the output stays
+  untouched.
+
+So the contract is unchanged, and the input is read once. Sums that read only part of the
+input keep the separate check.
+
+**Verification.**
+- `tests/test_scale_fused.py`:
+  - no separate check pass for whole-input sums;
+  - kept for partial sums;
+  - 30 native runs against the reference, at 1 and 4 threads, with bad values at the first,
+    middle and last index, and two bad values (the first reported).
+- ThreadSanitizer and ASan+UBSan clean on 48 runs in WSL.
+- Code for other kernels is byte-identical.
+
+**Rerun.** sum and dot only, with their baselines, at commit `f698d1b` plus the fused check
+(`.local/fused-bench/`):
+
+| comparison | sum m | sum l | dot m | dot l |
+|---|---|---|---|---|
+| 1 thread: beryl / C / Rust | 7.2 / 13.8 / 12.3 µs | 1.31 / 1.34 / 1.27 ms | 9.4 / 13.9 / 13.6 µs | 0.91 / 1.09 / 1.07 ms |
+| 4 threads: beryl / Rayon | 4.4 / 34.9 µs | 497 / 509 µs | 4.5 / 29.6 µs | 470 / 585 µs |
+| 4 threads: beryl / OpenMP (Linux) | 4.2 / 6.5 µs | 719 / 515 µs | 5.6 / 10.4 µs | 563 / 619 µs |
+
+Merging these with the other eight kernels from the matched runs (sum and dot from the
+rerun, everything else unchanged):
+
+| comparison | wins | geomean (all) | m | l |
+|---|---|---|---|---|
+| 1 thread against C | 29/30 | 1.93x | 2.45x | 1.48x |
+| 1 thread against Rust | 28/30 | 1.94x | 2.20x | 1.37x |
+| 4 threads against Rayon | 30/30 | (s excluded) | 3.84x | 1.49x |
+| 4 threads against OpenMP | 29/30 | (s excluded) | 2.18x | 1.31x |
+
+## Every loss, after the fused check
+
+| run | case | beryl | baseline | beryl's time over the baseline's |
+|---|---|---|---|---|
+| 1 | transpose l | 31.7 ms | C 29.1 ms, Rust 30.2 ms | 1.09x, 1.05x |
+| 1 | sum l | 1.31 ms | Rust 1.27 ms | 1.04x |
+| 3 | sum l | 719 µs | OpenMP 515 µs | 1.40x |
+
+The transpose cannot use the same fusion: it writes output before it has seen the whole
+input. The remaining OpenMP sum loss appears only under Linux, where beryl's pool reaches
+about 22 GB/s against OpenMP's 31; that is the next thing to measure.
 
 ## What the proof covers
 
@@ -129,13 +177,17 @@ These may be used, word for word, in the video, the email and the website:
 1. "On one thread, beryl was 1.39x faster than hand-written C with the same interface (32-bit
    outputs, the same input checks, compile-time sizes), and faster in all 18 cases measured."
 2. "Against single-threaded C and Rust baselines that store 64-bit outputs and check no
-   inputs, beryl won 27 of 30 benchmarks."
-3. "With four threads each, beryl was 2.0x faster than C with OpenMP at in-cache sizes, and
-   1.17x faster than OpenMP and 1.29x faster than Rust with Rayon at sizes too large for
-   cache."
-4. "beryl still loses on very large sums and dot products (1.4–2.1x slower), on a very large
-   transpose on one thread (1.05–1.09x slower), and on one mid-size sum against OpenMP (1.05x
-   slower)."
+   inputs, beryl won 29 of 30 benchmarks against C and 28 of 30 against Rust."
+3. "With four threads each, beryl was 2.2x faster than C with OpenMP at in-cache sizes, and
+   1.31x faster than OpenMP and 1.49x faster than Rust with Rayon at sizes too large for
+   cache, winning 29 of 30 and 30 of 30."
+4. "beryl still loses three cases: a 2048×2048 transpose on one thread (1.05–1.09x slower),
+   a 4-million-value sum on one thread against Rust (1.04x), and the same sum on four
+   threads against OpenMP on Linux (1.40x)."
+
+Claims 2–4 were updated after the fused check, and need the founder's review again before
+public use. The earlier wording (27 of 30; 2.0x, 1.17x and 1.29x; losses on large sums and
+dot products) is superseded.
 5. "beryl's checker proves each optimized plan is exactly the program, in bounds and free of
    overflow. Turning that plan into C, and some of its optimizations, are tested but not yet
    checked."
