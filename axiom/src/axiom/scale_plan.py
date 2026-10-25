@@ -9,6 +9,7 @@ scale_checker proves a plan against the source before anything emits it.
     Stage(loops=((var, extent), ...), index=Affine, value=Expr)
     Expr   = ('const', v) | ('load', Affine) | ('add', a, b) | ('mul', a, b)
            | ('min', a, b) | ('max', a, b)
+           | ('shr', a, ('const', k)) | ('shr_round', a, ('const', k))
            | ('sum', var, lower, upper, body)
            | ('prod', i, j)   carry-v1 output only: the producer at (r+i, c+j)
     Affine = (constant, ((var, coefficient), ...))  canonical: sorted vars,
@@ -30,7 +31,7 @@ LOOP_PLAN_FORMAT = 'beryl-loop-plan-v1'
 #            This generalizes the performance report's carry1 (K = 2).
 SCALE_PLAN_IDS = ('direct-v1', 'carry-v1')
 # Plan node kind of each source binary operator.
-PLAN_KINDS = {'+': 'add', '*': 'mul', 'min': 'min', 'max': 'max'}
+PLAN_KINDS = {'+': 'add', '*': 'mul', 'min': 'min', 'max': 'max', 'shr': 'shr', 'shr_round': 'shr_round'}
 BINARY_KINDS = tuple(PLAN_KINDS.values())
 
 

@@ -72,13 +72,32 @@ static inline int64_t __attribute__((unused)) beryl_min_i64(int64_t a, int64_t b
 static inline int64_t __attribute__((unused)) beryl_max_i64(int64_t a, int64_t b) { return a > b ? a : b; }
 '''
 
+# shr is floor(a / 2^k) and shr_round is floor(a / 2^k + 1/2), for every a and
+# 0 <= k <= 63 (1 <= k for shr_round). Only nonnegative values are shifted, and
+# never by the type's width or more, so no shift is undefined or
+# implementation-defined. Neither result can overflow.
+_SHIFTS = '''
+static inline int32_t __attribute__((unused)) beryl_shr_i32(int32_t a, int k) {
+    return k > 30 ? -(int32_t)(a < 0) : (a >= 0 ? a >> k : ~(~a >> k));
+}
+static inline int32_t __attribute__((unused)) beryl_shr_round_i32(int32_t a, int k) {
+    return beryl_shr_i32(a, k) + (beryl_shr_i32(a, k - 1) & 1);
+}
+static inline int64_t __attribute__((unused)) beryl_shr_i64(int64_t a, int k) {
+    return k > 62 ? -(int64_t)(a < 0) : (a >= 0 ? a >> k : ~(~a >> k));
+}
+static inline int64_t __attribute__((unused)) beryl_shr_round_i64(int64_t a, int k) {
+    return beryl_shr_i64(a, k) + (beryl_shr_i64(a, k - 1) & 1);
+}
+'''
 
-def _uses_minmax(expr):
-    if expr[0] in ('min', 'max'):
+
+def _uses(expr, kinds):
+    if expr[0] in kinds:
         return True
     if expr[0] in BINARY_KINDS:
-        return _uses_minmax(expr[1]) or _uses_minmax(expr[2])
-    return expr[0] == 'sum' and _uses_minmax(expr[4])
+        return _uses(expr[1], kinds) or _uses(expr[2], kinds)
+    return expr[0] == 'sum' and _uses(expr[4], kinds)
 
 
 def _affine(value):
@@ -148,10 +167,14 @@ def _narrow_block(expr, load_range, prod_interval=None):
             a, b = interval(e[1]), interval(e[2])
             if a is None or b is None:
                 return None
-            ends = (a[0] * b[0], a[0] * b[1], a[1] * b[0], a[1] * b[1])
-            result = {'add': (a[0] + b[0], a[1] + b[1]), 'mul': (min(ends), max(ends)),
-                      'min': (min(a[0], b[0]), min(a[1], b[1])),
-                      'max': (max(a[0], b[0]), max(a[1], b[1]))}[kind]
+            if kind in ('shr', 'shr_round'):
+                half = 1 << (b[0] - 1) if kind == 'shr_round' else 0
+                result = ((a[0] + half) >> b[0], (a[1] + half) >> b[0])
+            else:
+                ends = (a[0] * b[0], a[0] * b[1], a[1] * b[0], a[1] * b[1])
+                result = {'add': (a[0] + b[0], a[1] + b[1]), 'mul': (min(ends), max(ends)),
+                          'min': (min(a[0], b[0]), min(a[1], b[1])),
+                          'max': (max(a[0], b[0]), max(a[1], b[1]))}[kind]
         else:
             body = interval(e[4])
             if body is None or (e[3] - e[2]) * max(abs(body[0]), abs(body[1])) > _I32_MAX:
@@ -180,6 +203,11 @@ def _lower(expr, statements, counter, prod=None, wide=False, narrow=None):
         return f'((int64_t){_literal(expr[1])})' if wide else _literal(expr[1])
     if kind == 'load':
         return f'(int64_t)input[{_affine(expr[1])}]' if wide else f'input[{_affine(expr[1])}]'
+    if kind in ('shr', 'shr_round'):
+        if expr[2][0] != 'const':
+            raise ValueError('a shift amount is a literal')
+        left = _lower(expr[1], statements, counter, prod, wide, narrow)
+        return f'beryl_{kind}_{"i64" if wide else "i32"}({left}, {expr[2][1]})'
     if kind in BINARY_KINDS:
         left = _lower(expr[1], statements, counter, prod, wide, narrow)
         right = _lower(expr[2], statements, counter, prod, wide, narrow)
@@ -411,7 +439,8 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     parts = [_HEADER.replace('PLAN_ID', plan.plan_id),
              f'enum {{ BERYL_HEIGHT = {kernel.height}, BERYL_WIDTH = {kernel.width},\n'
              f'       BERYL_INPUT_COUNT = {n_in}, BERYL_OUTPUT_COUNT = {n_out} }};\n',
-             *((_MINMAX,) if any(_uses_minmax(s.value) for s in plan.stages) else ()),
+             *((_MINMAX,) if any(_uses(s.value, ('min', 'max')) for s in plan.stages) else ()),
+             *((_SHIFTS,) if any(_uses(s.value, ('shr', 'shr_round')) for s in plan.stages) else ()),
              cells]
     split_chunk = ''
     fused = None

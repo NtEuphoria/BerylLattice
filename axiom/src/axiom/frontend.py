@@ -182,7 +182,7 @@ class _Parser:
         name = self.identifier()
         if scalar and name.text == 'sum' and self.token.text == '(':
             return parse_sum(self, name, nesting)
-        if scalar and name.text in ('min', 'max', 'clamp') and self.token.text == '(':
+        if scalar and name.text in ('min', 'max', 'clamp', 'shr', 'shr_round') and self.token.text == '(':
             return self.call(name, nesting)
         if scalar and self.token.text == '[':
             self.take('[')
@@ -199,6 +199,10 @@ class _Parser:
 
         `clamp(x, lo, hi)` is defined as exactly `min(max(x, lo), hi)`, like
         subtraction: checking and every backend see only min and max.
+
+        `shr(x, k)` is floor(x / 2^k) and `shr_round(x, k)` is floor(x / 2^k + 1/2),
+        rounding halves up; k is an integer literal, 0..63 for shr and 1..63 for
+        shr_round. Neither can overflow.
         """
         if nesting >= 32:
             _fail('EXPRESSION_DEPTH_LIMIT', name.span, 'expression nesting exceeds 32')
@@ -211,6 +215,13 @@ class _Parser:
         span = self.span_from(name.span)
         if len(arguments) != (3 if name.text == 'clamp' else 2):
             _fail('SYNTAX_ERROR', span, f'{name.text} takes {3 if name.text == "clamp" else 2} arguments')
+        if name.text in ('shr', 'shr_round'):
+            amount = _ungroup(arguments[1])
+            if not isinstance(amount, IntegerLiteral):
+                _fail('SYNTAX_ERROR', arguments[1].span, f'the shift amount of {name.text} must be an integer literal')
+            lowest = 1 if name.text == 'shr_round' else 0
+            if not lowest <= amount.value <= 63:
+                _fail('INVALID_EXPRESSION', arguments[1].span, f'{name.text} shifts by {lowest} to 63 bits')
         if name.text != 'clamp':
             return self.node(BinaryExpression(name.text, *arguments, span), arguments)
         value, lower, upper = arguments

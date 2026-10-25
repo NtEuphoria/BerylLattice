@@ -57,7 +57,7 @@ def _reads_ok(expression, tensors, checks):
         kind = node[0]
         if kind == 'integer':
             continue
-        if kind in ('+', '*', 'min', 'max'):
+        if kind in ('+', '*', 'min', 'max', 'shr', 'shr_round'):
             pending.extend(((node[1], bound), (node[2], bound)))
         elif kind == 'sum':
             pending.append((node[4], bound | {node[1]}))

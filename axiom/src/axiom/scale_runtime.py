@@ -29,6 +29,11 @@ def _value(expr, env, data, produce=None):
         return min(_value(expr[1], env, data, produce), _value(expr[2], env, data, produce))
     if kind == 'max':
         return max(_value(expr[1], env, data, produce), _value(expr[2], env, data, produce))
+    if kind == 'shr':
+        return _value(expr[1], env, data, produce) >> _value(expr[2], env, data, produce)
+    if kind == 'shr_round':
+        value, k = _value(expr[1], env, data, produce), _value(expr[2], env, data, produce)
+        return (value >> k) + ((value >> (k - 1)) & 1)
     _, var, lower, upper, body = expr
     total = 0
     for term in range(lower, upper):

@@ -89,6 +89,10 @@ def _evaluate_expression(expression: Expression, scalars: dict[str, int],
             value = min(left, right)
         elif expression.operator == 'max':
             value = max(left, right)
+        elif expression.operator == 'shr':
+            value = left // 2 ** right
+        elif expression.operator == 'shr_round':
+            value = (2 * left + 2 ** right) // 2 ** (right + 1)
         else:
             raise DiagnosticError('INVALID_EXPRESSION', expression.span, 'unsupported scalar operator')
     elif isinstance(expression, ReadExpression):

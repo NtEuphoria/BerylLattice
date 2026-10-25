@@ -226,6 +226,35 @@ output o[r in 0..H,c in 0..W] = clamp(4*p[r+1,c] - p[r,c] - p[r+2,c], 0, 255);
 The 256-cell families have no `min` or `max`, so a small program that uses them becomes
 `scale-v1`.
 
+### Shifts and rounding
+
+`shr(x, k)` shifts right by `k` bits, rounding toward minus infinity: it is exactly
+`floor(x / 2^k)`, so `shr(-7, 1)` is -4. `shr_round(x, k)` rounds halves up: it is exactly
+`floor(x / 2^k + 1/2)`, so `shr_round(5, 1)` is 3 and `shr_round(-5, 1)` is -2. This is
+the rounding of Arm's rounding shift instructions.
+
+- `k` is an integer literal: 0 to 63 for `shr`, 1 to 63 for `shr_round`. Shifting past the
+  value's width gives 0 or -1, never undefined behavior.
+- Neither can overflow, and the checker carries their bounds through the proof like
+  `min` and `max`.
+- There is no left shift; write `x * 256`, which is checked like any product.
+- Like `min` and `max`, a program that uses them is `scale-v1`.
+
+Together with `clamp`, they express the requantization step of an int8 layer. Here the
+64-bit accumulator is multiplied by a fixed-point scale (1518500250 / 2⁴⁰, about
+0.00138), rounded, offset by a zero point of 3, and saturated to int8. The proof shows
+the shifted value fits the 32-bit output:
+
+```ax
+module requant;
+shape H = 1;
+shape W = 1;
+input a: i32[1,40000] in 0..=255;
+input w: i32[1,40000] in -128..=127;
+let t: i64[r in 0..H,c in 0..W] = shr_round(sum(k in 0..40000: a[0,k]*w[0,k]) * 1518500250, 40);
+output y[r in 0..H,c in 0..W] = clamp(t[r,c] + 3, -128, 127);
+```
+
 ## Plans beryl chooses between
 
 | Plan | What it does | Storage |
@@ -256,6 +285,6 @@ Rejections name the rule and point at the offending part of the source:
 
 ## Not supported yet
 
-Conditionals and comparisons, shifts, strided reads (`x[2*r, c]`), more than two inputs,
+Conditionals and comparisons, left shifts and bitwise operators, strided reads (`x[2*r, c]`), more than two inputs,
 i64 inputs, and i64 equations in the 256-cell families.
 See `docs/reviews/2026-10-19-gaps-and-improvement-plan.md` for the plan.

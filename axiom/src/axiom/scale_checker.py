@@ -12,7 +12,8 @@ its bytes and proves, in time linear in the template (never in the data):
   bounds       every load's affine minimum and maximum over its variable box
                lies within the input buffer
   arithmetic   interval analysis over the template from the input interval:
-               min and max take the min and max of their operands' ends;
+               min and max take the min and max of their operands' ends,
+               and shr and shr_round (literal amounts) map their operand's ends;
                every + and * fits its equation's declared type (i32 or i64),
                and every symbolic sum satisfies terms * max|term| <= that
                type's maximum, so any accumulation order is exact
@@ -172,6 +173,12 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
                     result = (min(a, c), min(b, d))
                 elif node.operator == 'max':
                     result = (max(a, c), max(b, d))
+                elif node.operator in ('shr', 'shr_round'):
+                    # Both are nondecreasing in the operand, so its ends map to the result's.
+                    if c != d or not (1 if node.operator == 'shr_round' else 0) <= c <= 63:
+                        raise _Stop('UNSUPPORTED_SOURCE_EXPRESSION', 'a shift amount must be a literal in range')
+                    half = 0 if node.operator == 'shr' else 2 ** c
+                    result = ((2 * a + half) // 2 ** (c + 1), (2 * b + half) // 2 ** (c + 1))
                 else:
                     ends = (a * c, a * d, b * c, b * d)
                     result = (min(ends), max(ends))

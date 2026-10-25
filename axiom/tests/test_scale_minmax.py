@@ -166,48 +166,53 @@ class MinMaxMutationTests(unittest.TestCase):
         self.assertGreater(rejected, 150)
 
 
+def assert_native_matches(test, sources):
+    """Compile each source to C with clang -Wall -Werror and compare runs at 1 and 4 threads to the reference."""
+    harness = Path(__file__).parent / 'fixtures' / 'scale_harness.c'
+    with tempfile.TemporaryDirectory() as tmp:
+        for number, text in enumerate(sources):
+            source = text.encode()
+            kernel = admit_source(parse_source(source))
+            compiled = compile_scale_native(source)
+            test.assertIsNotNone(compiled.artifact, compiled.reason)
+            c = Path(tmp) / f'k{number}.c'
+            c.write_bytes(compiled.artifact.c_source.replace(b'int main(void)', b'int beryl_unused_main(void)'))
+            exe = Path(tmp) / f'k{number}.exe'
+            try:
+                out = 'int64_t' if kernel.output_type == 'i64' else 'int32_t'
+                built = subprocess.run(['clang', '-O2', '-std=c11', '-Wall', '-Werror', f'-DBERYL_OUT={out}',
+                                        str(c), str(harness), '-o', str(exe)], capture_output=True, text=True)
+            except OSError as error:
+                test.skipTest(f'no C compiler: {error}')
+            test.assertEqual(built.returncode, 0, built.stderr)
+            n = kernel.input_count
+            # The reference interprets every term, so the largest case runs one full set.
+            cases = ((None, None), (None, n - 1)) if n > 1 << 20 else (
+                (None, None), ('low', None), ('high', None), (None, n - 1))
+            for extreme, bad in cases:
+                data = data_for(kernel, number, extreme)
+                if bad is not None and kernel.input_intervals[-1][1] < 2 ** 31 - 1:
+                    data[bad] = kernel.input_intervals[-1][1] + 1
+                ref = evaluate_source(kernel.source_module, data, [-9] * kernel.output_count)
+                for threads in ('1', '4'):
+                    try:
+                        ran = subprocess.run([str(exe), str(n), str(kernel.output_count)],
+                                             input=' '.join(map(str, data)), capture_output=True, text=True,
+                                             check=True, env={'BERYL_THREADS': threads, 'SYSTEMROOT': 'C:\\Windows'})
+                    except OSError as error:  # Windows Application Control; never bypassed
+                        test.skipTest(f'executable launch refused: {error}')
+                    status, *values = map(int, ran.stdout.split())
+                    with test.subTest(case=number, threads=threads, extreme=extreme, bad=bad):
+                        test.assertEqual(status, 0 if ref.first_bad_index is None else ref.first_bad_index + 1)
+                        test.assertEqual(tuple(values), ref.output)
+
+
 class MinMaxNativeTests(unittest.TestCase):
     def test_native_c_matches_the_reference(self):
-        harness = Path(__file__).parent / 'fixtures' / 'scale_harness.c'
-        sources = [RELU_DOT.format(n=40000), RELU_DOT.format(n=200), CLAMP_BOX.format(h=120, w=100),
-                   CLAMP_BOX.format(h=30, w=25), CAPPED_SUM.format(n=2_200_000, term='min(x[0,k], 255)'),
-                   CAPPED_SUM.format(n=3000, term='max(min(x[0,k], 700), 100)'), WIDE_MIN.format(w=5000)]
-        with tempfile.TemporaryDirectory() as tmp:
-            for number, text in enumerate(sources):
-                source = text.encode()
-                kernel = admit_source(parse_source(source))
-                compiled = compile_scale_native(source)
-                self.assertIsNotNone(compiled.artifact, compiled.reason)
-                c = Path(tmp) / f'k{number}.c'
-                c.write_bytes(compiled.artifact.c_source.replace(b'int main(void)', b'int beryl_unused_main(void)'))
-                exe = Path(tmp) / f'k{number}.exe'
-                try:
-                    out = 'int64_t' if kernel.output_type == 'i64' else 'int32_t'
-                    built = subprocess.run(['clang', '-O2', '-std=c11', '-Wall', '-Werror', f'-DBERYL_OUT={out}',
-                                            str(c), str(harness), '-o', str(exe)], capture_output=True, text=True)
-                except OSError as error:
-                    self.skipTest(f'no C compiler: {error}')
-                self.assertEqual(built.returncode, 0, built.stderr)
-                n = kernel.input_count
-                # The reference interprets every term, so the largest case runs one full set.
-                cases = ((None, None), (None, n - 1)) if n > 1 << 20 else (
-                    (None, None), ('low', None), ('high', None), (None, n - 1))
-                for extreme, bad in cases:
-                    data = data_for(kernel, number, extreme)
-                    if bad is not None and kernel.input_intervals[-1][1] < 2 ** 31 - 1:
-                        data[bad] = kernel.input_intervals[-1][1] + 1
-                    ref = evaluate_source(kernel.source_module, data, [-9] * kernel.output_count)
-                    for threads in ('1', '4'):
-                        try:
-                            ran = subprocess.run([str(exe), str(n), str(kernel.output_count)],
-                                                 input=' '.join(map(str, data)), capture_output=True, text=True,
-                                                 check=True, env={'BERYL_THREADS': threads, 'SYSTEMROOT': 'C:\\Windows'})
-                        except OSError as error:  # Windows Application Control; never bypassed
-                            self.skipTest(f'executable launch refused: {error}')
-                        status, *values = map(int, ran.stdout.split())
-                        with self.subTest(case=number, threads=threads, extreme=extreme, bad=bad):
-                            self.assertEqual(status, 0 if ref.first_bad_index is None else ref.first_bad_index + 1)
-                            self.assertEqual(tuple(values), ref.output)
+        assert_native_matches(self, [
+            RELU_DOT.format(n=40000), RELU_DOT.format(n=200), CLAMP_BOX.format(h=120, w=100),
+            CLAMP_BOX.format(h=30, w=25), CAPPED_SUM.format(n=2_200_000, term='min(x[0,k], 255)'),
+            CAPPED_SUM.format(n=3000, term='max(min(x[0,k], 700), 100)'), WIDE_MIN.format(w=5000)])
 
 
 if __name__ == '__main__':

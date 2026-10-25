@@ -85,7 +85,7 @@ class NameReference:
 
 @dataclass(frozen=True, slots=True)
 class BinaryExpression:
-    operator: str  # '+', '*', or 'min'/'max' (scale-v1 only)
+    operator: str  # '+', '*', or 'min'/'max'/'shr'/'shr_round' (scale-v1 only)
     left: 'Expression'
     right: 'Expression'
     span: Span

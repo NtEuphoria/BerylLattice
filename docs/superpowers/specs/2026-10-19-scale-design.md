@@ -152,10 +152,68 @@ Not yet:
 | 2 | element types (`i64` equations and outputs), per-input intervals | dot, large sums, any input range |
 | 3 | schedules with proof rules: materialized producer, rolling rows, tiling | separable stencils without recomputation, cache-blocked matmul |
 | 4 | loop plans in Wasm and the Python runtime; playground at scale | interactive large programs |
-| 5 | language: `max`/`min` (done, Phase 2c), comparisons and `select`, strided indices, several equations | maxpool, life, scan |
+| 5 | language: `max`/`min` (done, Phase 2c), right shifts and rounding (done, Phase 2d), comparisons and `select`, strided indices, several equations | maxpool, requantize, life, scan |
 
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
+
+## Phase 2d: right shifts and rounding (2026-10-25)
+
+**Language.**
+- `shr(x, k)` is exactly `floor(x / 2^k)`.
+- `shr_round(x, k)` is exactly `floor(x / 2^k + 1/2)`: halves round up, as in Arm's
+  rounding shift instructions.
+- `k` is an integer literal, possibly parenthesized: 0..63 for `shr`, 1..63 for
+  `shr_round`.
+- The parser refuses:
+  - a shift amount that is not a literal (`SYNTAX_ERROR`);
+  - an amount out of range (`INVALID_EXPRESSION`);
+  - wrong argument counts;
+  - shifts in an index.
+- There is no left shift, because `x * 2^k` already says it and is checked as a product.
+
+Both are `BinaryExpression`s whose right operand is the literal, so the kind and the
+amount are part of the semantic identity. As with min and max, small programs that use
+them are `scale-v1`.
+
+**Proof.** Both functions are nondecreasing in `x`, so the checker maps the operand's
+interval ends through them:
+- `shr` maps each end to `end // 2^k`;
+- `shr_round` maps each end to `(2·end + 2^k) // 2^(k+1)`.
+
+The result can never overflow, and the operand is checked as before. The narrower bounds
+flow into sums and into i32 equations that read i64 ones. That is what makes int8
+requantization provable: an i64 accumulator times a fixed-point multiplier, shifted by 40
+with `shr_round`, fits an i32 output that clamps it to int8.
+
+**Plans and emission.**
+- Plans gain `('shr', a, ('const', k))` and `('shr_round', a, ('const', k))`, matched
+  structurally. Swapping the kinds, or changing the amount, is a `STRUCTURAL_MISMATCH`.
+- The emitter calls `static inline` helpers `beryl_shr_i32`, `beryl_shr_round_i32` and
+  the i64 forms. They shift only nonnegative values, and only by less than the width; a
+  negative `a` uses `~(~a >> k)`. So no shift is undefined or implementation-defined.
+- `shr_round` is emitted as `shr(a, k) + (shr(a, k-1) & 1)`, which cannot overflow. The
+  runtime uses the same identity. The reference and the checker use the floor-division
+  definition, so a mistake in either form would show up as a disagreement.
+- The helpers are emitted only when a plan uses them. C for existing programs, the
+  min/max ones included, is byte-identical to the previous commit (nine programs).
+
+**Verification** (`tests/test_scale_shift.py`):
+- syntax: argument counts, literal amounts, the amount ranges, and indices;
+- routing to `scale-v1`, and the identity of the kind and the amount;
+- floor and round-half-up meanings on hand-computed negative and positive cases;
+- the requantize reference;
+- longer sums of shifted terms;
+- that operands are still checked;
+- that the requantized i64 producer fits an i32 output, and the unshifted one does not;
+- rejection of changed kinds and amounts;
+- direct-v1 and carry-v1 plans against the reference at the range ends, including
+  amounts of 31, 32 and 63 over the full i32 range in both i32 and i64 equations;
+- a 240-mutant fuzz, in which the mutator also swaps shr and shr_round;
+- 56 native runs at 1 and 4 threads.
+
+ThreadSanitizer and ASan+UBSan, which checks shift amounts and operands, are clean on 64
+WSL runs at 1 and 8 threads, including all-minimum inputs (-2147483648).
 
 ## Phase 2c: min, max and clamp (2026-10-25)
 
