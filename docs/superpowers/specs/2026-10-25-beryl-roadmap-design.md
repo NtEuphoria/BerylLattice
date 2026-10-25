@@ -99,6 +99,8 @@ material: the website, demos, packages and pitch.
 
 **Legal.** Defense sales bring ITAR and EAR exposure:
 - the core compiler stays general-purpose and public;
+- the closed defense edition (section 8) may be export-controlled where the public core
+  is not, so get export counsel before building it, not only before selling it;
 - beryl never takes a customer's controlled data onto its machines;
 - get counsel before the first defense conversation that involves technical data.
 
@@ -297,7 +299,8 @@ The raise amount and timing are open questions (Q1).
    reported as an end-to-end percentage, not a microbenchmark.
 4. **Defense and real-time.** Find a funded design partner. Plan qualification of the
    checker, not the whole compiler, as the evidence strategy (DO-330, DO-333 and NASA
-   guidance on qualifying checkers), with counsel and a certification consultant.
+   guidance on qualifying checkers), with counsel and a certification consultant. This is
+   where the closed defense edition (section 8) is built.
 
 ## 7. Operating model: a founder with an agent team
 
@@ -340,6 +343,34 @@ very small team can execute.
   4. defense primes, once counsel and a partner exist.
 - **AI training companies** are approached at Stage 2 with demo D, not before.
 
+### The defense edition (decided 2026-10-25)
+
+beryl for defense and government real-time work is a closed, application-only edition
+built on the same architecture. The split follows the untrusted-planner, trusted-checker
+design:
+
+| Open (public) | Closed (defense edition) |
+|---|---|
+| The language and its reference semantics | The aggressive planners and schedulers |
+| The checker, the trust root | The deterministic real-time backend and timing analysis |
+| The public C backend and the guide | Certification evidence packages, and support |
+
+- Every plan the closed edition produces is still proved by the open checker, so customers
+  and evaluators can verify results without trusting closed code.
+- The edition is sold as proved, deterministic and bounded-latency. Any speed claim needs
+  measured numbers under the claims policy (section 9).
+- **Access by application.** The application records who the applicant is, their
+  country, the end use, and a restricted-party screening result. It doubles as the export
+  screening step. Counsel sets the exact criteria.
+- **Before building it:** export counsel decides whether the edition falls under EAR or,
+  if it is specially designed for military use, ITAR. ITAR could limit who may work on
+  the code and which cloud tools may touch it.
+- **Timing.** No code exists yet. Work starts with the Stage 4 defense item or a funded
+  defense design partner, whichever is first. The website and pitch do not announce the
+  edition until it exists.
+- **Licensing.** The repository has no license yet. The public part gets one when it is
+  opened, typically a permissive or Apache-2.0 license in an open-core model.
+
 ## 9. Claims policy
 
 | Stage | May claim | May not claim |
@@ -373,7 +404,9 @@ very small team can execute.
 - funding comes first;
 - AI agents are the development team;
 - AI, including training, and defense/real-time are the target markets;
-- beryl is callable from other languages.
+- beryl is callable from other languages;
+- defense and government real-time work gets a closed, application-only edition, with the
+  checker kept open (section 8).
 
 **My calls,** for the founder to check:
 - the thesis wording;
