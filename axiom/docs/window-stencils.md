@@ -255,6 +255,50 @@ let t: i64[r in 0..H,c in 0..W] = shr_round(sum(k in 0..40000: a[0,k]*w[0,k]) * 
 output y[r in 0..H,c in 0..W] = clamp(t[r,c] + 3, -128, 127);
 ```
 
+### 8-bit and 16-bit storage
+
+Inputs and the output may be stored as `u8` (0 to 255), `i8` (-128 to 127) or `i16`
+(-32768 to 32767). These are storage types only: arithmetic stays i32, or i64 in an i64
+program, so an intermediate value may be as wide as it needs. The generated kernel takes
+`uint8_t`, `int8_t` or `int16_t` arrays, which moves a quarter or half of the bytes of an
+i32 kernel.
+
+- An input still declares its range, which must lie inside its type. When the range is the
+  whole type, there is nothing to check before computing.
+- An output's value must be proved to fit its type, so saturate it with `clamp` or narrow it
+  with a shift. Without that, the program is refused with the range the output can reach.
+- Every input of a program has the same storage type, because the input buffer is one
+  array. A `let` stays i32 or i64.
+- The standalone driver refuses a token that does not fit the input type (exit 65). It never
+  wraps the value.
+- Like `min` and `max`, a program that uses them is `scale-v1`.
+
+Here a [1, 2, 1] × [1, 2, 1] blur of 8-bit pixels sums to at most 4,080, then a rounding
+shift by 4 divides by 16 and brings it back to 0..255:
+
+```ax
+module blur;
+shape H = 120;
+shape W = 100;
+input x: u8[H+2,W+2] in 0..=255;
+let p[r in 0..H+2,c in 0..W] = (x[r,c]+2*x[r,c+1])+x[r,c+2];
+output o: u8[r in 0..H,c in 0..W] = shr_round(p[r,c] + 2*p[r+1,c] + p[r+2,c], 4);
+```
+
+And the int8 dense layer, now on int8 arrays end to end: 16 output channels, each a dot
+product of 1,024 int8 activations with that channel's int8 weights, requantized and
+saturated to int8:
+
+```ax
+module dense;
+shape H = 1;
+shape W = 16;
+input a: i8[1,1024] in -128..=127;
+input k: i8[W,1024] in -127..=127;
+let t: i64[r in 0..H,c in 0..W] = shr_round(sum(j in 0..1024: a[0,j]*k[c,j]) * 1518500250, 40);
+output y: i8[r in 0..H,c in 0..W] = clamp(t[r,c] + 3, -128, 127);
+```
+
 ## Plans beryl chooses between
 
 | Plan | What it does | Storage |
@@ -282,9 +326,11 @@ Rejections name the rule and point at the offending part of the source:
 | `subtraction is only allowed in scalar expressions` | indices only go forward: `r + k` with `k >= 0` |
 | `input exceeds 256 cells` | shrink the shapes, or write a `scale-v1` program (see "Larger programs and 64-bit values") |
 | `... at most N terms fit in i32; declare the equation i64 ...` | add `: i64` to the `let` and `output` (see "Larger programs and 64-bit values") |
+| `the output ... outside its storage type u8 ...` | saturate it with `clamp` or narrow it with a shift (see "8-bit and 16-bit storage") |
 
 ## Not supported yet
 
 Conditionals and comparisons, left shifts and bitwise operators, strided reads (`x[2*r, c]`), more than two inputs,
-i64 inputs, and i64 equations in the 256-cell families.
+i64 inputs, inputs of different storage types in one program, and i64 equations or narrow
+storage in the 256-cell families.
 See `docs/reviews/2026-10-19-gaps-and-improvement-plan.md` for the plan.

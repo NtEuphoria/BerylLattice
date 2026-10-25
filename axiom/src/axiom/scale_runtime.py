@@ -49,7 +49,7 @@ def execute_loop_plan(source: bytes, plan, data, initial_output, limits: Limits 
         raise DiagnosticError('PLAN_NOT_PROVED', Span(0, 0), f'{check.reason}: {check.detail}')
     kernel = admit_source(parse_source(source, limits))
     module = kernel.source_module
-    inputs = _boundary_values(data, kernel.input_count, 'input', module.inputs[0].span)
+    inputs = _boundary_values(data, kernel.input_count, 'input', module.inputs[0].span, kernel.input_type)
     output = list(_boundary_values(initial_output, kernel.output_count, 'output', module.outputs[0].span,
                                    kernel.output_type))
     bad = first_bad_input(kernel, inputs)

@@ -4,7 +4,7 @@ import re
 import unittest
 
 from axiom.frontend import admit_source, parse_source
-from axiom.model import Limits
+from axiom.model import TYPE_BOUNDS, Limits
 from axiom.reference import evaluate_source
 from axiom.runtime import execute_plan
 from axiom.scale_c import compile_scale_native
@@ -27,7 +27,7 @@ class WindowGuideTests(unittest.TestCase):
                     data += [low + ((i * 2654435761 & 0xFFFFFFFF) >> 22) % (high - low + 1)
                              for i in range(start, start + rows * cols)]
                     start += rows * cols
-                initial = [-9] * kernel.output_count
+                initial = [max(-9, TYPE_BOUNDS[kernel.output_type][0])] * kernel.output_count
                 if kernel.profile == 'scale-v1':
                     compiled = compile_scale_native(source)
                     self.assertIsNotNone(compiled.artifact, compiled.reason)

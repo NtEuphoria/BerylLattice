@@ -14,7 +14,7 @@ from .model import (
     DiagnosticError, EquationDeclaration, Expression, GroupExpression,
     InputDeclaration, IntegerLiteral, Limits, NameReference, Objective,
     ReadExpression, SEMANTICS_VERSION, ShapeDeclaration, SourceModule, Span, SumExpression,
-    VALUE_BOUNDS,
+    STORAGE_BOUNDS, VALUE_BOUNDS,
 )
 from .canonical_profile import _canonical_profile, _normalized, _profile
 from .reduce_family import MAX_TERMS, admit_reduce, expand_small_sums, parse_sum, reduce_shape
@@ -427,9 +427,19 @@ def _validate(module):
                 _fail('INVALID_RANGE', decl.span, 'input interval is inverted')
             if not VALUE_BOUNDS['i32'][0] <= decl.input_interval[0] <= decl.input_interval[1] <= VALUE_BOUNDS['i32'][1]:
                 _fail('INVALID_RANGE', decl.span, 'an i32 input range must lie within -2147483648..=2147483647')
+            if decl.element_type in STORAGE_BOUNDS:
+                low, high = STORAGE_BOUNDS[decl.element_type]
+                if not low <= decl.input_interval[0] <= decl.input_interval[1] <= high:
+                    _fail('INVALID_RANGE', decl.span,
+                          f'a {decl.element_type} input range must lie within {low}..={high}')
             tensors[decl.name] = dimensions
         else:
-            if decl.element_type not in VALUE_BOUNDS:
+            if decl.kind == 'output' and decl.element_type in STORAGE_BOUNDS:
+                pass  # computed in i32, stored narrow once proved to fit
+            elif decl.element_type in STORAGE_BOUNDS:
+                _fail('UNSUPPORTED_TYPE', decl.name_span,
+                      'u8, i8 and i16 are storage types, for inputs and outputs; a let equation is i32 or i64')
+            elif decl.element_type not in VALUE_BOUNDS:
                 _fail('UNSUPPORTED_TYPE', decl.name_span, 'equations are i32 or i64')
             axes = {}
             for axis in decl.axes:
@@ -471,8 +481,14 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     # expanded into balanced trees, keeping their identities. Any larger
     # member, or a sum of more than 256 terms, is scale-v1 with sums as loops.
     # i64 equations are scale-v1 only: the small families emit i32 code.
-    wide = any(decl.element_type != 'i32' for decl in (*module.producers, *module.outputs))
-    small = None if wide else expand_small_sums(module)
+    wide = any(decl.element_type == 'i64' for decl in (*module.producers, *module.outputs))
+    # Narrow storage is scale-v1 only too, and the input buffer is one array.
+    storage = {decl.element_type for decl in module.inputs} | {module.outputs[0].element_type}
+    narrow = bool(storage & STORAGE_BOUNDS.keys())
+    if narrow and len({decl.element_type for decl in module.inputs}) > 1:
+        _fail('UNSUPPORTED_PROFILE', module.inputs[1].span,
+              'every input of a program has one storage type (the input buffer is one array)')
+    small = None if wide or narrow else expand_small_sums(module)
     profile = _profile(small) if small is not None else None
     canonical = profile == _canonical_profile()
     window = None if canonical or small is None else window_shape(profile)
@@ -486,9 +502,9 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
         scale = scale_shape(loops, height, width)
         if scale is not None:
             return admit_scale(module, height, width, objective, loops, scale)
-    if wide:
-        _fail('UNSUPPORTED_PROFILE', module.span, 'i64 equations need a scale-v1 program '
-              '(a stencil, map or reduction over the shapes H and W)')
+    if wide or narrow:
+        _fail('UNSUPPORTED_PROFILE', module.span, f'{"i64 equations" if wide else "u8, i8 and i16 storage"} '
+              'need a scale-v1 program (a stencil, map or reduction over the shapes H and W)')
     if small is None:
         span, message = explain(module)
         _fail('UNSUPPORTED_PROFILE', span, message)

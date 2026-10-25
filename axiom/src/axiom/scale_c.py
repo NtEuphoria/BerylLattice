@@ -6,7 +6,9 @@ source. Arithmetic is plain int32_t: the checker's interval proof shows no +,
 compiler may vectorize and reassociate accumulations. A program with an i64
 equation computes every value in int64_t instead (each node is proved to fit
 its own equation's type, so i32 nodes keep their exact values), and an i64
-output is an int64_t array. Index arithmetic is int64_t. The branch-free input preflight runs before any output is written;
+output is an int64_t array. A u8, i8 or i16 input or output is an array of
+that C type: loads promote to int, and a stored value is proved to fit.
+Index arithmetic is int64_t. The branch-free input preflight runs before any output is written;
 on rejection the first invalid index plus one is returned.
 
 Large kernels split their cells across a persistent worker pool. The proved
@@ -18,7 +20,7 @@ count. The parallel preflight completes before any cell is computed.
 from dataclasses import dataclass
 from hashlib import sha256
 
-from .model import Limits
+from .model import C_TYPES, STORAGE_BOUNDS, Limits
 from .native_codegen import _FAST_DRIVER, NativeArtifact
 from .scale_carry import c_types, carry_eligible, carry_rows_c, plan_costs, rank_key
 from .scale_plan import BINARY_KINDS, SCALE_PLAN_IDS
@@ -134,11 +136,24 @@ def _load_range(segments):
     return lookup
 
 
-def _check_c(segments):
+def _outside(ref, lo, hi, storage='i32', literal=str):
+    """C condition that `ref` is outside lo..hi.
+
+    For a u8, i8 or i16 input a bound at the type's limit is left out: no
+    stored value can fail it, and compilers warn about the always-false test.
+    """
+    if storage == 'i32':
+        return f'{ref} < {literal(lo)} || {ref} > {literal(hi)}'
+    low, high = STORAGE_BOUNDS[storage]
+    return ' || '.join([f'{ref} < {lo}'] * (lo > low) + [f'{ref} > {hi}'] * (hi < high)) or '0'
+
+
+def _check_c(segments, storage='i32'):
     """C that checks cells [from, to) of the buffer, each against its own input's range."""
     loops = ''.join(f'    {{\n        int64_t a = from > {s} ? from : {s}, b = to < {e} ? to : {e};\n'
-                    f'        for (int64_t i = a; i < b; ++i) invalid |= (uint32_t)(input[i] < {_literal(lo)} || '
-                    f'input[i] > {_literal(hi)});\n    }}\n' for s, e, lo, hi in segments)
+                    f'        for (int64_t i = a; i < b; ++i) invalid |= '
+                    f'(uint32_t)({_outside("input[i]", lo, hi, storage, _literal)});\n    }}\n'
+                    for s, e, lo, hi in segments)
     return ('\n/* Each input checked against its own declared range. */\n'
             'static uint32_t beryl_check(const int32_t *restrict input, int64_t from, int64_t to) {\n'
             '    uint32_t invalid = 0;\n' + loops + '    return invalid;\n}\n')
@@ -407,7 +422,8 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     parallel = split or (n_out >= 32 and h >= 2 and n_out * per_cell >= PARALLEL_MIN_WORK) or (
         not carry and n_out >= 32 and n_out * per_cell >= PARALLEL_MIN_WORK)
     parallel_preflight = parallel and n_in >= PARALLEL_MIN_INPUT
-    invalid = f'(uint32_t)(input[i] < {lower} || input[i] > {upper})'
+    storage = kernel.input_type
+    invalid = f'(uint32_t)({_outside("input[i]", lower, upper, storage)})'
     rows = (not carry and stage.value[0] == 'sum' and not _has_sum(stage.value[4])
             and _reads_var(stage.value[4], v1) and w >= 8)
     # Single-row outputs larger than the last-level cache: write through
@@ -415,8 +431,9 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     # overwriting it. Measured 1.5x on 4M-cell maps and 1-D stencils; 2-D
     # stencils read several input rows per output row and gained nothing
     # (sq2x2 lost), so they keep ordinary stores.
-    # The streaming copy moves int32_t cells, so i64 programs keep ordinary stores.
-    stream = not carry and not rows and not wide and h == 1 and n_out * 4 >= STREAM_MIN_BYTES
+    # The streaming copy moves int32_t cells, so other outputs keep ordinary stores.
+    stream = (not carry and not rows and not wide and out == 'int32_t' and h == 1
+              and n_out * 4 >= STREAM_MIN_BYTES)
     if carry:
         cells = carry_rows_c(plan, kernel, lambda e, s, c, p: _lower(e, s, c, p, wide, narrow))
     elif stream:
@@ -450,8 +467,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
         # checks the whole input in the same pass. Nothing is written until every
         # partial is in; on any bad value the first-bad-index scan runs as before.
         fused = _whole_input_loads(s_body, var, s_lo, s_hi, n_in)
-        check = ''.join(f' ax_bad |= (uint32_t)(input[{c} + {var}] < {_literal(load_range((c + s_lo, ()))[0])} || '
-                        f'input[{c} + {var}] > {_literal(load_range((c + s_lo, ()))[1])});'
+        check = ''.join(f' ax_bad |= (uint32_t)({_outside(f"input[{c} + {var}]", *load_range((c + s_lo, ())), storage, _literal)});'
                         for c in fused or ())
         block = narrow(stage.value) if narrow else None
         if block is None:
@@ -483,7 +499,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
                           ' &beryl_job_invalid[c]) : 0;\n' if fused else
                           f'        beryl_job_partial[c] = from < to ? beryl_partial(input, {s_lo} + from, {s_lo} + to) : 0;\n'))
     if not uniform:
-        parts.append(_check_c(segments).replace('static uint32_t beryl_check(',
+        parts.append(_check_c(segments, storage).replace('static uint32_t beryl_check(',
                                                 'static uint32_t __attribute__((unused)) beryl_check('))
     serial_check = (f'    for (int64_t i = 0; i < {n_in}; ++i) ax_invalid |= {invalid};\n' if uniform else
                     f'    ax_invalid = beryl_check(input, 0, {n_in});\n')
@@ -512,9 +528,9 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     parts.append('    uint32_t ax_invalid = 0;\n')
     scan = ('    if (ax_invalid) {\n'
             + (f'        for (int64_t i = 0; i < {n_in}; ++i)\n'
-               f'            if (input[i] < {lower} || input[i] > {upper}) return (int32_t)(i + 1);\n' if uniform else
+               f'            if ({_outside("input[i]", lower, upper, storage)}) return (int32_t)(i + 1);\n' if uniform else
                ''.join(f'        for (int64_t i = {s}; i < {e}; ++i)\n'
-                       f'            if (input[i] < {_literal(lo)} || input[i] > {_literal(hi)}) return (int32_t)(i + 1);\n'
+                       f'            if ({_outside("input[i]", lo, hi, storage, _literal)}) return (int32_t)(i + 1);\n'
                        for s, e, lo, hi in segments))
             + '    }\n')
     if fused:
@@ -571,7 +587,30 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
         end = driver.index('\n}\n', start) + 3
         driver = (driver[:start] + _PUT_I64 + driver[end:]).replace(
             'beryl_put_i32(output[i])', 'beryl_put_i64(output[i])')
-    generated = (''.join(parts) + driver).encode('ascii')
+    code = ''.join(parts)
+    in_t = C_TYPES[kernel.input_type]
+    if in_t != 'int32_t':
+        # A u8, i8 or i16 input buffer: every pointer to it takes the narrow
+        # type. Loads promote to int, so the arithmetic above is unchanged.
+        code = (code.replace('const int32_t *restrict input', f'const {in_t} *restrict input')
+                .replace('const int32_t *input', f'const {in_t} *input')
+                .replace('static const int32_t *beryl_job_input;', f'static const {in_t} *beryl_job_input;'))
+        low, high = STORAGE_BOUNDS[kernel.input_type]
+        reader = (f'/* A token must also fit {kernel.input_type}; it is refused, never wrapped. */\n'
+                  f'static int beryl_read_{kernel.input_type}({in_t} *value) {{\n'
+                  '    int32_t parsed;\n'
+                  f'    if (!beryl_read_i32(&parsed) || parsed < {low} || parsed > {high}) return 0;\n'
+                  f'    *value = ({in_t})parsed;\n'
+                  '    return 1;\n'
+                  '}\n\n')
+        anchor = 'static int beryl_end_of_input(void) {'
+        assert driver.count(anchor) == 1
+        driver = (driver.replace(anchor, reader + anchor)
+                  .replace('    static int32_t input[BERYL_INPUT_COUNT];', f'    static {in_t} input[BERYL_INPUT_COUNT];')
+                  .replace('if (!beryl_read_i32(&input[i])) return 65;',
+                           f'if (!beryl_read_{kernel.input_type}(&input[i])) return 65;'))
+        assert 'int32_t *restrict input' not in code and f'beryl_read_{kernel.input_type}(&input[i])' in driver
+    generated = (code + driver).encode('ascii')
     version = SCALE_PARALLEL_CODEGEN_VERSION if parallel else SCALE_CODEGEN_VERSION
     return NativeArtifact(generated, kernel.height, kernel.width, n_in, n_out, source_digest,
                           plan_digest, sha256(generated).hexdigest(), version, None, plan.format)

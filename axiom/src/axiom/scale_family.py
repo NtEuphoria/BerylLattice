@@ -11,7 +11,7 @@ import hashlib
 import json
 
 from .model import (AdmittedKernel, DiagnosticError, SCALE_PROFILE, SCALE_SEMANTICS_VERSION,
-                    SCALE_WIDE_SEMANTICS_VERSION)
+                    SCALE_WIDE_SEMANTICS_VERSION, STORAGE_BOUNDS)
 from .reduce_family import _dimension
 
 MAX_CELLS = 1 << 24
@@ -82,9 +82,9 @@ def scale_shape(profile, height, width):
         return None
     input_shapes = []
     for element, dimensions, interval in inputs:
-        # Any i32 range per input (the frontend keeps it inside i32); the
-        # checker bounds each read by its own input's range.
-        if element != 'i32' or len(dimensions) != 2:
+        # Any i32 range per input (the frontend keeps it inside i32 and inside
+        # a narrow storage type); the checker bounds each read by its own range.
+        if element not in ('i32', *STORAGE_BOUNDS) or len(dimensions) != 2:
             return None
         sizes = tuple(_dimension(d, shapes) for d in dimensions)
         if None in sizes:
@@ -132,6 +132,10 @@ def admit_scale(module, height, width, objective, profile, shape):
         semantics.update(semantics_version=version, value_types=types,
                          arithmetic='exact-declared-type-per-scalar-node',
                          symbolic_sum='exact-sum-every-partial-sum-in-declared-type')
+    storage = {'input': module.inputs[0].element_type, 'output': module.outputs[0].element_type}
+    if set(storage.values()) & STORAGE_BOUNDS.keys():
+        # Programs with only i32 and i64 storage keep the identities above.
+        semantics.update(storage=storage, stored_value='output-proved-to-fit-its-storage-type')
     canonical = json.dumps(semantics, sort_keys=True, separators=(',', ':'),
                            ensure_ascii=False, allow_nan=False).encode('utf-8')
     return AdmittedKernel(height, width, module.cap, module.inputs[0].input_interval,

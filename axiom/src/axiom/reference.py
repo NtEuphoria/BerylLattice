@@ -11,7 +11,7 @@ from .frontend import admit_source
 from .model import (
     BinaryExpression, DiagnosticError, EquationDeclaration, Expression,
     GroupExpression, IntegerLiteral, NameReference, ReadExpression,
-    SourceModule, Span, SumExpression, VALUE_BOUNDS,
+    STORAGE_BOUNDS, SourceModule, Span, SumExpression, TYPE_BOUNDS, VALUE_BOUNDS, arithmetic_type,
 )
 
 
@@ -61,7 +61,7 @@ def _boundary_values(values, length: int, label: str, span: Span,
     for index, value in enumerate(snapshot):
         if type(value) is not int:
             raise DiagnosticError('BOUNDARY_TYPE', span, f'{label}[{index}] must be an exact integer')
-        low, high = VALUE_BOUNDS[element_type]
+        low, high = TYPE_BOUNDS[element_type]
         if not low <= value <= high:
             raise DiagnosticError(f'BOUNDARY_{element_type.upper()}', span,
                                   f'{label}[{index}] must fit {element_type}')
@@ -117,10 +117,15 @@ def _evaluate_equation(equation: EquationDeclaration, shapes: dict[str, int],
                          _evaluate_expression(axis.upper, shapes, tensors))
                    for axis in equation.axes)
     cells = {}
+    storage = STORAGE_BOUNDS.get(equation.element_type)
     for indices in product(*bounds):
         scalars = dict(shapes)
         scalars.update((axis.name, index) for axis, index in zip(equation.axes, indices))
-        cells[indices] = _evaluate_expression(equation.expression, scalars, tensors, equation.element_type)
+        value = _evaluate_expression(equation.expression, scalars, tensors, arithmetic_type(equation.element_type))
+        if storage is not None and not storage[0] <= value <= storage[1]:
+            raise DiagnosticError(f'EVALUATION_{equation.element_type.upper()}', equation.span,
+                                  f'{equation.name} value {value} does not fit {equation.element_type}')
+        cells[indices] = value
     tensors[equation.name] = cells
     return tuple(cells.values())
 
@@ -137,7 +142,7 @@ def evaluate_source(module: SourceModule, data: tuple[int, ...] | list[int],
     if data is initial_output:
         raise DiagnosticError('BOUNDARY_ALIAS', module.span, 'input and output must be disjoint')
     input_values = _boundary_values(data, kernel.input_count,
-                                    'input', module.inputs[0].span)
+                                    'input', module.inputs[0].span, kernel.input_type)
     output_values = _boundary_values(initial_output, kernel.height * kernel.width,
                                      'output', module.outputs[0].span, kernel.output_type)
     bad = first_bad_input(kernel, input_values)

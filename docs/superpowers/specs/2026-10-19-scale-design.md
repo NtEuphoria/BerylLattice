@@ -149,13 +149,74 @@ Not yet:
 | Phase | Adds | Unlocks |
 |---|---|---|
 | 1 | template proofs, loop plans, native C loops, symbolic sums | m/l tiers of stencils, polymap, transpose, sum, matmul |
-| 2 | element types (`i64` equations and outputs), per-input intervals | dot, large sums, any input range |
+| 2 | element types (`i64` equations and outputs), per-input intervals, `u8`/`i8`/`i16` storage (done, Phase 2e) | dot, large sums, any input range, int8 and int16 arrays |
 | 3 | schedules with proof rules: materialized producer, rolling rows, tiling | separable stencils without recomputation, cache-blocked matmul |
 | 4 | loop plans in Wasm and the Python runtime; playground at scale | interactive large programs |
 | 5 | language: `max`/`min` (done, Phase 2c), right shifts and rounding (done, Phase 2d), comparisons and `select`, strided indices, several equations | maxpool, requantize, life, scan |
 
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
+
+## Phase 2e: u8, i8 and i16 storage (2026-10-25)
+
+**Language.**
+- Inputs and the output may declare `u8` (0..255), `i8` (-128..127) or `i16`
+  (-32768..32767): `input x: u8[H,W] in 0..=255;`, `output y: i8[...] = ...;`.
+- These are storage types only. Every scalar node is exact in i32, or in the declared type
+  of an i64 equation, as before; the narrow type constrains what is stored.
+- An input's declared range must lie inside its type (`INVALID_RANGE`).
+- Every input of a program has one storage type, because the buffer is one array; mixed
+  types are `UNSUPPORTED_PROFILE`.
+- A `let` stays i32 or i64; a narrow `let` is `UNSUPPORTED_TYPE`.
+- Like i64 equations, narrow storage is `scale-v1` only; the 256-cell families store i32.
+
+**Meaning.**
+- The reference evaluates an output in its arithmetic type, then requires each value to
+  fit its storage type (`EVALUATION_U8` and so on).
+- Input and initial-output values outside their storage types are boundary errors
+  (`BOUNDARY_U8`).
+- An input value inside its type but outside its declared range is the usual
+  precondition failure, with the first bad index.
+- The semantic record gains `storage: {input, output}` only when a narrow type appears.
+  So digests of existing programs are unchanged (13 checked).
+
+**Proof.** The checker computes the output template's interval in the arithmetic type as
+before. For a narrow output it also requires that interval to lie inside the storage type,
+or refuses with `ARITHMETIC_OVERFLOW`, naming the reachable range and suggesting `clamp`.
+Producers and interior output nodes may exceed the storage type: only the stored value must
+fit.
+
+**Emission.**
+- The kernel takes `const uint8_t *`, `int8_t *` or `int16_t *` arrays. Loads promote to
+  `int`, so the arithmetic text is unchanged.
+- A stored value was proved to fit, so the conversion on store is exact.
+- For a narrow input, a range bound at the type's limit is left out of the preflight,
+  since no stored value can fail it. A full-range `u8` input has no check at all.
+- The streaming copy moves `int32_t` cells, so narrow outputs keep ordinary stores.
+- The standalone driver parses each token as before, then refuses any outside the input
+  type with exit 65 instead of wrapping it. Without this, 300 would wrap to 44, a value
+  inside a `16..=235` range.
+- C for existing programs is byte-identical to the previous commit (13 programs: the
+  min/max, shift and full-range i32 ones included).
+
+**Verification** (`tests/test_scale_storage.py`):
+- admission and routing of `u8`, `i8` and `i16`, including small programs;
+- ranges outside the type, mixed input types, and narrow `let`s;
+- storage in the identity;
+- reference rounding and the refusal of values that do not fit;
+- boundaries;
+- proofs of a u8 blur, an i8 dense layer and an i16 Q15 gain;
+- refusal of each when its output may not fit;
+- direct-v1 and carry-v1 plans against the reference at the range ends;
+- the narrow kernel signature, and the elided full-range check;
+- 48 native runs at 1 and 4 threads;
+- driver runs that refuse out-of-type tokens (exit 65) and out-of-range values (exit 66).
+
+ThreadSanitizer and ASan+UBSan are clean on 68 WSL runs at 1 and 8 threads, across carry,
+parallel and serial plans.
+
+**Next for demo A.** Activations and weights now take one storage type, i8 or u8. Mixing
+u8 activations with i8 weights needs per-input buffers in the kernel ABI.
 
 ## Phase 2d: right shifts and rounding (2026-10-25)
 

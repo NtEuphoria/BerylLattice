@@ -18,6 +18,16 @@ SCALE_SEMANTICS_VERSION = 'scale-i32-v1'
 SCALE_WIDE_SEMANTICS_VERSION = 'scale-i64-v1'
 # Value types an equation may declare (`let t: i64[...]`); i32 when omitted.
 VALUE_BOUNDS = {'i32': (-2 ** 31, 2 ** 31 - 1), 'i64': (-2 ** 63, 2 ** 63 - 1)}
+# Storage-only types for scale-v1 inputs and outputs (`input x: u8[...]`,
+# `output y: i8[...]`). Arithmetic stays i32 (or i64); a value must fit to be stored.
+STORAGE_BOUNDS = {'u8': (0, 255), 'i8': (-128, 127), 'i16': (-2 ** 15, 2 ** 15 - 1)}
+TYPE_BOUNDS = {**VALUE_BOUNDS, **STORAGE_BOUNDS}
+C_TYPES = {'i32': 'int32_t', 'i64': 'int64_t', 'u8': 'uint8_t', 'i8': 'int8_t', 'i16': 'int16_t'}
+
+
+def arithmetic_type(element_type: str) -> str:
+    """The type every scalar node of an equation is exact in."""
+    return 'i32' if element_type in STORAGE_BOUNDS else element_type
 SEMANTICS_VERSIONS = (SEMANTICS_VERSION, WINDOW_SEMANTICS_VERSION, REDUCE_SEMANTICS_VERSION)
 # Families whose candidate plans come from window_planner.
 WINDOW_PLANNED_PROFILES = (WINDOW_PROFILE, REDUCE_PROFILE)
@@ -249,6 +259,11 @@ class AdmittedKernel:
     @property
     def output_type(self) -> str:
         return self.source_module.outputs[0].element_type
+
+    @property
+    def input_type(self) -> str:
+        """Storage type of the input buffer; every input of a program shares it."""
+        return self.source_module.inputs[0].element_type
 
     @property
     def wide(self) -> bool:

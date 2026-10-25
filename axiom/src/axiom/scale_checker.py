@@ -16,7 +16,8 @@ its bytes and proves, in time linear in the template (never in the data):
                and shr and shr_round (literal amounts) map their operand's ends;
                every + and * fits its equation's declared type (i32 or i64),
                and every symbolic sum satisfies terms * max|term| <= that
-               type's maximum, so any accumulation order is exact
+               type's maximum, so any accumulation order is exact; a u8, i8
+               or i16 output is computed in i32 and its value must fit that type
 
 Every cell evaluates the same template, every input shares one interval, and
 indices are affine, so these facts hold for every cell at once.
@@ -25,7 +26,8 @@ from dataclasses import dataclass
 
 from .frontend import admit_source, parse_source
 from .model import (BinaryExpression, DiagnosticError, GroupExpression, IntegerLiteral, Limits,
-                    NameReference, ReadExpression, SCALE_PROFILE, SumExpression, VALUE_BOUNDS)
+                    NameReference, ReadExpression, SCALE_PROFILE, STORAGE_BOUNDS, SumExpression, VALUE_BOUNDS,
+                    arithmetic_type)
 from .scale_plan import LOOP_PLAN_FORMAT, PLAN_KINDS, LoopPlan, Stage, loop_plan_digest
 
 SCALE_CHECKER_VERSION = 'beryl-template-checker-v1'
@@ -204,8 +206,16 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
 
         # Every producer node is bounded by the producer's type, every output
         # node by the output's; a producer read takes the producer's interval.
+        # A narrow output is computed in i32, and its value must fit its storage.
         interval(producer.expression, producer.element_type)
-        interval(output.expression, output.element_type)
+        low, high = interval(output.expression, arithmetic_type(output.element_type))
+        if output.element_type in STORAGE_BOUNDS:
+            s_low, s_high = STORAGE_BOUNDS[output.element_type]
+            if low < s_low or high > s_high:
+                raise _Stop('ARITHMETIC_OVERFLOW',
+                            f'the output {output.name!r} can reach {low}..{high}, outside its storage type '
+                            f'{output.element_type} ({s_low}..{s_high}) {range_text}; clamp it to store it '
+                            f'as {output.element_type}')
 
         # Equivalence and bounds, one walk; ranges holds each plan variable's box.
         ranges = {v0: (0, kernel.height - 1), v1: (0, kernel.width - 1)}

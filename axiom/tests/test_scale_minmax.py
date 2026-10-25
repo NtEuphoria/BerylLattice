@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 from axiom.frontend import admit_source, parse_source
-from axiom.model import DiagnosticError
+from axiom.model import C_TYPES, TYPE_BOUNDS, DiagnosticError
 from axiom.reference import evaluate_source
 from axiom.scale_c import compile_scale_native
 from axiom.scale_checker import check_loop_plan
@@ -178,9 +178,12 @@ def assert_native_matches(test, sources):
             c = Path(tmp) / f'k{number}.c'
             c.write_bytes(compiled.artifact.c_source.replace(b'int main(void)', b'int beryl_unused_main(void)'))
             exe = Path(tmp) / f'k{number}.exe'
+            # A narrow output starts from a value it can hold.
+            initial = -9 if TYPE_BOUNDS[kernel.output_type][0] <= -9 else 7
             try:
-                out = 'int64_t' if kernel.output_type == 'i64' else 'int32_t'
-                built = subprocess.run(['clang', '-O2', '-std=c11', '-Wall', '-Werror', f'-DBERYL_OUT={out}',
+                built = subprocess.run(['clang', '-O2', '-std=c11', '-Wall', '-Werror',
+                                        f'-DBERYL_IN={C_TYPES[kernel.input_type]}',
+                                        f'-DBERYL_OUT={C_TYPES[kernel.output_type]}', f'-DBERYL_INIT={initial}',
                                         str(c), str(harness), '-o', str(exe)], capture_output=True, text=True)
             except OSError as error:
                 test.skipTest(f'no C compiler: {error}')
@@ -191,9 +194,10 @@ def assert_native_matches(test, sources):
                 (None, None), ('low', None), ('high', None), (None, n - 1))
             for extreme, bad in cases:
                 data = data_for(kernel, number, extreme)
-                if bad is not None and kernel.input_intervals[-1][1] < 2 ** 31 - 1:
+                # A bad value must still fit the storage type (the driver refuses others).
+                if bad is not None and kernel.input_intervals[-1][1] < TYPE_BOUNDS[kernel.input_type][1]:
                     data[bad] = kernel.input_intervals[-1][1] + 1
-                ref = evaluate_source(kernel.source_module, data, [-9] * kernel.output_count)
+                ref = evaluate_source(kernel.source_module, data, [initial] * kernel.output_count)
                 for threads in ('1', '4'):
                     try:
                         ran = subprocess.run([str(exe), str(n), str(kernel.output_count)],

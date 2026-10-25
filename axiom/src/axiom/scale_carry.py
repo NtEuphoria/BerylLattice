@@ -13,6 +13,7 @@ r0 .. r0 + K - 2 first, then before output row r computes row r + K - 1 into
 slot (r + K - 1) mod K; rows r .. r + K - 1 are then all present. The checker
 proved r + i < producer rows and c + j < producer columns for every read.
 """
+from .model import C_TYPES
 from .scale_plan import BINARY_KINDS
 
 # The ring lives on each worker's stack; larger producer rows keep direct-v1.
@@ -23,10 +24,11 @@ def c_types(kernel):
     """C types of values and of output cells: int64_t once any equation is i64.
 
     The checker proves every node fits its own equation's type, so computing
-    an i32 node in int64_t gives the same exact value.
+    an i32 node in int64_t gives the same exact value. A u8, i8 or i16 output
+    cell holds a value the checker proved fits it, so storing it is exact.
     """
     value = 'int64_t' if kernel.wide else 'int32_t'
-    return value, 'int64_t' if kernel.output_type == 'i64' else 'int32_t'
+    return value, C_TYPES[kernel.output_type]
 
 
 def value_bytes(kernel):
