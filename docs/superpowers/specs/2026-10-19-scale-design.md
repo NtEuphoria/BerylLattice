@@ -152,10 +152,55 @@ Not yet:
 | 2 | element types (`i64` equations and outputs), per-input intervals | dot, large sums, any input range |
 | 3 | schedules with proof rules: materialized producer, rolling rows, tiling | separable stencils without recomputation, cache-blocked matmul |
 | 4 | loop plans in Wasm and the Python runtime; playground at scale | interactive large programs |
-| 5 | language: `max`/`min`, comparisons and `select`, strided indices, several equations | maxpool, life, scan |
+| 5 | language: `max`/`min` (done, Phase 2c), comparisons and `select`, strided indices, several equations | maxpool, life, scan |
 
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
+
+## Phase 2c: min, max and clamp (2026-10-25)
+
+**Language.** `min(a, b)` and `max(a, b)` are scalar nodes with the exact integer meaning.
+`clamp(x, lo, hi)` is defined as exactly `min(max(x, lo), hi)`, the way `a - b` is defined
+as `a + (-1)*b`. So clamp has no node of its own, and writing either form gives the same
+semantic identity. The parser refuses:
+- wrong argument counts (`SYNTAX_ERROR`);
+- literal clamp bounds with `lo > hi` (`INVALID_EXPRESSION`);
+- min or max in an index.
+
+The nodes are `BinaryExpression`s with operator `min` or `max`, and they appear in the
+profile as `['min', a, b]`. The 256-cell families accept only `+` and `*`, so a small
+program using them is `scale-v1`. Existing programs keep their identities, because their
+profiles contain no min or max.
+
+**Proof.** The interval of `min(a, b)` is `(min(a.lo, b.lo), min(a.hi, b.hi))`, and `max`
+works the same way with `max`. Neither can leave the type of its operands, and the
+operands are checked as before. The tighter bounds flow into sums. A sum of
+`min(x[0,k], 255)` over a 0..1023 input admits 8,421,504 terms in i32, where `x[0,k]`
+alone admits 2,099,202.
+
+**Plans and emission.**
+- Plans gain `('min', a, b)` and `('max', a, b)`.
+- The checker matches them structurally, like `add`/`mul`, so a plan that swaps min and max
+  is a `STRUCTURAL_MISMATCH`.
+- The emitter calls `static inline` `beryl_min_i32`, `beryl_max_i32` and the i64 forms.
+  They are emitted only when the plan uses them, so the C of every existing program is
+  byte-identical (checked on box, sum, int8 dot and signed box).
+- carry-v1, exact int32 blocks and the fused input check handle the new nodes.
+
+**Verification** (`tests/test_scale_minmax.py`):
+- syntax: argument counts, clamp's meaning, and inverted clamp bounds;
+- routing of small programs to `scale-v1`;
+- the overflow proof with capped and floored terms;
+- that operands are still checked;
+- the min/max swap;
+- the reference meaning on hand-computed cases;
+- direct-v1 and carry-v1 plans against the reference at the range ends;
+- a 240-mutant fuzz, in which the mutator now also swaps min and max;
+- 52 native runs at 1 and 4 threads. They cover ReLU on an int8 dot, a clamped signed
+  filter, capped sums of 2.2M terms with the fused check, and i64 min/max over the full
+  i32 input range.
+
+ThreadSanitizer and ASan+UBSan are clean on 72 WSL runs at 1 and 8 threads.
 
 ## Phase 2b: per-input ranges and the fused input check (2026-10-25)
 

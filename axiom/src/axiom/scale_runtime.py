@@ -25,6 +25,10 @@ def _value(expr, env, data, produce=None):
         return _value(expr[1], env, data, produce) + _value(expr[2], env, data, produce)
     if kind == 'mul':
         return _value(expr[1], env, data, produce) * _value(expr[2], env, data, produce)
+    if kind == 'min':
+        return min(_value(expr[1], env, data, produce), _value(expr[2], env, data, produce))
+    if kind == 'max':
+        return max(_value(expr[1], env, data, produce), _value(expr[2], env, data, produce))
     _, var, lower, upper, body = expr
     total = 0
     for term in range(lower, upper):

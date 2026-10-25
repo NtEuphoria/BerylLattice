@@ -13,6 +13,7 @@ r0 .. r0 + K - 2 first, then before output row r computes row r + K - 1 into
 slot (r + K - 1) mod K; rows r .. r + K - 1 are then all present. The checker
 proved r + i < producer rows and c + j < producer columns for every read.
 """
+from .scale_plan import BINARY_KINDS
 
 # The ring lives on each worker's stack; larger producer rows keep direct-v1.
 MAX_RING_CELLS = 32768
@@ -37,7 +38,7 @@ def _muls(expr):
     kind = expr[0]
     if kind in ('const', 'load', 'prod'):
         return 0
-    if kind in ('add', 'mul'):
+    if kind in BINARY_KINDS:
         return (kind == 'mul') + _muls(expr[1]) + _muls(expr[2])
     return (expr[3] - expr[2]) * _muls(expr[4])
 
@@ -46,7 +47,7 @@ def _ops(expr):
     kind = expr[0]
     if kind in ('const', 'load', 'prod'):
         return 1
-    if kind in ('add', 'mul'):
+    if kind in BINARY_KINDS:
         return 1 + _ops(expr[1]) + _ops(expr[2])
     return (expr[3] - expr[2]) * (1 + _ops(expr[4]))
 
@@ -56,7 +57,7 @@ def window_rows(expr):
     kind = expr[0]
     if kind == 'prod':
         return expr[1] + 1
-    if kind in ('add', 'mul'):
+    if kind in BINARY_KINDS:
         return max(window_rows(expr[1]), window_rows(expr[2]))
     if kind == 'sum':
         return window_rows(expr[4])
@@ -144,7 +145,7 @@ def _uses_row(expr, i):
     kind = expr[0]
     if kind == 'prod':
         return expr[1] == i
-    if kind in ('add', 'mul'):
+    if kind in BINARY_KINDS:
         return _uses_row(expr[1], i) or _uses_row(expr[2], i)
     if kind == 'sum':
         return _uses_row(expr[4], i)

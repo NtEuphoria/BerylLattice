@@ -72,9 +72,9 @@ def _mutate(expr, rng):
             terms = tuple(sorted((v, c + (1 if v == var else 0)) for v, c in terms))
             return ('load', (constant, terms))
         return ('load', (constant + rng.choice((-1, 1)), terms))
-    if kind in ('add', 'mul'):
+    if kind in ('add', 'mul', 'min', 'max'):
         if choice < 0.2:
-            return ('mul' if kind == 'add' else 'add', expr[1], expr[2])
+            return ({'add': 'mul', 'mul': 'add', 'min': 'max', 'max': 'min'}[kind], expr[1], expr[2])
         if choice < 0.3:
             return (kind, expr[2], expr[1])
         if choice < 0.65:

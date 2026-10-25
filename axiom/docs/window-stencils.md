@@ -190,6 +190,42 @@ output d[r in 0..H,c in 0..W] = t[r,c];
 At 70,000 terms the same program is refused, with the number of terms that fit. The
 256-cell families keep `0..=1023`, so a small program with another range becomes `scale-v1`.
 
+### min, max and clamp
+
+`min(a, b)` and `max(a, b)` are the exact integer minimum and maximum. They cannot
+overflow, but their operands are checked like any other node. `clamp(x, lo, hi)` is
+defined as exactly `min(max(x, lo), hi)`; literal bounds with `lo > hi` are refused.
+All three work anywhere in a scalar expression, inside sums included, but not in indices.
+
+The checker carries their bounds through the proof. `max(t, 0)` is at least 0, and
+`min(x, 255)` is at most 255, so a sum of `min(x[0,k], 255)` may have four times as many
+terms as a sum of `x[0,k]` before it can overflow. Here a quantized dense-layer cell
+applies ReLU to its int8 dot product:
+
+```ax
+module relu;
+shape H = 1;
+shape W = 1;
+input a: i32[1,40000] in 0..=255;
+input w: i32[1,40000] in -128..=127;
+let t[r in 0..H,c in 0..W] = sum(k in 0..40000: a[0,k]*w[0,k]);
+output y[r in 0..H,c in 0..W] = max(t[r,c], 0);
+```
+
+And a signed edge filter whose result is clamped back into 8 bits:
+
+```ax
+module sharpen;
+shape H = 30;
+shape W = 25;
+input x: i32[H+2,W+2] in -1000..=1000;
+let p[r in 0..H+2,c in 0..W] = (x[r,c]+2*x[r,c+1])+x[r,c+2];
+output o[r in 0..H,c in 0..W] = clamp(4*p[r+1,c] - p[r,c] - p[r+2,c], 0, 255);
+```
+
+The 256-cell families have no `min` or `max`, so a small program that uses them becomes
+`scale-v1`.
+
 ## Plans beryl chooses between
 
 | Plan | What it does | Storage |
@@ -220,6 +256,6 @@ Rejections name the rule and point at the offending part of the source:
 
 ## Not supported yet
 
-Conditionals, comparisons and `max`, strided reads (`x[2*r, c]`), more than two inputs,
+Conditionals and comparisons, shifts, strided reads (`x[2*r, c]`), more than two inputs,
 i64 inputs, and i64 equations in the 256-cell families.
 See `docs/reviews/2026-10-19-gaps-and-improvement-plan.md` for the plan.

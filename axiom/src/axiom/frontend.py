@@ -182,6 +182,8 @@ class _Parser:
         name = self.identifier()
         if scalar and name.text == 'sum' and self.token.text == '(':
             return parse_sum(self, name, nesting)
+        if scalar and name.text in ('min', 'max', 'clamp') and self.token.text == '(':
+            return self.call(name, nesting)
         if scalar and self.token.text == '[':
             self.take('[')
             indices = [self.expression(False, nesting+1)]
@@ -191,6 +193,32 @@ class _Parser:
             self.take(']')
             return self.node(ReadExpression(name.text, tuple(indices), self.span_from(name.span), name.span), indices)
         return self.node(NameReference(name.text, name.span))
+
+    def call(self, name, nesting):
+        """`min(a, b)` and `max(a, b)` are binary nodes with operator 'min' or 'max'.
+
+        `clamp(x, lo, hi)` is defined as exactly `min(max(x, lo), hi)`, like
+        subtraction: checking and every backend see only min and max.
+        """
+        if nesting >= 32:
+            _fail('EXPRESSION_DEPTH_LIMIT', name.span, 'expression nesting exceeds 32')
+        self.take('(')
+        arguments = [self.expression(True, nesting+1)]
+        while self.token.text == ',':
+            self.take(',')
+            arguments.append(self.expression(True, nesting+1))
+        self.take(')')
+        span = self.span_from(name.span)
+        if len(arguments) != (3 if name.text == 'clamp' else 2):
+            _fail('SYNTAX_ERROR', span, f'{name.text} takes {3 if name.text == "clamp" else 2} arguments')
+        if name.text != 'clamp':
+            return self.node(BinaryExpression(name.text, *arguments, span), arguments)
+        value, lower, upper = arguments
+        low, high = _ungroup(lower), _ungroup(upper)
+        if isinstance(low, IntegerLiteral) and isinstance(high, IntegerLiteral) and low.value > high.value:
+            _fail('INVALID_EXPRESSION', span, 'clamp needs its lower bound <= its upper bound')
+        inner = self.node(BinaryExpression('max', value, lower, span), (value, lower))
+        return self.node(BinaryExpression('min', inner, upper, span), (inner, upper))
 
     def parse(self):
         self.take('module')

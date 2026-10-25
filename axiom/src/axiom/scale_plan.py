@@ -8,6 +8,7 @@ scale_checker proves a plan against the source before anything emits it.
     LoopPlan(semantic_digest, plan_id, stages)
     Stage(loops=((var, extent), ...), index=Affine, value=Expr)
     Expr   = ('const', v) | ('load', Affine) | ('add', a, b) | ('mul', a, b)
+           | ('min', a, b) | ('max', a, b)
            | ('sum', var, lower, upper, body)
            | ('prod', i, j)   carry-v1 output only: the producer at (r+i, c+j)
     Affine = (constant, ((var, coefficient), ...))  canonical: sorted vars,
@@ -28,6 +29,9 @@ LOOP_PLAN_FORMAT = 'beryl-loop-plan-v1'
 #            (K = 1 + largest i), so each producer cell is computed once.
 #            This generalizes the performance report's carry1 (K = 2).
 SCALE_PLAN_IDS = ('direct-v1', 'carry-v1')
+# Plan node kind of each source binary operator.
+PLAN_KINDS = {'+': 'add', '*': 'mul', 'min': 'min', 'max': 'max'}
+BINARY_KINDS = tuple(PLAN_KINDS.values())
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,7 +129,7 @@ def make_scale_plan(kernel: AdmittedKernel, plan_id: str = 'direct-v1', *,
         if isinstance(node, IntegerLiteral):
             return ('const', node.value)
         if isinstance(node, BinaryExpression):
-            return ('add' if node.operator == '+' else 'mul', lower(node.left, env), lower(node.right, env))
+            return (PLAN_KINDS[node.operator], lower(node.left, env), lower(node.right, env))
         if isinstance(node, SumExpression):
             var = next(fresh)
             return ('sum', var, node.lower, node.upper,
@@ -157,7 +161,7 @@ def make_scale_plan(kernel: AdmittedKernel, plan_id: str = 'direct-v1', *,
         if isinstance(node, IntegerLiteral):
             return ('const', node.value)
         if isinstance(node, BinaryExpression):
-            return ('add' if node.operator == '+' else 'mul', windowed(node.left), windowed(node.right))
+            return (PLAN_KINDS[node.operator], windowed(node.left), windowed(node.right))
         if isinstance(node, ReadExpression) and node.name == producer.name:
             row, col = (index(i, env) for i in node.indices)
             if row[1] != (('r', 1),) or col[1] != (('c', 1),):

@@ -12,6 +12,7 @@ its bytes and proves, in time linear in the template (never in the data):
   bounds       every load's affine minimum and maximum over its variable box
                lies within the input buffer
   arithmetic   interval analysis over the template from the input interval:
+               min and max take the min and max of their operands' ends;
                every + and * fits its equation's declared type (i32 or i64),
                and every symbolic sum satisfies terms * max|term| <= that
                type's maximum, so any accumulation order is exact
@@ -24,7 +25,7 @@ from dataclasses import dataclass
 from .frontend import admit_source, parse_source
 from .model import (BinaryExpression, DiagnosticError, GroupExpression, IntegerLiteral, Limits,
                     NameReference, ReadExpression, SCALE_PROFILE, SumExpression, VALUE_BOUNDS)
-from .scale_plan import LOOP_PLAN_FORMAT, LoopPlan, Stage, loop_plan_digest
+from .scale_plan import LOOP_PLAN_FORMAT, PLAN_KINDS, LoopPlan, Stage, loop_plan_digest
 
 SCALE_CHECKER_VERSION = 'beryl-template-checker-v1'
 
@@ -167,6 +168,10 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
                 (a, b), (c, d) = interval(node.left, element_type), interval(node.right, element_type)
                 if node.operator == '+':
                     result = (a + c, b + d)
+                elif node.operator == 'min':
+                    result = (min(a, c), min(b, d))
+                elif node.operator == 'max':
+                    result = (max(a, c), max(b, d))
                 else:
                     ends = (a * c, a * d, b * c, b * d)
                     result = (min(ends), max(ends))
@@ -231,7 +236,7 @@ def check_loop_plan(source: bytes, plan: LoopPlan, limits: Limits = Limits()) ->
             if isinstance(s, IntegerLiteral):
                 return p == ('const', s.value) and type(p[1]) is int
             if isinstance(s, BinaryExpression):
-                if p[0] != ('add' if s.operator == '+' else 'mul') or len(p) != 3:
+                if p[0] != PLAN_KINDS[s.operator] or len(p) != 3:
                     return False
                 muls += p[0] == 'mul'
                 return same(p[1], s.left, env, depth + 1) and same(p[2], s.right, env, depth + 1)

@@ -21,7 +21,7 @@ from hashlib import sha256
 from .model import Limits
 from .native_codegen import _FAST_DRIVER, NativeArtifact
 from .scale_carry import c_types, carry_eligible, carry_rows_c, plan_costs, rank_key
-from .scale_plan import SCALE_PLAN_IDS
+from .scale_plan import BINARY_KINDS, SCALE_PLAN_IDS
 from .scale_pool import _POOL
 from .scale_checker import check_loop_plan
 from .scale_plan import make_scale_plan
@@ -63,6 +63,22 @@ _PUT_I64 = '''static int beryl_put_i64(int64_t value) {
     return 1;
 }
 '''
+
+# Exact min and max; operands are already proved to fit the value type.
+_MINMAX = '''
+static inline int32_t __attribute__((unused)) beryl_min_i32(int32_t a, int32_t b) { return a < b ? a : b; }
+static inline int32_t __attribute__((unused)) beryl_max_i32(int32_t a, int32_t b) { return a > b ? a : b; }
+static inline int64_t __attribute__((unused)) beryl_min_i64(int64_t a, int64_t b) { return a < b ? a : b; }
+static inline int64_t __attribute__((unused)) beryl_max_i64(int64_t a, int64_t b) { return a > b ? a : b; }
+'''
+
+
+def _uses_minmax(expr):
+    if expr[0] in ('min', 'max'):
+        return True
+    if expr[0] in BINARY_KINDS:
+        return _uses_minmax(expr[1]) or _uses_minmax(expr[2])
+    return expr[0] == 'sum' and _uses_minmax(expr[4])
 
 
 def _affine(value):
@@ -128,12 +144,14 @@ def _narrow_block(expr, load_range, prod_interval=None):
             result = load_range(e[1])
         elif kind == 'prod':
             result = prod_interval
-        elif kind in ('add', 'mul'):
+        elif kind in BINARY_KINDS:
             a, b = interval(e[1]), interval(e[2])
             if a is None or b is None:
                 return None
             ends = (a[0] * b[0], a[0] * b[1], a[1] * b[0], a[1] * b[1])
-            result = (a[0] + b[0], a[1] + b[1]) if kind == 'add' else (min(ends), max(ends))
+            result = {'add': (a[0] + b[0], a[1] + b[1]), 'mul': (min(ends), max(ends)),
+                      'min': (min(a[0], b[0]), min(a[1], b[1])),
+                      'max': (max(a[0], b[0]), max(a[1], b[1]))}[kind]
         else:
             body = interval(e[4])
             if body is None or (e[3] - e[2]) * max(abs(body[0]), abs(body[1])) > _I32_MAX:
@@ -162,11 +180,12 @@ def _lower(expr, statements, counter, prod=None, wide=False, narrow=None):
         return f'((int64_t){_literal(expr[1])})' if wide else _literal(expr[1])
     if kind == 'load':
         return f'(int64_t)input[{_affine(expr[1])}]' if wide else f'input[{_affine(expr[1])}]'
-    if kind in ('add', 'mul'):
-        operator = '+' if kind == 'add' else '*'
+    if kind in BINARY_KINDS:
         left = _lower(expr[1], statements, counter, prod, wide, narrow)
         right = _lower(expr[2], statements, counter, prod, wide, narrow)
-        return f'({left} {operator} {right})'
+        if kind in ('min', 'max'):
+            return f'beryl_{kind}_{"i64" if wide else "i32"}({left}, {right})'
+        return f'({left} {"+" if kind == "add" else "*"} {right})'
     _, var, lower, upper, body = expr
     name = f'ax_s{next(counter)}'
     block = narrow(expr) if wide and narrow else None
@@ -212,7 +231,7 @@ def _whole_input_loads(body, var, lower, upper, n_in):
             if terms != ((var, 1),):
                 return None
             loads.add(constant)
-        elif e[0] in ('add', 'mul'):
+        elif e[0] in BINARY_KINDS:
             pending.extend((e[1], e[2]))
         elif e[0] != 'const':
             return None
@@ -229,7 +248,7 @@ def _work_estimate(expr):
     kind = expr[0]
     if kind in ('const', 'load'):
         return 1
-    if kind in ('add', 'mul'):
+    if kind in BINARY_KINDS:
         return 1 + _work_estimate(expr[1]) + _work_estimate(expr[2])
     return (expr[3] - expr[2]) * (1 + _work_estimate(expr[4]))
 
@@ -237,13 +256,13 @@ def _work_estimate(expr):
 def _has_sum(expr):
     if expr[0] == 'sum':
         return True
-    return expr[0] in ('add', 'mul') and (_has_sum(expr[1]) or _has_sum(expr[2]))
+    return expr[0] in BINARY_KINDS and (_has_sum(expr[1]) or _has_sum(expr[2]))
 
 
 def _reads_var(expr, var):
     if expr[0] == 'load':
         return any(name == var for name, _ in expr[1][1])
-    if expr[0] in ('add', 'mul'):
+    if expr[0] in BINARY_KINDS:
         return _reads_var(expr[1], var) or _reads_var(expr[2], var)
     return expr[0] == 'sum' and _reads_var(expr[4], var)
 
@@ -392,6 +411,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     parts = [_HEADER.replace('PLAN_ID', plan.plan_id),
              f'enum {{ BERYL_HEIGHT = {kernel.height}, BERYL_WIDTH = {kernel.width},\n'
              f'       BERYL_INPUT_COUNT = {n_in}, BERYL_OUTPUT_COUNT = {n_out} }};\n',
+             *((_MINMAX,) if any(_uses_minmax(s.value) for s in plan.stages) else ()),
              cells]
     split_chunk = ''
     fused = None
