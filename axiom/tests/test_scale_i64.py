@@ -199,7 +199,7 @@ class I64ProofTests(unittest.TestCase):
 class I64NativeTests(unittest.TestCase):
     def test_emitted_c_is_int64(self):
         artifact = compile_scale_native(wide(SUM.format(n=1 << 20))).artifact
-        self.assertEqual(artifact.codegen_version, 'beryl-loop-c-parallel-v1')
+        self.assertEqual(artifact.codegen_version, 'beryl-loop-c-parallel-v2')
         for text in (b'static int64_t beryl_partial(', b'static int64_t beryl_job_partial',
                      b'int32_t beryl_kernel(const int32_t *restrict input, int64_t *restrict output)',
                      b'static int beryl_put_i64(int64_t value)'):

@@ -141,11 +141,11 @@ class ScaleFamilyTests(unittest.TestCase):
         source = SUM.format(n=1 << 20).encode()
         compiled = compile_native_source(source)
         # A large single-cell sum splits its range across the worker pool.
-        self.assertEqual(compiled.artifact.codegen_version, 'beryl-loop-c-parallel-v1')
+        self.assertEqual(compiled.artifact.codegen_version, 'beryl-loop-c-parallel-v2')
         self.assertIn(b'static int32_t beryl_partial(', compiled.artifact.c_source)
         self.assertIn(b'beryl_claim_chunks', compiled.artifact.c_source)
         small = compile_native_source(SUM.format(n=300).encode()).artifact
-        self.assertEqual(small.codegen_version, 'beryl-loop-c-v1')  # below the parallel threshold
+        self.assertEqual(small.codegen_version, 'beryl-loop-c-v2')  # below the parallel threshold
         self.assertEqual(compiled.artifact.input_count, 1 << 20)
         self.assertIn(b'for (int32_t s0 = 0; s0 < 1048576; ++s0)', compiled.artifact.c_source)
         with self.assertRaises(DiagnosticError):

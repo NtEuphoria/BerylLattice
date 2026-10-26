@@ -157,6 +157,49 @@ Not yet:
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
 
+## Phase 2f: a cheaper check and better cell orders (2026-10-25)
+
+Phase 1 of `2026-10-25-ml-scale-cpu-core-design.md`. Only the emitted C changes, so codegen
+is now `beryl-loop-c-v2` (and `-parallel-v2`). Admission, semantic digests (13 checked) and
+the checker are unchanged.
+
+**The input check.**
+- `(uint32_t)(v - lo) > hi - lo` holds exactly for the `v` outside `lo..hi`, when both
+  are in i32. So one unsigned maximum per value decides a range, and the reduction
+  vectorizes.
+- The preflight, the per-chunk check, the per-input `beryl_check` and the fused sum check
+  all use it now. The first-bad-index scan, which runs only on failure, is unchanged.
+- A range that covers its whole storage type, whether i32 or narrow, has no check.
+- Measured on one thread with AVX2: 4.0 → 2.9 µs on a 65,536-value sum, whose time with no
+  check at all is 2.8 µs. Large inputs remain bound by reading the input twice. That is
+  what the opt-in fused contract in the design addresses.
+
+**Cell orders.** These are emission strategies, like row accumulation and streaming, so they
+are on the "argued and tested, not checked" list. Every cell is a pure function of its
+position and is written once, so any order that covers each cell once stores the same output.
+- *Tiles.* When a load outside any sum moves more than one cell per column step (a
+  transpose), output rows are computed in 16 × 16 tiles. Edge tiles are clamped, and work
+  is split across threads by tile rows. 2048 × 2048 transpose: 34.4 → 9.0 ms in WSL with
+  gcc. Tiles of 16 beat 8, 32 and 64.
+- *Per-cell sums.* Row accumulation is chosen only when no load in the sum body is strided
+  in the column variable. Weights stored `[out, in]`, as `torch.nn.Linear` stores them,
+  are contiguous in the sum variable instead, so each cell keeps its own inner sum. On a
+  1024 × 4096 int8 dense layer: 12.6 → 0.71 ms, with identical outputs. Matmul keeps row
+  accumulation.
+
+**Verification.**
+- `tests/test_scale_check.py`: emitted checks, no check for full-type ranges, per-input
+  checks, the fused accumulators, and native first-bad-index runs at each input's ends and
+  at the type extremes, at 1 and 4 threads.
+- `tests/test_scale_tiles.py`: when tiles and per-cell sums apply, and native agreement on
+  edge tiles, a lone partial tile, and parallel sizes.
+- The 129 related tests pass.
+- TSan and ASan+UBSan are clean on 264 WSL runs: the new paths plus the storage and shift
+  sets.
+
+**Benchmarks** are in `docs/reviews/2026-10-25-matched-benchmarks.md`, section "AVX2 and
+the first speed fixes".
+
 ## Phase 2e: u8, i8 and i16 storage (2026-10-25)
 
 **Language.**

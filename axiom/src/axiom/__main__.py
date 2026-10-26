@@ -99,6 +99,7 @@ def _native(args):
     """Compile source to checked native C, and optionally to an executable."""
     import os
     import subprocess
+    from .scale_c import SCALE_PARALLEL_CODEGEN_VERSION
     from .source_compilation import compile_native_source
     limits=Limits()
     source=_read(args.source,limits.source_bytes)
@@ -113,7 +114,7 @@ def _native(args):
     out.write_bytes(artifact.c_source)
     kernel=compiled.kernel
     result={'status':'compiled','c':str(out),'family':kernel.profile,'codegen_version':artifact.codegen_version,
-            'parallel':artifact.codegen_version.endswith('parallel-v1'),
+            'parallel':artifact.codegen_version==SCALE_PARALLEL_CODEGEN_VERSION,
             'height':kernel.height,'width':kernel.width,
             'input_count':artifact.input_count,'output_count':artifact.output_count,
             'c_sha256':artifact.c_digest}

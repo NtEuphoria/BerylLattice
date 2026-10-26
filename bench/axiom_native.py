@@ -1,7 +1,7 @@
 """Axiom native backend for the benchmark protocol: check once, then run many.
 
 argv: kernel pattern a b min_ms max_reps [cap] [objective]
-env:  BENCH_CC (default clang), BENCH_CFLAGS (default -O3)
+env:  BENCH_CC (default clang), BENCH_CFLAGS (default -O3; bench/run.py passes its --cflags, -O3 -march=native by default)
 
 Compile time, logged as `compile_ns`, is everything before the first run:
 compile_native_source (fresh admission, ranked checked selection, C emission;

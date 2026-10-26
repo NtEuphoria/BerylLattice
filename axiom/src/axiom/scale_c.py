@@ -20,7 +20,7 @@ count. The parallel preflight completes before any cell is computed.
 from dataclasses import dataclass
 from hashlib import sha256
 
-from .model import C_TYPES, STORAGE_BOUNDS, Limits
+from .model import C_TYPES, STORAGE_BOUNDS, TYPE_BOUNDS, Limits
 from .native_codegen import _FAST_DRIVER, NativeArtifact
 from .scale_carry import c_types, carry_eligible, carry_rows_c, plan_costs, rank_key
 from .scale_plan import BINARY_KINDS, SCALE_PLAN_IDS
@@ -29,14 +29,17 @@ from .scale_checker import check_loop_plan
 from .scale_plan import make_scale_plan
 from .frontend import admit_source, parse_source
 
-SCALE_CODEGEN_VERSION = 'beryl-loop-c-v1'
-SCALE_PARALLEL_CODEGEN_VERSION = 'beryl-loop-c-parallel-v1'
+# v2: the input check is one unsigned maximum per value (see _OUTSIDE).
+SCALE_CODEGEN_VERSION = 'beryl-loop-c-v2'
+SCALE_PARALLEL_CODEGEN_VERSION = 'beryl-loop-c-parallel-v2'
 # Below this many estimated scalar operations a call stays single-threaded:
 # a pool dispatch costs about a microsecond, so tiny kernels would lose.
 PARALLEL_MIN_WORK = 1 << 16
 PARALLEL_MIN_INPUT = 1 << 16
 # Outputs at least this large bypass the cache with non-temporal stores.
 STREAM_MIN_BYTES = 8 << 20
+# Side of the square tiles for column-strided loads (see _tiled_rows).
+TILE = 16
 
 _HEADER = '''/* Generated from a template-checked scale-v1 loop plan (PLAN_ID). */
 #include <ctype.h>
@@ -148,12 +151,40 @@ def _outside(ref, lo, hi, storage='i32', literal=str):
     return ' || '.join([f'{ref} < {lo}'] * (lo > low) + [f'{ref} > {hi}'] * (hi < high)) or '0'
 
 
+# (uint32_t)(v - lo) exceeds hi - lo for exactly the v outside lo..hi (both in
+# i32), so one unsigned maximum per value decides a whole range and vectorizes;
+# measured 4.0 -> 2.9 us on a 65,536-value sum whose unchecked time is 2.8 us.
+_OUTSIDE = '''
+/* 1 if some input[from..to) lies outside lo..lo + width. */
+static inline uint32_t __attribute__((unused)) beryl_outside(const int32_t *restrict input, int64_t from, int64_t to,
+                                                             int32_t lo, uint32_t width) {
+    uint32_t top = 0;
+    for (int64_t i = from; i < to; ++i) {
+        uint32_t v = (uint32_t)input[i] - (uint32_t)lo;
+        top = v > top ? v : top;
+    }
+    return (uint32_t)(top > width);
+}
+'''
+
+
+def _needs_check(lo, hi, storage):
+    """No value of the storage type can lie outside a range that covers the type."""
+    return (lo, hi) != TYPE_BOUNDS[storage]
+
+
+def _range_check(start, end, lo, hi, storage):
+    """C for 1 when some input[start..end) lies outside lo..hi, or '0'."""
+    if not _needs_check(lo, hi, storage):
+        return '0'
+    return f'beryl_outside(input, {start}, {end}, {_literal(lo)}, {hi - lo}u)'
+
+
 def _check_c(segments, storage='i32'):
     """C that checks cells [from, to) of the buffer, each against its own input's range."""
     loops = ''.join(f'    {{\n        int64_t a = from > {s} ? from : {s}, b = to < {e} ? to : {e};\n'
-                    f'        for (int64_t i = a; i < b; ++i) invalid |= '
-                    f'(uint32_t)({_outside("input[i]", lo, hi, storage, _literal)});\n    }}\n'
-                    for s, e, lo, hi in segments)
+                    f'        if (a < b) invalid |= {_range_check("a", "b", lo, hi, storage)};\n    }}\n'
+                    for s, e, lo, hi in segments if _needs_check(lo, hi, storage))
     return ('\n/* Each input checked against its own declared range. */\n'
             'static uint32_t beryl_check(const int32_t *restrict input, int64_t from, int64_t to) {\n'
             '    uint32_t invalid = 0;\n' + loops + '    return invalid;\n}\n')
@@ -302,6 +333,40 @@ def _has_sum(expr):
     return expr[0] in BINARY_KINDS and (_has_sum(expr[1]) or _has_sum(expr[2]))
 
 
+def _strided_in(expr, var):
+    """Some load outside any sum moves more than one cell as `var` steps by one."""
+    if expr[0] == 'load':
+        return any(name == var and abs(k) > 1 for name, k in expr[1][1])
+    return expr[0] in BINARY_KINDS and (_strided_in(expr[1], var) or _strided_in(expr[2], var))
+
+
+def _tiled_rows(stage, v0, v1, w, statements, value, out):
+    """Rows loop that computes output rows [r0, r1) in TILE x TILE tiles.
+
+    For a load strided along the columns (a transpose), a tile reuses every
+    cache line it brings in. Edge tiles are clamped, so each (v0, v1) with v0 in
+    [r0, r1) and v1 in [0, W) is computed exactly once. Every cell is a pure
+    function of its position, so this order stores exactly what row-major
+    order does. Measured 34.4 -> 9.0 ms on a 2048 x 2048 transpose (gcc,
+    AVX2, one thread); 16 beat 8, 32 and 64.
+    """
+    inner = ''.join(f'                {line}\n' for line in statements)
+    return (f'\n/* Compute output rows [r0, r1) in {TILE} x {TILE} tiles. */\n'
+            f'static void beryl_rows(const int32_t *restrict input, {out} *restrict output, int64_t r0, int64_t r1) {{\n'
+            f'    for (int32_t ax_rb = (int32_t)r0; ax_rb < (int32_t)r1; ax_rb += {TILE}) {{\n'
+            f'        int32_t ax_re = (int32_t)r1 - ax_rb < {TILE} ? (int32_t)r1 : ax_rb + {TILE};\n'
+            f'        for (int32_t ax_cb = 0; ax_cb < {w}; ax_cb += {TILE}) {{\n'
+            f'            int32_t ax_ce = {w} - ax_cb < {TILE} ? {w} : ax_cb + {TILE};\n'
+            f'            for (int32_t {v0} = ax_rb; {v0} < ax_re; ++{v0})\n'
+            f'            for (int32_t {v1} = ax_cb; {v1} < ax_ce; ++{v1}) {{\n'
+            f'{inner}'
+            f'                output[{_affine(stage.index)}] = {value};\n'
+            '            }\n'
+            '        }\n'
+            '    }\n'
+            '}\n')
+
+
 def _reads_var(expr, var):
     if expr[0] == 'load':
         return any(name == var for name, _ in expr[1][1])
@@ -406,8 +471,8 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     counter = iter(range(1 << 30))
     segments = _segments(kernel)
     load_range = _load_range(segments)
-    # One shared range keeps the inline checks (and the bytes) of earlier releases.
-    uniform = len({(lo, hi) for _, _, lo, hi in segments}) == 1
+    # One shared range: a single check over the whole buffer.
+    uniform =len({(lo, hi) for _, _, lo, hi in segments}) == 1
     lower, upper = segments[0][2], segments[0][3]
     prod_interval = _narrow_block(plan.stages[0].value, load_range) if carry else None
     narrow = (lambda e: _narrow_block(e, load_range, prod_interval)) if wide else None
@@ -423,9 +488,14 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
         not carry and n_out >= 32 and n_out * per_cell >= PARALLEL_MIN_WORK)
     parallel_preflight = parallel and n_in >= PARALLEL_MIN_INPUT
     storage = kernel.input_type
-    invalid = f'(uint32_t)({_outside("input[i]", lower, upper, storage)})'
+    checked = any(_needs_check(lo, hi, storage) for _, _, lo, hi in segments)
+    # Row accumulation makes the column loop innermost, so it suits bodies whose
+    # loads are contiguous in v1 (matmul). A load strided in v1, such as weights
+    # stored [out, in], is contiguous in the sum variable instead, so each cell
+    # keeps its own inner sum: measured 12.6 -> 0.71 ms on a 1024 x 4096 int8
+    # dense layer (gcc, AVX2, one thread).
     rows = (not carry and stage.value[0] == 'sum' and not _has_sum(stage.value[4])
-            and _reads_var(stage.value[4], v1) and w >= 8)
+            and _reads_var(stage.value[4], v1) and not _strided_in(stage.value[4], v1) and w >= 8)
     # Single-row outputs larger than the last-level cache: write through
     # non-temporal stores, which skip reading each output line before
     # overwriting it. Measured 1.5x on 4M-cell maps and 1-D stencils; 2-D
@@ -434,8 +504,12 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     # The streaming copy moves int32_t cells, so other outputs keep ordinary stores.
     stream = (not carry and not rows and not wide and out == 'int32_t' and h == 1
               and n_out * 4 >= STREAM_MIN_BYTES)
+    tiled = (not carry and not split and not rows and not stream and h >= TILE and w >= TILE
+             and _strided_in(stage.value, v1))
     if carry:
         cells = carry_rows_c(plan, kernel, lambda e, s, c, p: _lower(e, s, c, p, wide, narrow))
+    elif tiled:
+        cells = _tiled_rows(stage, v0, v1, w, statements, value, out)
     elif stream:
         cells = _streaming_cells(stage, v0, v1, w, body, value)
     else:
@@ -458,6 +532,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
              f'       BERYL_INPUT_COUNT = {n_in}, BERYL_OUTPUT_COUNT = {n_out} }};\n',
              *((_MINMAX,) if any(_uses(s.value, ('min', 'max')) for s in plan.stages) else ()),
              *((_SHIFTS,) if any(_uses(s.value, ('shr', 'shr_round')) for s in plan.stages) else ()),
+             *((_OUTSIDE,) if checked else ()),
              cells]
     split_chunk = ''
     fused = None
@@ -467,8 +542,11 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
         # checks the whole input in the same pass. Nothing is written until every
         # partial is in; on any bad value the first-bad-index scan runs as before.
         fused = _whole_input_loads(s_body, var, s_lo, s_hi, n_in)
-        check = ''.join(f' ax_bad |= (uint32_t)({_outside(f"input[{c} + {var}]", *load_range((c + s_lo, ())), storage, _literal)});'
-                        for c in fused or ())
+        # One unsigned maximum per load that needs a check (see _OUTSIDE).
+        tracked = [(j, c, *load_range((c + s_lo, ()))) for j, c in enumerate(fused or ())
+                   if _needs_check(*load_range((c + s_lo, ())), storage)]
+        check = ''.join(f' {{ uint32_t ax_v = (uint32_t)input[{c} + {var}] - (uint32_t){_literal(lo)};'
+                        f' ax_u{j} = ax_v > ax_u{j} ? ax_v : ax_u{j}; }}' for j, c, lo, hi in tracked)
         block = narrow(stage.value) if narrow else None
         if block is None:
             term = _lower(s_body, [], iter(range(1 << 30)), None, wide)
@@ -482,8 +560,10 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
                     f'        for (int32_t {var} = (int32_t)ax_k; {var} < (int32_t)ax_e; ++{var}) {{ ax_b += {term};{check} }}\n'
                     '        acc += ax_b;\n'
                     '    }\n')
-        bad_param, bad_init, bad_out = ((', uint32_t *bad)', '    uint32_t ax_bad = 0;\n', '    *bad = ax_bad;\n')
-                                        if fused else (')', '', ''))
+        bad_param, bad_init, bad_out = (
+            (', uint32_t *bad)', ''.join(f'    uint32_t ax_u{j} = 0;\n' for j, *_ in tracked),
+             '    *bad = ' + (' | '.join(f'(uint32_t)(ax_u{j} > {hi - lo}u)' for j, _, lo, hi in tracked) or '0') + ';\n')
+            if fused else (')', '', ''))
         parts.append('\n/* Partial sum of the single cell over [from, to) of its sum range'
                      + (', checking each value it adds' if fused else '') + '. */\n'
                      f'static {val} beryl_partial(const int32_t *restrict input, int64_t from, int64_t to{bad_param} {{\n'
@@ -501,12 +581,10 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     if not uniform:
         parts.append(_check_c(segments, storage).replace('static uint32_t beryl_check(',
                                                 'static uint32_t __attribute__((unused)) beryl_check('))
-    serial_check = (f'    for (int64_t i = 0; i < {n_in}; ++i) ax_invalid |= {invalid};\n' if uniform else
+    serial_check = (f'    ax_invalid = {_range_check(0, n_in, lower, upper, storage)};\n' if uniform else
                     f'    ax_invalid = beryl_check(input, 0, {n_in});\n')
-    chunk_check = ('        uint32_t invalid = 0;\n'
-                   f'        for (int64_t i = from; i < to; ++i) invalid |= {invalid};\n'
-                   '        beryl_job_invalid[c] = invalid;\n' if uniform else
-                   '        beryl_job_invalid[c] = beryl_check(input, from, to);\n')
+    chunk_check = (f'        beryl_job_invalid[c] = {_range_check("from", "to", lower, upper, storage)};\n'
+                   if uniform else '        beryl_job_invalid[c] = beryl_check(input, from, to);\n')
     if parallel:
         parts.append(_POOL.replace('static int32_t *beryl_job_output;', f'static {out} *beryl_job_output;')
                      .replace('static int32_t beryl_job_partial', f'static {val} beryl_job_partial')
@@ -517,7 +595,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
                      '    if (beryl_job_phase == 0) {\n'
                      + chunk_check + split_chunk +
                      '    } else if (from < to) {\n'
-                     + ('        beryl_rows(input, beryl_job_output, from, to);\n' if carry else
+                     + ('        beryl_rows(input, beryl_job_output, from, to);\n' if carry or tiled else
                         '        beryl_cells(input, beryl_job_output, from, to);\n') +
                      '    }\n'
                      '}\n')
@@ -567,10 +645,14 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest) -> NativeArtifact:
     elif parallel and carry:
         parts.append(f'    if (threads > 1) beryl_dispatch(1, {h}, 1, 1, input, output);\n'
                      f'    else beryl_rows(input, output, 0, {h});\n')
+    elif parallel and tiled:
+        # Chunks of whole tile rows, about four per thread.
+        parts.append(f'    if (threads > 1) beryl_dispatch(1, {h}, {TILE}, 4, input, output);\n'
+                     f'    else beryl_rows(input, output, 0, {h});\n')
     elif parallel:
         parts.append(f'    if (threads > 1) beryl_dispatch(1, {n_out}, 16, 4, input, output);\n'
                      f'    else beryl_cells(input, output, 0, {n_out});\n')
-    elif carry:
+    elif carry or tiled:
         parts.append(f'    beryl_rows(input, output, 0, {h});\n')
     else:
         parts.append(f'    beryl_cells(input, output, 0, {n_out});\n')

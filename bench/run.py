@@ -76,17 +76,23 @@ def build(args, out_dir, log):
         'rust-mt': (['cargo', 'build', '--release', '--quiet'], out_dir / 'rust_mt' / 'release' / f'kernels_mt{exe}',
                     crate),
     }
-    host = subprocess.run([args.rustc, '-vV'], capture_output=True, text=True).stdout if 'rust' in args.impls else ''
+    rusty = 'rust' in args.impls or 'rust-mt' in args.impls
+    host = subprocess.run([args.rustc, '-vV'], capture_output=True, text=True).stdout if rusty else ''
     if 'windows-gnu' in host and 'link-self-contained' not in args.rustflags:
         # Windows GNU Rust needs its bundled linker libraries (libgcc, libgcc_eh).
         jobs['rust'][0][1:1] = ['-C', 'link-self-contained=yes']
+    # cargo takes the Rayon crate's codegen flags from RUSTFLAGS, which replaces the
+    # crate's config, so the same target CPU (and the GNU linker flag) go there.
+    mt_flags = [flag for flag in ('-C target-cpu=native',) if 'target-cpu=native' in args.rustflags]
+    mt_flags += ['-C link-self-contained=yes'] * ('windows-gnu' in host)
     built = {}
     for name, (cmd, path, cwd) in jobs.items():
         if name not in args.impls:
             continue
         start = time.perf_counter()
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=600, cwd=cwd,
-                           env=dict(os.environ, CARGO_TARGET_DIR=str(out_dir / 'rust_mt')))
+                           env=dict(os.environ, CARGO_TARGET_DIR=str(out_dir / 'rust_mt'),
+                                    **({'RUSTFLAGS': ' '.join(mt_flags)} if name == 'rust-mt' and mt_flags else {})))
         log(dict(type='build', impl=name, command=cmd, ok=r.returncode == 0,
                  seconds=round(time.perf_counter() - start, 3), stderr=r.stderr[-2000:] or None))
         if r.returncode == 0:
@@ -144,9 +150,11 @@ def main():
     ap.add_argument('--no-axiom-sweep', action='store_true', help='skip cap/objective sweep and rejection cases')
     ap.add_argument('--label', default='', help='free-text note stored in the run header')
     ap.add_argument('--cc', default='clang')
-    ap.add_argument('--cflags', default='-O3')
+    # Every side is built for the host CPU (AVX2 here); before 2026-10-25 the
+    # defaults were -O3 and opt-level=3 alone, which limited all sides to SSE2.
+    ap.add_argument('--cflags', default='-O3 -march=native')
     ap.add_argument('--rustc', default='rustc')
-    ap.add_argument('--rustflags', default='-C opt-level=3')
+    ap.add_argument('--rustflags', default='-C opt-level=3 -C target-cpu=native')
     ap.add_argument('--node', default='node')
     ap.add_argument('--results', type=Path, default=HERE / 'results')
     ap.add_argument('--threads', type=int, help='thread count for every parallel implementation '

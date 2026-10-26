@@ -20,7 +20,7 @@ output s[r in 0..H,c in 0..W] = t[r,c];
 
 
 def preflight_loop(n_in):
-    return f'for (int64_t i = 0; i < {n_in}; ++i) ax_invalid |='.encode()
+    return f'ax_invalid = beryl_outside(input, 0, {n_in},'.encode()
 
 
 class FusedCheckTests(unittest.TestCase):

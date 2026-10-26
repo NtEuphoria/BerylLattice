@@ -14,7 +14,8 @@ from pathlib import Path
 
 CAUSES = [
     ('app-control', 'Windows Application Control blocked a fresh executable or a file was locked',
-     re.compile(r'WinError (?:4551|5|32)\]|Application Control|being used by another process')),
+     # Case-insensitive: some tools lower-case the message ("[winerror 4551] an application control policy").
+     re.compile(r'WinError (?:4551|5|32)\]|Application Control|being used by another process', re.I)),
     ('posix-clock', 'clock_gettime is not linked by MinGW (fixed in kernel-throughput.c)',
      re.compile(r'undefined symbol: clock_gettime')),
     ('posix-o-directory', 'os.O_DIRECTORY does not exist on Windows',

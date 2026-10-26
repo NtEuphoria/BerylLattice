@@ -158,6 +158,75 @@ The transpose cannot use the same fusion: it writes output before it has seen th
 input. The remaining OpenMP sum loss appears only under Linux, where beryl's pool reaches
 about 22 GB/s against OpenMP's 31; that is the next thing to measure.
 
+## AVX2 and the first speed fixes (later the same day)
+
+**Every number above was built for SSE2.** `bench/run.py` defaulted to `-O3` and
+`opt-level=3` with no target CPU, so beryl, C and Rust all used 128-bit vectors on an AVX2
+machine. Built with `-march=native` and `target-cpu=native`, the plain baselines gain far
+more than beryl did:
+- matmul l, C: 9.5 → 1.8–2.0 ms;
+- sum m, C: 13.8 → 2.7 µs.
+
+`bench/run.py` now builds every side, Rayon included, for the host CPU by default.
+
+**The fixes** (scale spec, Phase 2f):
+- a range check of one unsigned maximum per value;
+- 16 × 16 tiles for column-strided loads;
+- per-cell sums for weights stored `[out, in]`.
+
+**Before and after**, the same session and equal flags (clang 22 `-O3 -march=native`,
+Rust `target-cpu=native`), one thread each, Windows. "Before" is commit `a6d10a1`.
+Ratios are beryl's time over the baseline's, so below 1 means beryl is faster. Logs:
+`.local/speed/`.
+
+| kernel | size | beryl before | beryl after | speedup | C | Rust | beryl/C before | beryl/C after | beryl/Rust after |
+|---|---|---|---|---|---|---|---|---|---|
+| box3x3 | l | 2,993 µs | 3,114 µs | 0.96x | 4,197 µs | 3,407 µs | 0.72 | 0.74 | 0.91 |
+| box3x3 | m | 23.0 µs | 23.8 µs | 0.97x | 58.8 µs | 31.4 µs | 0.39 | 0.41 | 0.76 |
+| conv3x3 | l | 2,979 µs | 2,941 µs | 1.01x | 4,541 µs | 3,672 µs | 0.67 | 0.65 | 0.80 |
+| conv3x3 | m | 23.1 µs | 22.0 µs | 1.05x | 61.0 µs | 32.0 µs | 0.38 | 0.36 | 0.69 |
+| dot | l | 742 µs | 697 µs | 1.07x | 677 µs | 681 µs | 1.07 | **1.03** | **1.02** |
+| dot | m | 3.2 µs | 2.7 µs | 1.20x | 2.9 µs | 3.0 µs | 0.93 | 0.90 | 0.90 |
+| laplace5 | l | 2,961 µs | 2,867 µs | 1.03x | 3,433 µs | 3,381 µs | 0.86 | 0.83 | 0.85 |
+| laplace5 | m | 15.3 µs | 14.0 µs | 1.09x | 23.2 µs | 21.8 µs | 0.66 | 0.60 | 0.64 |
+| matmul | l | 1,190 µs | 1,186 µs | 1.00x | 1,778 µs | 1,792 µs | 0.65 | 0.67 | 0.66 |
+| matmul | m | 20.6 µs | 20.4 µs | 1.01x | 28.7 µs | 29.4 µs | 0.72 | 0.71 | 0.69 |
+| polymap | l | 2,307 µs | 2,439 µs | 0.95x | 3,731 µs | 3,518 µs | 0.66 | 0.65 | 0.69 |
+| polymap | m | 12.7 µs | 11.7 µs | 1.08x | 21.6 µs | 27.5 µs | 0.59 | 0.54 | 0.43 |
+| sq2x2 | l | 3,383 µs | 2,882 µs | 1.17x | 3,511 µs | 3,698 µs | 0.92 | 0.82 | 0.78 |
+| sq2x2 | m | 22.8 µs | 21.8 µs | 1.05x | 29.6 µs | 50.8 µs | 0.62 | 0.74 | 0.43 |
+| stencil1d3 | l | 2,963 µs | 2,204 µs | 1.34x | 3,484 µs | 3,381 µs | 0.77 | 0.63 | 0.65 |
+| stencil1d3 | m | 11.8 µs | 10.0 µs | 1.18x | 16.5 µs | 12.6 µs | 0.71 | 0.61 | 0.80 |
+| sum | l | 930 µs | 795 µs | 1.17x | 781 µs | 802 µs | 1.18 | **1.02** | 0.99 |
+| sum | m | 3.7 µs | 2.4 µs | 1.57x | 2.7 µs | 2.7 µs | 1.37 | 0.88 | 0.88 |
+| transpose | l | 29,046 µs | 9,749 µs | 2.98x | 28,916 µs | 30,440 µs | 0.95 | 0.34 | 0.32 |
+| transpose | m | 75.4 µs | 22.1 µs | 3.41x | 372 µs | 338 µs | 0.20 | 0.06 | 0.07 |
+
+**Summary.**
+- Geomean of beryl's time over C's: 0.70 before, 0.59 after, so beryl is 1.69x faster.
+- Against Rust: 0.62, so 1.61x faster.
+- beryl is faster than C in 18 of 20 cases and faster than Rust in 19 of 20.
+
+**Every loss, after.** Both are within 3%, about the run-to-run spread:
+- dot l: 1.03x C's time, 1.02x Rust's;
+- sum l: 1.02x C's time.
+
+**Noise check.** box3x3 l and polymap l looked 4–5% slower. Alternated reruns showed no
+change:
+- box3x3: before 2,983 / 2,954 / 3,083 µs, after 2,926 / 2,895 / 3,065 µs;
+- polymap in WSL: median of five 2,715 µs before, 2,685 µs after. Its generated C differs
+  only in the check.
+
+**Still open.**
+- Large stencils still read their input twice; the check costs 21–38% of their time.
+- Matmul l runs near the CPU's 32-bit multiply throughput. OpenBLAS `sgemm` (float32,
+  through NumPy, one thread) takes 388 µs at 256, against beryl's 1,186 µs in int32.
+  Closing that gap needs 16-bit multiply-adds on narrow data. That is design phase 6, and
+  it is not a like-for-like comparison yet.
+
+**Claims.** The "Claims now allowed" list below was measured on SSE2 builds. It must not be
+used until the founder reviews new wording based on this section.
+
 ## What the proof covers
 
 beryl's checker proves that each loop plan computes exactly the source's meaning, never
