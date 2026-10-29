@@ -14,9 +14,9 @@ Hi [first name],
 I'm [your name], [a student at … / a self-taught developer] in Revere, MA. I'm building
 beryl, a programming language where an independent checker proves each optimized plan
 can't overflow, read out of bounds, or compute anything other than what the source says,
-before it runs. On one thread it is already 1.39 times faster than hand-written C with the
-same interface, and faster in all 18 cases I measured. I'd love a Medici grant to keep
-building it.
+before it runs. On one thread it is already faster than hand-written C with the same
+interface in 16 of the 18 cases I measured, 1.14 times on average. I'd love a Medici grant
+to keep building it.
 
 My five-minute video: [Loom link]
 

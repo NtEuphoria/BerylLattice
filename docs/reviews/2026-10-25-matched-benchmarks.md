@@ -227,6 +227,56 @@ change:
 **Claims.** The "Claims now allowed" list below was measured on SSE2 builds. It must not be
 used until the founder reviews new wording based on this section.
 
+## The matched suite rerun on AVX2 (2026-10-26)
+
+Commit `9a8d7c9`, every side built with `-O3 -march=native` (Rust `target-cpu=native`), the
+10 kernels of the earlier runs, the `hash` pattern, every output verified. Logs:
+`.local/avx2match/`.
+
+**What could not be rerun.** Windows Application Control blocked most beryl executables and
+`rustc` itself on this day (exit code `0xc0e90002`); it was not bypassed. So:
+- the Windows clang numbers come from the 2026-10-25 "after" run above (m and l sizes only,
+  the same compiler code, `.local/speed/after.jsonl/`);
+- the full one-thread hand-C set (s, m, l) was run on Linux gcc in WSL;
+- Rust with Rayon has no AVX2 rerun, so no four-thread Rust claim stands.
+
+Ratios are the baseline's time over beryl's: above 1 means beryl is faster.
+
+**One thread, beryl against hand C with the same interface.**
+
+| compiler | sizes | faster in | geomean |
+|---|---|---|---|
+| gcc (Linux) | s, m, l | 16/18 | 1.14x |
+| clang (Windows) | m, l | 12/12 | 1.72x |
+
+The gcc losses are both at the m size: box3x3 (beryl 31.3 µs, hand C 24.3 µs, 1.29x slower)
+and laplace5 (20.8 against 20.1 µs, 1.03x slower). With gcc, hand C gains far more from AVX2
+than with clang; the clang hand C at m is 1.6–3.9x slower than beryl.
+
+**One thread, against the plain baselines** (64-bit outputs, no input checks).
+
+| compiler | baseline | faster in | geomean |
+|---|---|---|---|
+| gcc (Linux) | C | 29/30 | 2.02x |
+| clang (Windows) | C | 18/20 (m, l) | 1.69x |
+| clang (Windows) | Rust | 19/20 (m, l) | 1.61x |
+
+Losses: dot s against gcc C (23 ns against 13 ns); with clang, dot l and sum l within 3%.
+
+**Four threads each, against C with OpenMP** (Linux gcc). The s size is left out, as before:
+it measures OpenMP's thread wake-up (2–3 µs a call).
+
+| size | faster in | geomean |
+|---|---|---|
+| m | 10/10 | 1.87x |
+| l | 9/10 | 1.53x |
+
+The run's OpenMP sum l took 3.6 ms, slower than one-thread C, so sum l and dot l were rerun
+three times (`.local/avx2match/sumcheck/`). Those reruns replace the run's two values above,
+by their medians:
+- sum l is a tie: beryl's time over OpenMP's was 1.04x, 0.79x and 0.98x;
+- dot l is a loss: 1.04x, 1.40x and 1.19x.
+
 ## What the proof covers
 
 beryl's checker proves that each loop plan computes exactly the source's meaning, never
@@ -241,22 +291,23 @@ The testing is reference agreement, mutation fuzzing and sanitizer runs.
 
 ## Claims now allowed
 
-These may be used, word for word, in the video, the email and the website:
+**Pending the founder's review (2026-10-26).** Claims 1–4 come from the AVX2 rerun above
+and replace the SSE2 wording ("1.39x … all 18 cases"; "29 of 30 … 28 of 30"; "2.2x … 1.31x
+… 1.49x"; "three cases"), which must no longer be used. Once reviewed, these may be used
+word for word in the video, the email and the website:
 
-1. "On one thread, beryl was 1.39x faster than hand-written C with the same interface (32-bit
-   outputs, the same input checks, compile-time sizes), and faster in all 18 cases measured."
+1. "On one thread, with every side built for this CPU's AVX2 instructions, beryl was faster
+   than hand-written C with the same interface (32-bit outputs, the same input checks,
+   compile-time sizes) in 16 of 18 cases with gcc, 1.14x on average, and in all 12 cases
+   measured with clang, 1.72x on average."
 2. "Against single-threaded C and Rust baselines that store 64-bit outputs and check no
-   inputs, beryl won 29 of 30 benchmarks against C and 28 of 30 against Rust."
-3. "With four threads each, beryl was 2.2x faster than C with OpenMP at in-cache sizes, and
-   1.31x faster than OpenMP and 1.49x faster than Rust with Rayon at sizes too large for
-   cache, winning 29 of 30 and 30 of 30."
-4. "beryl still loses three cases: a 2048×2048 transpose on one thread (1.05–1.09x slower),
-   a 4-million-value sum on one thread against Rust (1.04x), and the same sum on four
-   threads against OpenMP on Linux (1.40x)."
-
-Claims 2–4 were updated after the fused check, and need the founder's review again before
-public use. The earlier wording (27 of 30; 2.0x, 1.17x and 1.29x; losses on large sums and
-dot products) is superseded.
+   inputs, beryl was faster in 29 of 30 cases against C with gcc (2.0x on average), and with
+   clang in 18 of 20 against C (1.69x) and 19 of 20 against Rust (1.61x)."
+3. "With four threads each, beryl was faster than C with OpenMP in 19 of 20 cases: 1.87x on
+   average at in-cache sizes and 1.53x at sizes too large for cache."
+4. "beryl still loses some cases: two mid-size image filters against gcc's hand C (1.29x and
+   1.03x slower), a 64-value dot product against plain C (23 ns against 13 ns), and a
+   4-million-value dot product on four threads against OpenMP (1.04–1.40x slower)."
 5. "beryl's checker proves each optimized plan is exactly the program, in bounds and free of
    overflow. Turning that plan into C, and some of its optimizations, are tested but not yet
    checked."

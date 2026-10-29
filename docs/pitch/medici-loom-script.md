@@ -5,7 +5,8 @@
 **Where the text comes from:**
 - `[brackets]` are yours to fill in, in your own words. Spoken, not read, is best.
 - Every number comes from `docs/reviews/2026-10-25-matched-benchmarks.md` ("Claims now
-  allowed"). Do not round them up.
+  allowed"). Do not round them up. The speed numbers were updated on 2026-10-26 to the AVX2
+  rerun and await your review there.
 
 **v2:** after your practice take, note what felt stiff or long. v2 applies those notes,
 cuts to 4:45, and rechecks every claim.
@@ -82,11 +83,12 @@ python tools/demo-checked-candidates.py --source bench/demo_b/program.ax --candi
 
 **5. The chart.** Show the website's performance section, on the "like for like · vs hand C" tab.
 
-> And it's fast. Against hand-written C with the same interface, beryl was 1.39 times
-> faster on one thread, and faster in all 18 cases. With four threads each, it was twice as
-> fast as C with OpenMP on in-cache workloads, and 1.17 times faster at large sizes. It
-> still loses on very large sums and dot products, and on a very large transpose, because
-> it checks every input before computing. I'm showing those too.
+> And it's fast. On one thread, against hand-written C with the same interface, beryl was
+> faster in 16 of 18 cases with gcc, 1.14 times on average, and in all 12 cases with clang,
+> 1.72 times. With four threads each, it beat C with OpenMP in 19 of 20 cases: 1.87 times
+> faster on in-cache workloads and 1.53 times at large sizes. It still loses a few: two
+> mid-size image filters against gcc, and a very large dot product on four threads. I'm
+> showing those too.
 
 ## 3:15–4:15 · Why you're dedicating yourself (about 140 words)
 
@@ -109,7 +111,7 @@ python tools/demo-checked-candidates.py --source bench/demo_b/program.ax --candi
 >
 > In 90 days I want to show you three things:
 > - a verified int8 neural-network layer beating tuned C;
-> - checked inputs folded into large sums, so beryl wins those too;
+> - checked inputs folded into large image filters, so they read their data once;
 > - the first real users trying beryl on their own kernels.
 >
 > Thanks for watching. Everything I showed is in the repository, linked in my email.
