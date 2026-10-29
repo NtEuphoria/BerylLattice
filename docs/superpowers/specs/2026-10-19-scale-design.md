@@ -157,6 +157,133 @@ Not yet:
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
 
+## Phase 3b: one pointer per input (ABI v2) (2026-10-26)
+
+The rest of phase 3 of `2026-10-25-ml-scale-cpu-core-design.md`. Programs admitted before
+keep their identity and their interface: the generated C of all 13 checked programs is
+byte-identical to 3a's, and so are their semantic digests.
+
+**What is admitted.**
+- Up to four inputs, each with its own storage type: for example u8 activations, i8 weights
+  stored `[out, in]`, an i32 bias and an i16 per-channel scale.
+- The 2^31 − 1 limit is per tensor. Inputs may pass it together.
+- A program whose inputs mix storage types adds `input_storage` to its semantic record.
+  Programs whose inputs share one type keep their record unchanged.
+- The Python reference, the loop-plan runtime and the sampled reference check each input's
+  values against that input's own storage type.
+
+**The interface.**
+- ABI 1 is unchanged: `int32_t beryl_kernel(const T *input, OUT *output)`, the inputs joined
+  in declaration order. It stays the default wherever it fits.
+- ABI 2 is `int64_t beryl_kernel_v2(const T0 *in0, ..., OUT *output)`, one pointer per
+  input. The status means the same: 0, or the first bad cell's index in the joined order
+  plus one.
+- ABI 2 is required for mixed storage types, and for more than 2^31 − 1 input cells in
+  total. Any other program can ask for it with `compile_scale_native(source, abi=2)`. It
+  then also keeps a `beryl_kernel` wrapper that passes offsets into the joined buffer, so
+  existing drivers keep working.
+- Codegen is `beryl-loop-c-abi2-v1` (and `-parallel-abi2-v1`), so ABI 1 output keeps its
+  version.
+- Every emission path takes the per-input pointers: plain cells, row accumulation,
+  per-cell sums, tiles, streaming stores, carry rows, and the split single-cell sum with its
+  fused check. The thread pool passes them as an array.
+- The input check is one unsigned maximum per value, per input, typed to its storage type.
+- The standalone driver reads each input's tokens as that input's type. A token that does
+  not fit is refused (exit 65); a value outside its declared range gives exit 66.
+
+**A fix found on the way.** The emitter named a load's input by its constant term. In
+`y[0, j + -1]` with `j` from 1, that term is the cell before `y`, so it lies in the input
+declared before `y`. For an i64 sum, the exact `int32_t` block length then came from that
+input's range: 2^31 − 1 terms for an `x` in `0..=1`, where `y`'s range allows one, so the
+block could overflow. The emitter now names the input by the first cell a load reads, with
+every axis at 0 and every sum variable at its lower bound. Admitted reads stay inside their
+own input at every point, so that cell names the right one. A regression test shows the
+one-term blocks, and it fails without the fix.
+
+**Verification.**
+- `tests/test_scale_abi2.py`: 16 tests. All but the size test were written before the
+  change and failed on it; the shifted-load test fails without the fix.
+- Native runs of 15 programs through a harness that gives each input its own array. Each
+  runs on good data, and with a bad value at the first and last cell of every input that a
+  value of its type can fail, at 1 and 4 threads: 118 runs per build.
+  - On Windows (clang), Application Control blocked some of these launches.
+  - In WSL (gcc), all 118 ran in each of three builds (plain, TSan and ASan+UBSan): 354 runs,
+    all clean.
+- The programs cover every emission path: the mixed u8/i8/i32 layer per cell and in
+  parallel, the four-input i64 requantization, a 65,536-term u8 × i8 dot product split
+  across threads, carry stencils, matmul, transpose tiles, streaming stores, i8 dense
+  layers, and the shifted-load case.
+- **The size test.** The 4096 → 11008 layer with u8 activations, i8 weights and an i32 bias
+  matches the sampled reference natively, on Windows and in WSL, under both sanitizers.
+- A two-input program of 2^31 cells in total builds with an `int64_t` status. Its run is not
+  tested: 2 GiB of input is too large for the test machine's budget.
+- The 98 related tests pass. Two older tests now expect the new behavior: inputs may pass
+  the limit together, and inputs may mix storage types.
+- The full suite (632 tests) has no new failures. The four unexplained failures also fail in
+  3a's run. Every other failure has a known Windows cause; Application Control blocked 12
+  launches.
+
+**Not in 3b.** ABI 2 is not yet the default for single-type programs. Making it the default
+needs the matched benchmarks rerun on it, and those runs are blocked on Windows today.
+
+## Phase 3a: data up to 2^31 − 1 cells (2026-10-26)
+
+The first part of phase 3 of `2026-10-25-ml-scale-cpu-core-design.md`. The kernel interface
+is unchanged. Codegen stays `beryl-loop-c-v2`, and the generated C for every program admitted
+before is byte-identical (13 checked against `9a8d7c9`).
+
+**Limits.** These were 2^24, and are now 2^31 − 1:
+- cells per tensor: each input, the producer and the output;
+- input cells in total (lifted in 3b, whose ABI 2 has an `int64_t` status);
+- terms per sum.
+
+The total input limit keeps the status, the first bad index plus one, inside the
+`int32_t` return value. Index arithmetic was already `int64_t`, and loop variables stay
+`int32_t` per axis. The proof is by template, so admission and checking cost the same at
+any size; the limit tests prove and emit a 2^31 − 1 cell copy in well under a second.
+
+**Emission at the new sizes.** Programs past the old limits get two changes. Nothing below
+those limits reaches either one.
+- *Stepped counters.* A loop counter stepped by `k` is `int64_t` when one step past its last
+  value could pass `INT32_MAX`; otherwise it stays `int32_t`. Two counters can do this: the
+  64-cell blocks of the streaming loop, and the exact `int32_t` blocks of an i64 sum. Tiles
+  cannot, because 16 rows of 2^27 cells already reach the limit.
+- *The driver's buffers.* Above 1 GiB they come from `calloc`, and exit code 71 means
+  allocation failed. Static arrays that large do not link on Windows, nor on Linux without
+  `-mcmodel=medium`. Smaller buffers stay static.
+
+**The sampled reference.** `reference.evaluate_cells(module, value_at, cells)` evaluates
+only the chosen output cells.
+- `value_at(i)` gives the input buffer's value at position `i`, so no input is ever
+  materialized.
+- Producer cells are computed on demand and cached, with the full reference's exact-integer
+  and storage rules.
+- Every value it reads must lie in its input's range. Since it sees only those values,
+  there is no preflight.
+- It agrees with `evaluate_source` on every cell of nine programs, including carry-free,
+  i64, narrow-storage and per-cell-sum ones.
+
+**The size test.** A 4096 → 11008 int8 dense layer, with weights stored `[out, in]`: 45
+million weights, 2.7 times the old limit. The harness generates its inputs in place from a
+hash that the test shares, and compares sampled outputs with the sampled reference, at 1
+and 4 threads. The test also covers a bad last weight, and a 2^31 − 1 term i64 sum of one
+cell run natively at values 0, 1 and 200, plus a bad value.
+
+**Verification.**
+- `tests/test_scale_large.py`: 12 tests. The limit tests fail on the old limits.
+- The 128 related tests pass. Three older tests that checked the 2^24 limits (scale family,
+  frontend and reduce family) now check one past the new limits.
+- The full suite (616 tests) has no new failures. The three unexplained failures predate
+  this work. Every other failure has a known Windows cause; Application Control blocked 35
+  launches that day.
+- TSan and ASan+UBSan in WSL are clean on 28 runs, at 1 and 4 threads:
+  - the full int8 layer;
+  - a 3000 × 1500 i32 layer, with bad values in each input;
+  - the 2^31 − 1 term sum.
+
+**Not in 3a**, still phase 3: one pointer per input (ABI v2), mixed storage types such as u8
+activations with i8 weights, up to four inputs, and an `int64_t` status.
+
 ## Phase 2f: a cheaper check and better cell orders (2026-10-25)
 
 Phase 1 of `2026-10-25-ml-scale-cpu-core-design.md`. Only the emitted C changes, so codegen

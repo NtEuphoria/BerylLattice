@@ -1,4 +1,4 @@
-"""scale-v1: the reduce-v1 structure at any size up to 2^24 cells, plus symbolic sums.
+"""scale-v1: the reduce-v1 structure at any size up to 2^31 - 1 cells, plus symbolic sums.
 
 Members are proved by template (scale_checker) over loop plans, so proof cost
 does not grow with the data. Recognition works on the normalized profile and
@@ -14,7 +14,10 @@ from .model import (AdmittedKernel, DiagnosticError, SCALE_PROFILE, SCALE_SEMANT
                     SCALE_WIDE_SEMANTICS_VERSION, STORAGE_BOUNDS)
 from .reduce_family import _dimension
 
-MAX_CELLS = 1 << 24
+# Per tensor: loop variables are int32_t per axis, and index arithmetic is
+# int64_t. Inputs past it together get ABI v2's int64_t status (scale_c).
+MAX_CELLS = 2 ** 31 - 1
+MAX_INPUTS = 4
 
 
 def _index_terms(node, bound):
@@ -78,7 +81,7 @@ def scale_shape(profile, height, width):
         inputs = profile['inputs']
     except (KeyError, TypeError, ValueError):
         return None
-    if not 1 <= len(inputs) <= 2:
+    if not 1 <= len(inputs) <= MAX_INPUTS:
         return None
     input_shapes = []
     for element, dimensions, interval in inputs:
@@ -109,12 +112,12 @@ def scale_shape(profile, height, width):
 
 def admit_scale(module, height, width, objective, profile, shape):
     input_shapes, producer_shape = shape['input_shapes'], shape['producer_shape']
-    for label, cells in (('inputs', sum(r * c for r, c in input_shapes)),
+    for label, cells in (*((f'the input {decl.name!r}', r * c) for decl, (r, c) in zip(module.inputs, input_shapes)),
                          ('the producer', producer_shape[0] * producer_shape[1]),
                          ('the output', height * width)):
         if cells > MAX_CELLS:
             raise DiagnosticError('UNSUPPORTED_PROFILE', module.span,
-                                  f'{label} exceed {MAX_CELLS} cells')
+                                  f'{label} has more than {MAX_CELLS} cells')
     semantics = {
         'semantics_version': SCALE_SEMANTICS_VERSION, 'family': SCALE_PROFILE,
         'height': height, 'width': width, 'profile': profile,
@@ -136,6 +139,10 @@ def admit_scale(module, height, width, objective, profile, shape):
     if set(storage.values()) & STORAGE_BOUNDS.keys():
         # Programs with only i32 and i64 storage keep the identities above.
         semantics.update(storage=storage, stored_value='output-proved-to-fit-its-storage-type')
+    input_types = [decl.element_type for decl in module.inputs]
+    if len(set(input_types)) > 1:
+        # Programs whose inputs share one type keep the identities above.
+        semantics.update(input_storage=input_types)
     canonical = json.dumps(semantics, sort_keys=True, separators=(',', ':'),
                            ensure_ascii=False, allow_nan=False).encode('utf-8')
     return AdmittedKernel(height, width, module.cap, module.inputs[0].input_interval,

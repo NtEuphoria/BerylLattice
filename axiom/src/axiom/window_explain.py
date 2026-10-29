@@ -132,5 +132,5 @@ def explain_counts(module):
                 'and have the output read `p`')
     else:
         hint = ''
-    return Span(0, 0), (f'requires exactly two shapes, one or two inputs, one producer and one output '
+    return Span(0, 0), (f'requires exactly two shapes, one to four inputs, one producer and one output '
                         f'({found}){hint}')

@@ -116,7 +116,7 @@ class ReduceFamilyTests(unittest.TestCase):
     def test_names_ranges_and_size(self):
         cases = [(b'sum(H in 0..2: x[0,H])', 'DUPLICATE_NAME'), (b'sum(r in 0..2: x[0,r])', 'DUPLICATE_NAME'),
                  (b'sum(k in 0..2: sum(k in 0..2: x[0,k]))', 'DUPLICATE_NAME'),
-                 (b'sum(k in 2..2: x[0,k])', 'INVALID_RANGE'), (b'sum(k in 0..20000000: x[0,0])', 'INVALID_RANGE'),
+                 (b'sum(k in 2..2: x[0,k])', 'INVALID_RANGE'), (b'sum(k in -1..2147483647: x[0,0])', 'INVALID_RANGE'),
                  (b'sum(k in 0..9: x[0,k])', 'INVALID_INDEX'), (b'x[0,sum(k in 0..2: k)]', 'SYNTAX_ERROR')]
         for expression, code in cases:
             with self.subTest(expression=expression):

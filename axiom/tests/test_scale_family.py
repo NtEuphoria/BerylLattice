@@ -69,8 +69,9 @@ class ScaleFamilyTests(unittest.TestCase):
         self.assertEqual(admit_source(parse_source(BOX.format(h=60, w=50).encode())).profile, 'scale-v1')
         self.assertEqual(admit_source(parse_source(SUM.format(n=200).encode())).profile, 'reduce-v1')
         self.assertEqual(admit_source(parse_source(SUM.format(n=5000).encode())).profile, 'scale-v1')
-        for source, code in ((stencil_source(5000, 5000), 'UNSUPPORTED_PROFILE'),
-                             (SUM.format(n=20000000).encode(), 'INVALID_RANGE'),
+        # 46341^2 cells and 2^31 terms: one past the 2^31 - 1 limits.
+        for source, code in ((stencil_source(46341, 46341), 'UNSUPPORTED_PROFILE'),
+                             (SUM.format(n=5000).replace('0..5000', '-1..2147483647').encode(), 'INVALID_RANGE'),
                              (SUM.format(n=5000).replace('x[0,k])', 'k*x[0,k])').encode(), 'UNDEFINED_NAME')):
             with self.subTest(code=code), self.assertRaises(DiagnosticError) as caught:
                 admit_source(parse_source(source))

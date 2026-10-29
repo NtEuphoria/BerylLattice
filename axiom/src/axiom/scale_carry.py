@@ -97,11 +97,11 @@ def rank_key(plan, kernel, order):
     return (muls, ops, workspace, order)
 
 
-def carry_rows_c(plan, kernel, lower):
+def carry_rows_c(plan, kernel, lower, params='const int32_t *restrict input', args='input'):
     """C for `static void beryl_rows(input, output, r0, r1)` of a checked carry plan.
 
     `lower(expr, statements, counter, prod)` lowers a plan expression; `prod`
-    formats a ('prod', i, j) leaf.
+    formats a ('prod', i, j) leaf. The inputs arrive as `params`, passed on as `args`.
     """
     produce, stage = plan.stages
     value, out = c_types(kernel)
@@ -119,20 +119,20 @@ def carry_rows_c(plan, kernel, lower):
     rows = '\n'.join(f'        const {value} *ax_row{i} = ring + (({v0} + {i}) % {k}) * {pcols};'
                      for i in offsets)
     return (f'\n/* Producer row {u0} into dst (carry-v1). */\n'
-            f'static void beryl_produce_row(const int32_t *restrict input, {value} *restrict dst, int32_t {u0}) {{\n'
+            f'static void beryl_produce_row({params}, {value} *restrict dst, int32_t {u0}) {{\n'
             f'    for (int32_t {u1} = 0; {u1} < {pcols}; ++{u1}) {{\n'
             f'{p_body}\n'
             f'        dst[{u1}] = {p_value};\n'
             '    }\n'
             '}\n'
             f'\n/* Output rows [r0, r1), keeping the last {k} producer rows in a ring. */\n'
-            f'static void beryl_rows(const int32_t *restrict input, {out} *restrict output,\n'
+            f'static void beryl_rows({params}, {out} *restrict output,\n'
             '                       int64_t r0, int64_t r1) {\n'
             f'    {value} ring[{k} * {pcols}];\n'
             f'    for (int32_t ax_p = (int32_t)r0; ax_p < (int32_t)r0 + {k - 1}; ++ax_p)\n'
-            f'        beryl_produce_row(input, ring + (ax_p % {k}) * {pcols}, ax_p);\n'
+            f'        beryl_produce_row({args}, ring + (ax_p % {k}) * {pcols}, ax_p);\n'
             f'    for (int32_t {v0} = (int32_t)r0; {v0} < (int32_t)r1; ++{v0}) {{\n'
-            f'        beryl_produce_row(input, ring + (({v0} + {k - 1}) % {k}) * {pcols}, {v0} + {k - 1});\n'
+            f'        beryl_produce_row({args}, ring + (({v0} + {k - 1}) % {k}) * {pcols}, {v0} + {k - 1});\n'
             f'{rows}\n'
             f'        {out} *restrict ax_out = output + (int64_t){w} * {v0};\n'
             f'        for (int32_t {v1} = 0; {v1} < {w}; ++{v1}) {{\n'

@@ -262,8 +262,13 @@ class AdmittedKernel:
 
     @property
     def input_type(self) -> str:
-        """Storage type of the input buffer; every input of a program shares it."""
+        """Storage type of the first input: the joined buffer's, when all inputs share one."""
         return self.source_module.inputs[0].element_type
+
+    @property
+    def input_types(self) -> tuple[str, ...]:
+        """Each input's storage type, in declaration order."""
+        return tuple(decl.element_type for decl in self.source_module.inputs)
 
     @property
     def wide(self) -> bool:

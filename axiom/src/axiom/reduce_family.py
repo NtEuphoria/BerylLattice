@@ -22,7 +22,7 @@ from .model import (AdmittedKernel, BinaryExpression, DiagnosticError, GroupExpr
 
 MAX_INPUT_CELLS = 256
 MAX_TERMS = 256          # small families: expanded into a balanced tree
-MAX_SYMBOLIC_TERMS = 1 << 24  # scale-v1: an exact sum, kept as a loop
+MAX_SYMBOLIC_TERMS = 2 ** 31 - 1  # scale-v1: an exact sum, kept as a loop
 MAX_OFFSET = 8
 
 

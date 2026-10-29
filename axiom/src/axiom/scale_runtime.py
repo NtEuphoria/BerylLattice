@@ -5,7 +5,7 @@ before touching data, preflights the whole input, and preserves the initial
 output on rejection.
 """
 from .model import DiagnosticError, Limits, Span
-from .reference import ExecutionResult, ExecutionStatus, _boundary_values, first_bad_input
+from .reference import ExecutionResult, ExecutionStatus, _boundary_values, first_bad_input, input_storage
 from .scale_checker import check_loop_plan
 from .frontend import admit_source, parse_source
 
@@ -49,7 +49,7 @@ def execute_loop_plan(source: bytes, plan, data, initial_output, limits: Limits 
         raise DiagnosticError('PLAN_NOT_PROVED', Span(0, 0), f'{check.reason}: {check.detail}')
     kernel = admit_source(parse_source(source, limits))
     module = kernel.source_module
-    inputs = _boundary_values(data, kernel.input_count, 'input', module.inputs[0].span, kernel.input_type)
+    inputs = _boundary_values(data, kernel.input_count, 'input', module.inputs[0].span, input_storage(kernel))
     output = list(_boundary_values(initial_output, kernel.output_count, 'output', module.outputs[0].span,
                                    kernel.output_type))
     bad = first_bad_input(kernel, inputs)

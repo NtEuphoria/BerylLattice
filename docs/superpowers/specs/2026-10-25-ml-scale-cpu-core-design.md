@@ -231,6 +231,31 @@ speed fixes".
 - **One thread, AVX2, against C:** 0.70 → 0.59 geomean of beryl's time, 18 of 20 cases
   faster. Two memory-bound losses remain, within 3%.
 
+**2026-10-26.**
+- **Phase 1, more done.**
+  - The matched suite was rerun on AVX2: hand C with gcc, s, m and l, and C with OpenMP at
+    four threads.
+  - Rayon and the Windows hand C at the s size could not be rerun: Application Control
+    blocked `rustc` and most executables.
+  - The pitch numbers now come from this rerun, pending the founder's review.
+- **Phase 3a, done.** Scale spec "Phase 3a".
+  - Limits rise to 2^31 − 1, with the kernel interface unchanged.
+  - The sampled reference is added.
+  - The full 4096 × 11008 int8 layer runs natively and matches the sampled reference.
+  - My call: the larger limits come first, because they alone admit real layer sizes. The
+    ABI v2 items (per-input pointers, mixed u8/i8, four inputs, `int64_t` status) follow as
+    3b.
+- **Phase 3b, done.** Scale spec "Phase 3b".
+  - Each input has its own pointer and storage type, up to four inputs. The status is
+    `int64_t`, and the cell limit is per tensor.
+  - The size test is a 4096 × 11008 layer with u8 activations, i8 weights and an i32 bias.
+  - My call: ABI 2 is used where a program needs it, or on request; ABI 1 stays the default
+    for the rest. ABI 1 programs keep byte-identical C, so the published benchmark numbers
+    still describe them. ABI 2 becomes the default once the matched suite has been rerun on
+    it.
+  - Found on the way: the emitter could take an i64 sum's block length from the wrong input
+    when an index adds a negative literal. Fixed, with a regression test.
+
 ## Verification for every phase
 
 - Reference agreement on full-size programs, through the sampled reference from phase 3 on.

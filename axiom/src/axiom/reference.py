@@ -51,14 +51,32 @@ def first_bad_input(kernel, values) -> int | None:
     return None
 
 
+def input_storage(kernel) -> tuple[tuple[int, str], ...]:
+    """(end, storage type) of each input's cells in the joined buffer, in declaration order."""
+    out, end = [], 0
+    for (rows, cols), element_type in zip(kernel.all_input_shapes, kernel.input_types):
+        end += rows * cols
+        out.append((end, element_type))
+    return tuple(out)
+
+
 def _boundary_values(values, length: int, label: str, span: Span,
-                     element_type: str = 'i32') -> tuple[int, ...]:
+                     element_type: str | tuple[tuple[int, str], ...] = 'i32') -> tuple[int, ...]:
+    """Snapshot of exactly `length` integers, each fitting its storage type.
+
+    `element_type` is one type for every cell, or (end, type) segments in
+    order (see input_storage).
+    """
     if type(values) not in (tuple, list):
         raise DiagnosticError('BOUNDARY_TYPE', span, f'{label} must be an owned tuple or list')
     if len(values) != length:
         raise DiagnosticError('BOUNDARY_LENGTH', span, f'{label} requires exactly {length} scalars')
     snapshot = tuple(values)
+    segments = iter(((length, element_type),) if isinstance(element_type, str) else element_type)
+    end = 0
     for index, value in enumerate(snapshot):
+        while index >= end:
+            end, element_type = next(segments)
         if type(value) is not int:
             raise DiagnosticError('BOUNDARY_TYPE', span, f'{label}[{index}] must be an exact integer')
         low, high = TYPE_BOUNDS[element_type]
@@ -142,7 +160,7 @@ def evaluate_source(module: SourceModule, data: tuple[int, ...] | list[int],
     if data is initial_output:
         raise DiagnosticError('BOUNDARY_ALIAS', module.span, 'input and output must be disjoint')
     input_values = _boundary_values(data, kernel.input_count,
-                                    'input', module.inputs[0].span, kernel.input_type)
+                                    'input', module.inputs[0].span, input_storage(kernel))
     output_values = _boundary_values(initial_output, kernel.height * kernel.width,
                                      'output', module.outputs[0].span, kernel.output_type)
     bad = first_bad_input(kernel, input_values)
@@ -169,3 +187,74 @@ def evaluate_source(module: SourceModule, data: tuple[int, ...] | list[int],
         _evaluate_equation(equation, shapes, tensors)
     output = _evaluate_equation(module.outputs[0], shapes, tensors)
     return ExecutionResult(ExecutionStatus.SUCCESS, None, output, input_values)
+
+
+class _Inputs:
+    """One input read through value_at(buffer position), checked against its range."""
+
+    def __init__(self, value_at, offset, dimensions, interval, span):
+        self.value_at, self.offset, self.dimensions, self.interval, self.span = (
+            value_at, offset, dimensions, interval, span)
+
+    def __getitem__(self, indices):
+        cell = 0
+        for index, size in zip(indices, self.dimensions):
+            cell = cell * size + index
+        position = self.offset + cell
+        value = self.value_at(position)
+        lower, upper = self.interval
+        if type(value) is not int or not lower <= value <= upper:
+            raise DiagnosticError('INPUT_PRECONDITION_FAILED', self.span,
+                                  f'input value at {position} lies outside {lower}..={upper}')
+        return value
+
+
+class _Cells:
+    """An equation's cells, each computed on first read with the full reference's rules."""
+
+    def __init__(self, equation, shapes, tensors):
+        self.equation, self.shapes, self.tensors, self.cache = equation, shapes, tensors, {}
+
+    def __getitem__(self, indices):
+        if indices not in self.cache:
+            equation = self.equation
+            scalars = dict(self.shapes)
+            scalars.update((axis.name, index) for axis, index in zip(equation.axes, indices))
+            value = _evaluate_expression(equation.expression, scalars, self.tensors,
+                                         arithmetic_type(equation.element_type))
+            storage = STORAGE_BOUNDS.get(equation.element_type)
+            if storage is not None and not storage[0] <= value <= storage[1]:
+                raise DiagnosticError(f'EVALUATION_{equation.element_type.upper()}', equation.span,
+                                      f'{equation.name} value {value} does not fit {equation.element_type}')
+            self.cache[indices] = value
+        return self.cache[indices]
+
+
+def evaluate_cells(module: SourceModule, value_at, cells) -> tuple[int, ...]:
+    """The sampled reference: only the given row-major output cells of a 2-D program.
+
+    value_at(i) gives the input buffer's value at position i, inputs in
+    declaration order, each row-major, so no input is ever materialized.
+    Producer cells are computed on demand and cached. Every value read must lie
+    in its input's declared range; there is no preflight, since only the
+    values the sampled cells read are ever seen. Where both run it agrees with
+    evaluate_source, which stays the oracle at small sizes.
+    """
+    kernel = admit_source(module)
+    tensors, shapes = {}, {}
+    for declaration in module.shapes:
+        shapes[declaration.name] = _evaluate_expression(declaration.value, shapes, tensors)
+    offset = 0
+    for declaration, interval in zip(module.inputs, kernel.input_intervals):
+        dimensions = tuple(_evaluate_expression(d, shapes, tensors) for d in declaration.dimensions)
+        tensors[declaration.name] = _Inputs(value_at, offset, dimensions, interval, declaration.span)
+        offset += dimensions[0] * dimensions[1]
+    for equation in module.producers:
+        tensors[equation.name] = _Cells(equation, shapes, tensors)
+    output = _Cells(module.outputs[0], shapes, tensors)
+    values = []
+    for cell in cells:
+        if type(cell) is not int or not 0 <= cell < kernel.height * kernel.width:
+            raise DiagnosticError('BOUNDARY_LENGTH', module.span, f'output cell {cell} is outside the output')
+        values.append(output[divmod(cell, kernel.width)])
+    return tuple(values)

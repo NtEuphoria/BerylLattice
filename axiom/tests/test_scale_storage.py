@@ -81,9 +81,10 @@ class StorageAdmissionTests(unittest.TestCase):
         _fails(self, BLUR.format(h=4, w=4, lo=-1, hi=255, out=BLUR_OUT), 'INVALID_RANGE')
         _fails(self, GAIN.format(w=4, out='t[r,c]').replace('-32768..=32767', '-32769..=0'), 'INVALID_RANGE')
 
-    def test_inputs_share_one_storage_type(self):
+    def test_inputs_may_mix_storage_types(self):
+        # Each input keeps its own type; the kernel takes one pointer per input (ABI 2).
         mixed = DENSE.format(w=4, n=8).replace('input k: i8', 'input k: u8').replace('-127..=127', '0..=255')
-        self.assertIn('one storage type', _fails(self, mixed, 'UNSUPPORTED_PROFILE'))
+        self.assertEqual(_admit(mixed).input_types, ('i8', 'u8'))
 
     def test_a_let_equation_is_not_narrow(self):
         narrow = BLUR.format(h=4, w=4, lo=0, hi=255, out=BLUR_OUT).replace('let p[', 'let p: u8[')

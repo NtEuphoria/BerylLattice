@@ -77,9 +77,9 @@ class FrontendTests(unittest.TestCase):
     def test_invalid_shapes_and_range_bounds(self):
         for h, w in [(0, 7), (5, 0), (-1, 7), (5, -1)]:
             self.diagnostic(stencil_source(h, w), 'INVALID_SHAPE')
-        # Above 256 cells the stencil is scale-v1; above 2^24 it is refused.
+        # Above 256 cells the stencil is scale-v1; above 2^31 - 1 it is refused.
         self.assertEqual(admit_source(parse_source(stencil_source(16, 16))).profile, 'scale-v1')
-        self.diagnostic(stencil_source(5000, 5000), 'UNSUPPORTED_PROFILE')
+        self.diagnostic(stencil_source(46341, 46341), 'UNSUPPORTED_PROFILE')
         self.diagnostic(stencil_source(5, 7).replace(b'0..=1023', b'1023..=0'), 'INVALID_RANGE')
         self.diagnostic(stencil_source(5, 7).replace(b'r in 0..H+1', b'r in 7..H+1'), 'INVALID_RANGE')
         self.diagnostic(stencil_source(5, 7).replace(b'result[r in 0..H,', b'result[r in 1..H,'), 'UNSUPPORTED_PROFILE')

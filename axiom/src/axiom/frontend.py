@@ -470,7 +470,7 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     except ValueError:
         _fail('UNSUPPORTED_OBJECTIVE', module.span, 'unknown objective')
     counts = (len(module.shapes), len(module.inputs), len(module.producers), len(module.outputs))
-    if counts not in ((2, 1, 1, 1), (2, 2, 1, 1)):
+    if counts not in ((2, 1, 1, 1), (2, 2, 1, 1), (2, 3, 1, 1), (2, 4, 1, 1)):
         span, message = explain_counts(module)
         _fail('UNSUPPORTED_PROFILE', module.span if span.length == 0 else span, message)
     # Shape declarations must be literal parameters, rather than arbitrary constant propagation.
@@ -482,12 +482,9 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     # member, or a sum of more than 256 terms, is scale-v1 with sums as loops.
     # i64 equations are scale-v1 only: the small families emit i32 code.
     wide = any(decl.element_type == 'i64' for decl in (*module.producers, *module.outputs))
-    # Narrow storage is scale-v1 only too, and the input buffer is one array.
+    # Narrow storage is scale-v1 only too; each input keeps its own type.
     storage = {decl.element_type for decl in module.inputs} | {module.outputs[0].element_type}
     narrow = bool(storage & STORAGE_BOUNDS.keys())
-    if narrow and len({decl.element_type for decl in module.inputs}) > 1:
-        _fail('UNSUPPORTED_PROFILE', module.inputs[1].span,
-              'every input of a program has one storage type (the input buffer is one array)')
     small = None if wide or narrow else expand_small_sums(module)
     profile = _profile(small) if small is not None else None
     canonical = profile == _canonical_profile()
