@@ -157,6 +157,71 @@ Not yet:
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
 
+## Phase 4b: compute, then check, in wrapping arithmetic (2026-10-30)
+
+Phase 4's blocks read their input twice: a check pass from memory, then the compute pass
+from cache. On one thread that kept large kernels 13–23% above unchecked. 4b swaps the
+order inside each block.
+
+**What changed.**
+- Each block computes first, reading its input from memory, then checks the same share of
+  input while it is still in cache. The shares are as in Phase 4, so every input cell is
+  still checked, in any block order and on any thread.
+- A block may now compute on values its check then rejects. So under the fused contract,
+  every `+`, `*` and sum wraps: `(int32_t)((uint32_t)a + (uint32_t)b)`, and `uint64_t` for
+  i64.
+  - Unsigned arithmetic cannot overflow. The conversion back is modulo 2^N on the
+    supported compilers: implementation-defined in C11, never undefined.
+  - Wherever the proof's ranges hold, nothing wraps, so results are exact.
+  - On rejection the output is garbage, which the contract allows, and the status stays
+    exact.
+- A static assertion that `int` is at most 32 bits guards the wrapping: otherwise
+  `uint32_t` operands would promote to signed `int` and could overflow.
+- Values are never used as indices, and narrow stores of garbage are
+  implementation-defined conversions. So no other undefined behavior can follow from a
+  bad value.
+- Programs without the contract are unchanged: byte-identical C and digests for the 13
+  checked programs. Fused programs move to codegen `beryl-loop-c-fused2-...`.
+
+**Speed** (as in Phase 4: WSL, gcc `-O3 -march=native`, 64K-cell blocks, the minimum of two
+interleaved rounds).
+
+| kernel | threads | default | fused | unchecked | fused / unchecked | default / fused |
+|---|---|---|---|---|---|---|
+| map m | 1 | 9.0 µs | 9.5 µs | 5.9 µs | 1.59 | 0.95 |
+| map l | 1 | 3.41 ms | 2.46 ms | 2.26 ms | 1.09 | 1.38 |
+| map l | 4 | 2.53 ms | 1.97 ms | 1.93 ms | 1.02 | 1.28 |
+| box (carry) l | 1 | 3.71 ms | 3.03 ms | 2.90 ms | 1.05 | 1.22 |
+| box (carry) l | 4 | 2.52 ms | 1.91 ms | 1.89 ms | 1.01 | 1.32 |
+| diag stencil l | 1 | 3.20 ms | 2.50 ms | 2.33 ms | 1.08 | 1.28 |
+| diag stencil l | 4 | 2.48 ms | 1.97 ms | 2.00 ms | 0.99 | 1.25 |
+| one row l | 1 | 2.74 ms | 1.91 ms | 1.75 ms | 1.09 | 1.43 |
+| one row l | 4 | 1.65 ms | 1.17 ms | 1.16 ms | 1.01 | 1.41 |
+
+- **Large data, four threads:** within 2% of unchecked for all four kernels; the one-row
+  kernel was 11% over in Phase 4.
+- **Large data, one thread:** 5–9% above unchecked, down from 13–23%, and 1.22–1.43x
+  faster than the default check. **Still short of the 5% target on one thread.**
+- **In cache:** unchanged, 25–60% above unchecked on one thread, and about the same as the
+  default check. The check's arithmetic does as much work per value as these kernels do,
+  and fusing cannot remove it. A cheaper check is the remaining lever; for example, a
+  range `0..=2^k - 1` could be checked with one OR per value instead of a subtract and a
+  max.
+- 4K, 16K and 64K blocks again measured within noise of each other, so the block stays at
+  64K.
+
+**Verification.**
+- `tests/test_scale_contract.py` now has 8 tests. The new emission test (wrapping
+  arithmetic, compute before check) failed before the change.
+- The native cases add the far end of each input's storage type, such as `INT32_MAX`.
+  Arithmetic on that overflows.
+- In WSL (gcc), 16 builds of 92 cases ran plain, under TSan and under ASan+UBSan, at 1 and
+  4 threads: 552 runs, all clean.
+- **Red check:** the same builds with wrapping turned off fail under UBSan, on the extreme
+  case of every fused program. The transpose keeps the up-front check and stays clean.
+- The full suite (640 tests, the restored fused-sum tests included) has no new failures:
+  the same four unexplained failures as before, and known Windows causes for the rest.
+
 ## Phase 4: the fused contract (2026-10-29)
 
 Phase 4 of `2026-10-25-ml-scale-cpu-core-design.md`. Programs without the new line keep

@@ -269,6 +269,18 @@ speed fixes".
     with Phase 4b. In 4b each block computes in wrapping arithmetic and checks in the same
     pass.
 
+**2026-10-30.**
+- **Phase 4b, done.** Scale spec "Phase 4b".
+  - Each block now computes first, in wrapping arithmetic, and then checks its input while
+    that input is in cache.
+  - On 4M-cell data it is within 2% of unchecked at four threads, and 5–9% above unchecked
+    on one thread. That is 1.22–1.43x faster than the default check.
+  - In cache on one thread it is still 25–60% above unchecked: the check itself costs about
+    as much as these kernels do. **The 5% target is met at four threads, not on one.**
+  - My call: stop here. Phase 5 (matmul tiling) matters more for the ML goal than shaving
+    the check on cheap kernels. A cheaper check for power-of-two ranges is noted as an
+    option.
+
 ## Verification for every phase
 
 - Reference agreement on full-size programs, through the sampled reference from phase 3 on.

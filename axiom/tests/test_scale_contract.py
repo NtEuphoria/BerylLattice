@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from axiom.model import C_TYPES, DiagnosticError
+from axiom.model import C_TYPES, DiagnosticError, TYPE_BOUNDS
 from axiom.reference import evaluate_cells
 from axiom.scale_c import compile_scale_native
 from tests.test_scale_abi2 import HARNESS, bad_value
@@ -14,6 +14,12 @@ from tests.test_scale_large import generator, kernel_of
 
 FUSED = 'require output_on_rejection = unspecified;\n'
 SAMPLED = Path(__file__).parent / 'fixtures' / 'scale_sampled_harness.c'
+
+
+def extreme(storage, lo, hi):
+    """The far end of the storage type, outside lo..=hi, or None."""
+    low, high = TYPE_BOUNDS[storage]
+    return high if hi < high else low if lo > low else None
 
 
 def fused(text):
@@ -99,6 +105,20 @@ class EmissionTests(unittest.TestCase):
                 self.assertNotIn('fused', plain.codegen_version)
                 self.assertNotIn(b'beryl_fused(', plain.c_source)
 
+    def test_each_block_computes_in_wrapping_arithmetic_then_checks(self):
+        # Computing first reads the input once; wrapping keeps bad values free of
+        # undefined behavior, and in range nothing wraps (the proof shows it).
+        for text in (WIDE.format(h=40, w=30), BOX.format(h=60, w=50)):
+            with self.subTest(program=text.split(';')[0]):
+                code = compile_scale_native(fused(text).encode()).artifact.c_source
+                self.assertIn(b'(int32_t)((uint32_t)', code)
+                body = code[code.index(b'static uint32_t beryl_fused('):]
+                body = body[:body.index(b'\n}\n')]
+                self.assertLess(body.index(b'beryl_cells(' if b'beryl_cells(' in body else b'beryl_rows('),
+                                body.index(b'beryl_outside('))
+                plain = compile_scale_native(text.encode()).artifact.c_source
+                self.assertNotIn(b'(int32_t)((uint32_t)', plain)
+
     def test_programs_that_read_far_from_their_row_keep_the_preflight(self):
         # A transpose reads a column of the input for each output row.
         artifact = compile_scale_native(fused(TRANSPOSE).encode()).artifact
@@ -140,6 +160,9 @@ class NativeTests(unittest.TestCase):
         for (end, lo, hi), storage in zip(segments, kernel.input_types):
             value = bad_value(storage, lo, hi)
             cases += [(index, value) for index in (start, (start + end) // 2, end - 1)]
+            # The type's far end: arithmetic on it overflows, so a block computed before
+            # its check must wrap (UBSan in WSL checks this).
+            cases.append(((start + end) // 3, extreme(storage, lo, hi)))
             start = end
         if text.startswith('module wide'):
             # The last unread column of the middle row.

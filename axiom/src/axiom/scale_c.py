@@ -17,6 +17,12 @@ storage type, and returns an int64_t status that means the same; it is
 required for mixed storage types and for more than 2^31 - 1 input cells (see
 emit_scale_c).
 
+Under the fused contract (`require output_on_rejection = unspecified;`) maps
+and stencils compute each block of output, then check the input it read while
+that input is still in cache (see _block_shares). A block may then compute on
+rejected values, so its + and * and sums wrap (see _wrapping): never undefined,
+and exact wherever the proof's ranges hold.
+
 Large kernels split their cells across a persistent worker pool. The proved
 store index v0*W + v1 writes every cell exactly once, the producer is inlined
 and sum accumulators are locals, so disjoint cell ranges never share a written
@@ -309,13 +315,27 @@ class _Buffers:
 _JOINED = _Buffers(('input',), ('int32_t',), (0,))
 
 
-def _lower(expr, statements, counter, prod=None, wide=False, narrow=None, buffers=_JOINED):
+def _wrapping(left, op, right, wide):
+    """`left op right` modulo 2^32 (2^64 when `wide`), as int32_t (int64_t).
+
+    Unsigned arithmetic cannot overflow, and the conversion back is modulo
+    2^N on every compiler beryl supports (implementation-defined in C11, never
+    undefined). Wherever the proof's ranges hold, no value wraps, so the result
+    is the exact one.
+    """
+    t, u = ('int64_t', 'uint64_t') if wide else ('int32_t', 'uint32_t')
+    return f'({t})(({u}){left} {op} ({u}){right})'
+
+
+def _lower(expr, statements, counter, prod=None, wide=False, narrow=None, buffers=_JOINED, wrap=False):
     """C for a plan expression; `wide` computes in int64_t (loads and literals widened).
 
     `narrow(sum_expr)`, when given, returns the exact int32_t block length of a
     wide sum (see _narrow_block) or None. A narrow sum's body is lowered as
     plain int32_t, which _narrow_block showed exact for every node. Loads read
-    through `buffers`.
+    through `buffers`. `wrap` makes every + and * and every sum wrap (see
+    _wrapping), so the code has no undefined behavior even on values outside
+    the proof's ranges: the fused contract computes a block before checking it.
     """
     kind = expr[0]
     if kind == 'prod':
@@ -327,13 +347,15 @@ def _lower(expr, statements, counter, prod=None, wide=False, narrow=None, buffer
     if kind in ('shr', 'shr_round'):
         if expr[2][0] != 'const':
             raise ValueError('a shift amount is a literal')
-        left = _lower(expr[1], statements, counter, prod, wide, narrow, buffers)
+        left = _lower(expr[1], statements, counter, prod, wide, narrow, buffers, wrap)
         return f'beryl_{kind}_{"i64" if wide else "i32"}({left}, {expr[2][1]})'
     if kind in BINARY_KINDS:
-        left = _lower(expr[1], statements, counter, prod, wide, narrow, buffers)
-        right = _lower(expr[2], statements, counter, prod, wide, narrow, buffers)
+        left = _lower(expr[1], statements, counter, prod, wide, narrow, buffers, wrap)
+        right = _lower(expr[2], statements, counter, prod, wide, narrow, buffers, wrap)
         if kind in ('min', 'max'):
             return f'beryl_{kind}_{"i64" if wide else "i32"}({left}, {right})'
+        if wrap:
+            return _wrapping(left, "+" if kind == "add" else "*", right, wide)
         return f'({left} {"+" if kind == "add" else "*"} {right})'
     _, var, lower, upper, body = expr
     name = f'ax_s{next(counter)}'
@@ -341,10 +363,11 @@ def _lower(expr, statements, counter, prod=None, wide=False, narrow=None, buffer
     inner = []
     if block is not None:
         # Exact int32_t blocks of `block` terms, each widened once (_narrow_block).
-        value = _lower(body, inner, counter, prod, buffers=buffers)
+        value = _lower(body, inner, counter, prod, buffers=buffers, wrap=wrap)
+        add = f'{name}_b = {_wrapping(f"{name}_b", "+", value, False)};' if wrap else f'{name}_b += {value};'
         loop = [f'int32_t {name}_b = 0;',
                 f'for (int32_t {var} = {name}_k; {var} < {name}_e; ++{var}) {{',
-                *('    ' + line for line in inner), f'    {name}_b += {value};', '}']
+                *('    ' + line for line in inner), f'    {add}', '}']
         if upper - lower <= block:
             statements.extend(line.replace(f'{name}_k', str(lower)).replace(f'{name}_e', str(upper))
                               for line in loop)
@@ -353,14 +376,15 @@ def _lower(expr, statements, counter, prod=None, wide=False, narrow=None, buffer
         statements.append(f'for ({_counter(upper, block)} {name}_k = {lower}; {name}_k < {upper}; {name}_k += {block}) {{')
         statements.append(f'    int32_t {name}_e = {upper} - {name}_k < {block} ? {upper} : {name}_k + {block};')
         statements.extend('    ' + line for line in loop)
-        statements.append(f'    {name} += {name}_b;')
+        statements.append(f'    {name} = {_wrapping(name, "+", f"{name}_b", True)};' if wrap else
+                          f'    {name} += {name}_b;')
         statements.append('}')
         return name
-    value = _lower(body, inner, counter, prod, wide, narrow, buffers)
+    value = _lower(body, inner, counter, prod, wide, narrow, buffers, wrap)
     statements.append(f'{"int64_t" if wide else "int32_t"} {name} = 0;')
     statements.append(f'for (int32_t {var} = {lower}; {var} < {upper}; ++{var}) {{')
     statements.extend('    ' + line for line in inner)
-    statements.append(f'    {name} += {value};')
+    statements.append(f'    {name} = {_wrapping(name, "+", value, wide)};' if wrap else f'    {name} += {value};')
     statements.append('}')
     return name
 
@@ -661,20 +685,23 @@ def _fused_c(plan, kernel, shares, block, params, args, out, check):
                      f'        t = t < 0 ? 0 : t > {n} ? {n} : t;\n'
                      f'        if (s < t) invalid |= {check(k, "s", "t")};\n')
     compute = f'beryl_rows({args}, output, o, e)' if carry else f'beryl_cells({args}, output, o, e)'
-    return ('\n/* The fused contract: check each block of output, then compute it. Block\n'
-            ' * [o, e) checks each input from the cell where its first output starts\n'
-            ' * reading, up to the last cell the block reads (to the input\'s end, for the\n'
-            ' * last block). These shares tile every input, overlapping by a few rows, so\n'
-            ' * every cell is checked whatever the block order or thread, and no block is\n'
-            ' * computed before the cells it reads are checked. Returns 1 on a bad value,\n'
-            ' * leaving later blocks of [from, to) uncomputed. */\n'
+    return ('\n/* The fused contract: compute each block of output, then check its input\n'
+            ' * while that input is still in cache. Block [o, e) checks each input from\n'
+            ' * the cell where its first output starts reading, up to the last cell the\n'
+            ' * block reads (to the input\'s end, for the last block). These shares tile\n'
+            ' * every input, overlapping by a few rows, so every cell is checked whatever\n'
+            ' * the block order or thread. A block may compute on values its check then\n'
+            ' * rejects: its arithmetic wraps, so that is never undefined, and the output\n'
+            ' * is unspecified on rejection. Returns 1 on a bad value, leaving later\n'
+            ' * blocks of [from, to) uncomputed. */\n'
+            '_Static_assert(UINT_MAX <= UINT32_MAX, "uint32_t arithmetic must not promote to int");\n'
             f'static uint32_t beryl_fused({params}, {out} *restrict output, int64_t from, int64_t to) {{\n'
             f'    for (int64_t o = from; o < to; o += {block}) {{\n'
             f'        int64_t e = to - o < {block} ? to : o + {block}, s, t, u;\n'
             '        uint32_t invalid = 0;\n'
+            f'        {compute};\n'
             + shares_c +
             '        if (invalid) return 1;\n'
-            f'        {compute};\n'
             '    }\n'
             '    return 0;\n'
             '}\n')
@@ -739,9 +766,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     lower, upper = segments[0][2], segments[0][3]
     prod_interval = _narrow_block(plan.stages[0].value, load_range) if carry else None
     narrow = (lambda e: _narrow_block(e, load_range, prod_interval)) if wide else None
-    value = None if carry else _lower(stage.value, statements, counter, None, wide, narrow, buffers)
     n_in, n_out = kernel.input_count, kernel.height * kernel.width
-    body = '\n'.join('            ' + line for line in statements)
     # A single cell whose value is one large sum: split the sum range instead.
     # Any subset of its terms is bounded by the same proof as the whole sum.
     split = (not carry and n_out == 1 and stage.value[0] == 'sum' and not _has_sum(stage.value[4])
@@ -773,8 +798,12 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     # The fused contract: maps and stencils check each block of input just before computing it.
     blocked = (_block_shares(plan, kernel, segments, checks, lows)
                if kernel.output_on_rejection == 'unspecified' and not (split or rows or tiled) else None)
+    # Each block is computed before it is checked, so its arithmetic wraps (see _wrapping).
+    wrap = bool(blocked)
+    value = None if carry else _lower(stage.value, statements, counter, None, wide, narrow, buffers, wrap)
+    body = '\n'.join('            ' + line for line in statements)
     if carry:
-        cells = carry_rows_c(plan, kernel, lambda e, s, c, p: _lower(e, s, c, p, wide, narrow, buffers),
+        cells = carry_rows_c(plan, kernel, lambda e, s, c, p: _lower(e, s, c, p, wide, narrow, buffers, wrap),
                              params, args)
     elif tiled:
         cells = _tiled_rows(stage, v0, v1, w, statements, value, out, buffers)
@@ -1065,7 +1094,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     version = ((SCALE_PARALLEL_CODEGEN_VERSION if parallel else SCALE_CODEGEN_VERSION) if abi == 1 else
                (SCALE_ABI2_PARALLEL_CODEGEN_VERSION if parallel else SCALE_ABI2_CODEGEN_VERSION))
     if blocked:
-        version = version.replace('beryl-loop-c', 'beryl-loop-c-fused', 1)
+        version = version.replace('beryl-loop-c', 'beryl-loop-c-fused2', 1)
     return NativeArtifact(generated, kernel.height, kernel.width, n_in, n_out, source_digest,
                           plan_digest, sha256(generated).hexdigest(), version, None, plan.format)
 
