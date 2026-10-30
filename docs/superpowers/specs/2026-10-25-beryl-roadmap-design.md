@@ -368,8 +368,9 @@ design:
 - **Timing.** No code exists yet. Work starts with the Stage 4 defense item or a funded
   defense design partner, whichever is first. The website and pitch do not announce the
   edition until it exists.
-- **Licensing.** The repository has no license yet. The public part gets one when it is
-  opened, typically a permissive or Apache-2.0 license in an open-core model.
+- **Licensing.** The repository is licensed under Apache-2.0 (`LICENSE`, added 2026-10-29),
+  for the public part in an open-core model. Anything in this repository falls under that
+  license once shared, so the closed edition's code must live in a separate repository.
 
 ## 9. Claims policy
 
