@@ -157,6 +157,90 @@ Not yet:
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
 
+## Phase 4: the fused contract (2026-10-29)
+
+Phase 4 of `2026-10-25-ml-scale-cpu-core-design.md`. Programs without the new line keep
+their identity and their C: all 13 checked programs are byte-identical, and so are their
+semantic digests.
+
+**The contract.** `require output_on_rejection = unspecified;` says the output is
+unspecified when the kernel rejects its input. The status is unchanged: 0, or the exact
+first bad index plus one.
+- The line adds `output_on_rejection` to the semantic record. It is accepted once, with
+  this spelling only, and only in a scale-v1 program; a small program that declares it is
+  admitted as scale-v1.
+- The Python reference and the loop-plan runtime still return the original output on
+  rejection. That is one of the allowed outputs.
+
+**Block by block.** Each block of output is checked just before it is computed, so it reads
+its input once, while that input is in cache.
+- Block `[o, e)` checks each input from the cell where output `o` starts reading, up to the
+  last cell the block reads. The last block checks up to the input's end.
+- These shares tile every input, overlapping by a few rows. So every input cell is checked,
+  in any block order and on any thread, and no block is computed before the cells it reads
+  are checked.
+- A block that finds a bad value stops. The kernel then runs the ordered scan for the exact
+  first bad index, as before.
+- Inputs that no load reads are checked whole, before any block.
+- The bounds hold when every load of an input has the same nonnegative row and column
+  coefficients, with the row step at least a row's width of columns. Then both ends of a
+  block's reads never decrease as the block moves on. Maps, stencils, carry plans and
+  one-row kernels qualify.
+- Transposes, matrix multiplies, dense layers and single-cell sums keep the up-front check,
+  which the contract also allows. Their reads do not advance with the output row.
+- A block is at least 64K output cells, or 64K cells of rows for a carry plan. It doubles,
+  up to four times, until its fresh input is at least four times what it rechecks at its
+  edges. 4K, 16K and 64K blocks measured within noise of each other.
+- Codegen is `beryl-loop-c-fused-...`, with the ABI and parallel variants.
+
+**Speed** (WSL, gcc `-O3 -march=native`; the unchecked twin is the default C with the check
+function stubbed out, for measurement only; m is 64K cells, l is 4M cells).
+
+| kernel | threads | default | fused | unchecked | fused / unchecked | default / fused |
+|---|---|---|---|---|---|---|
+| map m | 1 | 9.2 µs | 9.8 µs | 6.1 µs | 1.61 | 0.94 |
+| map l | 1 | 3.40 ms | 2.88 ms | 2.39 ms | 1.21 | 1.18 |
+| map l | 4 | 2.66 ms | 2.05 ms | 2.01 ms | 1.02 | 1.30 |
+| box (carry) m | 1 | 17.0 µs | 17.4 µs | 13.9 µs | 1.25 | 0.98 |
+| box (carry) l | 1 | 4.14 ms | 3.22 ms | 2.85 ms | 1.13 | 1.28 |
+| box (carry) l | 4 | 2.74 ms | 2.06 ms | 2.01 ms | 1.02 | 1.33 |
+| diag stencil l | 1 | 3.35 ms | 2.88 ms | 2.40 ms | 1.20 | 1.17 |
+| diag stencil l | 4 | 2.68 ms | 2.09 ms | 2.02 ms | 1.03 | 1.28 |
+| one row l | 1 | 2.93 ms | 2.27 ms | 1.85 ms | 1.23 | 1.29 |
+| one row l | 4 | 1.84 ms | 1.40 ms | 1.25 ms | 1.11 | 1.32 |
+
+- **Four threads:** within 5% of unchecked in 7 of the 8 cases (four kernels, two sizes).
+  The exception is the one-row l kernel, 11% over. That meets the target, with that
+  exception.
+- **One thread, large data:** 1.17–1.29x faster than the up-front check, but 13–23% slower
+  than unchecked. **The target is missed here.**
+- **One thread, in cache:** about the same as the up-front check, and 25–61% slower than
+  unchecked. The check's own arithmetic is the cost here: it does about as much work per
+  value as a map. Fusing saves only the second read.
+- **What would close the gap:** a single pass, where each block computes and checks in the
+  same loop. Reading values before they are checked is safe only if a bad value cannot
+  cause undefined behavior, so the block would compute in wrapping (unsigned) arithmetic.
+  The contract allows the garbage that results on rejection. Cells that no load reads would
+  still need the block shares. This is the follow-up, Phase 4b.
+
+**Verification.**
+- `tests/test_scale_contract.py`: 7 tests, written first and failing before the change. They
+  cover:
+  - the spelling and admission;
+  - emission choices;
+  - native runs of 9 programs, through both ABIs, at 1 and 4 threads.
+- The native runs are on good data, and with bad values at the first, middle and last cell
+  of every input, plus an unread column. The status must be exact.
+- In WSL (gcc), 16 builds of 74 cases ran plain, under TSan and under ASan+UBSan, at 1 and 4
+  threads: 444 runs per block size. All are clean at 16K and at 64K blocks.
+- The 105 related tests pass.
+- The full suite (636 tests) has no new failures: the same four unexplained failures as in
+  3a and 3b, and known Windows causes for the rest. Application Control blocked nothing
+  this time.
+- These runs missed the three older fused-sum tests in `tests/test_scale_fused.py`: the new
+  tests had overwritten that file by mistake. The file is restored, and those three tests
+  pass on the final code.
+
 ## Phase 3b: one pointer per input (ABI v2) (2026-10-26)
 
 The rest of phase 3 of `2026-10-25-ml-scale-cpu-core-design.md`. Programs admitted before

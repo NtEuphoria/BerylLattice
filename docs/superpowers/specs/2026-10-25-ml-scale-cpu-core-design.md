@@ -256,6 +256,19 @@ speed fixes".
   - Found on the way: the emitter could take an i64 sum's block length from the wrong input
     when an index adds a negative literal. Fixed, with a regression test.
 
+**2026-10-29.**
+- **Phase 4, done in part.** Scale spec "Phase 4".
+  - `require output_on_rejection = unspecified;` checks each block of input just before
+    computing it, for maps, stencils, carry plans and one-row kernels. The status stays
+    exact.
+  - At four threads it is within 5% of unchecked in 7 of 8 cases (four kernels, two sizes).
+  - On one thread it is 1.17–1.29x faster than the up-front check on 4M-cell data, but
+    still 13–23% slower than unchecked; in cache, 25–61% slower. **Target missed on one
+    thread.**
+  - My call: ship the block-by-block check, which is correct and a clear gain, and follow
+    with Phase 4b. In 4b each block computes in wrapping arithmetic and checks in the same
+    pass.
+
 ## Verification for every phase
 
 - Reference agreement on full-size programs, through the sampled reference from phase 3 on.

@@ -139,6 +139,9 @@ def admit_scale(module, height, width, objective, profile, shape):
     if set(storage.values()) & STORAGE_BOUNDS.keys():
         # Programs with only i32 and i64 storage keep the identities above.
         semantics.update(storage=storage, stored_value='output-proved-to-fit-its-storage-type')
+    if any(c.property_name == 'output_on_rejection' for c in module.constraints):
+        # The fused contract; programs without it keep the identities above.
+        semantics.update(output_on_rejection='unspecified')
     input_types = [decl.element_type for decl in module.inputs]
     if len(set(input_types)) > 1:
         # Programs whose inputs share one type keep the identities above.

@@ -296,8 +296,13 @@ class _Parser:
                 (producers if start.text == 'let' else outputs).append(decl)
             elif start.text == 'require':
                 name = self.identifier()
-                self.take('<=')
-                value = self.integer().value
+                if self.token.text == '=':
+                    # A named setting, such as `output_on_rejection = unspecified`.
+                    self.take('=')
+                    value = self.identifier().text
+                else:
+                    self.take('<=')
+                    value = self.integer().value
                 self.take(';')
                 decl = ConstraintDeclaration(name.text, value, self.span_from(start.span))
                 constraints.append(decl)
@@ -460,7 +465,15 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     if not isinstance(module, SourceModule):
         _fail('INVALID_SOURCE', Span(0, 0), 'expected a SourceModule')
     shapes = _validate(module)
+    fused = False
     for constraint in module.constraints:
+        if constraint.property_name == 'output_on_rejection':
+            # The fused contract (scale-v1): on rejection the output is unspecified.
+            if constraint.value != 'unspecified' or fused:
+                _fail('INVALID_CONSTRAINT', constraint.span,
+                      'write `require output_on_rejection = unspecified;`, at most once')
+            fused = True
+            continue
         if constraint.property_name != 'plan_workspace_bytes':
             _fail('UNSUPPORTED_CONSTRAINT', constraint.span, 'unknown hard property')
         if type(constraint.value) is not int or not 0 <= constraint.value <= 2147483647:
@@ -485,7 +498,8 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
     # Narrow storage is scale-v1 only too; each input keeps its own type.
     storage = {decl.element_type for decl in module.inputs} | {module.outputs[0].element_type}
     narrow = bool(storage & STORAGE_BOUNDS.keys())
-    small = None if wide or narrow else expand_small_sums(module)
+    # The fused contract is scale-v1 only as well.
+    small = None if wide or narrow or fused else expand_small_sums(module)
     profile = _profile(small) if small is not None else None
     canonical = profile == _canonical_profile()
     window = None if canonical or small is None else window_shape(profile)
@@ -499,9 +513,11 @@ def admit_source(module: SourceModule) -> AdmittedKernel:
         scale = scale_shape(loops, height, width)
         if scale is not None:
             return admit_scale(module, height, width, objective, loops, scale)
-    if wide or narrow:
-        _fail('UNSUPPORTED_PROFILE', module.span, f'{"i64 equations" if wide else "u8, i8 and i16 storage"} '
-              'need a scale-v1 program (a stencil, map or reduction over the shapes H and W)')
+    if wide or narrow or fused:
+        feature = ('i64 equations need' if wide else 'u8, i8 and i16 storage need' if narrow else
+                   '`require output_on_rejection` needs')
+        _fail('UNSUPPORTED_PROFILE', module.span, f'{feature} '
+              'a scale-v1 program (a stencil, map or reduction over the shapes H and W)')
     if small is None:
         span, message = explain(module)
         _fail('UNSUPPORTED_PROFILE', span, message)

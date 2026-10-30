@@ -173,7 +173,7 @@ class EquationDeclaration:
 @dataclass(frozen=True, slots=True)
 class ConstraintDeclaration:
     property_name: str
-    value: int
+    value: int | str  # `require name <= integer;` or `require name = setting;`
     span: Span
 
 
@@ -269,6 +269,12 @@ class AdmittedKernel:
     def input_types(self) -> tuple[str, ...]:
         """Each input's storage type, in declaration order."""
         return tuple(decl.element_type for decl in self.source_module.inputs)
+
+    @property
+    def output_on_rejection(self) -> str:
+        """'unspecified' under the fused contract (scale-v1), else 'preserved'."""
+        declared = any(c.property_name == 'output_on_rejection' for c in self.source_module.constraints)
+        return 'unspecified' if declared else 'preserved'
 
     @property
     def wide(self) -> bool:

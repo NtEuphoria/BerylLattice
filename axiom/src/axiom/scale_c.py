@@ -28,7 +28,7 @@ from hashlib import sha256
 
 from .model import C_TYPES, STORAGE_BOUNDS, TYPE_BOUNDS, Limits
 from .native_codegen import _FAST_DRIVER, NativeArtifact
-from .scale_carry import c_types, carry_eligible, carry_rows_c, plan_costs, rank_key
+from .scale_carry import c_types, carry_eligible, carry_rows_c, plan_costs, rank_key, window_rows
 from .scale_plan import BINARY_KINDS, SCALE_PLAN_IDS
 from .scale_pool import _POOL
 from .scale_checker import check_loop_plan
@@ -535,6 +535,151 @@ def _streaming_cells(stage, v0, v1, w, body, value, buffers=_JOINED):
             '}\n')
 
 
+# Under the fused contract a block of output is checked just before it is
+# computed. A block is at least this many output cells (a carry plan's block,
+# at least this many cells of rows), grown until its fresh input outweighs
+# what it rechecks at its edges. 4K, 16K and 64K blocks measured within noise
+# of each other (gcc, AVX2); 64K was best or close on 4M-cell maps and stencils.
+BLOCK_CELLS = 1 << 16
+
+
+def _load_affines(expr, out):
+    if expr[0] == 'load':
+        out.append(expr[1])
+    elif expr[0] in BINARY_KINDS:
+        _load_affines(expr[1], out)
+        _load_affines(expr[2], out)
+    elif expr[0] == 'sum':
+        _load_affines(expr[4], out)
+    return out
+
+
+def _sum_bounds(expr, out):
+    """Each sum variable's first and last value."""
+    if expr[0] == 'sum':
+        out[expr[1]] = (expr[2], expr[3] - 1)
+        _sum_bounds(expr[4], out)
+    elif expr[0] in BINARY_KINDS:
+        _sum_bounds(expr[1], out)
+        _sum_bounds(expr[2], out)
+    return out
+
+
+def _block_shares(plan, kernel, segments, checks, lows):
+    """Block reads per checked input under the fused contract, or None.
+
+    Returns (block, {k: (minc, maxc, a, b)}, unread). A block of output cells
+    [o, e) of a cells plan reads input k only within [minc + a*(o/W) +
+    b*(o%W), maxc + a*((e-1)/W) + b*((e-1)%W)], offsets within input k; a
+    block of rows [o, e) of a carry plan, within [minc + a*o, maxc +
+    a*(e-1 + K-1) + b*(pcols-1)], since it produces rows o .. e-1+K-1. These
+    bounds hold when every load of the input has the same nonnegative row and
+    column coefficients a and b, and a >= b*(W-1) when W columns make a row:
+    then both ends never decrease as the block moves on. `unread` lists the
+    checked inputs no load reads. None when some input breaks those
+    conditions or would recheck more than a quarter of each block's input.
+    """
+    carry = len(plan.stages) == 2
+    stage = plan.stages[-1]
+    (_, h), (_, w) = stage.loops
+    source = plan.stages[0] if carry else stage
+    (row, _), (col, cols) = source.loops
+    bounds = _sum_bounds(source.value, {})
+    loads = {}
+    for affine in _load_affines(source.value, []):
+        k = next(k for k, (s, e, *_) in enumerate(segments) if s <= _first_cell(affine, lows) < e)
+        loads.setdefault(k, []).append(affine)
+    shares, unread = {}, []
+    for k, start, *_ in checks:
+        if k not in loads:
+            unread.append(k)
+            continue
+        coefficients = set()
+        minc = maxc = None
+        for constant, terms in loads[k]:
+            coef = dict(terms)
+            coefficients.add((coef.get(row, 0), coef.get(col, 0)))
+            low = high = constant - start
+            for var, c in terms:
+                if var not in (row, col):
+                    first, last = bounds[var]
+                    low += c * (first if c > 0 else last)
+                    high += c * (last if c > 0 else first)
+            minc = low if minc is None else min(minc, low)
+            maxc = high if maxc is None else max(maxc, high)
+        if len(coefficients) != 1:
+            return None
+        (a, b), = coefficients
+        if a < 0 or b < 0 or (not carry and h > 1 and a < b * (cols - 1)):
+            return None
+        shares[k] = (minc, maxc, a, b)
+    if not shares:
+        return None
+    k_rows = window_rows(stage.value) if carry else 1
+    block = -(-BLOCK_CELLS // w) if carry or h > 1 else BLOCK_CELLS  # rows, or cells of one row
+    block = max(block, 4 * k_rows) if carry else block
+    for _ in range(5):
+        def fits(minc, maxc, a, b):
+            if carry:
+                overlap, fresh = maxc - minc + a * (k_rows - 1) + b * (cols - 1) + 1, a * block
+            elif h > 1:
+                overlap, fresh = maxc - minc + b * (cols - 1) + 1, a * block
+            else:
+                overlap, fresh = maxc - minc + 1, b * block
+            return overlap <= fresh // 4 + 1024
+        if all(fits(*share) for share in shares.values()):
+            return (block if carry else block * (w if h > 1 else 1)), shares, unread
+        block *= 2
+    return None
+
+
+def _fused_c(plan, kernel, shares, block, params, args, out, check):
+    """C for `beryl_fused(inputs, output, from, to)`: check, then compute, each block (_block_shares)."""
+    carry = len(plan.stages) == 2
+    (_, h), (_, w) = plan.stages[-1].loops
+    total = h if carry else h * w
+    k_rows = window_rows(plan.stages[-1].value) if carry else 1
+    pcols = plan.stages[0].loops[1][1] if carry else w
+
+    def at(x, minc, a, b, last=False):
+        terms = [f'(int64_t){minc}']
+        if carry:
+            terms += [f'(int64_t){a} * ({x} + {k_rows - 1})' if last else f'(int64_t){a} * {x}'] * (a != 0)
+            terms += [f'(int64_t){b * (pcols - 1)}'] * (last and b != 0)
+        else:
+            terms += [f'(int64_t){a} * ({x} / {w})'] * (a != 0) + [f'(int64_t){b} * ({x} % {w})'] * (b != 0)
+        return ' + '.join(terms)
+    shares_c = ''
+    for k, (minc, maxc, a, b) in shares.items():
+        n = kernel.all_input_shapes[k][0] * kernel.all_input_shapes[k][1]
+        shares_c += (f'        /* input {k} */\n'
+                     f'        s = o == 0 ? 0 : {at("o", minc, a, b)};\n'
+                     f'        s = s < 0 ? 0 : s > {n} ? {n} : s;\n'
+                     f'        t = e >= {total} ? {n} : {at("e", minc, a, b)};\n'
+                     f'        u = {at("(e - 1)", maxc, a, b, last=True)} + 1;\n'
+                     f'        t = t > u ? t : u;\n'
+                     f'        t = t < 0 ? 0 : t > {n} ? {n} : t;\n'
+                     f'        if (s < t) invalid |= {check(k, "s", "t")};\n')
+    compute = f'beryl_rows({args}, output, o, e)' if carry else f'beryl_cells({args}, output, o, e)'
+    return ('\n/* The fused contract: check each block of output, then compute it. Block\n'
+            ' * [o, e) checks each input from the cell where its first output starts\n'
+            ' * reading, up to the last cell the block reads (to the input\'s end, for the\n'
+            ' * last block). These shares tile every input, overlapping by a few rows, so\n'
+            ' * every cell is checked whatever the block order or thread, and no block is\n'
+            ' * computed before the cells it reads are checked. Returns 1 on a bad value,\n'
+            ' * leaving later blocks of [from, to) uncomputed. */\n'
+            f'static uint32_t beryl_fused({params}, {out} *restrict output, int64_t from, int64_t to) {{\n'
+            f'    for (int64_t o = from; o < to; o += {block}) {{\n'
+            f'        int64_t e = to - o < {block} ? to : o + {block}, s, t, u;\n'
+            '        uint32_t invalid = 0;\n'
+            + shares_c +
+            '        if (invalid) return 1;\n'
+            f'        {compute};\n'
+            '    }\n'
+            '    return 0;\n'
+            '}\n')
+
+
 def _abi(kernel, abi):
     """The interface to emit: ABI 2 when the inputs cannot share one array and one int32_t status."""
     needs = len(set(kernel.input_types)) > 1 or kernel.input_count > _I32_MAX
@@ -625,6 +770,9 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     tiled = (not carry and not split and not rows and not stream and h >= TILE and w >= TILE
              and _strided_in(stage.value, v1))
     params, args = buffers.params, buffers.args
+    # The fused contract: maps and stencils check each block of input just before computing it.
+    blocked = (_block_shares(plan, kernel, segments, checks, lows)
+               if kernel.output_on_rejection == 'unspecified' and not (split or rows or tiled) else None)
     if carry:
         cells = carry_rows_c(plan, kernel, lambda e, s, c, p: _lower(e, s, c, p, wide, narrow, buffers),
                              params, args)
@@ -729,6 +877,19 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
                         f'    ax_invalid = beryl_check(input, 0, {n_in});\n')
         chunk_check = (f'        beryl_job_invalid[c] = {_range_check("from", "to", lower, upper, storage)};\n'
                        if uniform else '        beryl_job_invalid[c] = beryl_check(input, from, to);\n')
+    if blocked:
+        block, shares, unread = blocked
+        segment = {k: (s, e, lo, hi, t) for k, s, e, lo, hi, t in checks}
+
+        def check_cells(k, a, b):
+            s, _, lo, hi, t = segment[k]
+            if abi == 1:
+                return f'beryl_outside(input, {s} + {a}, {s} + {b}, {_literal(lo)}, {hi - lo}u)'
+            return f'beryl_outside_{t}(in{k}, {a}, {b}, {_literal(lo)}, {hi - lo}u)'
+        parts.append(_fused_c(plan, kernel, shares, block, params, args, out, check_cells))
+        # Inputs no load reads are checked whole, before any block.
+        serial_check = ''.join(f'    ax_invalid |= {check_cells(k, 0, segment[k][1] - segment[k][0])};\n'
+                               for k in unread)
     # The pool takes the inputs as one pointer (ABI 1) or as an array of them (ABI 2).
     pooled = 'input' if abi == 1 else 'ax_in'
     if parallel:
@@ -750,10 +911,13 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
                      '    int64_t from = beryl_job_begin[c], to = beryl_job_begin[c + 1];\n'
                      + unpack +
                      '    if (beryl_job_phase == 0) {\n'
-                     + chunk_check + split_chunk +
-                     '    } else if (from < to) {\n'
-                     + (f'        beryl_rows({args}, beryl_job_output, from, to);\n' if carry or tiled else
-                        f'        beryl_cells({args}, beryl_job_output, from, to);\n') +
+                     + chunk_check + split_chunk
+                     + ('    } else {\n'
+                        f'        beryl_job_invalid[c] = from < to ? beryl_fused({args}, beryl_job_output, from, to) : 0;\n'
+                        if blocked else
+                        '    } else if (from < to) {\n'
+                        + (f'        beryl_rows({args}, beryl_job_output, from, to);\n' if carry or tiled else
+                           f'        beryl_cells({args}, beryl_job_output, from, to);\n')) +
                      '    }\n'
                      '}\n')
     if abi == 1:
@@ -782,7 +946,17 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
                           f'            if ({_outside(f"in{k}[i]", lo, hi, t, _literal)}) return (int64_t)i + {s + 1};\n'
                           for k, s, e, lo, hi, t in checks)
                 + '    }\n')
-    if fused:
+    if blocked:
+        total = h if carry else n_out
+        dispatch = (f'beryl_dispatch(1, {total}, 1, 1, {pooled}, output)' if carry else
+                    f'beryl_dispatch(1, {total}, 16, 4, {pooled}, output)')
+        parts.append(serial_check + '    if (!ax_invalid) {\n'
+                     + (f'        if (threads > 1) {{\n            {dispatch};\n'
+                        '            for (int c = 0; c < beryl_job_chunks; ++c) ax_invalid |= beryl_job_invalid[c];\n'
+                        '        } else ' if parallel else '        ')
+                     + f'ax_invalid = beryl_fused({args}, output, 0, {total});\n'
+                     '    }\n' + scan)
+    elif fused:
         parts.append(f'    {val} total = 0;\n'
                      '    if (threads > 1) {\n'
                      f'        beryl_dispatch(2, {s_hi - s_lo}, 16, 4, {pooled}, output);\n'
@@ -802,10 +976,10 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
                      '    }\n')
     else:
         parts.append(serial_check)
-    if not fused:
+    if not (fused or blocked):
         parts.append(scan)
-    if fused:
-        pass  # checked, summed and written above
+    if fused or blocked:
+        pass  # checked, computed and written above
     elif split:
         parts.append('    if (threads > 1) {\n'
                      f'        beryl_dispatch(2, {s_hi - s_lo}, 16, 4, {pooled}, output);\n'
@@ -890,6 +1064,8 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     generated = (code + driver).encode('ascii')
     version = ((SCALE_PARALLEL_CODEGEN_VERSION if parallel else SCALE_CODEGEN_VERSION) if abi == 1 else
                (SCALE_ABI2_PARALLEL_CODEGEN_VERSION if parallel else SCALE_ABI2_CODEGEN_VERSION))
+    if blocked:
+        version = version.replace('beryl-loop-c', 'beryl-loop-c-fused', 1)
     return NativeArtifact(generated, kernel.height, kernel.width, n_in, n_out, source_digest,
                           plan_digest, sha256(generated).hexdigest(), version, None, plan.format)
 
