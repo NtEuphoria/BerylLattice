@@ -280,6 +280,45 @@ speed fixes".
   - My call: stop here. Phase 5 (matmul tiling) matters more for the ML goal than shaving
     the check on cheap kernels. A cheaper check for power-of-two ranges is noted as an
     option.
+- **Phase 5, measured before building: tiling does not help on this CPU.**
+  - The machine is an AMD Ryzen 3 3100 (Zen 2), measured in WSL with gcc `-O3
+    -march=native`, one thread. Logs and prototypes are in `.local/phase5/`.
+  - **int32 matmul is limited by the multiplier, not memory.** Register-blocked
+    prototypes (blocks of 2 × 32 up to 8 × 16 cells, kept in registers across the k loop)
+    ran 1.14–1.30 ms at 256³, the same as today's 1.19–1.25 ms. At 1024³ they ran 83–89 ms,
+    against today's 84 ms. That is about 13 billion multiply-adds a second, the rate of
+    Zen 2's 256-bit 32-bit multiply (about one every two cycles).
+  - **16-bit operands are the lever, and beryl already gets it in the dense layout.** For
+    weights stored `[out, in]`, each cell is a dot product contiguous along k, and gcc emits
+    `vpmaddwd`, 16 multiplies per instruction, for beryl's own generated code. Dense 256³:
+
+    | storage | time | against OpenBLAS `sgemm` (388 µs, float32) |
+    |---|---|---|
+    | i32 | 1,455 µs | 3.75x its time |
+    | i16 | 437 µs | 1.13x its time |
+    | i8 | 726 µs | 1.87x its time; widened to 16 bits first |
+
+  - So the phase 5 target, within 2x of OpenBLAS, is already met for i16 and i8 dense
+    layers. Not for int32 matmul, whose multiplier caps it near 3x.
+  - The `[k, c]` layout (the benchmark's matmul) cannot use `vpmaddwd`: its k pairs are not
+    adjacent in memory. That would need a packed copy of B, which is a non-goal unless
+    needed.
+  - **My call: phase 5 becomes "not needed on this hardware for now".** The work moves to
+    phase 6, where int8 is the gap. The u8 × i8 multiply-add (`vpmaddubsw`) does twice the
+    work per instruction of i16, but it saturates, so the checker must prove each pair's
+    sum fits i16. gcc never emits it on its own. Tiling comes back if a memory-bound case
+    shows up, such as batched layers too large for cache, or a CPU whose multiply is
+    faster.
+- **Phase 6a, done.** Scale spec "Phase 6a".
+  - u8 × i8 dot products run through `vpmaddubsw` when the declared ranges keep every pair
+    of products in i16, for example activations in `0..=127`.
+  - Int8 dense layers run 2.1–3.4x faster than before: 329 µs at 256³ and 2.92 ms for a
+    4096 → 11008 layer, one thread.
+  - My call: the pair bound is checked in the emitter from the declared ranges, on the
+    "argued and tested" list, rather than as a checker-carried mark.
+  - Not done yet:
+    - the comparison with PyTorch/FBGEMM, which needs the PyTorch wheel installed;
+    - register blocking of several cells per dot product, which could share loads.
 
 ## Verification for every phase
 

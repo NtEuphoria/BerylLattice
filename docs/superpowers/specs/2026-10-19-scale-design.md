@@ -157,6 +157,71 @@ Not yet:
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
 
+## Phase 6a: u8 × i8 dot products through the pair multiply-add (2026-10-30)
+
+Phase 6 of `2026-10-25-ml-scale-cpu-core-design.md`, first part. Phase 5 was skipped after
+measurement: tiling does not help int32 matmul on this CPU (see that design's progress
+log).
+
+**The rule.** The emitter finds a sum whose body is a u8 load times an i8 load, both
+stepping one cell per term: a dot product along the sum, as in a dense layer with weights
+stored `[out, in]`. It replaces the sum with `beryl_dot_u8i8(p, q, n)` when all three hold:
+- **The pair bound.** AVX2's `vpmaddubsw` multiplies 32 byte pairs and adds neighbouring
+  products, saturating at i16. It is exact only when every pair sum fits i16. The emitter
+  requires `2 × (u8 maximum) × (largest |i8|) ≤ 32767`, from the declared input ranges.
+  With weights in `-127..=127`, activations up to 129 qualify; 130 does not.
+  - Activations in `0..=127` qualify with any i8 weights. This is what FBGEMM's
+    reduced-range quantization uses on x86 for the same reason.
+- **The sum fits int32.** For an i32 sum the checker's proof already says so. In an i64
+  program, the sum must fit one exact int32 block (`_narrow_block`).
+- **Exact partial sums.** The helper adds pairs with `vpmaddwd` against ones (exact) and
+  accumulates eight int32 lanes. Each lane holds a partial sum of the terms, which the
+  proof bounds too.
+
+The helper keeps plain C for the tail, and for builds without AVX2.
+
+**My call: an emission rule with its own interval check, not a checker-carried mark.** The
+design called for plans to carry width marks that the checker proves. This rule derives the
+same fact from the same declared ranges inside the trusted emitter, as the exact int32
+blocks of i64 sums already do. It joins the "argued and tested" list. Checker-carried marks
+come back when a planner proposes alternative widths.
+
+Codegen is `beryl-loop-c-madd-...` where the rule applies. Every other program is unchanged:
+byte-identical C and digests for the 13 checked programs.
+
+**Speed** (WSL, gcc `-O3 -march=native`, Ryzen 3 3100, beryl's own kernels through ABI 2;
+dense layers, weights `[out, in]`).
+
+| layer | i8 × i8 | u8 × i8, activations to 255 | **u8 × i8, activations to 127** | i16 × i16 |
+|---|---|---|---|---|
+| 256 × 256 × 256, 1 thread | 690 µs | 725 µs | **329 µs** | 434 µs |
+| 4096 → 11008, one row, 1 thread | 9.18 ms | 9.20 ms | **2.92 ms** | 12.4 ms |
+| 1024³, 1 thread | 71.2 ms | 71.5 ms | **21.3 ms** | 41.7 ms |
+| 1024³, 4 threads | 23.4 ms | 23.9 ms | **7.6 ms** | 13.2 ms |
+
+- That is 2.1–3.4x faster than today's int8 path, and faster than i16.
+- At 256³ it is 0.85x the time of OpenBLAS `sgemm` (float32, one thread, 388 µs). That is
+  int8 against float32, so it is not a like-for-like claim.
+- **Not yet measured against PyTorch/FBGEMM's int8 path, the phase 6 target.** That needs
+  the PyTorch wheel installed, which waits for approval.
+
+**Verification.**
+- `tests/test_scale_madd.py`: 5 tests, written first and failing before the change. They
+  cover:
+  - the exact range boundary (129 qualifies, 130 does not);
+  - i8 × i8, u8 × u8 and a strided weight layout, none of which qualify;
+  - the portable fallback;
+  - native runs: hashed data with a 12-term tail and a parallel layer, plus every pair at
+    ±32766, one short of saturating.
+- **Red check:** without the pair bound, activations of 255 against weights of 127
+  saturate, and the native test fails (outputs about 5.0M instead of 9.6M).
+- In WSL (gcc), 4 programs, the full 4096 → 11008 layer included, ran 36 cases at 1 and 4
+  threads.
+  - With AVX2, plain, under TSan and under ASan+UBSan: 216 runs, all clean.
+  - Built without AVX2, which runs the portable fallback: 72 runs, all clean.
+- The full suite (645 tests) has no new failures: the same four unexplained failures as
+  before, and known Windows causes for the rest.
+
 ## Phase 4b: compute, then check, in wrapping arithmetic (2026-10-30)
 
 Phase 4's blocks read their input twice: a check pass from memory, then the compute pass

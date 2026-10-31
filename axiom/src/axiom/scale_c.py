@@ -293,6 +293,7 @@ class _Buffers:
     types: tuple[str, ...]  # C types
     starts: tuple[int, ...]  # each pointer's first cell in the joined order
     lows: tuple[tuple[str, int], ...] = ()  # sum variables' lower bounds
+    ranges: tuple[tuple[int, int], ...] = ()  # each pointer's declared input range (ABI 2)
 
     @property
     def params(self) -> str:
@@ -313,6 +314,59 @@ class _Buffers:
 
 
 _JOINED = _Buffers(('input',), ('int32_t',), (0,))
+
+
+# A pair multiply-add of u8 by i8 never saturates when every pair p0*q0 + p1*q1
+# lies in i16: 2 * (largest u8 value) * (largest |i8| value) <= 32767.
+_DOT_U8I8 = '''
+#if defined(__AVX2__)
+#include <immintrin.h>
+#endif
+/* The sum of p[i] * q[i] for i < n, u8 by i8. Used only where every pair
+ * p[i]q[i] + p[i+1]q[i+1] provably fits i16, so the saturating pair
+ * multiply-add is exact, and where the whole sum fits int32_t; every partial
+ * sum of its terms then fits too. Portable C without AVX2. */
+static inline int32_t beryl_dot_u8i8(const uint8_t *restrict p, const int8_t *restrict q, int32_t n) {
+    int32_t i = 0, total = 0;
+#if defined(__AVX2__)
+    __m256i acc = _mm256_setzero_si256();
+    const __m256i ones = _mm256_set1_epi16(1);
+    for (; i + 32 <= n; i += 32) {
+        __m256i a = _mm256_loadu_si256((const __m256i *)(const void *)(p + i));
+        __m256i b = _mm256_loadu_si256((const __m256i *)(const void *)(q + i));
+        acc = _mm256_add_epi32(acc, _mm256_madd_epi16(_mm256_maddubs_epi16(a, b), ones));
+    }
+    __m128i s = _mm_add_epi32(_mm256_castsi256_si128(acc), _mm256_extracti128_si256(acc, 1));
+    s = _mm_add_epi32(s, _mm_shuffle_epi32(s, 0x4e));
+    s = _mm_add_epi32(s, _mm_shuffle_epi32(s, 0xb1));
+    total = _mm_cvtsi128_si32(s);
+#endif
+    for (; i < n; ++i) total += p[i] * q[i];
+    return total;
+}
+'''
+
+
+def _u8i8_dot(expr, buffers):
+    """`beryl_dot_u8i8(...)` for a sum of a u8 load times an i8 load, both stepping by one
+    cell per term, whose declared ranges keep every pair of products in i16; else None."""
+    _, var, lower, upper, body = expr
+    if body[0] != 'mul' or body[1][0] != 'load' or body[2][0] != 'load' or not buffers.ranges:
+        return None
+    loads = {}
+    for _, affine in (body[1], body[2]):
+        constant, terms = affine
+        if [c for v, c in terms if v == var] != [1]:
+            return None
+        k = buffers.at(_first_cell(affine, dict(buffers.lows)))
+        rest = tuple((v, c) for v, c in terms if v != var)
+        loads[buffers.types[k]] = (k, f'{buffers.names[k]} + ({_affine((constant - buffers.starts[k] + lower, rest))})')
+    if set(loads) != {'uint8_t', 'int8_t'}:
+        return None
+    (ku, pu), (ki, pi) = loads['uint8_t'], loads['int8_t']
+    if 2 * buffers.ranges[ku][1] * max(abs(v) for v in buffers.ranges[ki]) > 32767:
+        return None
+    return f'beryl_dot_u8i8({pu}, {pi}, {upper - lower})'
 
 
 def _wrapping(left, op, right, wide):
@@ -358,8 +412,12 @@ def _lower(expr, statements, counter, prod=None, wide=False, narrow=None, buffer
             return _wrapping(left, "+" if kind == "add" else "*", right, wide)
         return f'({left} {"+" if kind == "add" else "*"} {right})'
     _, var, lower, upper, body = expr
-    name = f'ax_s{next(counter)}'
     block = narrow(expr) if wide and narrow else None
+    dot = _u8i8_dot(expr, buffers)
+    if dot is not None and (not wide or (block is not None and upper - lower <= block)):
+        # The whole sum fits int32_t (the proof, or one exact block of a wide sum).
+        return f'((int64_t){dot})' if wide else dot
+    name = f'ax_s{next(counter)}'
     inner = []
     if block is not None:
         # Exact int32_t blocks of `block` terms, each widened once (_narrow_block).
@@ -757,7 +815,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     load_range = _load_range(segments, lows)
     buffers = _JOINED if abi == 1 else _Buffers(
         tuple(f'in{k}' for k in range(len(segments))), tuple(C_TYPES[t] for t in kernel.input_types),
-        tuple(s for s, *_ in segments), tuple(sorted(lows.items())))
+        tuple(s for s, *_ in segments), tuple(sorted(lows.items())), tuple((lo, hi) for _, _, lo, hi in segments))
     # Each input that some value of its storage type can fail: (k, start, end, lo, hi, storage).
     checks = [(k, s, e, lo, hi, t) for k, ((s, e, lo, hi), t) in enumerate(zip(segments, kernel.input_types))
               if _needs_check(lo, hi, t)]
@@ -840,6 +898,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
              *((_MINMAX,) if any(_uses(s.value, ('min', 'max')) for s in plan.stages) else ()),
              *((_SHIFTS,) if any(_uses(s.value, ('shr', 'shr_round')) for s in plan.stages) else ()),
              *outside,
+             *((_DOT_U8I8,) if 'beryl_dot_u8i8(' in cells else ()),
              cells]
     split_chunk = ''
     fused = None
@@ -1095,6 +1154,8 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
                (SCALE_ABI2_PARALLEL_CODEGEN_VERSION if parallel else SCALE_ABI2_CODEGEN_VERSION))
     if blocked:
         version = version.replace('beryl-loop-c', 'beryl-loop-c-fused2', 1)
+    if 'beryl_dot_u8i8(' in cells:
+        version = version.replace('beryl-loop-c', 'beryl-loop-c-madd', 1)
     return NativeArtifact(generated, kernel.height, kernel.width, n_in, n_out, source_digest,
                           plan_digest, sha256(generated).hexdigest(), version, None, plan.format)
 
