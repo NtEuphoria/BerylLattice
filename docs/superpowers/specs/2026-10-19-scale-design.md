@@ -202,8 +202,46 @@ dense layers, weights `[out, in]`).
 - That is 2.1–3.4x faster than today's int8 path, and faster than i16.
 - At 256³ it is 0.85x the time of OpenBLAS `sgemm` (float32, one thread, 388 µs). That is
   int8 against float32, so it is not a like-for-like claim.
-- **Not yet measured against PyTorch/FBGEMM's int8 path, the phase 6 target.** That needs
-  the PyTorch wheel installed, which waits for approval.
+
+**Against PyTorch's int8 path (2026-10-30).**
+- Setup: PyTorch 2.15.0+cpu in `.local/torchenv`, WSL, same machine, same timing method
+  (the median of 9 runs of about 0.1 s).
+- FBGEMM is `torch.ops.quantized.linear`, with activations quint8 in `0..=127`, weights
+  qint8, prepacked once outside the timing.
+- beryl is the u8 × i8 multiply-add kernel above, through ABI 2.
+- Ranges cover three runs each, measured in the same session.
+
+| layer | beryl | FBGEMM | beryl's speed vs FBGEMM |
+|---|---|---|---|
+| 256³, 1 thread | 324–330 µs | 358–392 µs | 1.1–1.2x; a tie after FBGEMM's ~20 µs call cost |
+| 4096 → 11008, one row, 1 thread | 2.91–3.42 ms | 3.51–5.46 ms | 1.0–1.9x; memory-bound, noisy |
+| 1024³, 1 thread | 21.3–22.2 ms | 22.0–22.4 ms | a tie, within 5% |
+| 256³, 4 threads | 114–126 µs | 184–308 µs | 1.5–2.7x |
+| 4096 → 11008, one row, 4 threads | 1.69–2.08 ms | 1.99–3.42 ms | 1.0–2.0x; memory-bound, noisy |
+| 1024³, 4 threads | 7.45–7.70 ms | 8.32–8.90 ms | 1.1–1.2x |
+
+- **The phase 6 target is met: at or above FBGEMM on one thread, at every size.**
+  - The honest summary is "on par".
+  - At 1024³, where compute dominates, they tie.
+  - beryl leads clearly only on small four-thread layers.
+- **Not like for like, in both directions:**
+  - beryl checks every activation against `0..=127` before computing; FBGEMM checks
+    nothing.
+  - FBGEMM requantizes each output to u8. That is one step per output, negligible next to
+    the multiply-adds.
+  - FBGEMM's weights are repacked into its own layout ahead of time. beryl reads them as
+    stored, `[out, in]`.
+  - FBGEMM is called through Python, about 20 µs per call (measured on a 1 × 16 × 16
+    layer). That cost only matters at 256³.
+  - Both use the same instruction pair (`vpmaddubsw`, `vpmaddwd`). The reduced activation
+    range exists for the same saturation reason.
+- **`torch._int_mm` (int8 × int8 to int32) is not a baseline on CPU.** It ran 13 ms at 256³
+  and 0.8–1.1 s at 1024³, 30–50x slower than FBGEMM: an unoptimized fallback. Quoting beryl
+  against it would mislead, so we don't.
+- The 4096 → 11008 layer streams 45 MB of weights per call, so memory bandwidth bounds it.
+  Its run-to-run spread is wider than the gap between the two.
+- Scripts and logs: `.local/phase6/torch_bench.py`, `overhead.py`, `run_madd.sh`, and
+  `torch_bench*.log` / `madd_rerun*.log` (git-ignored).
 
 **Verification.**
 - `tests/test_scale_madd.py`: 5 tests, written first and failing before the change. They

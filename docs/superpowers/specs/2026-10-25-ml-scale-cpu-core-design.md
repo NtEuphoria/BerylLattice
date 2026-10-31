@@ -216,7 +216,8 @@ speed fixes".
 - **Phase 1, partly done.**
   - Benchmarks now build every side for the host CPU by default, Rayon included.
   - OpenBLAS `sgemm` measured on one thread: 388 µs at 256.
-  - Not yet: hand AVX2 sum and dot, PyTorch/FBGEMM, and the rerun of hand C.
+  - Not yet: hand AVX2 sum and dot, and the rerun of hand C. PyTorch/FBGEMM was measured
+    with phase 6a (2026-10-30).
 - **Phase 2, done.**
   - The check is one unsigned maximum per value; a medium sum is now 0.88x C's time, down
     from 1.37x.
@@ -316,9 +317,17 @@ speed fixes".
     4096 → 11008 layer, one thread.
   - My call: the pair bound is checked in the emitter from the declared ranges, on the
     "argued and tested" list, rather than as a checker-carried mark.
-  - Not done yet:
-    - the comparison with PyTorch/FBGEMM, which needs the PyTorch wheel installed;
-    - register blocking of several cells per dot product, which could share loads.
+  - **Against PyTorch/FBGEMM (2026-10-30): on par, so the phase 6 target is met.** Scale
+    spec "Against PyTorch's int8 path".
+    - One thread: a tie at 1024³ (21.3–22.2 ms against 22.0–22.4 ms). At 256³ beryl is
+      1.1–1.2x faster, a tie once FBGEMM's ~20 µs Python call cost is subtracted.
+    - Four threads: beryl is 1.1–2.7x faster.
+    - This holds even though beryl range-checks every activation and FBGEMM checks
+      nothing.
+    - `torch._int_mm` is an unoptimized fallback on CPU (30–50x slower than FBGEMM). It is
+      not a fair baseline and not to be quoted.
+  - Not done yet: register blocking of several cells per dot product, which could share
+    loads. It is the next lever if beryl is to pull ahead at 1024³.
 
 ## Verification for every phase
 
