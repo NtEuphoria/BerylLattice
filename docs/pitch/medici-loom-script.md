@@ -1,132 +1,177 @@
-# 1517 Medici: Loom script, v1 (2026-10-25)
+# 1517 Medici: Loom script, v2 (2026-10-31)
 
-**Target length:** 5:00 at about 140 words a minute.
+**What 1517 asks for.** "Email us (any of us with firstname@1517fund.com) with a five minute
+Loom video". It should cover who you are (how you got into your topic, unique hobbies), why you
+want to "eat, drink, and breathe" the project, and how a grant would help
+(https://www.1517fund.com/medici). They fund the person; the demo is the evidence.
 
-**Where the text comes from:**
-- `[brackets]` are yours to fill in, in your own words. Spoken, not read, is best.
-- Every number comes from `docs/reviews/2026-10-25-matched-benchmarks.md` ("Claims now
-  allowed"). Do not round them up. The speed numbers were updated on 2026-10-26 to the AVX2
-  rerun and await your review there.
+**Length.**
+- About 510 scripted words, plus at most 130 of yours in [brackets]: about 640 words, which is
+  4:25 at 145 a minute.
+- The pauses, the 15-second check and the window switches bring it to about 4:45.
+- Write your bracketed parts out and time a read-aloud before recording. If a practice take
+  runs past 4:50, trim your parts first.
 
-**v2:** after your practice take, note what felt stiff or long. v2 applies those notes,
-cuts to 4:45, and rechecks every claim.
+**On screen, three things only:**
+- **The runner:** `python tools/showcase.py`, from the repository root; any key advances.
+  - It shows no paths or internal names.
+  - It prints only "step failed" if anything breaks.
+  - It keeps WSL awake while it waits, so no step opens on a blank screen.
+- **The frame:** `docs/pitch/demo/frame.png`, full screen.
+- **The title card:** `docs/pitch/demo/title.png`, full screen, behind your camera.
+
+**Numbers.** Every number on screen and in the narration is in the matched-benchmark report's
+"Claims for the Medici video (2026-10-31)". **All of it waits for your review.**
+
+**Say these word for word.** Say everything else in your own words.
+- The hook: "Computers can be fast and wrong at once."
+- The key line: "beryl won't use the fast version until it has checked that the answer stays
+  the same." Say it at the end of the cold open and again at the end of the video.
+- The two verdicts: "32,512, under the limit" and "32,768, over".
+- The ask.
+
+---
+
+## 0:00–0:30 · Cold open · runner step 0, camera bubble large
+
+On screen when you start (run the runner first and stop at step 0). Look at the lens for one
+beat, then start:
+
+```
+right answer                            9,715,500
+fast instruction, no range check        5,107,068      <- about half
+
+my own test program, no guard · not PyTorch
+AMD Ryzen 3 3100 · AVX2 (vpmaddubsw + vpmaddwd)
+```
+
+> This is the right answer. This one came from a fast instruction on my own computer: about
+> half. No crash, no warning. Computers can be fast and wrong at once. [I'm NAME, STATUS: "a
+> senior at SCHOOL", or "I left SCHOOL to build this", from Revere, Massachusetts.] So I built
+> beryl, a compiler that won't use the fast version until it has checked that the answer stays
+> the same.
+
+## 0:30–1:10 · Who I am · title card, camera big
+
+> [How you got into programming: the first thing you built and the moment you got hooked.
+> Two sentences.]
+> [One hobby that has nothing to do with computers, and what you love about it. One sentence.]
+> [The moment you first saw fast code be quietly wrong: a concrete story, two or three
+> sentences.] [Then, in your own words, why this is the thing you can't stop thinking about.]
+> This isn't for school or a grade. Let me show you.
+
+## 1:10–1:40 · The overflow refusal · runner step 1, any key between parts
+
+What appears: the program; `REFUSED` in red with the reason; the fixed program with the two
+changed lines marked and `COMPILED` in green; then
+`worst case (3,000 readings of 1,023)  ->  3,139,587,000`.
+
+> Here's the idea in one program: add up the squares of 3,000 sensor readings, each up to
+> 1,023. beryl refuses it. The total can reach three billion, more than a 32-bit signed integer
+> holds. Only 2,052 terms would fit. It even names the fix: 64 bits. Now it compiles, and on
+> the worst case it prints the exact answer.
+
+## 1:40–2:16 · Plans, checked · runner step 2
+
+Start talking as you press the key. The check takes about 15 seconds; then a six-row table
+appears:
+
+```
+changed-formula  REFUSED    computes a different formula
+off-by-one       REFUSED    runs 1 column past the edge of the image
+planner-carry    ACCEPTED   proved equal to the program
+planner-direct   ACCEPTED   proved equal to the program
+skips-a-row      REFUSED    never writes the last row
+wrong-program    REFUSED    belongs to a different program
+```
+
+> Anyone can propose a faster way to run a program: me, beryl's own planner, and soon AI
+> agents. beryl must prove that a plan does exactly what the program says, or it isn't used.
+> While it checks: four of these six plans are broken on purpose. One changes
+> the formula, one runs off the edge, one skips a row, one belongs to another program. Each is
+> refused, for its own reason. The planner's two pass, and match a slow reference on test
+> inputs.
+
+## 2:16–3:08 · The trap and the rule · runner step 3
+
+What appears:
+- the cold-open pair again;
+- the dense layer with `in 0..=127` marked, then in green
+  `pair bound 2 x 127 x 128 = 32,512 <= 32,767  ->  FAST INSTRUCTION (vpmaddubsw)`;
+- the same layer with `0..=128`, then in amber `… = 32,768 > 32,767  ->  EXACT WIDE PATH`;
+- the stored line
+  `recorded 2026-10-31 · … full range, exact path 690 µs · inputs to 127, fast pair 327 µs`.
+
+> Remember that wrong number? AI models often run on 8-bit numbers, and chips have a fast
+> instruction for them that quietly clips any pair of products past 32,767.
+> PyTorch dodges it by convention: its default settings keep inputs to half range. beryl works
+> it out from the program. Inputs up to 127, weights down to minus 128: the worst pair is
+> 32,512, under the limit. So it uses the fast instruction, in less than half the time. Change
+> one number to 128: 32,768, over, so it takes the exact path. The honest part: this rule, and
+> the step that writes the C, are tested today, not proved.
+
+## 3:08–3:38 · "Is checked code slow?" · the frame, camera small
+
+> Is checked code slow? Here it is against PyTorch's own int8 kernel, FBGEMM, on my four-core
+> Ryzen. On one thread, on par: a tie on the big layer. On four threads, 1.1 to 1.4 times
+> faster. It's not like for like. beryl checks every input and FBGEMM doesn't, but FBGEMM
+> also turns its outputs back into 8 bits. Where beryl ties or loses is listed right here.
+
+## 3:38–4:05 · Why me, where this goes · title card, camera big
+
+> [Why you can't put it down: one specific night or weekend you lost to beryl. Two sentences.]
+> I build beryl with AI agents as my engineering team. They write code fast, and that's the
+> point: I don't trust fast code, theirs or mine, until something checks it. [What you
+> personally do, said only if it is exactly true: for example, "I design the checker's rules
+> and read every refusal."] Today beryl handles integer kernels on CPUs. Next, a full
+> quantized layer. Later, floating point and GPUs.
+
+## 4:05–4:45 · The ask · title card, camera big
+
+> A grant of [AMOUNT; the minimum is $1,000] pays for [N months] of the AI tools I build with,
+> and time on newer chips, to find where beryl loses. In 90 days: that pair
+> rule proved inside the checker, and a full quantized layer measured against PyTorch. And if
+> you know one compiler or ML-systems engineer who'd tell me where I'm wrong, I'd love that
+> intro. This Friday I'm [the concrete next step]. Anyone can propose the fast version. beryl
+> won't use it until it has checked that the answer stays the same. Thanks for watching.
 
 ---
 
-## 0:00–1:00 · Who you are (about 140 words)
+## Never say
 
-> Hi, I'm [your name]. I'm [a student at … / I left … to build this], and I live just
-> outside Boston.
->
-> [How you got into programming, in two or three sentences: the first thing you built, the
-> moment you got hooked.]
->
-> [Why speed and correctness: the moment you realized fast code is often quietly wrong.
-> One concrete story, if you have one.]
->
-> For the last [N weeks/months] I've been building beryl: a programming language where
-> fast code is proved correct before it runs.
+- "Everything I showed is in the repository", unless the repository link is clean and public.
+- "proved", "verified" or "certified" int8 layer: the pair rule and the C step are tested, not
+  proved.
+- "faster than PyTorch" on one thread: one thread is on par. Four-thread ratios always come
+  with "four threads".
+- that the six plans were written by an AI. They are hand-made mutations plus beryl's own
+  planner, unless you add a real agent-written one with `docs/pitch/agent-plan-prompt.md`.
+- `torch._int_mm` numbers. It is an unoptimized CPU fallback, so comparing against it would
+  mislead.
 
-## 1:00–1:45 · The problem (about 105 words)
+## Recording checklist
 
-> Fast numeric code is everywhere: image pipelines, sensor processing, AI kernels. It's
-> also where the scariest bugs live. An integer overflows, or a read goes one past the end
-> of an array, and the program doesn't crash. It just gives a wrong answer.
->
-> And now AI writes a lot of that code. In KernelBench, a 2025 benchmark, frontier models
-> wrote GPU kernels that were both correct and faster in under 20% of the tasks.
->
-> beryl's idea: let anyone, even an AI, propose how to make the code fast. Then an
-> independent checker proves the optimized plan computes exactly what the program says,
-> and can't overflow or read out of bounds. If it can't prove it, it won't run. The last
-> step, turning a proved plan into C, is tested but not yet proved, and I'm upfront about
-> that.
-
-## 1:45–3:15 · Live demo (about 210 words of narration)
-
-On screen, in the repository folder. Run these beforehand once, so the C compiler is warm.
-
-**1. A program.** Open `docs/pitch/demo/energy.ax`.
-
-> This is a whole beryl program: the energy of a 3,000-sample sensor trace, the sum of the
-> squares. Every input is declared to lie between 0 and 1023.
-
-**2. The refusal.** Run:
-
-```bash
-python tools/beryl.py native docs/pitch/demo/energy.ax --out .local/kernel.c --force
-```
-
-> beryl refuses it, and says why: 3,000 squares of up to a million each can reach three
-> billion, more than 32 bits hold. At most 2,052 terms fit. It even tells me the fix.
-
-**3. The fix.** Open `docs/pitch/demo/energy-i64.ax` and show the two `: i64`. Then run:
-
-```bash
-python tools/beryl.py native docs/pitch/demo/energy-i64.ax --out .local/kernel.c --exe .local/kernel.exe --force
-```
-
-> Declare the result 64-bit, and now it compiles to native code, with the proof that it
-> can't overflow.
-
-**4. AI-written plans, checked.** Run:
-
-```bash
-python tools/demo-checked-candidates.py --source bench/demo_b/program.ax --candidates bench/demo_b/candidates
-```
-
-> Here are candidate plans for a 3-by-3 image filter: beryl's own two, ten deliberately
-> broken ones [and N written by AI agents, if you added them]. beryl refuses every plan it
-> can't prove, and says why. Refused means "not proved", so it errs on the side of no.
-> Its own carry plan is accepted, checked against an independent reference, and timed:
-> about 1.3 times faster than the default plan.
-
-**5. The chart.** Show the website's performance section, on the "like for like · vs hand C" tab.
-
-> And it's fast. On one thread, against hand-written C with the same interface, beryl was
-> faster in 16 of 18 cases with gcc, 1.14 times on average, and in all 12 cases with clang,
-> 1.72 times. With four threads each, it beat C with OpenMP in 19 of 20 cases: 1.87 times
-> faster on in-cache workloads and 1.53 times at large sizes. It still loses a few: two
-> mid-size image filters against gcc, and a very large dot product on four threads. I'm
-> showing those too.
-
-## 3:15–4:15 · Why you're dedicating yourself (about 140 words)
-
-> [Why this, why you, why now. Say it in your own words.]
->
-> Where this goes: right now beryl handles integer array kernels, the kind of code inside
-> image pipelines and quantized AI models. Next come more number types and operations, so
-> it can express a full quantized neural-network layer, proved safe. Then floating point
-> and GPUs, so the same guarantee reaches AI training kernels. And because its loops are
-> bounded and its output is plain C, it fits real-time systems where a wrong number is a
-> safety problem: vehicles, drones, defense.
->
-> I'm building this with AI agents as my engineering team, and beryl is what makes that
-> safe: the agents can write the fast code, and the checker decides what ships.
-
-## 4:15–5:00 · What the grant does (about 105 words)
-
-> The grant would pay for the AI development tools I use as that team, Claude and Codex,
-> for the next few months, and for compute to test on more hardware.
->
-> In 90 days I want to show you three things:
-> - a verified int8 neural-network layer beating tuned C;
-> - checked inputs folded into large image filters, so they read their data once;
-> - the first real users trying beryl on their own kernels.
->
-> Thanks for watching. Everything I showed is in the repository, linked in my email.
-
----
+- **Loom:** Screen + Cam. Do a 20-second test first: resize the bubble and switch windows
+  without pausing. Check your plan's length cap. Keep bullets in the speaker notes.
+- **Terminal:**
+  - Windows Terminal, 22pt monospace, sized to at least 90 × 32 (not just maximized). Check it
+    with a 90-character line before the take.
+  - Prompt `beryl $ ` (PowerShell: `function prompt {"beryl $ "}`) and window title "beryl".
+  - Run the runner once end to end 1–2 minutes before each take, so the cached builds are
+    warm.
+- **Machine:** close everything else, including test runs. Turn on Do Not Disturb and hide the
+  taskbar.
+- **Takes:** three full takes; keep the most alive one, not the cleanest. Leave 1 second of
+  silence after the cold-open numbers and after the 127/128 verdicts. If a step fails, stop
+  the take; never scroll through an error on camera.
+- **Rehearse:** talking over the 15-second check; the 2:16 beat, the densest 50 seconds; your
+  parts, 130 words or fewer in total.
+- **Before sending:** watch the 720p playback on a phone, and open the Loom link logged out.
 
 ## Claim check (redo after each revision)
 
-- [ ] Every number appears word for word in the matched-benchmark report's "Claims now
-      allowed" section.
-- [ ] No "faster than C" without its qualifier: "hand-written C with the same interface",
-      or "plain C baselines" with their 64-bit outputs, plus the thread count.
-- [ ] No claim about GPUs or AI training as a current capability: those are "where this goes".
-- [ ] No internal names on screen: check the terminal prompt, paths and window titles.
-      Record from the repository root; the commands above never enter the compiler's
-      internal source folder.
-- [ ] Agent-written candidates: mention them only if you added them with
-      `docs/pitch/agent-plan-prompt.md`.
+- [ ] Every number appears in "Claims for the Medici video (2026-10-31)" in
+      `docs/reviews/2026-10-25-matched-benchmarks.md`, and you have reviewed it there.
+- [ ] Every win has its qualifier (threads, layer size), and the losses panel is on screen.
+- [ ] No GPU or training claim as a present capability.
+- [ ] No internal names on screen: the terminal prompt, window title and paths.

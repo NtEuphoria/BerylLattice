@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- The static benchmark frame for the Medici Loom (1920x1080). Numbers: the scale spec's
+     "Rerun on the hardened compiler (2026-10-31)" and the matched-benchmark report's
+     "Claims now allowed". Render: msedge --headless --screenshot=frame.png --window-size=1920,1080 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>beryl vs FBGEMM</title>
+<style>
+  :root { --bg: #0d1117; --ink: #e6edf3; --muted: #9aa7b4; --rule: #2d3640; --win: #3fb950; --tie: #d2a8ff; --loss: #f0883e; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { width: 1920px; height: 1080px; box-sizing: border-box; padding: 64px 80px 48px; font-family: "Segoe UI", system-ui, sans-serif; display: grid; grid-template-rows: auto 1fr auto; gap: 36px; }
+  h1 { margin: 0; font-size: 60px; font-weight: 650; letter-spacing: -0.5px; }
+  .sub { margin-top: 12px; font-size: 28px; color: var(--muted); }
+  main { display: grid; grid-template-columns: 1.35fr 1fr; gap: 64px; align-items: start; }
+  table { width: 100%; border-collapse: collapse; font-size: 36px; }
+  th { text-align: left; font-size: 26px; font-weight: 600; color: var(--muted); padding: 0 0 14px; border-bottom: 2px solid var(--rule); }
+  td { padding: 22px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td.num { font-variant-numeric: tabular-nums; font-weight: 650; }
+  .win { color: var(--win); } .tie { color: var(--tie); }
+  .layer small { display: block; font-size: 24px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+  .key { margin-top: 18px; font-size: 24px; color: var(--muted); }
+  aside { border: 2px solid var(--loss); border-radius: 14px; padding: 30px 36px; }
+  aside h2 { margin: 0 0 18px; font-size: 34px; color: var(--loss); }
+  aside ul { margin: 0; padding-left: 28px; font-size: 27px; line-height: 1.4; }
+  aside li { margin-bottom: 12px; }
+  aside li small { color: var(--muted); font-size: 22px; }
+  footer { font-size: 29px; color: var(--muted); line-height: 1.45; border-top: 1px solid var(--rule); padding-top: 18px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Is checked code slow? beryl vs PyTorch's int8 kernel (FBGEMM)</h1>
+  <div class="sub">One machine · AMD Ryzen 3 3100, 4 cores, AVX2 · recorded 2026-10-31, not live</div>
+</header>
+<main>
+  <section>
+    <table>
+      <thead><tr><th>int8 layer</th><th>1 thread</th><th>4 threads</th></tr></thead>
+      <tbody>
+        <tr><td class="layer">256 × 256 × 256</td><td class="num tie">about a tie<br><small class="layer">1.04–1.11x</small></td><td class="num win">1.30–1.42x</td></tr>
+        <tr><td class="layer">4096 → 11008, one token<small>45M int8 weights</small></td><td class="num win">1.07–1.24x</td><td class="num win">1.15–1.23x</td></tr>
+        <tr><td class="layer">1024 × 1024 × 1024</td><td class="num tie">a tie<br><small class="layer">0.98–1.00x</small></td><td class="num win">1.08–1.30x</td></tr>
+      </tbody>
+    </table>
+    <div class="key">FBGEMM's time over beryl's, round by round over 3 runs: above 1 means beryl is faster.<br>Every FBGEMM time has its ~20 µs Python call cost subtracted.</div>
+  </section>
+  <aside>
+    <h2>Where beryl ties or still loses</h2>
+    <ul>
+      <li>On one thread, the big layer is a tie, not a win.</li>
+      <li>With full-range int8 weights, inputs above 127 get no fast path: 690 µs (inputs to 255) against 327 µs.</li>
+      <li>FBGEMM also turns its output back into 8 bits; beryl's kernel stops at 32-bit sums.</li>
+      <li>beryl's pair rule and its C step are tested, not yet proved.</li>
+    </ul>
+  </aside>
+</main>
+<footer>
+  Not like for like: beryl checks every input and returns int32; FBGEMM checks none, requantizes to u8 and uses its own weight layout.
+  PyTorch 2.15.0+cpu, torch.ops.quantized.linear with prepacked weights. beryl's C built with gcc -O3 -march=native in WSL.
+</footer>
+</body>
+</html>

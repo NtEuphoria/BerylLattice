@@ -317,6 +317,34 @@ Not allowed:
 - the s-size four-thread ratios, or the Rayon m-size ratio, as headlines;
 - any statement about GPUs or AI training as a current capability.
 
+## Claims for the Medici video (2026-10-31)
+
+**Pending the founder's review.** These are the numbers in `docs/pitch/medici-loom-script.md`
+(v2), the showcase runner (`tools/showcase.py`) and the frame (`docs/pitch/demo/frame.png`).
+Each comes from a dated run that can be reproduced. All were measured after the hardening in the
+scale spec's "Hardening after an external review" (`pool2`, `madd2`, `split2`). The video makes
+no claim against C or Rust, so claims 1–4 above do not appear in it.
+
+| # | claim, as said or shown | source |
+|---|---|---|
+| 6 | The right answer is 9,715,500. The fast pair instruction with no range check gives 5,107,068, about half. This is a standalone intrinsics test: 300 activations of 255 times weights of 127. It is not beryl output and not PyTorch. | `docs/pitch/demo/pair-saturation.c`, run live by the runner (WSL gcc `-O2 -mavx2`) |
+| 7 | The energy program is refused: 3,000 squares of up to 1,023² reach 3,139,587,000 > 2,147,483,647. At most 2,052 terms fit in 32 bits; the fix is i64. The fixed program prints 3,139,587,000 on the worst case. | `docs/pitch/demo/energy*.ax`, live; the native result is checked against the reference by the runner |
+| 8 | Six plans for an image filter: four broken on purpose are refused for four different reasons; the planner's two pass, and both match the reference evaluator on three seeded inputs. | `docs/pitch/demo/candidates/`, `tools/demo-checked-candidates.py --no-time`, live |
+| 9 | Inputs to 127: the pair bound 2 × 127 × 128 = 32,512 ≤ 32,767, so the fast instruction is used. Inputs to 128: 32,768 > 32,767, so the exact path. | `docs/pitch/demo/dense-12{7,8}.ax`, live; the rule is in the scale spec, "Phase 6a" |
+| 10 | 256³ layer, one thread: full range on the exact path 690 µs, inputs to 127 on the fast pair 327 µs ("less than half the time"). Medians of three quiet rounds. | scale spec, "Rerun on the hardened compiler"; `.local/phase6/quiet2.log` |
+| 11 | Against FBGEMM, round by round, its ~20 µs call cost subtracted: one thread "on par", a tie at 1024³ (0.98–1.00x), 1.04–1.11x at 256³, 1.07–1.24x for 4096 → 11008. Four threads 1.08–1.42x ("1.1 to 1.4 times"). | same section |
+| 12 | 4096 → 11008, one token: 45,088,768 int8 weights ("45M"). | arithmetic |
+| 13 | The losses panel: the big layer on one thread is a tie; with full-range int8 weights, inputs above 127 get no fast path (690 µs with inputs to 255, against 327 µs); FBGEMM also requantizes its output to 8 bits, which beryl does not. | same section |
+| 14 | PyTorch's default int8 settings for these chips keep activations to half range: `get_default_qconfig('fbgemm')` and `'x86'` use `HistogramObserver.with_args(reduce_range=True)`, which the observer documents as "sometimes required to avoid instruction overflow". | external: `torch/ao/quantization/qconfig.py`, `observer.py` |
+
+Rules for these claims:
+- Say "four threads" with any four-thread ratio, and "on par" (never "faster") for one thread.
+- Never call the 1024³ one-thread result a win.
+- Keep the like-for-like footer on the frame: beryl checks inputs and returns int32; FBGEMM
+  checks none, requantizes, prepacks and is called through Python.
+- Not allowed: `torch._int_mm` ratios, "proved int8 layer" (the pair rule and the C step are
+  tested, not proved), and the earlier 2026-10-30 FBGEMM ranges once these replace them.
+
 ## Appendix: every case
 
 ### Run 1: one thread each (Windows, clang)

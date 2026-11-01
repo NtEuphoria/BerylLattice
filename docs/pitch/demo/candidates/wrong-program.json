@@ -1,0 +1,1 @@
+{"format":"beryl-loop-plan-v1","plan_id":"direct-v1","semantic_digest":"4ba0a642219d678177487c25f16d76edb58569264b6e1c4175ffc3efc8bac50e","stages":[{"index":[0,[["c",1],["r",1]]],"loops":[["r",1],["c",1]],"value":["sum","s0",0,3000,["mul",["load",[0,[["s0",1]]]],["load",[0,[["s0",1]]]]]]}]}

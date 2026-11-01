@@ -1,0 +1,8 @@
+// A dense int8 layer: 256 rows of 256 activations times 256 output channels.
+module dense;
+shape H = 256;
+shape W = 256;
+input a: u8[H,256] in 0..=128;
+input k: i8[W,256] in -128..=127;
+let t[r in 0..H,c in 0..W] = sum(j in 0..256: a[r,j]*k[c,j]);
+output y[r in 0..H,c in 0..W] = t[r,c];
