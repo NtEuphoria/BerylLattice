@@ -141,8 +141,9 @@ class ScaleFamilyTests(unittest.TestCase):
         from axiom.source_compilation import compile_native_source, compile_wasm_source
         source = SUM.format(n=1 << 20).encode()
         compiled = compile_native_source(source)
-        # A large single-cell sum splits its range across the worker pool.
-        self.assertEqual(compiled.artifact.codegen_version, 'beryl-loop-c-parallel-v2')
+        # A large single-cell sum splits its range across the worker pool (split2: see
+        # test_scale_split2).
+        self.assertEqual(compiled.artifact.codegen_version, 'beryl-loop-c-split2-parallel-pool2-v2')
         self.assertIn(b'static int32_t beryl_partial(', compiled.artifact.c_source)
         self.assertIn(b'beryl_claim_chunks', compiled.artifact.c_source)
         small = compile_native_source(SUM.format(n=300).encode()).artifact

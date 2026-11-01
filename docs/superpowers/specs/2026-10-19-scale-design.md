@@ -157,6 +157,97 @@ Not yet:
 Every phase that changes what is admitted or how plans are trusted gets an independent review
 before it is relied on.
 
+## Hardening after an external review, and split2 (2026-10-31)
+
+An external review (Codex, of `0341abe`) reproduced four problems in the gap between the
+checked plan and the code that runs. All four are fixed, each with a test that failed first,
+and each fix was then attacked by a separate verifier with probes of its own.
+
+**1. Untrusted plan text could reach the C** (security).
+- The problem:
+  - `plan_id` was pasted into a C comment, so a candidate plan could close the comment and
+    inject code that the candidate demo then compiled and ran.
+  - Plan variable names were emitted as C identifiers, so a proved plan could name a
+    variable `acc` or `x; }`.
+- The fix: `scale_c._emitter_plan` rebuilds every plan from the emitter's own strings before
+  any C is written.
+  - Variables become `r`, `c`, `p`, `q`, `s0`, `s1`, … (the planner's own scheme), and each
+    sum binding gets a fresh name.
+  - Integers must be plain ints.
+  - The header names a plan only when its ID is exactly one of `SCALE_PLAN_IDS`; otherwise it
+    says "candidate".
+- The planner's plans emit byte-identical C.
+- Tests: `tests/test_scale_untrusted.py`. With the fix removed: 305 failures and 56 errors.
+- The verifier tried 17 hostile plan IDs and hostile names over every binding: comment
+  escapes, `#define`, keywords, emitter-internal names, Unicode, a 5,000-character name. No
+  attacker byte reached the C. Accepted plans matched the reference in WSL at 4 threads.
+
+**2. Concurrent calls into one parallel kernel gave wrong results** (correctness).
+- The problem: the pool's job state is global. Two callers produced 11 wrong results in 40.
+- The fix: each pooled call holds a process-wide lock for its whole duration. The lock is
+  statically initialized (`PTHREAD_MUTEX_INITIALIZER`, `SRWLOCK_INIT`) and released on every
+  return path by a cleanup attribute. A one-thread pool releases it at once.
+- Calls into one compiled parallel kernel are now serialized within a process. Separate
+  kernels have separate pools.
+
+**3. Invalid inputs could overflow before rejection** (undefined behaviour).
+- Paths that compute before the check is acted on added rejected values in signed
+  arithmetic. UBSan trapped on three of them:
+  - the split sum's partial (found here first);
+  - the pooled combine of partials, `total += beryl_job_partial[c]`;
+  - the scalar tail of `beryl_dot_u8i8` under the fused contract (n ≥ about 66,000 terms).
+- The fix: all three add modulo 2^N (`_wrapping`). Where the proof's ranges hold, nothing
+  wraps, so the results are unchanged.
+- Tests:
+  - `tests/test_scale_invalid_extremes.py`: 39 native tests over every emission path, with
+    several invalid extremes at once (two INT32_MAX, INT32_MIN, one past each bound, at the
+    first, middle and last index). They check the exact status and, under the default
+    contract, unchanged output. All pass under ASan+UBSan with every report fatal.
+  - `tests/test_scale_split2.py` covers the split sum.
+
+**4. Idle workers burned CPU** (performance).
+- The problem: after one call, the four-thread pool used 2.92 CPU-seconds in 1.02 s idle.
+- The fix: idle workers spin a bounded 2^14 pauses, then block on a condition variable. A
+  sleeper count means a dispatch pays the wake-up only when someone is asleep.
+- Idle CPU fell from about 3.0 s to about 0 per idle second.
+- Tests: `tests/test_scale_pool_concurrency.py`, with concurrent callers and an idle-CPU
+  limit. They pass under plain gcc, ASan+UBSan and TSan.
+- Open: a small two-dispatch kernel may have lost a little latency (51 against 67 µs in
+  half the rounds), but that is not established; both pools show the same two modes.
+
+**split2: whole-input sums.** Each fused split sum now:
+- checks by bitwise OR when its span is 2^k − 1 (values lie in `0..=span` exactly when their
+  OR does). Otherwise it keeps the unsigned maximum. An OR can only over-report, and a false
+  flag costs a rescan, never a wrong status.
+- hints `_Pragma("GCC unroll 4")`, because gcc vectorized the sum but kept one vector per
+  iteration.
+
+**Versions.**
+
+| tag | programs | why |
+|---|---|---|
+| `-split2-` | whole-input split sums | OR check, unroll hint, wrapping |
+| `-pool2-` | every parallel program | lock and blocking workers |
+| `-madd2-` | the u8 × i8 dot | wrapping tail |
+
+- Of the 13 byte-identity programs, the 8 parallel ones changed C behind `pool2`.
+- The 6 serial ones are byte-identical.
+- Every semantic digest is unchanged.
+
+**Against hand-written AVX2** (`bench/impl/hand/sum.c`, `dot.c`: one pass, OR check, four
+accumulators, `vpmaddwd` for dot, same ABI and harness; `bench/test_hand_avx2.py`). Five
+interleaved rounds, one thread, WSL gcc `-O3 -march=native`, median:
+
+| kernel | before split2 | split2 | hand AVX2 | split2 vs hand |
+|---|---|---|---|---|
+| sum, 64K values | 2,961 ns | 2,517 ns | 2,511 ns | 1.00x |
+| dot, 32K pairs | 2,953 ns | 2,604 ns | 2,528 ns | 1.03x |
+| sum, 4M values | 1.20 ms | 1.10 ms | 1.11 ms | 0.99x |
+| dot, 2M pairs | 1.00 ms | 1.03 ms | 1.01 ms | 1.02x |
+
+- Before split2, beryl took 1.17–1.18x the hand code's time in cache.
+- Now it is within 3% everywhere; the large sizes are memory-bound and tie.
+
 ## Phase 6a: u8 × i8 dot products through the pair multiply-add (2026-10-30)
 
 Phase 6 of `2026-10-25-ml-scale-cpu-core-design.md`, first part. Phase 5 was skipped after
@@ -242,6 +333,35 @@ dense layers, weights `[out, in]`).
   Its run-to-run spread is wider than the gap between the two.
 - Scripts and logs: `.local/phase6/torch_bench.py`, `overhead.py`, `run_madd.sh`, and
   `torch_bench*.log` / `madd_rerun*.log` (git-ignored).
+
+**Rerun on the hardened compiler (2026-10-31).** This run uses `pool2` and `madd2` (see
+"Hardening after an external review"), with nothing else running. Three interleaved rounds;
+FBGEMM without `_int_mm`. Log: `.local/phase6/quiet2.log`. Checksums are identical to the
+earlier runs.
+
+Ratios are computed round by round: FBGEMM's time over beryl's in the same round. The
+"net" column first subtracts FBGEMM's ~20 µs Python call cost from every FBGEMM time.
+(Corrected the same day: a first version paired extremes across rounds and subtracted the
+call cost at 256³ one thread only.)
+
+| layer | beryl | FBGEMM | ratio, raw | ratio, net |
+|---|---|---|---|---|
+| 256³, 1 thread | 325–331 µs | 364–379 µs | 1.10–1.17x | 1.04–1.11x |
+| 4096 → 11008, one row, 1 thread | 2.81–3.02 ms | 3.25–3.51 ms | 1.07–1.25x | 1.07–1.24x |
+| 1024³, 1 thread | 21.67–21.75 ms | 21.29–21.85 ms | 0.98–1.00x | 0.98–1.00x, a tie |
+| 256³, 4 threads | 119–129 µs | 187–196 µs | 1.45–1.58x | 1.30–1.42x |
+| 4096 → 11008, one row, 4 threads | 1.72–1.73 ms | 2.01–2.15 ms | 1.17–1.24x | 1.15–1.23x |
+| 1024³, 4 threads | 7.15–8.60 ms | 8.28–9.38 ms | 1.08–1.30x | 1.08–1.30x |
+
+- With idle workers now blocking, beryl's four-thread spread is much narrower than in the
+  first run (where 1024³ ranged from a 0.83x loss to 1.96x).
+- **One thread, 1024³ is still a tie**, the honest headline: the same instruction pair,
+  near this CPU's limit.
+- The like-for-like caveats above still apply:
+  - beryl range-checks every activation; FBGEMM checks none;
+  - FBGEMM requantizes to u8, uses prepacked weights and is called through Python.
+- The full-range exact path (activations to 255) at 256³, one thread: 688–699 µs, against
+  325–331 µs for the fast pair. That is 2.1x.
 
 **Verification.**
 - `tests/test_scale_madd.py`: 5 tests, written first and failing before the change. They

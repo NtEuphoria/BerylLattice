@@ -45,7 +45,8 @@ class EmissionTests(unittest.TestCase):
         code = dot_used(LAYER.format(a=127, w=37, n=300))[1].c_source
         self.assertIn(b'#if defined(__AVX2__)', code)
         self.assertIn(b'_mm256_maddubs_epi16(', code)
-        self.assertIn(b'for (; i < n; ++i) total += p[i] * q[i];', code)
+        # The tail adds modulo 2^32 (madd2): fused blocks compute before their check.
+        self.assertIn(b'for (; i < n; ++i) total = (int32_t)((uint32_t)total + (uint32_t)(p[i] * q[i]));', code)
 
 
 class NativeTests(unittest.TestCase):

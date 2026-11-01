@@ -35,7 +35,7 @@ from hashlib import sha256
 from .model import C_TYPES, STORAGE_BOUNDS, TYPE_BOUNDS, Limits
 from .native_codegen import _FAST_DRIVER, NativeArtifact
 from .scale_carry import c_types, carry_eligible, carry_rows_c, plan_costs, rank_key, window_rows
-from .scale_plan import BINARY_KINDS, SCALE_PLAN_IDS
+from .scale_plan import BINARY_KINDS, LOOP_PLAN_FORMAT, SCALE_PLAN_IDS, LoopPlan, Stage
 from .scale_pool import _POOL
 from .scale_checker import check_loop_plan
 from .scale_plan import make_scale_plan
@@ -43,10 +43,11 @@ from .frontend import admit_source, parse_source
 
 # v2: the input check is one unsigned maximum per value (see _OUTSIDE).
 SCALE_CODEGEN_VERSION = 'beryl-loop-c-v2'
-SCALE_PARALLEL_CODEGEN_VERSION = 'beryl-loop-c-parallel-v2'
+# pool2: a whole parallel call holds a process-wide lock; idle workers sleep.
+SCALE_PARALLEL_CODEGEN_VERSION = 'beryl-loop-c-parallel-pool2-v2'
 # ABI 2: one pointer per input and an int64_t status (see emit_scale_c).
 SCALE_ABI2_CODEGEN_VERSION = 'beryl-loop-c-abi2-v1'
-SCALE_ABI2_PARALLEL_CODEGEN_VERSION = 'beryl-loop-c-parallel-abi2-v1'
+SCALE_ABI2_PARALLEL_CODEGEN_VERSION = 'beryl-loop-c-parallel-pool2-abi2-v1'
 # Below this many estimated scalar operations a call stays single-threaded:
 # a pool dispatch costs about a microsecond, so tiny kernels would lose.
 PARALLEL_MIN_WORK = 1 << 16
@@ -71,6 +72,65 @@ _HEADER = '''/* Generated from a template-checked scale-v1 loop plan (PLAN_ID). 
 _Static_assert(sizeof(int32_t) == 4, "four-byte i32 required");
 _Static_assert(sizeof(int64_t) == 8, "eight-byte i64 required");
 '''
+
+# The plan's node kinds, as the emitter's own strings.
+_KINDS = {kind: kind for kind in (*BINARY_KINDS, 'sum', 'load', 'const', 'prod')}
+
+
+def _emitter_plan(plan):
+    """`plan` holding only the emitter's own strings, and integers.
+
+    A plan is untrusted data (scale_candidates.load_plan accepts any JSON
+    value as its plan_id), and the checker proves it only up to the names of
+    its variables, so a proved plan may name one `acc`, `int` or `x; }`. No
+    byte of either reaches the C. The header names a trusted plan ID, or else
+    says "candidate". The output loops become r and c, a producer stage's p
+    and q, and the sums s0, s1, ... in stage order and pre-order: the names
+    scale_plan.make_scale_plan gives, so the planner's plans emit unchanged,
+    and the names the emitter's own identifiers were written around. Each
+    binding gets a fresh name (sibling sums may share one in a plan), so the
+    renaming is injective in every scope and the plan means the same. Raises
+    ValueError for a plan that no check could have proved.
+    """
+    if plan.format != LOOP_PLAN_FORMAT or type(plan.stages) is not tuple or len(plan.stages) not in (1, 2):
+        raise ValueError('expected a checked beryl-loop-plan-v1 record')
+    fresh = iter(range(1 << 30))
+
+    def integer(value):
+        if type(value) is not int:
+            raise ValueError('a checked plan holds integers here')
+        return value
+
+    def affine(value, env):
+        constant, terms = value
+        return (integer(constant), tuple(sorted((env[var], integer(k)) for var, k in terms)))
+
+    def expr(e, env):
+        kind = _KINDS[e[0]]
+        if kind == 'load':
+            return (kind, affine(e[1], env))
+        if kind == 'sum':
+            _, var, lower, upper, body = e
+            name = f's{next(fresh)}'
+            return (kind, name, integer(lower), integer(upper), expr(body, {**env, var: name}))
+        if kind in BINARY_KINDS:
+            _, left, right = e
+            return (kind, expr(left, env), expr(right, env))
+        return (kind, *map(integer, e[1:]))  # const, prod
+
+    stages = []
+    try:
+        for stage, names in zip(plan.stages, (('p', 'q'), ('r', 'c'))[-len(plan.stages):]):
+            (v0, h), (v1, w) = stage.loops
+            env = {v0: names[0], v1: names[1]}
+            if len(env) != 2:
+                raise ValueError('loops over distinct variables')
+            stages.append(Stage(((names[0], integer(h)), (names[1], integer(w))),
+                                affine(stage.index, env), expr(stage.value, env)))
+    except (KeyError, TypeError, IndexError, AttributeError) as error:
+        raise ValueError('a variable outside its scope, or a malformed node') from error
+    label = next((p for p in SCALE_PLAN_IDS if type(plan.plan_id) is str and plan.plan_id == p), 'candidate')
+    return LoopPlan(plan.semantic_digest, label, tuple(stages), LOOP_PLAN_FORMAT)
 
 
 
@@ -325,7 +385,9 @@ _DOT_U8I8 = '''
 /* The sum of p[i] * q[i] for i < n, u8 by i8. Used only where every pair
  * p[i]q[i] + p[i+1]q[i+1] provably fits i16, so the saturating pair
  * multiply-add is exact, and where the whole sum fits int32_t; every partial
- * sum of its terms then fits too. Portable C without AVX2. */
+ * sum of its terms then fits too. Portable C without AVX2. The fused contract
+ * computes a block before checking it, so the tail adds modulo 2^32, like the
+ * vector lanes: never undefined on rejected values (see _wrapping). */
 static inline int32_t beryl_dot_u8i8(const uint8_t *restrict p, const int8_t *restrict q, int32_t n) {
     int32_t i = 0, total = 0;
 #if defined(__AVX2__)
@@ -341,7 +403,7 @@ static inline int32_t beryl_dot_u8i8(const uint8_t *restrict p, const int8_t *re
     s = _mm_add_epi32(s, _mm_shuffle_epi32(s, 0xb1));
     total = _mm_cvtsi128_si32(s);
 #endif
-    for (; i < n; ++i) total += p[i] * q[i];
+    for (; i < n; ++i) total = (int32_t)((uint32_t)total + (uint32_t)(p[i] * q[i]));
     return total;
 }
 '''
@@ -803,6 +865,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     index in the joined order plus one.
     """
     abi = _abi(kernel, abi)
+    plan = _emitter_plan(plan)  # no untrusted string reaches the C
     stage = plan.stages[-1]
     carry = len(plan.stages) == 2
     wide = kernel.wide
@@ -908,25 +971,37 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
         # checks the whole input in the same pass. Nothing is written until every
         # partial is in; on any bad value the first-bad-index scan runs as before.
         fused = _whole_input_loads(s_body, var, s_lo, s_hi, n_in)
-        # One unsigned maximum per load that needs a check (see _OUTSIDE).
+        # One unsigned maximum per load that needs a check (see _OUTSIDE). When the span
+        # hi - lo is 2^k - 1, the values lie in 0..=span exactly when their OR does, and
+        # the OR is cheaper; the final test against the span is the same.
         tracked = [(j, c, *load_range((c + s_lo, ()))) for j, c in enumerate(fused or ())
                    if _needs_check(*load_range((c + s_lo, ())), kernel.input_types[buffers.at(c + s_lo)]
                                    if abi == 2 else storage)]
         check = ''.join(f' {{ uint32_t ax_v = (uint32_t){buffers.names[buffers.at(c + s_lo)]}'
                         f'[{c - buffers.starts[buffers.at(c + s_lo)]} + {var}] - (uint32_t){_literal(lo)};'
-                        f' ax_u{j} = ax_v > ax_u{j} ? ax_v : ax_u{j}; }}' for j, c, lo, hi in tracked)
+                        + (f' ax_u{j} |= ax_v; }}' if ((hi - lo + 1) & (hi - lo)) == 0 else
+                           f' ax_u{j} = ax_v > ax_u{j} ? ax_v : ax_u{j}; }}') for j, c, lo, hi in tracked)
+        # gcc vectorizes the sum but leaves one vector per iteration; unrolling by four
+        # cuts the loop overhead (scale spec "split2").
+        hint = f'_Pragma("GCC unroll 4") for (int32_t {var} ='
+        # A fused sum adds each value before the check has rejected it, so it wraps (see
+        # _wrapping): an out-of-range value must never overflow a signed type.
+        split_wraps = bool(fused)
         block = narrow(stage.value) if narrow else None
         if block is None:
-            term = _lower(s_body, [], iter(range(1 << 30)), None, wide, buffers=buffers)
-            loop = f'    for (int32_t {var} = (int32_t)from; {var} < (int32_t)to; ++{var}) {{ acc += {term};{check} }}\n'
+            term = _lower(s_body, [], iter(range(1 << 30)), None, wide, buffers=buffers, wrap=split_wraps)
+            add = f'acc = {_wrapping("acc", "+", term, wide)};' if split_wraps else f'acc += {term};'
+            loop = f'    {hint} (int32_t)from; {var} < (int32_t)to; ++{var}) {{ {add}{check} }}\n'
         else:
             # Exact int32_t blocks, each widened once (_narrow_block).
-            term = _lower(s_body, [], iter(range(1 << 30)), buffers=buffers)
+            term = _lower(s_body, [], iter(range(1 << 30)), buffers=buffers, wrap=split_wraps)
+            add = f'ax_b = {_wrapping("ax_b", "+", term, False)};' if split_wraps else f'ax_b += {term};'
+            widen = f'acc = {_wrapping("acc", "+", "ax_b", True)};' if split_wraps else 'acc += ax_b;'
             loop = (f'    for (int64_t ax_k = from; ax_k < to; ax_k += {block}) {{\n'
                     f'        int64_t ax_e = to - ax_k < {block} ? to : ax_k + {block};\n'
                     '        int32_t ax_b = 0;\n'
-                    f'        for (int32_t {var} = (int32_t)ax_k; {var} < (int32_t)ax_e; ++{var}) {{ ax_b += {term};{check} }}\n'
-                    '        acc += ax_b;\n'
+                    f'        {hint} (int32_t)ax_k; {var} < (int32_t)ax_e; ++{var}) {{ {add}{check} }}\n'
+                    f'        {widen}\n'
                     '    }\n')
         bad_param, bad_init, bad_out = (
             (', uint32_t *bad)', ''.join(f'    uint32_t ax_u{j} = 0;\n' for j, *_ in tracked),
@@ -1016,7 +1091,7 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
                      ' * exact compiled counts, the output disjoint from every input. */\n'
                      f'int64_t beryl_kernel_v2({params}, {out} *restrict output) {{\n')
     if parallel:
-        parts.append('    int threads = beryl_pool();\n')
+        parts.append('    int threads __attribute__((cleanup(beryl_pool_leave))) = beryl_pool();\n')
         if abi == 2:
             parts.append(f'    const void *ax_in[{len(segments)}] = {{{args}}};\n')
     parts.append('    uint32_t ax_invalid = 0;\n')
@@ -1050,7 +1125,8 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
                      f'        beryl_dispatch(2, {s_hi - s_lo}, 16, 4, {pooled}, output);\n'
                      '        for (int c = 0; c < beryl_job_chunks; ++c) {\n'
                      '            ax_invalid |= beryl_job_invalid[c];\n'
-                     '            total += beryl_job_partial[c];\n'
+                     # The partials may come from rejected values, so they combine modulo 2^N.
+                     f'            total = {_wrapping("total", "+", "beryl_job_partial[c]", val == "int64_t")};\n'
                      '        }\n'
                      f'    }} else total = beryl_partial({args}, {s_lo}, {s_hi}, &ax_invalid);\n'
                      + scan +
@@ -1155,7 +1231,9 @@ def emit_scale_c(kernel, plan, source_digest, plan_digest, abi=None) -> NativeAr
     if blocked:
         version = version.replace('beryl-loop-c', 'beryl-loop-c-fused2', 1)
     if 'beryl_dot_u8i8(' in cells:
-        version = version.replace('beryl-loop-c', 'beryl-loop-c-madd', 1)
+        version = version.replace('beryl-loop-c', 'beryl-loop-c-madd2', 1)  # madd2: the wrapping tail
+    if split:
+        version = version.replace('beryl-loop-c', 'beryl-loop-c-split2', 1)
     return NativeArtifact(generated, kernel.height, kernel.width, n_in, n_out, source_digest,
                           plan_digest, sha256(generated).hexdigest(), version, None, plan.format)
 

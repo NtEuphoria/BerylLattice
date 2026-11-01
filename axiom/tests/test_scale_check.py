@@ -57,7 +57,8 @@ class CheckEmissionTests(unittest.TestCase):
             c = _c(source)
             with self.subTest(source=source[:12]):
                 self.assertIn(b'uint32_t *bad)', c)
-                self.assertIn(b'ax_u0 = ax_v > ax_u0 ? ax_v : ax_u0;', c)
+                # 0..=1023 spans 2^10 - 1, so the maximum is kept as an OR (test_scale_split2).
+                self.assertIn(b'ax_u0 |= ax_v;', c)
                 self.assertNotIn(b'ax_bad |= (uint32_t)(input[', c)
 
 

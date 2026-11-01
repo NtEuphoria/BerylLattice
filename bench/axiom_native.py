@@ -216,7 +216,8 @@ def main():
         if hand_src.exists():
             # Like-for-like control: hand-written C, same ABI, shape, types, harness and flags.
             built = subprocess.run([cc, *flags, '-std=c11', '-fno-lto', f'-DBERYL_H={artifact.height}',
-                                    f'-DBERYL_W={artifact.width}', '-c', str(hand_src), '-o', str(tmp / 'hand.o')],
+                                    f'-DBERYL_W={artifact.width}', f'-DBERYL_CELLS={artifact.input_count}',
+                                    '-c', str(hand_src), '-o', str(tmp / 'hand.o')],
                                    capture_output=True, text=True, timeout=600)
             if built.returncode == 0:
                 built = subprocess.run([cc, str(harness), str(tmp / 'hand.o'), '-o', str(tmp / f'hand{exe}')],

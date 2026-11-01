@@ -321,7 +321,9 @@ speed fixes".
     spec "Against PyTorch's int8 path".
     - One thread: a tie at 1024³ (21.3–22.2 ms against 22.0–22.4 ms). At 256³ beryl is
       1.1–1.2x faster, a tie once FBGEMM's ~20 µs Python call cost is subtracted.
-    - Four threads: beryl is 1.1–2.7x faster.
+    - Four threads: beryl is 1.5–2.7x faster at 256³ and 1.1–1.2x at 1024³. The 4096 →
+      11008 layer is 1.0–2.0x, a spread wider than the gap. (Corrected 2026-10-31: this
+      line first said "1.1–2.7x", which left out the 1.0x end.)
     - This holds even though beryl range-checks every activation and FBGEMM checks
       nothing.
     - `torch._int_mm` is an unoptimized fallback on CPU (30–50x slower than FBGEMM). It is
